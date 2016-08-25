@@ -1,0 +1,11 @@
+.jfx-button{
+	-fx-text-fill:GREY;
+	-fx-background-color:WHEAT;
+	-fx-button-target-color:TOMATO;
+	-fx-font-size:14px;
+}
+
+.jfx-container{
+	-fx-background-color:WHITESMOKE;
+	-fx-alignment:CENTER;
+}

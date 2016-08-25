@@ -1,0 +1,46 @@
+<?import com.jfoenix.controls.JFXSlider?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import com.jfoenix.controls.JFXComboBox?>
+<?import javafx.scene.layout.HBox?>
+<?import net.simplelauncher.gui.ColorTransitionButton?>
+<?import de.jensd.fx.fontawesome.Icon?>
+<?import com.jfoenix.validation.ValidationFacade?>
+<StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
+           xmlns="http://javafx.com/javafx/2.2" style="-fx-background-color:WHITESMOKE;">
+    <VBox alignment="TOP_CENTER" spacing="10" prefWidth="500" maxWidth="400" maxHeight="400">
+
+        <HBox alignment="CENTER" spacing="5" style="-fx-padding: 10 0 10 50;">
+            <ValidationFacade fx:id="validMcLocation">
+                <control>
+                    <JFXComboBox fx:id="mcLocation" minWidth="200" maxWidth="300"
+                                 promptText="Minecraft Directory"/>
+                </control>
+            </ValidationFacade>
+            <ColorTransitionButton fx:id="browsMC" scaleY="0.4" scaleX="0.4" buttonType="RAISED">
+                <graphic>
+                    <Icon awesomeIcon="FOLDER" size="3em" styleClass="icon"/>
+                </graphic>
+            </ColorTransitionButton>
+        </HBox>
+        <HBox alignment="CENTER" spacing="5" style="-fx-padding: 10 0 10 50;">
+            <ValidationFacade fx:id="validJAVALocation">
+                <control>
+                    <JFXComboBox fx:id="javaLocation" minWidth="200" maxWidth="300"
+                                 promptText="Java Directory"/>
+                </control>
+            </ValidationFacade>
+            <ColorTransitionButton fx:id="browsJAVA" scaleY="0.4" scaleX="0.4" buttonType="RAISED">
+                <graphic>
+                    <Icon awesomeIcon="FOLDER" size="3em" styleClass="icon"/>
+                </graphic>
+            </ColorTransitionButton>
+        </HBox>
+        <JFXComboBox fx:id="versions"/>
+        <JFXSlider fx:id="memory" orientation="HORIZONTAL" maxWidth="200" min="256" max="2048"
+                   showTickMarks="true" snapToTicks="true"
+                   minorTickCount="0"
+                   majorTickUnit="256"/>
+    </VBox>
+</StackPane>

@@ -1,0 +1,40 @@
+<?import com.jfoenix.controls.JFXPasswordField?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import com.jfoenix.controls.JFXToggleNode?>
+<?import de.jensd.fx.fontawesome.Icon?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<?import net.simplelauncher.gui.ColorTransitionButton?>
+<StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
+           styleClass="jfx-container">
+    <VBox fx:id="box" maxWidth="400" maxHeight="400" spacing="15" alignment="CENTER"
+          style="-fx-background-color:WHITESMOKE; -fx-padding:10 0 0 0;"
+          onMouseClicked="#onClick">
+        <!--<AnchorPane>-->
+        <!--<ValidationFacade>-->
+        <!--<control>-->
+        <!--<JFXComboBox fx:id="profileJFXComboBox" prefWidth="200" promptText="Select profile"/>-->
+        <!--</control>-->
+        <!--</ValidationFacade>-->
+        <!--</AnchorPane>-->
+        <HBox alignment="CENTER">
+            <Label styleClass="title-label">LOGIN</Label>
+        </HBox>
+        <HBox spacing="10" style="-fx-padding: 0 0 10 50;">
+            <JFXTextField id="account" promptText="Email"/>
+        </HBox>
+        <HBox spacing="10" style="-fx-padding: 10 0 10 50;">
+            <JFXPasswordField id="password" promptText="Password" labelFloat="true">
+            </JFXPasswordField>
+            <JFXToggleNode fx:id="onlineMode" scaleY="0.8" scaleX="0.8">
+                <Icon awesomeIcon="GLOBE" size="2em" styleClass="icon"/>
+            </JFXToggleNode>
+        </HBox>
+        <StackPane fx:id="btnPane">
+            <ColorTransitionButton fx:id="launch" prefWidth="100" prefHeight="40" buttonType="RAISED"
+                                   text="LAUNCH"
+                                   onAction="#launchAction"/>
+        </StackPane>
+        <HBox prefHeight="5"/>
+    </VBox>
+</StackPane>

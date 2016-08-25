@@ -1,0 +1,17 @@
+<?import javafx.scene.layout.StackPane?>
+<?import com.jfoenix.controls.JFXTreeTableView?>
+<?import com.jfoenix.controls.JFXTreeTableColumn?>
+<StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
+           xmlns="http://javafx.com/javafx/2.2">
+    <JFXTreeTableView fx:id="editableTreeTableView">
+        <columns>
+            <JFXTreeTableColumn fx:id="modid"
+                                text="Mod ID"/>
+            <JFXTreeTableColumn fx:id="name"
+                                text="Name"/>
+            <JFXTreeTableColumn fx:id="supportMcVersion"
+                                text="Minecraft versions"/>
+            <JFXTreeTableColumn fx:id="enable" text="Enable"/>
+        </columns>
+    </JFXTreeTableView>
+</StackPane>
