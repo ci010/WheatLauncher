@@ -4,7 +4,7 @@
 <?import javafx.scene.control.Label?>
 <?import com.jfoenix.controls.JFXComboBox?>
 <?import javafx.scene.layout.HBox?>
-<?import net.simplelauncher.gui.ColorTransitionButton?>
+<?import net.wheatlauncher.gui.ColorTransitionButton?>
 <?import de.jensd.fx.fontawesome.Icon?>
 <?import com.jfoenix.validation.ValidationFacade?>
 <StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"

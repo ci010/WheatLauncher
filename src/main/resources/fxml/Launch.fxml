@@ -4,7 +4,7 @@
 <?import de.jensd.fx.fontawesome.Icon?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
-<?import net.simplelauncher.gui.ColorTransitionButton?>
+<?import net.wheatlauncher.gui.ColorTransitionButton?>
 <StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
            styleClass="jfx-container">
     <VBox fx:id="box" maxWidth="400" maxHeight="400" spacing="15" alignment="CENTER"

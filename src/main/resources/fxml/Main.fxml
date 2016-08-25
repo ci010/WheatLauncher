@@ -1,6 +1,6 @@
 <?import de.jensd.fx.fontawesome.Icon?>
 <?import javafx.scene.layout.*?>
-<?import net.simplelauncher.gui.ColorTransitionButton?>
+<?import net.wheatlauncher.gui.ColorTransitionButton?>
 <VBox fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
       xmlns="http://javafx.com/javafx/2.2"
       onMouseClicked="#onClick" alignment="TOP_CENTER"
