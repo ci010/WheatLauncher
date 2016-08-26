@@ -1,11 +1,10 @@
 package net.wheatlauncher.launch;
 
 import javafx.beans.InvalidationListener;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
+import javafx.beans.value.ObservableValueBase;
+import javafx.beans.value.WritableObjectValue;
 import javafx.beans.value.WritableValue;
 import net.wheatlauncher.utils.Condition;
 import net.wheatlauncher.utils.Logger;
@@ -25,6 +24,9 @@ public class ConditionAuth extends Condition implements Authenticator, PasswordP
 	private StrictProperty<String>
 			account = new SimpleStrictProperty<>(this, "account"),
 			password = new SimpleStrictProperty<>(this, "password");
+	private ObjectProperty<AuthInfo> infoObjectProperty = new SimpleObjectProperty<>();
+	private ObjectProperty<StrictProperty.State> authState = new SimpleObjectProperty<>(StrictProperty.State.of(StrictProperty.EnumState.FAIL));
+
 	private SimpleStrictProperty<AuthInfo> authInfo = new SimpleStrictProperty<>();
 	private Setting setting;
 	private BooleanProperty onlineMode = new SimpleBooleanProperty(true);
@@ -56,7 +58,8 @@ public class ConditionAuth extends Condition implements Authenticator, PasswordP
 	{
 		this.account.setValue(null);
 		this.password.setValue(null);
-		this.authInfo.setValue(null);
+		this.infoObjectProperty.set(null);
+		this.authState.set(StrictProperty.State.of(StrictProperty.EnumState.FAIL, "null"));
 		this.account.validator().setValue(setting.accountValid());
 		this.password.validator().setValue(setting.passwordValid());
 		this.setting = setting;
@@ -66,7 +69,7 @@ public class ConditionAuth extends Condition implements Authenticator, PasswordP
 	public ConditionAuth()
 	{
 		super("auth");
-		this.add(account, password, authInfo);
+		this.add(account, password).add(authState);
 		InvalidationListener listener = (observable -> {
 			System.out.println("account/email invalid");
 			if (account.state().getValue() == null || password.state().getValue() == null) return;
@@ -75,7 +78,7 @@ public class ConditionAuth extends Condition implements Authenticator, PasswordP
 					password.state().getValue().getState() == StrictProperty.EnumState.PASS)
 			{
 				Logger.trace("account " + account().getValue() + " password " + password().getValue() + " pass!");
-				setting.auth(account.getValue(), password.getValue(), authInfo.state(), authInfo);
+				setting.auth(account.getValue(), password.getValue(), authState, infoObjectProperty);
 			}
 		});
 		account.addListener(listener);
@@ -85,7 +88,7 @@ public class ConditionAuth extends Condition implements Authenticator, PasswordP
 	@Override
 	public AuthInfo auth() throws AuthenticationException
 	{
-		return authInfo.getValue();
+		return infoObjectProperty.getValue();
 	}
 
 	@Override

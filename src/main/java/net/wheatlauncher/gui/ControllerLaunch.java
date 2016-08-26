@@ -66,6 +66,8 @@ public class ControllerLaunch implements ReloadableController
 		spinner.startingAngleProperty().set(-40);
 		onlineMode.setSelectedColor(Color.WHEAT);
 		onlineMode.setTooltip(new Tooltip(LanguageMap.INSTANCE.translate("online.mode")));
+		account.setValidators(accountValid);
+		password.setValidators(passwordValid);
 	}
 
 	@PostConstruct
@@ -114,7 +116,7 @@ public class ControllerLaunch implements ReloadableController
 	@FXML
 	protected void launchAction(ActionEvent event)
 	{
-//		LaunchProfile.getCurrent().launch();
+		Core.INSTANCE.tryLaunch();
 	}
 
 	private ChangeListener<StrictProperty.EnumState> stateChangeListener = (obv, oldV, newV) -> {

@@ -35,6 +35,7 @@ public class LaunchProfile
 		if (parent != null)
 			if (parent.parent == this)
 				throw new IllegalArgumentException();
+		this.version.addListener((observable, oldValue, newValue) -> Logger.trace("change " + newValue));
 	}
 
 	private final String name;

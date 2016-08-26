@@ -36,8 +36,16 @@ public enum DefaultAuthSetting implements ConditionAuth.Setting
 					{
 						Logger.trace("try offline auth " + validAccount);
 						AuthInfo auth = new OfflineAuthenticator(validAccount).auth();
-						out.setValue(auth);
-						handler.setValue(StrictProperty.State.of(StrictProperty.EnumState.PASS));
+						if (auth != null)
+						{
+							out.setValue(auth);
+							handler.setValue(StrictProperty.State.of(StrictProperty.EnumState.PASS));
+						}
+						else
+						{
+							Logger.trace("auth fail");
+							handler.setValue(StrictProperty.State.of(StrictProperty.EnumState.FAIL, "fail"));
+						}
 					}
 					catch (AuthenticationException e)
 					{

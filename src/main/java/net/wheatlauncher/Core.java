@@ -240,6 +240,11 @@ public enum Core
 		}
 	}
 
+	public void tryLaunch()
+	{
+		selectLaunchProfile().get().launch();
+	}
+
 	private JSONObject getDefaultConfig()
 	{
 		JSONObject root = new JSONObject();

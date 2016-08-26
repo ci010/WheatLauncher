@@ -16,6 +16,7 @@ public interface StrictProperty<T> extends Property<T>
 	Property<Validator<T>> validator();
 
 	Validator<Object> NON_NULL = (Validator<Object>) (writableValue, v) -> {
+		Logger.trace("try validate " + v);
 		if (v != null)
 			writableValue.setValue(State.of(EnumState.PASS));
 		else writableValue.setValue(State.of(EnumState.FAIL, "null"));

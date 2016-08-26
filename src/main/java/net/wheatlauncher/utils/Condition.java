@@ -17,20 +17,20 @@ public class Condition extends ObservableValueBase<StrictProperty.EnumState>
 	private StrictProperty.EnumState state;
 	public String name;
 	private InvalidationListener listener = (observable) -> {
-		System.out.println();
-		Logger.trace("[" + name + "] invalid");
+//		System.out.println();
+//		Logger.trace("[" + name + "] invalid");
 		StrictProperty.EnumState state = StrictProperty.EnumState.PASS;
 		for (ObservableValue<StrictProperty.EnumState> subCondition : conditions)
 			state = state.and(subCondition.getValue());
-		System.out.println("[Condition]new state is " + state);
-		if (state == StrictProperty.EnumState.FAIL)
-		{
-			StringBuilder builder = new StringBuilder();
-			for (ObservableValue<StrictProperty.EnumState> condition : conditions)
-				builder.append(condition.getValue()).append(" ");
-			System.out.println(builder);
-
-		}
+//		System.out.println("[Condition]new state is " + state);
+//		if (state == StrictProperty.EnumState.FAIL)
+//		{
+//			StringBuilder builder = new StringBuilder();
+//			for (ObservableValue<StrictProperty.EnumState> condition : conditions)
+//				builder.append(condition.getValue()).append(" ");
+//			System.out.println(builder);
+//
+//		}
 		if (this.state != state)
 		{
 			this.state = state;
@@ -53,6 +53,13 @@ public class Condition extends ObservableValueBase<StrictProperty.EnumState>
 		for (int i = 0; i < arr.length; i++)
 			arr[i] = new Wrap(conditions[i].state());
 		this.add(arr);
+		return this;
+	}
+
+	public final Condition add(ObservableValue<StrictProperty.State> state)
+	{
+		if (state == null) return this;
+		this.add(new Wrap(state));
 		return this;
 	}
 

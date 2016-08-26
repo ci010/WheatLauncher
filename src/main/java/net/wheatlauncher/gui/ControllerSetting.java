@@ -12,6 +12,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import net.wheatlauncher.Core;
 import net.wheatlauncher.utils.ListenerUtils;
+import net.wheatlauncher.utils.Logger;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.parsing.Versions;
@@ -48,16 +49,22 @@ public class ControllerSetting implements ReloadableController
 		Core.INSTANCE.selectLaunchProfile().addListener((observable, oldValue, newValue) -> {
 			if (oldValue != null)
 			{
-				oldValue.versionProperty().unbind();
+				oldValue.versionProperty().unbindBidirectional(versions.valueProperty());
+				oldValue.javaLocationProperty().unbindBidirectional(javaLocation.valueProperty());
+				oldValue.minecraftLocationProperty().unbindBidirectional(mcLocation.valueProperty());
 				memory.valueProperty().unbindBidirectional(oldValue.memoryProperty());
 			}
 
 			ListenerUtils.addListenerAndNotify(newValue.minecraftLocationProperty(), o -> {
+				Logger.trace("try refresh version");
 				versions.itemsProperty().get().clear();
 				versions.itemsProperty().get().addAll(Versions.getVersions(newValue.minecraftLocationProperty().getValue()));
 			});
 
-			newValue.versionProperty().bind(versions.valueProperty());
+			mcLocation.valueProperty().bindBidirectional(newValue.minecraftLocationProperty());
+			javaLocation.valueProperty().bindBidirectional(newValue.javaLocationProperty());
+
+			versions.valueProperty().bindBidirectional(newValue.versionProperty());
 			memory.valueProperty().bindBidirectional(newValue.memoryProperty());
 		});
 
@@ -74,6 +81,7 @@ public class ControllerSetting implements ReloadableController
 				return;
 			if (choose.isDirectory())
 			{
+				Logger.trace("choose " + choose);
 				MinecraftDirectory directory = new MinecraftDirectory(choose);
 				if (!mcLocation.getItems().contains(directory))
 					mcLocation.getItems().add(directory);

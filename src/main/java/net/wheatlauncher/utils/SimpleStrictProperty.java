@@ -79,6 +79,7 @@ public class SimpleStrictProperty<T> extends SimpleObjectProperty<T> implements 
 	@Override
 	public void setValue(T value)
 	{
+		Logger.trace("try set value " + value + " with validator " + validator());
 		cache = value;
 		Validator<T> tValidator = validate.get();
 		if (tValidator != null)
