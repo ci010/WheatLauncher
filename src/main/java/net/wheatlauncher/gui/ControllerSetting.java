@@ -6,21 +6,18 @@ import com.jfoenix.validation.ValidationFacade;
 import io.datafx.controller.FXMLController;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.SetProperty;
 import javafx.fxml.FXML;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import net.wheatlauncher.Core;
-import net.wheatlauncher.launch.LaunchProfile;
+import net.wheatlauncher.utils.ListenerUtils;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.parsing.Versions;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.util.ArrayList;
 
 /**
  * @author ci010
@@ -55,9 +52,7 @@ public class ControllerSetting implements ReloadableController
 				memory.valueProperty().unbindBidirectional(oldValue.memoryProperty());
 			}
 
-			versions.itemsProperty().get().clear();
-			versions.itemsProperty().get().addAll(Versions.getVersions(newValue.minecraftLocationProperty().getValue()));
-			newValue.minecraftLocationProperty().addListener(o -> {
+			ListenerUtils.addListenerAndNotify(newValue.minecraftLocationProperty(), o -> {
 				versions.itemsProperty().get().clear();
 				versions.itemsProperty().get().addAll(Versions.getVersions(newValue.minecraftLocationProperty().getValue()));
 			});

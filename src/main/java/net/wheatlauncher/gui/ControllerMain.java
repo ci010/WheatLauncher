@@ -99,47 +99,37 @@ public class ControllerMain
 				ControllerSetting.class, null,
 				handler.getViewConfiguration(), handler.getFlowContext());
 
-		root.addEventHandler(ScrollEvent.SCROLL, new EventHandler<ScrollEvent>()
-		{
-			@Override
-			public void handle(ScrollEvent event)
+		root.addEventHandler(ScrollEvent.SCROLL, event -> {
+			long mill = System.currentTimeMillis();
+			if (mill - lastSwap > 100)
 			{
-				long mill = System.currentTimeMillis();
-				if (mill - lastSwap > 100)
-				{
-					if (event.getDeltaY() != 0)
-						try
+				if (event.getDeltaY() != 0)
+					try
+					{
+						FlowHandler handler1 = (FlowHandler) flowContext.getRegisteredObject("ContentFlowHandler");
+						String s = switchToNext();
+						if (s.equals("Launch"))
 						{
-							FlowHandler handler = (FlowHandler) flowContext.getRegisteredObject("ContentFlowHandler");
-							String s = switchToNext();
-							if (s.equals("Launch"))
-							{
-								launchViewContext.getController().reload();
-								handler.setNewView(new FlowView(launchViewContext), false);
-							}
-							else
-							{
-								settingContext.getController().reload();
-								handler.setNewView(new FlowView(settingContext), false);
-							}
+							launchViewContext.getController().reload();
+							handler1.setNewView(new FlowView(launchViewContext), false);
 						}
-						catch (FlowException e)
+						else
 						{
-							e.printStackTrace();
+							settingContext.getController().reload();
+							handler1.setNewView(new FlowView(settingContext), false);
 						}
-				}
-				lastSwap = mill;
+					}
+					catch (FlowException e)
+					{
+						e.printStackTrace();
+					}
 			}
+			lastSwap = mill;
 		});
 
-		close.setOnMouseClicked(new EventHandler<MouseEvent>()
-		{
-			@Override
-			public void handle(MouseEvent event)
-			{
-				if (event.getButton() == MouseButton.PRIMARY)
-					Platform.exit();
-			}
+		close.setOnMouseClicked(event -> {
+			if (event.getButton() == MouseButton.PRIMARY)
+				Platform.exit();
 		});
 	}
 

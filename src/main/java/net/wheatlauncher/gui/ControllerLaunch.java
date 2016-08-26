@@ -12,10 +12,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import net.wheatlauncher.Core;
-import net.wheatlauncher.utils.LanguageMap;
-import net.wheatlauncher.utils.Logger;
-import net.wheatlauncher.utils.StrictProperty;
-import net.wheatlauncher.utils.ValidatorAuth;
+import net.wheatlauncher.utils.*;
 
 import javax.annotation.PostConstruct;
 
@@ -60,7 +57,7 @@ public class ControllerLaunch implements ReloadableController
 	@PostConstruct
 	public void init()
 	{
-		Logger.trace("init.");
+		Logger.trace("init");
 		setupGUI();
 
 		Logger.trace("add listener to core's launch profile");
@@ -80,13 +77,8 @@ public class ControllerLaunch implements ReloadableController
 				onlineMode.selectedProperty().unbindBidirectional(oldValue.onlineModeProperty());
 			}
 
-			newValue.launchState().addListener(stateChangeListener);
-			stateChangeListener.changed(newValue.launchState(), null, newValue.launchState().getValue());
-			//important... maybe this is a problem of framework design.., I have to refresh this so that it could
-			// adapt initial state.
-
-			newValue.settingName().addListener(settingChangeListener);
-			settingChangeListener.changed(newValue.settingName(), null, newValue.settingName().getValue());
+			ListenerUtils.addListenerAndNotify(newValue.launchState(), stateChangeListener);
+			ListenerUtils.addListenerAndNotify(newValue.settingName(), settingChangeListener);
 
 			newValue.accountProperty().bindBidirectional(account.textProperty());
 			newValue.accountProperty().state().addListener(accountValid);
