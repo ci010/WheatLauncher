@@ -36,9 +36,16 @@ public class LaunchProfile
 	public LaunchProfile(LaunchProfile parent, String name)
 	{
 		this.name = name;
-		if (parent.parent == this)
-			throw new IllegalArgumentException();
 		this.parent = parent;
+		versionList.addAll(Versions.getVersions(this.minecraftLocationProperty().getValue()));
+		minecraftLocationProperty().addListener(observable -> {
+			versionList.clear();
+			versionList.addAll(Versions.getVersions(minecraftLocationProperty().getValue()));
+		});
+		setupAuth(this.conditionAuth);
+		if (parent != null)
+			if (parent.parent == this)
+				throw new IllegalArgumentException();
 	}
 
 	private final String name;
@@ -84,7 +91,7 @@ public class LaunchProfile
 	protected void setupAuth(ConditionAuth auth)
 	{
 		conditionAuth.onlineMode().addListener((observable, oldValue, newValue) -> {
-			System.out.println("online change " + newValue);
+			System.out.println("[LaunchProfile]online change " + newValue);
 			if (newValue)
 				auth.apply(DefaultAuthSetting.ONLINE);
 			else
@@ -92,15 +99,9 @@ public class LaunchProfile
 		});
 	}
 
-	public void init()
+	public void onApply()
 	{
-		System.out.println("launch profile init");
-		setupAuth(this.conditionAuth);
-		versionList.addAll(Versions.getVersions(this.minecraftLocationProperty().getValue()));
-		minecraftLocationProperty().addListener(observable -> {
-			versionList.clear();
-			versionList.addAll(Versions.getVersions(minecraftLocationProperty().getValue()));
-		});
+		System.out.println("[LaunchProfile]onApply");
 	}
 
 	public String getName()
@@ -152,17 +153,20 @@ public class LaunchProfile
 			profile.memoryProperty().setValue(jsonObject.optInt("memory", 512));
 			profile.minecraftLocationProperty().setValue(new MinecraftDirectory(new File(jsonObject.getString("minecraft"))));
 			profile.onlineModeProperty().setValue(jsonObject.getString("online-mode").equals("enable"));
-			profile.accountProperty().setValue(jsonObject.getString("account"));
+			profile.accountProperty().setValue(jsonObject.optString("account"));
 			if (jsonObject.has("version"))
 			{
 				String version = jsonObject.getString("version");
 			}
-			return null;
+			return profile;
 		}
 
 		@Override
 		public JSONObject serialize(LaunchProfile data)
 		{
+			JSONObject jsonObject = new JSONObject();
+			jsonObject.put("name", data.name);
+
 			return null;
 		}
 	};

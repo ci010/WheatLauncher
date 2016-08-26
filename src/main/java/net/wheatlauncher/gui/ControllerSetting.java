@@ -7,6 +7,7 @@ import io.datafx.controller.FXMLController;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.beans.property.ListProperty;
+import javafx.beans.property.SetProperty;
 import javafx.fxml.FXML;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -18,6 +19,7 @@ import org.to2mbn.jmccc.option.MinecraftDirectory;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
+import java.util.ArrayList;
 
 /**
  * @author ci010

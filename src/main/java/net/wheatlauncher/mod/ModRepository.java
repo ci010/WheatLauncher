@@ -2,6 +2,8 @@ package net.wheatlauncher.mod;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import net.wheatlauncher.utils.JsonSerializer;
+import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 
 import java.io.File;
@@ -22,6 +24,8 @@ public class ModRepository implements ChangeListener<MinecraftDirectory>
 
 	public void register(Mod mod)
 	{
+		if (mod == null)
+			return;
 		if (allMod.contains(mod))
 			return;
 		allMod.add(mod);
@@ -43,10 +47,11 @@ public class ModRepository implements ChangeListener<MinecraftDirectory>
 		if (mods.isDirectory())
 		{
 			File[] files = mods.listFiles();
-			if (files != null)
-			{
-
-			}
+			if (files != null && files.length > 0)
+				for (File file : files)
+					for (Mod.Type modType : Mod.Type.values())
+						if (modType.match(file))
+							register(modType.parseFile(file));
 		}
 	}
 
@@ -106,4 +111,19 @@ public class ModRepository implements ChangeListener<MinecraftDirectory>
 			return locations.get(locations.size() - 1);
 		}
 	}
+
+	public static final JsonSerializer<ModRepository> SERIALIZER = new JsonSerializer<ModRepository>()
+	{
+		@Override
+		public ModRepository deserialize(JSONObject jsonObject)
+		{
+			return null;
+		}
+
+		@Override
+		public JSONObject serialize(ModRepository data)
+		{
+			return null;
+		}
+	};
 }

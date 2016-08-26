@@ -14,11 +14,13 @@ import java.util.List;
 public class Condition extends ObservableValueBase<StrictProperty.EnumState>
 {
 	private List<ObservableValue<StrictProperty.State>> conditions;
-	private StrictProperty.EnumState state = StrictProperty.EnumState.FAIL;
+	private StrictProperty.EnumState state;
 	private InvalidationListener listener = (observable) -> {
+		System.out.println("[Condition]invalid");
 		StrictProperty.EnumState state = StrictProperty.EnumState.PASS;
 		for (ObservableValue<StrictProperty.State> subCondition : conditions)
 			state = state.and(subCondition.getValue().getState());
+		System.out.println("[Condition]new state is " + state);
 		if (this.state != state)
 		{
 			this.state = state;

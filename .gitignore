@@ -1,1 +1,8 @@
 # Created by .ignore support plugin (hsz.mobi)
+.idea/
+build/
+out/
+simplelauncher.iml
+simplelauncher.ipr
+simplelauncher.iws
+src/main/resources/fxml/old

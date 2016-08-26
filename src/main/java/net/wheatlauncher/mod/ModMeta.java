@@ -1,6 +1,8 @@
 package net.wheatlauncher.mod;
 
 import javafx.util.Builder;
+import net.wheatlauncher.utils.JsonSerializer;
+import org.to2mbn.jmccc.internal.org.json.JSONObject;
 
 import java.util.*;
 
@@ -23,7 +25,7 @@ public class ModMeta implements Cloneable
 
 	private String logoFile = "";
 	private String version = "";
-	private List<String> authorList = new ArrayList<>();
+	private String[] authorList = new String[0];
 	private String credits = "";
 	private String parent = "";
 	private String[] screenshots = new String[0];
@@ -42,7 +44,7 @@ public class ModMeta implements Cloneable
 		this.updateJSON = meta.updateJSON;
 		this.logoFile = meta.logoFile;
 		this.version = meta.version;
-		this.authorList = new ArrayList<>(meta.authorList);
+		this.authorList = Arrays.copyOf(meta.authorList, meta.authorList.length);
 		this.credits = meta.credits;
 		this.parent = meta.parent;
 		this.screenshots = Arrays.copyOf(meta.screenshots, meta.screenshots.length);
@@ -78,7 +80,7 @@ public class ModMeta implements Cloneable
 		return version;
 	}
 
-	public List<String> getAuthorList()
+	public String[] getAuthorList()
 	{
 		return authorList;
 	}
@@ -111,6 +113,11 @@ public class ModMeta implements Cloneable
 	public String getUrl()
 	{
 		return url;
+	}
+
+	public void loadFromJsonObject(JSONObject object)
+	{
+
 	}
 
 	@Override
@@ -198,6 +205,13 @@ public class ModMeta implements Cloneable
 			cache.mcVersion = mcVersion;
 			return this;
 		}
+
+		public MetaBuilder setAuthorList(String[] authorList)
+		{
+			cache.authorList = authorList;
+			return this;
+		}
+
 
 		public MetaBuilder setUrl(String url)
 		{

@@ -60,7 +60,7 @@ public class ControllerLaunch implements ReloadableController
 	@PostConstruct
 	public void init()
 	{
-		System.out.println("controller launch init.");
+		System.out.println("controller launch onApply.");
 		setupGUI();
 
 		Core.INSTANCE.selectLaunchProfile().addListener(((observable, oldValue, newValue) -> {
@@ -109,7 +109,7 @@ public class ControllerLaunch implements ReloadableController
 	}
 
 	private ChangeListener<StrictProperty.EnumState> stateChangeListener = (obv, oldV, newV) -> {
-		System.out.println("launch state change " + oldV + " -> " + newV);
+		System.out.println("[ControlLaunch]launch state change " + oldV + " -> " + newV);
 		if (oldV == StrictProperty.EnumState.PENDING)
 		{
 			btnPane.getChildren().remove(spinner);
@@ -126,7 +126,7 @@ public class ControllerLaunch implements ReloadableController
 			launch.setDisable(false);
 	};
 	private ChangeListener<String> settingChangeListener = (observable, oldValue, newValue) -> {
-		System.out.println("setting change " + oldValue + " -> " + newValue);
+		System.out.println("[ControlLaunch]setting change " + oldValue + " -> " + newValue);
 		account.setPromptText(LanguageMap.INSTANCE.translate(newValue + ".account"));
 		password.setPromptText(LanguageMap.INSTANCE.translate(newValue + ".password"));
 		accountValid.setOnlineType(newValue);
@@ -136,8 +136,6 @@ public class ControllerLaunch implements ReloadableController
 	@Override
 	public void reload()
 	{
-		account.validate();//re-validate
-		password.validate();
 	}
 
 	@Override
