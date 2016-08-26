@@ -83,6 +83,7 @@ public class LaunchProfile
 	protected void setupAuth(ConditionAuth auth)
 	{
 		Logger.trace("setup Auth");
+//		ListenerUtils.addListenerAndNotify(conditionAuth.onlineMode());
 		conditionAuth.onlineMode().addListener((observable, oldValue, newValue) -> {
 			Logger.trace("auth setting change to " + newValue);
 			if (newValue)

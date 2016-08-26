@@ -23,7 +23,7 @@ public enum DefaultAuthSetting implements ConditionAuth.Setting
 				@Override
 				public boolean isPasswordEnable()
 				{
-					return true;
+					return false;
 				}
 
 				@Override
@@ -78,7 +78,7 @@ public enum DefaultAuthSetting implements ConditionAuth.Setting
 				@Override
 				public boolean isPasswordEnable()
 				{
-					return false;
+					return true;
 				}
 
 				@Override
@@ -121,6 +121,7 @@ public enum DefaultAuthSetting implements ConditionAuth.Setting
 								AuthInfo auth = YggdrasilAuthenticator.password(account, password).auth();
 								handler.setValue(StrictProperty.State.of(StrictProperty.EnumState.PASS));
 								out.setValue(auth);
+								Logger.trace("online auth pass!");
 							}
 							catch (AuthenticationException e)
 							{
