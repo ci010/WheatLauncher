@@ -7,9 +7,7 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.ObservableValueBase;
 import net.wheatlauncher.Core;
-import net.wheatlauncher.utils.JsonSerializer;
-import net.wheatlauncher.utils.SimpleStrictProperty;
-import net.wheatlauncher.utils.StrictProperty;
+import net.wheatlauncher.utils.*;
 import org.to2mbn.jmccc.auth.yggdrasil.YggdrasilAuthenticator;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.launch.LaunchException;
@@ -18,7 +16,6 @@ import org.to2mbn.jmccc.launch.LauncherBuilder;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.LaunchOption;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
-import org.to2mbn.jmccc.version.parsing.Versions;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,11 +34,6 @@ public class LaunchProfile
 	{
 		this.name = name;
 		this.parent = parent;
-		versionList.addAll(Versions.getVersions(this.minecraftLocationProperty().getValue()));
-		minecraftLocationProperty().addListener(observable -> {
-			versionList.clear();
-			versionList.addAll(Versions.getVersions(minecraftLocationProperty().getValue()));
-		});
 		setupAuth(this.conditionAuth);
 		if (parent != null)
 			if (parent.parent == this)
@@ -49,7 +41,6 @@ public class LaunchProfile
 	}
 
 	private final String name;
-
 	private LaunchProfile parent;
 
 	private StrictProperty<JavaEnvironment> javaEnvironmentSimpleStrictProperty = new SimpleStrictProperty<>
@@ -86,12 +77,14 @@ public class LaunchProfile
 	);
 	private StrictProperty<String> version = new SimpleStrictProperty<>(this, "minecraft.version");
 	private ConditionAuth conditionAuth = new ConditionAuth();
-	private ListProperty<String> versionList = new SimpleListProperty<String>();
+	private Condition conditionLaunch = new Condition().add(javaEnvironmentSimpleStrictProperty,
+			minecraftLocationProperty, version, memory).add(conditionAuth);
 
 	protected void setupAuth(ConditionAuth auth)
 	{
+		Logger.trace("setup Auth");
 		conditionAuth.onlineMode().addListener((observable, oldValue, newValue) -> {
-			System.out.println("[LaunchProfile]online change " + newValue);
+			Logger.trace("auth setting change to " + newValue);
 			if (newValue)
 				auth.apply(DefaultAuthSetting.ONLINE);
 			else
@@ -114,8 +107,6 @@ public class LaunchProfile
 		return conditionAuth;
 	}
 
-	public ReadOnlyListProperty<String> versionList() {return this.versionList;}
-
 	public StrictProperty<String> versionProperty() {return version;}
 
 	public StrictProperty<Number> memoryProperty() {return memory;}
@@ -130,9 +121,11 @@ public class LaunchProfile
 
 	public StrictProperty<String> passwordProperty() {return conditionAuth.password();}
 
-	public ObservableValueBase<StrictProperty.EnumState> launchState() {return conditionAuth;}
+	public ObservableValueBase<StrictProperty.EnumState> launchState() {return conditionLaunch;}
 
 	public ObservableValue<String> settingName() {return conditionAuth.settingName();}
+
+	public boolean isPasswordEnable() {return conditionAuth.isPasswordEnable();}
 
 	public static final JsonSerializer<LaunchProfile> SERIALIZER = new JsonSerializer<LaunchProfile>()
 	{

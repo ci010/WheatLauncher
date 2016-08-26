@@ -13,13 +13,13 @@ import java.util.List;
  */
 public class Condition extends ObservableValueBase<StrictProperty.EnumState>
 {
-	private List<ObservableValue<StrictProperty.State>> conditions;
+	private List<ObservableValue<StrictProperty.EnumState>> conditions;
 	private StrictProperty.EnumState state;
 	private InvalidationListener listener = (observable) -> {
-		System.out.println("[Condition]invalid");
+		Logger.traceLevel("invalid", 4);
 		StrictProperty.EnumState state = StrictProperty.EnumState.PASS;
-		for (ObservableValue<StrictProperty.State> subCondition : conditions)
-			state = state.and(subCondition.getValue().getState());
+		for (ObservableValue<StrictProperty.EnumState> subCondition : conditions)
+			state = state.and(subCondition.getValue());
 		System.out.println("[Condition]new state is " + state);
 		if (this.state != state)
 		{
@@ -28,25 +28,41 @@ public class Condition extends ObservableValueBase<StrictProperty.EnumState>
 		}
 	};
 
-	protected final Condition add(StrictProperty<?>... conditions)
+	public final Condition add(StrictProperty<?>... conditions)
 	{
 		if (conditions == null || conditions.length == 0)
 			return this;
-		ObservableValue<StrictProperty.State>[] arr = new ObservableValue[conditions.length];
+		ObservableValue<StrictProperty.EnumState>[] arr = new ObservableValue[conditions.length];
 		for (int i = 0; i < arr.length; i++)
-			arr[i] = conditions[i].state();
+			arr[i] = new Wrap(conditions[i].state());
 		this.add(arr);
 		return this;
 	}
 
+	private class Wrap extends ObservableValueBase<StrictProperty.EnumState>
+	{
+		ObservableValue<StrictProperty.State> state;
+
+		public Wrap(ObservableValue<StrictProperty.State> state)
+		{
+			this.state = state;
+		}
+
+		@Override
+		public StrictProperty.EnumState getValue()
+		{
+			return state.getValue().getState();
+		}
+	}
+
 	@SafeVarargs
-	protected final Condition add(ObservableValue<StrictProperty.State>... conditions)
+	public final Condition add(ObservableValue<StrictProperty.EnumState>... conditions)
 	{
 		if (conditions == null || conditions.length == 0)
 			return this;
 		if (this.conditions == null)
 			this.conditions = new ArrayList<>();
-		for (ObservableValue<StrictProperty.State> condition : conditions)
+		for (ObservableValue<StrictProperty.EnumState> condition : conditions)
 			condition.addListener(listener);
 		Collections.addAll(this.conditions, conditions);
 		listener.invalidated(this);

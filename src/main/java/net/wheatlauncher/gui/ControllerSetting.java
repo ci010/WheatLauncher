@@ -16,6 +16,7 @@ import net.wheatlauncher.Core;
 import net.wheatlauncher.launch.LaunchProfile;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
+import org.to2mbn.jmccc.version.parsing.Versions;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -48,14 +49,25 @@ public class ControllerSetting implements ReloadableController
 	public void init()
 	{
 		Core.INSTANCE.selectLaunchProfile().addListener((observable, oldValue, newValue) -> {
-			versions.itemsProperty().bind(newValue.versionList());
+			if (oldValue != null)
+			{
+				oldValue.versionProperty().unbind();
+				memory.valueProperty().unbindBidirectional(oldValue.memoryProperty());
+			}
+
+			versions.itemsProperty().get().clear();
+			versions.itemsProperty().get().addAll(Versions.getVersions(newValue.minecraftLocationProperty().getValue()));
+			newValue.minecraftLocationProperty().addListener(o -> {
+				versions.itemsProperty().get().clear();
+				versions.itemsProperty().get().addAll(Versions.getVersions(newValue.minecraftLocationProperty().getValue()));
+			});
+
 			newValue.versionProperty().bind(versions.valueProperty());
-
-			setupMcLocation(newValue);
-			setupJavaLocation(newValue);
-
 			memory.valueProperty().bindBidirectional(newValue.memoryProperty());
 		});
+
+		javaLocation.setItems(Core.INSTANCE.getJavaHistory());
+		mcLocation.setItems(Core.INSTANCE.getMinecraftLocationHistory());
 
 		browsMC.setOnMouseClicked(event -> {
 			DirectoryChooser chooser = new DirectoryChooser();
@@ -96,55 +108,9 @@ public class ControllerSetting implements ReloadableController
 		});
 	}
 
-	private void setupJavaLocation(LaunchProfile current)
-	{
-		javaLocation.getItems().add(current.javaLocationProperty().getValue());
-		javaLocation.getSelectionModel().select(current.javaLocationProperty().getValue());
-		current.javaLocationProperty().bind(javaLocation.selectionModelProperty().get().selectedItemProperty());
-
-	}
-
-	private void setupMcLocation(LaunchProfile current)
-	{
-		ListProperty<MinecraftDirectory> history = Core.INSTANCE.getMinecraftLocationHistory();
-		mcLocation.itemsProperty().bindBidirectional(history);
-
-//		validMcLocation.setValidators(new ValidatorBase()
-//		{
-//			{
-//				this.message.set("Please select a valid minecraft location!");
-//			}
-//			@Override
-//			protected void eval()
-//			{
-//				this.hasErrors.set(true);
-//			}
-//		});
-//
-//		mcLocation.focusedProperty().addListener(new InvalidationListener()
-//		{
-//			@Override
-//			public void invalidated(Observable observable)
-//			{
-//				ValidationFacade.validate(mcLocation);
-//			}
-//		});
-
-		mcLocation.getItems().add(current.minecraftLocationProperty().getValue());
-		mcLocation.getSelectionModel().select(current.minecraftLocationProperty().getValue());
-		current.minecraftLocationProperty().bind(mcLocation.selectionModelProperty().get().selectedItemProperty());
-	}
-
 	@Override
 	public void reload()
 	{
 
-	}
-
-	@Override
-	public void onProfileChange(LaunchProfile profile)
-	{
-		setupJavaLocation(profile);
-		setupMcLocation(profile);
 	}
 }

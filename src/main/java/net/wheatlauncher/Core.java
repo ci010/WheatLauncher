@@ -4,6 +4,7 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import net.wheatlauncher.launch.LaunchProfile;
 import net.wheatlauncher.mod.ModRepository;
+import net.wheatlauncher.utils.Logger;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.mcdownloader.MinecraftDownloaderBuilder;
@@ -15,6 +16,7 @@ import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.IOUtils;
 import org.to2mbn.jmccc.util.Platform;
+import sun.rmi.runtime.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -168,7 +170,8 @@ public enum Core
 
 	void onInit()
 	{
-		System.out.println(root);
+
+		Logger.trace(root);
 		File configFile = getFileFromRoot("wheat.json");
 		JSONObject root;
 		if (configFile == null)
@@ -208,6 +211,7 @@ public enum Core
 				this.profileMap.put(deserialize.getName(), deserialize);
 		}
 		String selecting = root.getString("selecting");
+		Logger.trace("selecting profile");
 		this.selectLaunchProfile().setValue(profileMap.get(selecting));
 
 //		JSONObject repositories = root.getJSONObject("repositories");

@@ -12,8 +12,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import net.wheatlauncher.Core;
-import net.wheatlauncher.launch.LaunchProfile;
 import net.wheatlauncher.utils.LanguageMap;
+import net.wheatlauncher.utils.Logger;
 import net.wheatlauncher.utils.StrictProperty;
 import net.wheatlauncher.utils.ValidatorAuth;
 
@@ -60,11 +60,12 @@ public class ControllerLaunch implements ReloadableController
 	@PostConstruct
 	public void init()
 	{
-		System.out.println("controller launch onApply.");
+		Logger.trace("init.");
 		setupGUI();
 
+		Logger.trace("add listener to core's launch profile");
 		Core.INSTANCE.selectLaunchProfile().addListener(((observable, oldValue, newValue) -> {
-			System.out.println("detect launch profile change");
+			Logger.trace("detect launch profile change");
 			if (oldValue != null)
 			{
 				oldValue.accountProperty().unbind();
@@ -80,7 +81,12 @@ public class ControllerLaunch implements ReloadableController
 			}
 
 			newValue.launchState().addListener(stateChangeListener);
+			stateChangeListener.changed(newValue.launchState(), null, newValue.launchState().getValue());
+			//important... maybe this is a problem of framework design.., I have to refresh this so that it could
+			// adapt initial state.
+
 			newValue.settingName().addListener(settingChangeListener);
+			settingChangeListener.changed(newValue.settingName(), null, newValue.settingName().getValue());
 
 			newValue.accountProperty().bindBidirectional(account.textProperty());
 			newValue.accountProperty().state().addListener(accountValid);
@@ -90,9 +96,6 @@ public class ControllerLaunch implements ReloadableController
 
 			onlineMode.selectedProperty().bindBidirectional(newValue.onlineModeProperty());
 		}));
-
-//		launchCheckChangeListener.changed(null, null, current.launchCheckObjectPropertyProperty().getValue());
-//		stateChangeListener.changed(null, null, current.getState());
 	}
 
 	@FXML
@@ -109,7 +112,7 @@ public class ControllerLaunch implements ReloadableController
 	}
 
 	private ChangeListener<StrictProperty.EnumState> stateChangeListener = (obv, oldV, newV) -> {
-		System.out.println("[ControlLaunch]launch state change " + oldV + " -> " + newV);
+		Logger.trace("launch state change " + oldV + " -> " + newV);
 		if (oldV == StrictProperty.EnumState.PENDING)
 		{
 			btnPane.getChildren().remove(spinner);
@@ -126,20 +129,16 @@ public class ControllerLaunch implements ReloadableController
 			launch.setDisable(false);
 	};
 	private ChangeListener<String> settingChangeListener = (observable, oldValue, newValue) -> {
-		System.out.println("[ControlLaunch]setting change " + oldValue + " -> " + newValue);
+		Logger.trace("Auth Setting change " + oldValue + " -> " + newValue);
 		account.setPromptText(LanguageMap.INSTANCE.translate(newValue + ".account"));
 		password.setPromptText(LanguageMap.INSTANCE.translate(newValue + ".password"));
 		accountValid.setOnlineType(newValue);
 		passwordValid.setOnlineType(newValue);
+		password.setDisable(!Core.INSTANCE.selectLaunchProfile().get().isPasswordEnable());
 	};
 
 	@Override
 	public void reload()
-	{
-	}
-
-	@Override
-	public void onProfileChange(LaunchProfile profile)
 	{
 	}
 }

@@ -41,9 +41,9 @@ public class ConditionAuth extends Condition implements Authenticator, PasswordP
 
 	public ObservableValue<String> settingName() {return settingName;}
 
-	public String getCurrentSettingName()
+	public boolean isPasswordEnable()
 	{
-		return setting.getId();
+		return setting.isPasswordEnable();
 	}
 
 	public StrictProperty<String> password()
@@ -53,7 +53,6 @@ public class ConditionAuth extends Condition implements Authenticator, PasswordP
 
 	public void apply(Setting setting)
 	{
-		System.out.println("apply new setting " + setting.getId());
 		this.account.setValue(null);
 		this.password.setValue(null);
 		this.authInfo.setValue(null);
@@ -105,6 +104,8 @@ public class ConditionAuth extends Condition implements Authenticator, PasswordP
 	public interface Setting
 	{
 		String getId();
+
+		boolean isPasswordEnable();
 
 		StrictProperty.Validator<String> accountValid();
 

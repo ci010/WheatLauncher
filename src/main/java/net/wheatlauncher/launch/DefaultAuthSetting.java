@@ -20,6 +20,12 @@ public enum DefaultAuthSetting implements ConditionAuth.Setting
 	ONLINE
 			{
 				@Override
+				public boolean isPasswordEnable()
+				{
+					return true;
+				}
+
+				@Override
 				public void auth(String validAccount, String validPassword, WritableValue<StrictProperty.State>
 						handler, WritableValue<AuthInfo> out)
 				{
@@ -64,6 +70,12 @@ public enum DefaultAuthSetting implements ConditionAuth.Setting
 	OFFLINE
 			{
 				private TimerTask task;
+
+				@Override
+				public boolean isPasswordEnable()
+				{
+					return false;
+				}
 
 				@Override
 				public void auth(String validAccount, String validPassword, WritableValue<StrictProperty.State>
