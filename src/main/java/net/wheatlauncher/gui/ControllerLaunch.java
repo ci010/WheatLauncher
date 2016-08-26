@@ -1,9 +1,12 @@
 package net.wheatlauncher.gui;
 
 import com.jfoenix.controls.*;
+import com.jfoenix.validation.ValidationFacade;
+import com.jfoenix.validation.base.ValidatorBase;
 import io.datafx.controller.FXMLController;
 import javafx.beans.value.ChangeListener;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
@@ -44,8 +47,19 @@ public class ControllerLaunch implements ReloadableController
 			accountValid = new ValidatorAuth("account"),
 			passwordValid = new ValidatorAuth("password");
 
+	@FXML
+	private ValidationFacade launchValid;
 	private void setupGUI()
 	{
+		launchValid.setValidators(new ValidatorBase() {
+			@Override
+			protected void eval()
+			{
+			}
+		});
+		launchValid.setOnMouseClicked(event -> {
+			ValidationFacade.validate(launch);
+		});
 		spinner = new JFXSpinner();
 		spinner.setStyle("-fx-radius:16");
 		spinner.getStyleClass().add("materialDesign-purple, first-spinner");
@@ -108,11 +122,11 @@ public class ControllerLaunch implements ReloadableController
 		if (oldV == StrictProperty.EnumState.PENDING)
 		{
 			btnPane.getChildren().remove(spinner);
-			btnPane.getChildren().add(launch);
+			btnPane.getChildren().add(launchValid);
 		}
 		if (newV == StrictProperty.EnumState.PENDING)
 		{
-			btnPane.getChildren().remove(launch);
+			btnPane.getChildren().remove(launchValid);
 			btnPane.getChildren().add(spinner);
 		}
 		else if (newV == StrictProperty.EnumState.FAIL)
@@ -123,10 +137,13 @@ public class ControllerLaunch implements ReloadableController
 	private ChangeListener<String> settingChangeListener = (observable, oldValue, newValue) -> {
 		Logger.trace("Auth Setting change " + oldValue + " -> " + newValue);
 		account.setPromptText(LanguageMap.INSTANCE.translate(newValue + ".account"));
-		password.setPromptText(LanguageMap.INSTANCE.translate(newValue + ".password"));
 		accountValid.setOnlineType(newValue);
-		passwordValid.setOnlineType(newValue);
 		password.setDisable(!Core.INSTANCE.selectLaunchProfile().get().isPasswordEnable());
+		if (!password.isDisable())
+		{
+			password.setPromptText(LanguageMap.INSTANCE.translate(newValue + ".password"));
+			passwordValid.setOnlineType(newValue);
+		}
 	};
 
 	@Override

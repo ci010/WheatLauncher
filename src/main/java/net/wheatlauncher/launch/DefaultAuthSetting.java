@@ -3,6 +3,7 @@ package net.wheatlauncher.launch;
 import javafx.application.Platform;
 import javafx.beans.value.WritableValue;
 import net.wheatlauncher.Core;
+import net.wheatlauncher.utils.Logger;
 import net.wheatlauncher.utils.Patterns;
 import net.wheatlauncher.utils.StrictProperty;
 import org.to2mbn.jmccc.auth.AuthInfo;
@@ -17,7 +18,7 @@ import java.util.TimerTask;
  */
 public enum DefaultAuthSetting implements ConditionAuth.Setting
 {
-	ONLINE
+	OFFLINE
 			{
 				@Override
 				public boolean isPasswordEnable()
@@ -29,15 +30,18 @@ public enum DefaultAuthSetting implements ConditionAuth.Setting
 				public void auth(String validAccount, String validPassword, WritableValue<StrictProperty.State>
 						handler, WritableValue<AuthInfo> out)
 				{
+
 					handler.setValue(StrictProperty.State.of(StrictProperty.EnumState.PENDING, "verify"));
 					try
 					{
+						Logger.trace("try offline auth " + validAccount);
 						AuthInfo auth = new OfflineAuthenticator(validAccount).auth();
 						out.setValue(auth);
 						handler.setValue(StrictProperty.State.of(StrictProperty.EnumState.PASS));
 					}
 					catch (AuthenticationException e)
 					{
+						Logger.trace("auth fail");
 						handler.setValue(StrictProperty.State.of(StrictProperty.EnumState.FAIL, "fail"));
 					}
 				}
@@ -67,7 +71,7 @@ public enum DefaultAuthSetting implements ConditionAuth.Setting
 					});
 				}
 			},
-	OFFLINE
+	ONLINE
 			{
 				private TimerTask task;
 
@@ -81,6 +85,7 @@ public enum DefaultAuthSetting implements ConditionAuth.Setting
 				public void auth(String validAccount, String validPassword, WritableValue<StrictProperty.State>
 						handler, WritableValue<AuthInfo> out)
 				{
+					Logger.trace("try online auth");
 					handler.setValue(StrictProperty.State.of(StrictProperty.EnumState.PENDING, "verifying"));
 					if (task != null)
 					{

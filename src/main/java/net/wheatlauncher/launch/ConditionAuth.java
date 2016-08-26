@@ -8,6 +8,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
 import net.wheatlauncher.utils.Condition;
+import net.wheatlauncher.utils.Logger;
 import net.wheatlauncher.utils.SimpleStrictProperty;
 import net.wheatlauncher.utils.StrictProperty;
 import org.to2mbn.jmccc.auth.AuthInfo;
@@ -71,7 +72,10 @@ public class ConditionAuth extends Condition implements Authenticator, PasswordP
 			if (setting == null) return;
 			if (account.state().getValue().getState() == StrictProperty.EnumState.PASS &&
 					password.state().getValue().getState() == StrictProperty.EnumState.PASS)
+			{
+				Logger.trace("account " + account().getValue() + " password " + password().getValue() + " pass!");
 				setting.auth(account.getValue(), password.getValue(), authInfo.state(), authInfo);
+			}
 		});
 		account.addListener(listener);
 		password.addListener(listener);
