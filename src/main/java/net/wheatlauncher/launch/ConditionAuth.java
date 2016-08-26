@@ -65,6 +65,7 @@ public class ConditionAuth extends Condition implements Authenticator, PasswordP
 
 	public ConditionAuth()
 	{
+		super("auth");
 		this.add(account, password, authInfo);
 		InvalidationListener listener = (observable -> {
 			System.out.println("account/email invalid");

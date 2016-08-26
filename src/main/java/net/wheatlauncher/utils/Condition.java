@@ -15,18 +15,35 @@ public class Condition extends ObservableValueBase<StrictProperty.EnumState>
 {
 	private List<ObservableValue<StrictProperty.EnumState>> conditions;
 	private StrictProperty.EnumState state;
+	public String name;
 	private InvalidationListener listener = (observable) -> {
-		Logger.traceLevel("invalid", 4);
+		System.out.println();
+		Logger.trace("[" + name + "] invalid");
 		StrictProperty.EnumState state = StrictProperty.EnumState.PASS;
 		for (ObservableValue<StrictProperty.EnumState> subCondition : conditions)
 			state = state.and(subCondition.getValue());
 		System.out.println("[Condition]new state is " + state);
+		if (state == StrictProperty.EnumState.FAIL)
+		{
+			StringBuilder builder = new StringBuilder();
+			for (ObservableValue<StrictProperty.EnumState> condition : conditions)
+				builder.append(condition.getValue()).append(" ");
+			System.out.println(builder);
+
+		}
 		if (this.state != state)
 		{
 			this.state = state;
 			this.fireValueChangedEvent();
 		}
 	};
+
+	public Condition() {}
+
+	public Condition(String name)
+	{
+		this.name = name;
+	}
 
 	public final Condition add(StrictProperty<?>... conditions)
 	{
@@ -46,6 +63,7 @@ public class Condition extends ObservableValueBase<StrictProperty.EnumState>
 		public Wrap(ObservableValue<StrictProperty.State> state)
 		{
 			this.state = state;
+			state.addListener(observable -> fireValueChangedEvent());
 		}
 
 		@Override

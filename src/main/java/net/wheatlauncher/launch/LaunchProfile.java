@@ -1,9 +1,6 @@
 package net.wheatlauncher.launch;
 
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.ReadOnlyListProperty;
-import javafx.beans.property.SimpleListProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.ObservableValueBase;
 import net.wheatlauncher.Core;
@@ -83,9 +80,8 @@ public class LaunchProfile
 	protected void setupAuth(ConditionAuth auth)
 	{
 		Logger.trace("setup Auth");
-//		ListenerUtils.addListenerAndNotify(conditionAuth.onlineMode());
 		conditionAuth.onlineMode().addListener((observable, oldValue, newValue) -> {
-			Logger.trace("auth setting change to " + newValue);
+			Logger.trace("Online mode change to " + newValue);
 			if (newValue)
 				auth.apply(DefaultAuthSetting.ONLINE);
 			else

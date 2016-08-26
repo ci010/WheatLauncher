@@ -52,23 +52,14 @@ public enum DefaultAuthSetting implements ConditionAuth.Setting
 					return (stateHandler, v) -> {
 						if (v == null || v.isEmpty())
 							stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.FAIL, "null"));
-						else if (Patterns.emailPattern.matcher(v).matches())
-							stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.PASS));
-						else stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.FAIL, "invalid"));
+						else stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.PASS));
 					};
 				}
 
 				@Override
 				public StrictProperty.Validator<String> passwordValid()
 				{
-					return ((stateHandler, v) -> {
-						if (v == null)
-							stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.FAIL, "null"));
-						else if (v.length() < 6)
-							stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.FAIL, "invalid"));
-						else
-							stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.PASS));
-					});
+					return null;
 				}
 			},
 	ONLINE
@@ -139,14 +130,23 @@ public enum DefaultAuthSetting implements ConditionAuth.Setting
 					return (stateHandler, v) -> {
 						if (v == null || v.isEmpty())
 							stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.FAIL, "null"));
-						else stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.PASS));
+						else if (Patterns.emailPattern.matcher(v).matches())
+							stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.PASS));
+						else stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.FAIL, "invalid"));
 					};
 				}
 
 				@Override
 				public StrictProperty.Validator<String> passwordValid()
 				{
-					return null;
+					return ((stateHandler, v) -> {
+						if (v == null)
+							stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.FAIL, "null"));
+						else if (v.length() < 6)
+							stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.FAIL, "invalid"));
+						else
+							stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.PASS));
+					});
 				}
 			};
 
