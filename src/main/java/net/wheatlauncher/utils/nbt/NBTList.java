@@ -81,6 +81,15 @@ public class NBTList extends NBT implements Iterable<NBT>
 	}
 
 	@Override
+	public NBT clone()
+	{
+		NBTList copy = new NBTList();
+		for (NBT nbt : this)
+			copy.add(nbt.clone());
+		return copy;
+	}
+
+	@Override
 	public boolean isList()
 	{
 		return true;

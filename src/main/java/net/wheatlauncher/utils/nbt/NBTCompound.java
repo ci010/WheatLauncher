@@ -1,7 +1,7 @@
 package net.wheatlauncher.utils.nbt;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -10,7 +10,7 @@ import java.util.Set;
  */
 public class NBTCompound extends NBT
 {
-	private Map<String, NBT> map;
+	private Map<String, NBT> map = new LinkedHashMap<>();
 
 	NBTCompound(Map<String, NBT> map)
 	{
@@ -27,19 +27,24 @@ public class NBTCompound extends NBT
 	public NBTCompound getAsCompound() {return this;}
 
 	@Override
+	public NBT clone()
+	{
+		NBTCompound copy = new NBTCompound();
+		for (Map.Entry<String, NBT> tag : map.entrySet())
+			copy.put(tag.getKey(), tag.getValue().clone());
+		return copy;
+	}
+
+	@Override
 	public boolean isCompound() {return true;}
 
 	public void put(String s, NBT tag)
 	{
-		if (map == null)
-			map = new HashMap<>();
 		map.put(s, tag);
 	}
 
 	public NBT get(String s)
 	{
-		if (map == null)
-			map = new HashMap<>();
 		return map.get(s);
 	}
 
@@ -51,7 +56,7 @@ public class NBTCompound extends NBT
 
 	public boolean isEmpty()
 	{
-		return map == null || map.isEmpty();
+		return map.isEmpty();
 	}
 
 	public Set<Map.Entry<String, NBT>> entrySet() {return map.entrySet();}

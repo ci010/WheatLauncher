@@ -9,4 +9,10 @@ public class NBTEnd extends NBT
 	{
 		super(NBTType.NULL);
 	}
+
+	@Override
+	public NBT clone()
+	{
+		return new NBTEnd();
+	}
 }

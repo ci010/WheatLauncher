@@ -68,7 +68,7 @@ public enum NBTType
 	}
 
 	@SuppressWarnings("unchecked")
-	public static NBT readTag(InputStream inputStream, boolean isCompressed) throws IOException
+	static NBT readTag(InputStream inputStream, boolean isCompressed) throws IOException
 	{
 		try (DataInputStream data = isCompressed ?
 				new DataInputStream(new GZIPInputStream(inputStream)) : new DataInputStream(new BufferedInputStream(inputStream)))
@@ -82,7 +82,7 @@ public enum NBTType
 		}
 	}
 
-	public static void writeTag(OutputStream outputStream, NBTCompound nbt, boolean isCompressed) throws IOException
+	static void writeTag(OutputStream outputStream, NBTCompound nbt, boolean isCompressed) throws IOException
 	{
 		try (DataOutputStream out = isCompressed ?
 				new DataOutputStream(new GZIPOutputStream(outputStream)) : new DataOutputStream(new

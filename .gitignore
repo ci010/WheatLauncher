@@ -2,7 +2,5 @@
 .idea/
 build/
 out/
-simplelauncher.iml
-simplelauncher.ipr
-simplelauncher.iws
 src/main/resources/fxml/old
+src/test

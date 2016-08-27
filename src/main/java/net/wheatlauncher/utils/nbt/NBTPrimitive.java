@@ -1,6 +1,8 @@
 package net.wheatlauncher.utils.nbt;
 
 
+import java.util.Arrays;
+
 /**
  * @author ci010
  */
@@ -22,6 +24,22 @@ public class NBTPrimitive extends NBT
 
 	@Override
 	public NBTPrimitive getAsPrimitive() {return this;}
+
+	@Override
+	public NBT clone()
+	{
+		if (this.isType(NBTType.INT_ARR))
+		{
+			int[] array = getAsIntArray();
+			return new NBTPrimitive(Arrays.copyOf(array, array.length), NBTType.INT_ARR);
+		}
+		if (this.isType(NBTType.BYTE_ARR))
+		{
+			byte[] array = getAsByteArray();
+			return new NBTPrimitive(Arrays.copyOf(array, array.length), NBTType.BYTE_ARR);
+		}
+		return new NBTPrimitive(v, this.getType());
+	}
 
 	public String getAsString() {return (String) v;}
 

@@ -1,9 +1,11 @@
 package net.wheatlauncher.utils.nbt;
 
+import java.io.*;
+
 /**
  * @author ci010
  */
-public abstract class NBT
+public abstract class NBT implements Cloneable
 {
 	NBT(NBTType type)
 	{
@@ -27,6 +29,8 @@ public abstract class NBT
 	public NBTCompound getAsCompound() {throw new UnsupportedOperationException();}
 
 	public NBTList getAsList() {throw new UnsupportedOperationException();}
+
+	public abstract NBT clone();
 
 	public static NBTPrimitive number(Number number)
 	{
@@ -62,4 +66,25 @@ public abstract class NBT
 	}
 
 	public static NBTList list() {return new NBTList();}
+
+	public static NBT read(InputStream stream, boolean isCompressed) throws IOException
+	{
+		return NBTType.readTag(stream, isCompressed);
+	}
+
+	public static NBT read(File file, boolean isCompressed) throws IOException
+	{
+		if (!file.exists()) return null;
+		return read(new FileInputStream(file), isCompressed);
+	}
+
+	public static void write(File file, NBTCompound compound, boolean isCompressed) throws IOException
+	{
+		write(new FileOutputStream(file), compound, isCompressed);
+	}
+
+	public static void write(OutputStream stream, NBTCompound compound, boolean isCompressed) throws IOException
+	{
+		NBTType.writeTag(stream, compound, isCompressed);
+	}
 }
