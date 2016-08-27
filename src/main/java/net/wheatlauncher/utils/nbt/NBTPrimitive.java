@@ -6,12 +6,18 @@ package net.wheatlauncher.utils.nbt;
  */
 public class NBTPrimitive extends NBT
 {
-	Object v;
+	private Object v;
 
 	NBTPrimitive(Object o, NBTType type)
 	{
 		super(type);
 		v = o;
+	}
+
+	@Override
+	public boolean isPrimitive()
+	{
+		return true;
 	}
 
 	@Override
@@ -34,6 +40,4 @@ public class NBTPrimitive extends NBT
 	public byte[] getAsByteArray() {return (byte[]) v;}
 
 	public int[] getAsIntArray() {return (int[]) v;}
-
-
 }

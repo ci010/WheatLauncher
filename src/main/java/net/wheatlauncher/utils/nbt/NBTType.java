@@ -149,10 +149,5 @@ public enum NBTType
 		Object apply(DataInput input) throws IOException;
 	}
 
-	private interface WriteFunction
-	{
-		void apply(Object o) throws IOException;
-	}
-
 	private ReadFunction readFunction;
 }

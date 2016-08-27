@@ -26,6 +26,9 @@ public class NBTCompound extends NBT
 	@Override
 	public NBTCompound getAsCompound() {return this;}
 
+	@Override
+	public boolean isCompound() {return true;}
+
 	public void put(String s, NBT tag)
 	{
 		if (map == null)

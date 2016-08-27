@@ -16,9 +16,11 @@ public abstract class NBT
 
 	public boolean isType(NBTType type) { return this.type == type;}
 
-	public boolean isPrimitive() {return this instanceof NBTPrimitive;}
+	public boolean isPrimitive() {return false;}
 
-	public boolean isCompound() {return this instanceof NBTCompound;}
+	public boolean isCompound() {return false;}
+
+	public boolean isList() {return false;}
 
 	public NBTPrimitive getAsPrimitive() {throw new UnsupportedOperationException();}
 

@@ -12,7 +12,11 @@ public class NBTList extends NBT implements Iterable<NBT>
 	private NBTType type;
 	private List<NBT> lst = new ArrayList<>();
 
-	NBTList(List<NBT> list) {this();}
+	NBTList(List<NBT> list)
+	{
+		this();
+		this.lst = list;
+	}
 
 	NBTList()
 	{
@@ -59,8 +63,7 @@ public class NBTList extends NBT implements Iterable<NBT>
 		return this.type == base.getType();
 	}
 
-
-	public NBTType getType()
+	public NBTType getContentType()
 	{
 		return type;
 	}
@@ -69,5 +72,17 @@ public class NBTList extends NBT implements Iterable<NBT>
 	public Iterator<NBT> iterator()
 	{
 		return lst.iterator();
+	}
+
+	@Override
+	public NBTList getAsList()
+	{
+		return this;
+	}
+
+	@Override
+	public boolean isList()
+	{
+		return true;
 	}
 }
