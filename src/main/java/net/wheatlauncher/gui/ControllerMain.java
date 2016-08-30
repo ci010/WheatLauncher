@@ -3,23 +3,19 @@ package net.wheatlauncher.gui;
 import com.jfoenix.controls.JFXButton;
 import io.datafx.controller.FXMLController;
 import io.datafx.controller.FxmlLoadException;
-import io.datafx.controller.ViewFactory;
 import io.datafx.controller.context.ViewContext;
 import io.datafx.controller.flow.Flow;
 import io.datafx.controller.flow.FlowException;
 import io.datafx.controller.flow.FlowHandler;
-import io.datafx.controller.flow.FlowView;
 import io.datafx.controller.flow.container.AnimatedFlowContainer;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.application.Platform;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 
 import javax.annotation.PostConstruct;
 
@@ -40,7 +36,9 @@ public class ControllerMain
 	private ViewFlowContext flowContext;
 
 	@FXML
-	private VBox root;
+	private Pane top;
+	@FXML
+	private Pane root;
 
 	@FXML
 	private StackPane content;
@@ -81,51 +79,57 @@ public class ControllerMain
 			return current = "Launch";
 	}
 
-	private ViewContext<? extends ReloadableController> settingContext, launchViewContext;
+	private PageSwitcher switcher;
 
 	@PostConstruct
 	public void init() throws FlowException, FxmlLoadException
 	{
-//
-		Flow inner = new Flow(ControllerLaunch.class);
+		Flow inner = new Flow(ControllerLogin.class);
 		FlowHandler handler = inner.createHandler(flowContext);
+		switcher = new PageSwitcher(handler);
 		flowContext.register("ContentFlowHandler", handler);
 		flowContext.register("ContentFlow", inner);
+		flowContext.register(switcher);
+		root.getChildren().add(0, handler.start(new AnimatedFlowContainer()));
 
-		content.getChildren().add(0, handler.start(new AnimatedFlowContainer()));
+		switcher.register("login", (ViewContext<? extends ReloadableController>) handler.getCurrentView().getViewContext());
+		switcher.register("preview", ControllerPreview.class);
 
-		launchViewContext = (ViewContext<? extends ReloadableController>) handler.getCurrentView().getViewContext();
-		settingContext = ViewFactory.getInstance().createByController(
-				ControllerSetting.class, null,
-				handler.getViewConfiguration(), handler.getFlowContext());
+//		loginViewContext = (ViewContext<? extends ReloadableController>) handler.getCurrentView().getViewContext();
 
-		root.addEventHandler(ScrollEvent.SCROLL, event -> {
-			long mill = System.currentTimeMillis();
-			if (mill - lastSwap > 100)
-			{
-				if (event.getDeltaY() != 0)
-					try
-					{
-						FlowHandler handler1 = (FlowHandler) flowContext.getRegisteredObject("ContentFlowHandler");
-						String s = switchToNext();
-						if (s.equals("Launch"))
-						{
-							launchViewContext.getController().reload();
-							handler1.setNewView(new FlowView(launchViewContext), false);
-						}
-						else
-						{
-							settingContext.getController().reload();
-							handler1.setNewView(new FlowView(settingContext), false);
-						}
-					}
-					catch (FlowException e)
-					{
-						e.printStackTrace();
-					}
-			}
-			lastSwap = mill;
-		});
+//		settingContext = ViewFactory.getInstance().createByController(
+//				ControllerSetting.class, null,
+//				handler.getViewConfiguration(), handler.getFlowContext());
+//		previewContext = ViewFactory.getInstance().createByController(ControllerPreview.class, null,
+//				handler.getViewConfiguration(), handler.getFlowContext());
+
+//		root.addEventHandler(ScrollEvent.SCROLL, event -> {
+//			long mill = System.currentTimeMillis();
+//			if (mill - lastSwap > 100)
+//			{
+//				if (event.getDeltaY() != 0)
+//					try
+//					{
+//						FlowHandler handler1 = (FlowHandler) flowContext.getRegisteredObject("ContentFlowHandler");
+//						String s = switchToNext();
+//						if (s.equals("Launch"))
+//						{
+//							loginViewContext.getController().reload();
+//							handler1.setNewView(new FlowView(loginViewContext), false);
+//						}
+//						else
+//						{
+//							settingContext.getController().reload();
+//							handler1.setNewView(new FlowView(settingContext), false);
+//						}
+//					}
+//					catch (FlowException e)
+//					{
+//						e.printStackTrace();
+//					}
+//			}
+//			lastSwap = mill;
+//		});
 
 		close.setOnMouseClicked(event -> {
 			if (event.getButton() == MouseButton.PRIMARY)

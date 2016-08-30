@@ -12,48 +12,34 @@ public class SimpleStrictProperty<T> extends SimpleObjectProperty<T> implements 
 {
 	private T cache;
 	private ObjectProperty<Validator<T>> validate = new SimpleObjectProperty<>(this, "validator");
-	private ObjectProperty<State> stateProperty = new SimpleObjectProperty<>(this, "state");
+	private ObjectProperty<State> stateProperty = new SimpleObjectProperty<>(this, "state"),
+			stateCache = new SimpleObjectProperty<>();
+
 
 	public SimpleStrictProperty()
 	{
-		this.state().addListener(observable -> {
-			if (state().getValue() != null && state().get().getState() == EnumState.PASS)
-				set0(cache);
-			cache = null;
-		});
+		this.stateCache.addListener(observable -> refreshState());
 		setValue(null);
 	}
 
 	public SimpleStrictProperty(T initialValue)
 	{
 		super(initialValue);
-		this.state().addListener(observable -> {
-			if (state().getValue() != null && state().get().getState() == EnumState.PASS)
-				set0(cache);
-			cache = null;
-		});
+		this.stateCache.addListener(observable -> refreshState());
 		setValue(initialValue);
 	}
 
 	public SimpleStrictProperty(Object bean, String name)
 	{
 		super(bean, name);
-		this.state().addListener(observable -> {
-			if (state().getValue() != null && state().get().getState() == EnumState.PASS)
-				set0(cache);
-			cache = null;
-		});
+		this.stateCache.addListener(observable -> refreshState());
 		setValue(null);
 	}
 
 	public SimpleStrictProperty(Object bean, String name, T initialValue)
 	{
 		super(bean, name, initialValue);
-		this.state().addListener(observable -> {
-			if (state().getValue() != null && state().get().getState() == EnumState.PASS)
-				set0(cache);
-			cache = null;
-		});
+		this.stateCache.addListener(observable -> refreshState());
 		setValue(initialValue);
 	}
 
@@ -75,16 +61,26 @@ public class SimpleStrictProperty<T> extends SimpleObjectProperty<T> implements 
 		return validate;
 	}
 
+	private void refreshState()
+	{
+		if (stateCache.get() == null)
+			return;
+		stateProperty.set(stateCache.get());
+		if (state().getValue() != null && state().get().getState() == EnumState.PASS)
+			set0(cache);
+		cache = null;
+		stateCache.set(null);
+	}
 
 	@Override
 	public void setValue(T value)
 	{
-		Logger.trace("try set value " + value + " with validator " + validator());
+//		Logger.trace("try set value " + value + " with validator " + validator());
 		cache = value;
 		Validator<T> tValidator = validate.get();
 		if (tValidator != null)
-			tValidator.validate(stateProperty, value);
-		else StrictProperty.NON_NULL.validate(stateProperty, value);
+			tValidator.validate(stateCache, value);
+		else StrictProperty.NON_NULL.validate(stateCache, value);
 	}
 
 	public static class Hierarchy<T> extends SimpleStrictProperty<T>

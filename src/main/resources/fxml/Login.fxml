@@ -1,23 +1,16 @@
 <?import com.jfoenix.controls.JFXPasswordField?>
 <?import com.jfoenix.controls.JFXTextField?>
 <?import com.jfoenix.controls.JFXToggleNode?>
+<?import com.jfoenix.validation.ValidationFacade?>
 <?import de.jensd.fx.fontawesome.Icon?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
 <?import net.wheatlauncher.gui.ColorTransitionButton?>
-<?import com.jfoenix.validation.ValidationFacade?>
 <StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
            styleClass="jfx-container">
     <VBox fx:id="box" maxWidth="400" maxHeight="400" spacing="15" alignment="CENTER"
           style="-fx-background-color:WHITESMOKE; -fx-padding:10 0 0 0;"
           onMouseClicked="#onClick">
-        <!--<AnchorPane>-->
-        <!--<ValidationFacade>-->
-        <!--<control>-->
-        <!--<JFXComboBox fx:id="profileJFXComboBox" prefWidth="200" promptText="Select profile"/>-->
-        <!--</control>-->
-        <!--</ValidationFacade>-->
-        <!--</AnchorPane>-->
         <HBox alignment="CENTER">
             <Label styleClass="title-label">LOGIN</Label>
         </HBox>
@@ -34,9 +27,8 @@
         <StackPane fx:id="btnPane">
             <ValidationFacade fx:id="launchValid" alignment="CENTER">
                 <control>
-                    <ColorTransitionButton fx:id="launch" prefWidth="100" prefHeight="40" buttonType="RAISED"
-                                           text="LAUNCH"
-                                           onAction="#launchAction"/>
+                    <ColorTransitionButton fx:id="login" prefWidth="100" prefHeight="40" buttonType="RAISED"
+                                           text="LOGIN"/>
                 </control>
             </ValidationFacade>
         </StackPane>

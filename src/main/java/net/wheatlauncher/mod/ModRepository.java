@@ -7,7 +7,11 @@ import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 
 import java.io.File;
-import java.util.*;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author ci010
@@ -51,7 +55,8 @@ public class ModRepository implements ChangeListener<MinecraftDirectory>
 				for (File file : files)
 					for (Mod.Type modType : Mod.Type.values())
 						if (modType.match(file))
-							register(modType.parseFile(file));
+							try {register(modType.parseFile(file));}
+							catch (IOException ignored) {}
 		}
 	}
 
@@ -59,7 +64,6 @@ public class ModRepository implements ChangeListener<MinecraftDirectory>
 	{
 		private String modId;
 
-		private Map<String, List<ModMeta>> mcVersionIndex = new HashMap<>();
 		private Map<String, ModMeta> modVersionToToken = new HashMap<>();
 
 		public Entry(String modId)
@@ -75,19 +79,6 @@ public class ModRepository implements ChangeListener<MinecraftDirectory>
 			}
 			else
 				modVersionToToken.put(modMeta.getVersion(), modMeta);
-			if (!modMeta.getMcVersion().equals(""))
-				if (mcVersionIndex.containsKey(modMeta.getMcVersion()))
-				{
-					List<ModMeta> list = mcVersionIndex.get(modMeta.getMcVersion());
-					list.add(modMeta);
-//				Collections.sort(list, Mod.VERSION);
-				}
-				else
-				{
-					ArrayList<ModMeta> lst = new ArrayList<>();
-					lst.add(modMeta);
-					mcVersionIndex.put(modMeta.getMcVersion(), lst);
-				}
 		}
 
 		public ModMeta getFromModVersion(String version)
@@ -100,16 +91,11 @@ public class ModRepository implements ChangeListener<MinecraftDirectory>
 			return modId;
 		}
 
-		public List<ModMeta> getAllFromMCVersion(String mcVersion)
-		{
-			return Collections.unmodifiableList(mcVersionIndex.get(mcVersion));
-		}
-
-		public ModMeta getLatestFromMCVersion(String mcVersion)
-		{
-			List<ModMeta> locations = mcVersionIndex.get(mcVersion);
-			return locations.get(locations.size() - 1);
-		}
+//		public ModMeta getLatestFromMCVersion(String mcVersion)
+//		{
+//			List<ModMeta> locations = mcVersionIndex.get(mcVersion);
+//			return locations.get(locations.size() - 1);
+//		}
 	}
 
 	public static final JsonSerializer<ModRepository> SERIALIZER = new JsonSerializer<ModRepository>()

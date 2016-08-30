@@ -1,16 +1,18 @@
 package net.wheatlauncher.mod;
 
+import jdk.internal.org.objectweb.asm.ClassReader;
+import net.wheatlauncher.mod.meta.ModInfo;
+import net.wheatlauncher.mod.meta.RuntimeAnnotation;
+import net.wheatlauncher.utils.Patterns;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.util.IOUtils;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
+import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 
 /**
@@ -22,10 +24,11 @@ public class Mod implements Iterable<ModMeta>
 	private File file;
 	private ModMeta[] modMeta;
 
-	private Mod(Type type, File file)
+	private Mod(Type type, File file, ModMeta[] modMeta)
 	{
 		this.type = type;
 		this.file = file;
+		this.modMeta = modMeta;
 	}
 
 	public File getFile()
@@ -79,76 +82,41 @@ public class Mod implements Iterable<ModMeta>
 	{
 		JAR
 				{
-					private Pattern zipJar = Pattern.compile("(.+).(zip|jar)$");
-
 					@Override
-					public Mod parseFile(File file)
+					public Mod parseFile(File file) throws IOException
 					{
-						Mod mod = new Mod(this, file);
-
-						String[] split = file.getName().split("-");
-						boolean singleMod;
-						String inspectMCVersion, inspectModVersion, inspectNameOrModId;
-						if (split.length > 2)
-						{
-							inspectNameOrModId = split[0];
-							inspectMCVersion = split[1];
-							inspectModVersion = split[2];
-						}
-						else
-						{
-							split = file.getName().split(" ");
-							if (split.length > 2)
-							{
-								inspectNameOrModId = split[0];
-								inspectMCVersion = split[1];
-								inspectModVersion = split[2];
-							}
-						}
+						List<ModMeta> meta = new ArrayList<>();
+						JarFile jar = new JarFile(file);
 						try
 						{
-							JarFile jar = new JarFile(file);
 							ZipEntry modInfo = jar.getEntry("mcmod.info");
-							JSONArray arr;
-							String modInfoString = IOUtils.toString(jar.getInputStream(modInfo));
-
-							if (modInfoString.startsWith("{"))
-								arr = new JSONObject(modInfoString).getJSONArray("modList");
-							else
-								arr = new JSONArray(modInfoString);
-							singleMod = arr.length() == 1;
-
-							if (singleMod)
+							if (modInfo != null)
 							{
+								String modInfoString = IOUtils.toString(jar.getInputStream(modInfo));
 
-							}
-							else
+								JSONArray arr;
+								if (modInfoString.startsWith("{"))
+									arr = new JSONObject(modInfoString).getJSONArray("modList");
+								else
+									arr = new JSONArray(modInfoString);
+
 								for (int i = 0; i < arr.length(); i++)
+									meta.add(new ModInfo(arr.getJSONObject(i)));
+							}
+							Set<Map<String, Object>> set = new HashSet<>();
+
+							for (JarEntry jarEntry : Collections.list(jar.entries()))
+								if (Patterns.CLASS_FILE.matcher(jarEntry.getName()).matches())
 								{
-									JSONObject obj = arr.getJSONObject(i);
-									ModMeta.MetaBuilder metaBuilder = new ModMeta.MetaBuilder(mod);
-									metaBuilder.setModid(obj.optString("modid"))
-											.setName(obj.optString("name"))
-											.setDescription(obj.optString("description"))
-											.setVersion(obj.optString("version"))
-											.setMcVersion(obj.optString("mcVersion"))
-											.setUrl(obj.optString("url"))
-											.setUpdateJson(obj.optString("updateUrl"))
-											.setLogoFile(obj.optString("logoFile"));
-									JSONArray authorList = obj.optJSONArray("authorList");
-									if (authorList != null)
-									{
-										String[] strings = new String[authorList.length()];
-										for (int j = 0; j < authorList.length(); j++)
-											strings[j] = authorList.getString(j);
-										metaBuilder.setAuthorList(strings);
-									}
-									JSONArray screenshots = obj.optJSONArray("screenshots");
+									set.clear();
+									ClassReader reader = new ClassReader(jar.getInputStream(jarEntry));
+									reader.accept(new RuntimeAnnotation.Visitor(set), 0);
+									for (Map<String, Object> map : set)
+										meta.add(new RuntimeAnnotation(map));
 								}
 						}
-						catch (Exception e)
-						{
-						}
+						catch (Exception ignored) {}
+
 						return null;
 					}
 
@@ -161,7 +129,7 @@ public class Mod implements Iterable<ModMeta>
 					@Override
 					public boolean match(File file)
 					{
-						return zipJar.matcher(file.getName()).matches();
+						return Patterns.ZIP_JAR.matcher(file.getName()).matches();
 					}
 
 				},
@@ -186,7 +154,7 @@ public class Mod implements Iterable<ModMeta>
 					}
 				};
 
-		public abstract Mod parseFile(File file);
+		public abstract Mod parseFile(File file) throws IOException;
 
 		public abstract String getSuffix();
 

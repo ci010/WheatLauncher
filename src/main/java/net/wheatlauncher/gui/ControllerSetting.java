@@ -43,6 +43,8 @@ public class ControllerSetting implements ReloadableController
 	@FXML
 	private ColorTransitionButton browsMC, browsJAVA;
 
+	private ColorTransitionButton test;
+
 	@PostConstruct
 	public void init()
 	{
@@ -113,6 +115,15 @@ public class ControllerSetting implements ReloadableController
 
 	@Override
 	public void reload()
+	{
+		if (versions.itemsProperty().get().isEmpty())
+		{
+
+		}
+	}
+
+	@Override
+	public void unload()
 	{
 
 	}

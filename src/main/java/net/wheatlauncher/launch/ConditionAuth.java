@@ -3,8 +3,6 @@ package net.wheatlauncher.launch;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
-import javafx.beans.value.ObservableValueBase;
-import javafx.beans.value.WritableObjectValue;
 import javafx.beans.value.WritableValue;
 import net.wheatlauncher.utils.Condition;
 import net.wheatlauncher.utils.Logger;
@@ -27,7 +25,6 @@ public class ConditionAuth extends Condition implements Authenticator, PasswordP
 	private ObjectProperty<AuthInfo> infoObjectProperty = new SimpleObjectProperty<>();
 	private ObjectProperty<StrictProperty.State> authState = new SimpleObjectProperty<>(StrictProperty.State.of(StrictProperty.EnumState.FAIL));
 
-	private SimpleStrictProperty<AuthInfo> authInfo = new SimpleStrictProperty<>();
 	private Setting setting;
 	private BooleanProperty onlineMode = new SimpleBooleanProperty(true);
 	private StringProperty settingName = new SimpleStringProperty();
@@ -56,30 +53,49 @@ public class ConditionAuth extends Condition implements Authenticator, PasswordP
 
 	public void apply(Setting setting)
 	{
-		this.account.setValue(null);
-		this.password.setValue(null);
 		this.infoObjectProperty.set(null);
 		this.authState.set(StrictProperty.State.of(StrictProperty.EnumState.FAIL, "null"));
 		this.account.validator().setValue(setting.accountValid());
 		this.password.validator().setValue(setting.passwordValid());
+		this.account.setValue("");
+		this.password.setValue("");
+
 		this.setting = setting;
 		this.settingName.setValue(setting.getId());
+	}
+
+	public ReadOnlyObjectProperty<AuthInfo> authInfoProperty()
+	{
+		return infoObjectProperty;
+	}
+
+	public String getCurrentUsername()
+	{
+		if (infoObjectProperty != null)
+			return infoObjectProperty.get().getUsername();
+		return null;
 	}
 
 	public ConditionAuth()
 	{
 		super("auth");
+		this.authState.addListener((observable -> {
+			Logger.trace(account.state().getValue().getState());
+			Logger.trace(password.state().getValue().getState());
+			Logger.trace(authState.getValue().getState());
+		}
+		));
 		this.add(account, password).add(authState);
 		InvalidationListener listener = (observable -> {
-			System.out.println("account/email invalid");
+			Logger.trace("account/email invalid");
 			if (account.state().getValue() == null || password.state().getValue() == null) return;
 			if (setting == null) return;
-			if (account.state().getValue().getState() == StrictProperty.EnumState.PASS &&
-					password.state().getValue().getState() == StrictProperty.EnumState.PASS)
-			{
-				Logger.trace("account " + account().getValue() + " password " + password().getValue() + " pass!");
-				setting.auth(account.getValue(), password.getValue(), authState, infoObjectProperty);
-			}
+			Logger.trace("setting not null");
+			if (account.state().getValue().getState().isPass())
+				if (!isPasswordEnable())
+					setting.auth(account.getValue(), password.getValue(), authState, infoObjectProperty);
+				else if (password.state().getValue().getState().isPass())
+					setting.auth(account.getValue(), password.getValue(), authState, infoObjectProperty);
 		});
 		account.addListener(listener);
 		password.addListener(listener);

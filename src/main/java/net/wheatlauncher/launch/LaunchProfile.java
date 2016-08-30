@@ -1,10 +1,12 @@
 package net.wheatlauncher.launch;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.ObservableValueBase;
 import net.wheatlauncher.Core;
 import net.wheatlauncher.utils.*;
+import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.yggdrasil.YggdrasilAuthenticator;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.launch.LaunchException;
@@ -117,9 +119,21 @@ public class LaunchProfile
 
 	public StrictProperty<String> accountProperty() {return conditionAuth.account();}
 
+	public String getUserName()
+	{
+		return conditionAuth.getCurrentUsername();
+	}
+
 	public StrictProperty<String> passwordProperty() {return conditionAuth.password();}
 
 	public ObservableValueBase<StrictProperty.EnumState> launchState() {return conditionLaunch;}
+
+	public ObservableValueBase<StrictProperty.EnumState> loginState() {return conditionAuth;}
+
+	public ReadOnlyObjectProperty<AuthInfo> authInfoProperty()
+	{
+		return conditionAuth.authInfoProperty();
+	}
 
 	public ObservableValue<String> settingName() {return conditionAuth.settingName();}
 

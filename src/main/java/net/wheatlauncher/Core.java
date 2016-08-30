@@ -16,7 +16,6 @@ import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.IOUtils;
 import org.to2mbn.jmccc.util.Platform;
-import sun.rmi.runtime.Log;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,7 +34,7 @@ public enum Core
 	INSTANCE;
 	private RemoteVersionList versionList;
 
-	private ExecutorService serviceIO = Executors.newCachedThreadPool();
+	private ExecutorService executorService = Executors.newCachedThreadPool();
 	private Timer timer = new Timer(true);
 
 	private final File root;
@@ -116,9 +115,9 @@ public enum Core
 		return selectLaunchProperty;
 	}
 
-	public ExecutorService getIOService()
+	public ExecutorService getService()
 	{
-		return serviceIO;
+		return executorService;
 	}
 
 	public ListProperty<MinecraftDirectory> getMinecraftLocationHistory()

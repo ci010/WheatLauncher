@@ -1,228 +1,108 @@
 package net.wheatlauncher.mod;
 
-import javafx.util.Builder;
-import net.wheatlauncher.utils.JsonSerializer;
-import org.to2mbn.jmccc.internal.org.json.JSONObject;
-
-import java.util.*;
+import java.util.Comparator;
+import java.util.Set;
 
 /**
  * @author ci010
  */
-public class ModMeta implements Cloneable
+public interface ModMeta
 {
-//	public static final Comparator<ModMeta> VERSION = (o1, o2) ->
-//			o1.getComparableVersionCache().compareTo(o2.getComparableVersionCache());
+	//String
+	String DESCRIPTION = "description", UPDATE_JSON = "updateJSON", URL = "url", LOGO = "logoFile", CREDITS = "credits",
+			PARENT = "parent", DEPENDENCIES = "dependencies", ACCEPTABLE_REMOTE_VERSION = "acceptableRemoteVersions",
+			ACCEPTABLE_SAVE_VERSION = "acceptableSaveVersions", FINGURPRINT = "certificateFingerprint";
 
-	private Mod mod;
+	//boolean
+	String CLIENT_ONLY = "clientSideOnly", SEVER_ONLY = "severSideOnly";
 
-	private String modId;
-	private String name;
-	private String mcVersion = "";
-	private String description = "";
-	private String updateJSON = "";
-	private String url = "";
+	//String[]
+	String AUTHOR_LIST = "author_list", SCREENSHOT = "screenShot";
 
-	private String logoFile = "";
-	private String version = "";
-	private String[] authorList = new String[0];
-	private String credits = "";
-	private String parent = "";
-	private String[] screenshots = new String[0];
+	Comparator<ModMeta> COMPARATOR = (o1, o2) -> {
+		if (o1.getModId().compareTo(o2.getModId()) == 0)
+			return o1.getVersion().compareTo(o2.getVersion());
+		return Integer.MIN_VALUE;
+	};
 
-	private ModMeta(Mod mod)
-	{
-		this.mod = mod;
-	}
+	String getModId();
 
-	public ModMeta(ModMeta meta)
-	{
-		this.mod = meta.mod;
-		this.modId = meta.modId;
-		this.name = meta.name;
-		this.description = meta.description;
-		this.updateJSON = meta.updateJSON;
-		this.logoFile = meta.logoFile;
-		this.version = meta.version;
-		this.authorList = Arrays.copyOf(meta.authorList, meta.authorList.length);
-		this.credits = meta.credits;
-		this.parent = meta.parent;
-		this.screenshots = Arrays.copyOf(meta.screenshots, meta.screenshots.length);
-	}
+	String getVersion();
 
-	public String getModId()
-	{
-		return modId;
-	}
+	String getName();
 
-	public String getName()
-	{
-		return name;
-	}
+	Set<String> getAllSupportMinecraftVersions();
 
-	public String getDescription()
-	{
-		return description;
-	}
+	Object getMeta(String s);
 
-	public String getUpdateJSON()
-	{
-		return updateJSON;
-	}
+	ModMeta merge(ModMeta meta);
 
-	public String getLogoFile()
-	{
-		return logoFile;
-	}
-
-	public String getVersion()
-	{
-		return version;
-	}
-
-	public String[] getAuthorList()
-	{
-		return authorList;
-	}
-
-	public String getCredits()
-	{
-		return credits;
-	}
-
-	public String getParent()
-	{
-		return parent;
-	}
-
-	public String[] getScreenshots()
-	{
-		return screenshots;
-	}
-
-	public Mod getMod()
-	{
-		return mod;
-	}
-
-	public String getMcVersion()
-	{
-		return mcVersion;
-	}
-
-	public String getUrl()
-	{
-		return url;
-	}
-
-	public void loadFromJsonObject(JSONObject object)
-	{
-
-	}
-
-	@Override
-	public boolean equals(Object o)
-	{
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-
-		ModMeta modMeta = (ModMeta) o;
-
-		if (modId != null ? !modId.equals(modMeta.getModId()) : modMeta.getModId() != null) return false;
-		if (version != null ? !version.equals(modMeta.getVersion()) : modMeta.getVersion() != null) return false;
-		return mod != null ? mod.equals(modMeta.getMod()) : modMeta.getMod() == null;
-	}
-
-	@Override
-	public int hashCode()
-	{
-		int result = modId != null ? modId.hashCode() : 0;
-		result = 31 * result + (version != null ? version.hashCode() : 0);
-		result = 31 * result + (mod != null ? mod.hashCode() : 0);
-		return result;
-	}
+	//	public ModMeta setModid(String modid)
+//	{
+//		this.modId = modid;
+//		return this;
+//	}
+//
+//	public ModMeta setName(String name)
+//	{
+//		this.name = name;
+//		return this;
+//	}
+//
+//	public ModMeta setVersion(String version)
+//	{
+//		this.version = version;
+//		return this;
+//	}
+//
+//	public ModMeta setDescription(String description)
+//	{
+//		this.description = description;
+//		return this;
+//	}
+//
+//	public ModMeta setUpdateJson(String json)
+//	{
+//		this.updateJSON = json;
+//		return this;
+//	}
+//
+//	public ModMeta setLogoFile(String logoFile)
+//	{
+//		this.logoFile = logoFile;
+//		return this;
+//	}
+//
+//	public ModMeta setCredit(String credit)
+//	{
+//		this.credits = credit;
+//		return this;
+//	}
+//
+//	public ModMeta setScreenShot(String[] screenShot)
+//	{
+//		this.screenshots = screenShot;
+//		return this;
+//	}
+//
+//	public ModMeta setMcVersion(String mcVersion)
+//	{
+//		this.mcVersion = mcVersion;
+//		return this;
+//	}
+//
+//	public ModMeta setAuthorList(String[] authorList)
+//	{
+//		this.authorList = authorList;
+//		return this;
+//	}
+//
+//
+//	public ModMeta setUrl(String url)
+//	{
+//		this.url = url;
+//		return this;
+//	}
 
 
-	public static class MetaBuilder implements Builder<ModMeta>
-	{
-		private ModMeta cache;
-
-		public MetaBuilder(Mod mod)
-		{
-			this.cache = new ModMeta(mod);
-		}
-
-		public MetaBuilder setModid(String modid)
-		{
-			cache.modId = modid;
-			return this;
-		}
-
-		public MetaBuilder setName(String name)
-		{
-			cache.name = name;
-			return this;
-		}
-
-		public MetaBuilder setVersion(String version)
-		{
-			cache.version = version;
-			return this;
-		}
-
-		public MetaBuilder setDescription(String description)
-		{
-			cache.description = description;
-			return this;
-		}
-
-		public MetaBuilder setUpdateJson(String json)
-		{
-			cache.updateJSON = json;
-			return this;
-		}
-
-		public MetaBuilder setLogoFile(String logoFile)
-		{
-			cache.logoFile = logoFile;
-			return this;
-		}
-
-		public MetaBuilder setCredit(String credit)
-		{
-			cache.credits = credit;
-			return this;
-		}
-
-		public MetaBuilder setScreenShot(String[] screenShot)
-		{
-			cache.screenshots = screenShot;
-			return this;
-		}
-
-		public MetaBuilder setMcVersion(String mcVersion)
-		{
-			cache.mcVersion = mcVersion;
-			return this;
-		}
-
-		public MetaBuilder setAuthorList(String[] authorList)
-		{
-			cache.authorList = authorList;
-			return this;
-		}
-
-
-		public MetaBuilder setUrl(String url)
-		{
-			cache.url = url;
-			return this;
-		}
-
-		@Override
-		public ModMeta build()
-		{
-			return new ModMeta(cache);
-		}
-	}
 }

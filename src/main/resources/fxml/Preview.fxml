@@ -1,0 +1,35 @@
+<?import de.jensd.fx.fontawesome.Icon?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import moe.mickey.minecraft.skin.fx.SkinCanvas?>
+<?import net.wheatlauncher.gui.ColorTransitionButton?>
+<HBox fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
+      xmlns="http://javafx.com/javafx/2.2" style="-fx-padding:5,5">
+    <VBox fx:id="leftBox" prefWidth="200" maxWidth="400" spacing="10" alignment="CENTER"
+          style="-fx-padding:15,5; -fx-background-color:BROWN">
+        <Label fx:id="player" style="-fx-font-size: 16.0px;-fx-text-fill: rgba(0.0, 0.0, 0.0, 0.87);"/>
+        <SkinCanvas fx:id="canvas"/>
+        <BorderPane>
+            <left>
+                <ColorTransitionButton fx:id="setting" maxHeight="10" buttonType="RAISED">
+                    <graphic>
+                        <Icon awesomeIcon="GEAR" scaleX="1.3" scaleY="1.3" style="-fx-font-family:FontAwesome;"/>
+                    </graphic>
+                </ColorTransitionButton>
+            </left>
+            <right>
+                <ColorTransitionButton fx:id="switchPlayer" maxHeight="10" buttonType="RAISED">
+                    <graphic>
+                        <Icon awesomeIcon="USER" scaleX="1.3" scaleY="1.3" style="-fx-font-family:FontAwesome;"/>
+                    </graphic>
+                </ColorTransitionButton>
+            </right>
+        </BorderPane>
+    </VBox>
+    <StackPane fx:id="rightBox" prefWidth="400" alignment="BOTTOM_RIGHT" style="fx-padding:10,10">
+        <ColorTransitionButton fx:id="launch" buttonType="RAISED" text="LAUNCH" prefWidth="100" prefHeight="40"/>
+    </StackPane>
+</HBox>

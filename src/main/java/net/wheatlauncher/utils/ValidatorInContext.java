@@ -18,6 +18,8 @@ public abstract class ValidatorInContext extends ValidatorBase implements Change
 	{
 		if (newValue.getState() == StrictProperty.EnumState.FAIL)
 		{
+			String s = getContext() + "." + newValue.getCause();
+			Logger.trace("fail with message " + s);
 			this.message.set(LanguageMap.INSTANCE.translate(getContext() + "." + newValue.getCause()));
 			this.hasErrors.set(true);
 		}

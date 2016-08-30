@@ -2,13 +2,15 @@ package net.wheatlauncher.gui;
 
 import com.jfoenix.controls.*;
 import com.jfoenix.validation.ValidationFacade;
-import com.jfoenix.validation.base.ValidatorBase;
 import io.datafx.controller.FXMLController;
+import io.datafx.controller.flow.context.FXMLViewFlowContext;
+import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.beans.value.ChangeListener;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
@@ -22,9 +24,12 @@ import javax.annotation.PostConstruct;
 /**
  * @author ci010
  */
-@FXMLController(value = "/fxml/Launch.fxml", title = "Simple Launcher")
-public class ControllerLaunch implements ReloadableController
+@FXMLController(value = "/fxml/Login.fxml", title = "Simple Launcher")
+public class ControllerLogin implements ReloadableController
 {
+	@FXMLViewFlowContext
+	private ViewFlowContext flowContext;
+
 	@FXML
 	private JFXTextField account;
 
@@ -35,7 +40,7 @@ public class ControllerLaunch implements ReloadableController
 	@FXML
 	private JFXToggleNode onlineMode = new JFXToggleNode();
 	@FXML
-	private JFXButton launch;
+	private JFXButton login;
 
 	@FXML
 	private VBox box;
@@ -48,18 +53,14 @@ public class ControllerLaunch implements ReloadableController
 			passwordValid = new ValidatorAuth("password");
 
 	@FXML
+	private StackPane root;
+	@FXML
 	private ValidationFacade launchValid;
+
+	private JFXDialog dialog = new JFXDialog();
+
 	private void setupGUI()
 	{
-		launchValid.setValidators(new ValidatorBase() {
-			@Override
-			protected void eval()
-			{
-			}
-		});
-		launchValid.setOnMouseClicked(event -> {
-			ValidationFacade.validate(launch);
-		});
 		spinner = new JFXSpinner();
 		spinner.setStyle("-fx-radius:16");
 		spinner.getStyleClass().add("materialDesign-purple, first-spinner");
@@ -68,6 +69,18 @@ public class ControllerLaunch implements ReloadableController
 		onlineMode.setTooltip(new Tooltip(LanguageMap.INSTANCE.translate("online.mode")));
 		account.setValidators(accountValid);
 		password.setValidators(passwordValid);
+		EventHandler<? super KeyEvent> handler = event -> {
+			if (event.getCode() == KeyCode.ENTER) login.fire();
+		};
+		this.account.setOnKeyReleased(handler);
+		this.password.setOnKeyReleased(handler);
+		accountValid.hasErrorsProperty().addListener(observable -> accountValid.validate());
+		passwordValid.hasErrorsProperty().addListener(observable -> passwordValid.validate());
+
+		account.textProperty().addListener(observable -> account.validate());
+		password.textProperty().addListener(observable -> password.validate());
+
+		login.setOnAction(event -> flowContext.getRegisteredObject(PageSwitcher.class).switchToQuite("preview"));
 	}
 
 	@PostConstruct
@@ -75,6 +88,8 @@ public class ControllerLaunch implements ReloadableController
 	{
 		Logger.trace("init");
 		setupGUI();
+
+
 
 		Logger.trace("add listener to core's launch profile");
 		Core.INSTANCE.selectLaunchProfile().addListener(((observable, oldValue, newValue) -> {
@@ -84,7 +99,7 @@ public class ControllerLaunch implements ReloadableController
 				oldValue.accountProperty().unbind();
 				oldValue.passwordProperty().unbind();
 
-				oldValue.launchState().removeListener(stateChangeListener);
+				oldValue.loginState().removeListener(stateChangeListener);
 				oldValue.settingName().removeListener(settingChangeListener);
 
 				oldValue.accountProperty().state().removeListener(accountValid);
@@ -93,7 +108,7 @@ public class ControllerLaunch implements ReloadableController
 				onlineMode.selectedProperty().unbindBidirectional(oldValue.onlineModeProperty());
 			}
 
-			ListenerUtils.addListenerAndNotify(newValue.launchState(), stateChangeListener);
+			ListenerUtils.addListenerAndNotify(newValue.loginState(), stateChangeListener);
 			ListenerUtils.addListenerAndNotify(newValue.settingName(), settingChangeListener);
 
 			newValue.accountProperty().bindBidirectional(account.textProperty());
@@ -104,6 +119,8 @@ public class ControllerLaunch implements ReloadableController
 
 			onlineMode.selectedProperty().bindBidirectional(newValue.onlineModeProperty());
 		}));
+
+
 	}
 
 	@FXML
@@ -113,14 +130,8 @@ public class ControllerLaunch implements ReloadableController
 			box.requestFocus();
 	}
 
-	@FXML
-	protected void launchAction(ActionEvent event)
-	{
-		Core.INSTANCE.tryLaunch();
-	}
-
 	private ChangeListener<StrictProperty.EnumState> stateChangeListener = (obv, oldV, newV) -> {
-		Logger.trace("launch state change " + oldV + " -> " + newV);
+		Logger.trace("login state change " + oldV + " -> " + newV);
 		if (oldV == StrictProperty.EnumState.PENDING)
 		{
 			btnPane.getChildren().remove(spinner);
@@ -132,12 +143,18 @@ public class ControllerLaunch implements ReloadableController
 			btnPane.getChildren().add(spinner);
 		}
 		else if (newV == StrictProperty.EnumState.FAIL)
-			launch.setDisable(true);
+			login.setDisable(true);
 		else if (newV == StrictProperty.EnumState.PASS)
-			launch.setDisable(false);
+			login.setDisable(false);
 	};
+
 	private ChangeListener<String> settingChangeListener = (observable, oldValue, newValue) -> {
 		Logger.trace("Auth Setting change " + oldValue + " -> " + newValue);
+
+		//clear the old data. I don't know why I have to do this twice after I bindBiDirection....
+		this.account.clear();
+		this.password.clear();
+
 		account.setPromptText(LanguageMap.INSTANCE.translate(newValue + ".account"));
 		accountValid.setOnlineType(newValue);
 		password.setDisable(!Core.INSTANCE.selectLaunchProfile().get().isPasswordEnable());
@@ -151,5 +168,11 @@ public class ControllerLaunch implements ReloadableController
 	@Override
 	public void reload()
 	{
+	}
+
+	@Override
+	public void unload()
+	{
+
 	}
 }

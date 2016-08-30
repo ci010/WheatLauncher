@@ -22,6 +22,7 @@ public interface StrictProperty<T> extends Property<T>
 		else writableValue.setValue(State.of(EnumState.FAIL, "null"));
 	};
 
+
 	class State
 	{
 		private EnumState state;
@@ -54,11 +55,15 @@ public interface StrictProperty<T> extends Property<T>
 	{
 		FAIL, PENDING, PASS;
 
+		public boolean isPass() {return this == PASS;}
+
 		public EnumState and(EnumState state)
 		{
 			return this.ordinal() < state.ordinal() ? this : state;
 		}
 	}
+
+	State PASS = State.of(EnumState.PASS);
 
 	interface Validator<T>
 	{

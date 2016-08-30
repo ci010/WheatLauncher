@@ -6,4 +6,6 @@ package net.wheatlauncher.gui;
 public interface ReloadableController
 {
 	void reload();
+
+	void unload();
 }

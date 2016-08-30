@@ -2,16 +2,17 @@ package net.wheatlauncher.gui;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.skins.JFXButtonSkin;
-import javafx.animation.*;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
 import javafx.css.*;
-import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.control.Control;
 import javafx.scene.control.Skin;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -124,28 +125,18 @@ public class ColorTransitionButton extends JFXButton
 						Duration.millis(400));
 //			button.ripplerFillProperty().bind(button.targetColorProperty());
 
-			button.setOnMouseEntered(new EventHandler<MouseEvent>()
-			{
-				@Override
-				public void handle(MouseEvent e)
+			button.setOnMouseEntered(e -> {
+				if (clickedAnimation != null)
 				{
-					if (clickedAnimation != null)
-					{
-						clickedAnimation.setRate(1);
-						clickedAnimation.play();
-					}
+					clickedAnimation.setRate(1);
+					clickedAnimation.play();
 				}
 			});
-			button.setOnMouseExited(new EventHandler<MouseEvent>()
-			{
-				@Override
-				public void handle(MouseEvent event)
+			button.setOnMouseExited(event -> {
+				if (clickedAnimation != null)
 				{
-					if (clickedAnimation != null)
-					{
-						clickedAnimation.setRate(-1);
-						clickedAnimation.play();
-					}
+					clickedAnimation.setRate(-1);
+					clickedAnimation.play();
 				}
 			});
 

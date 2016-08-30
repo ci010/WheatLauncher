@@ -1,18 +1,9 @@
 package moe.mickey.minecraft.skin.fx;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.function.Consumer;
-
-import javafx.application.Platform;
-import javafx.scene.Scene;
-import javafx.scene.image.Image;
-import javafx.scene.input.DragEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.input.TransferMode;
-import javafx.stage.Stage;
+
+import java.util.function.Consumer;
 
 public abstract class SkinCanvasSupport implements Consumer<SkinCanvas> {
 	
@@ -86,21 +77,21 @@ public abstract class SkinCanvasSupport implements Consumer<SkinCanvas> {
 //		public void accept(SkinCanvas t) {
 //			t.addEventHandler(DragEvent.DRAG_OVER, e -> {
 //				if (e.getDragboard().hasFiles()) {
-//	                File file = e.getDragboard().getFiles().get(0);
+//	                File file = e.getDragboard().getFiles().getMeta(0);
 //	                if (file.getAbsolutePath().endsWith(".png"))
 //	                	e.acceptTransferModes(TransferMode.COPY);
 //	            }
 //			});
 //			t.addEventHandler(DragEvent.DRAG_DROPPED, e -> {
 //				if (e.isAccepted()) {
-//					File skin = e.getDragboard().getFiles().get(0);
+//					File skin = e.getDragboard().getFiles().getMeta(0);
 //					Platform.runLater(() -> {
 //						try {
 //							FileInputStream input = new FileInputStream(skin);
 //							Stage stage = new Stage();
 //							stage.setTitle(title);
 //							SkinCanvas canvas = Test.createSkinCanvas();
-//							canvas.updateSkin(new Image(input), skin.getName().contains("[alex]"));
+//							canvas.setSkin(new Image(input), skin.getName().contains("[alex]"));
 //							Scene scene = new Scene(canvas);
 //							stage.setScene(scene);
 //							stage.show();

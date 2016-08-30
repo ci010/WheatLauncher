@@ -10,7 +10,9 @@ import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.OfflineAuthenticator;
 import org.to2mbn.jmccc.auth.yggdrasil.YggdrasilAuthenticator;
+import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
 
+import java.net.UnknownHostException;
 import java.util.TimerTask;
 
 /**
@@ -30,14 +32,13 @@ public enum DefaultAuthSetting implements ConditionAuth.Setting
 				public void auth(String validAccount, String validPassword, WritableValue<StrictProperty.State>
 						handler, WritableValue<AuthInfo> out)
 				{
-
-					handler.setValue(StrictProperty.State.of(StrictProperty.EnumState.PENDING, "verify"));
 					try
 					{
 						Logger.trace("try offline auth " + validAccount);
 						AuthInfo auth = new OfflineAuthenticator(validAccount).auth();
 						if (auth != null)
 						{
+							Logger.trace("offline auth passed!");
 							out.setValue(auth);
 							handler.setValue(StrictProperty.State.of(StrictProperty.EnumState.PASS));
 						}
@@ -60,14 +61,16 @@ public enum DefaultAuthSetting implements ConditionAuth.Setting
 					return (stateHandler, v) -> {
 						if (v == null || v.isEmpty())
 							stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.FAIL, "null"));
-						else stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.PASS));
+						else stateHandler.setValue(StrictProperty.PASS);
 					};
 				}
 
 				@Override
 				public StrictProperty.Validator<String> passwordValid()
 				{
-					return null;
+					return ((stateHandler, v) -> {
+						stateHandler.setValue(StrictProperty.PASS);
+					});
 				}
 			},
 	ONLINE
@@ -93,7 +96,6 @@ public enum DefaultAuthSetting implements ConditionAuth.Setting
 					}
 					else
 						Core.INSTANCE.getTimer().schedule(task = new Delay(validAccount, validPassword, handler, out), 500);
-					handler.setValue(StrictProperty.State.of(StrictProperty.EnumState.PASS));
 				}
 
 				class Delay extends TimerTask
@@ -114,21 +116,34 @@ public enum DefaultAuthSetting implements ConditionAuth.Setting
 					@Override
 					public void run()
 					{
-						Platform.runLater(() -> {
-							try
-							{
-								AuthInfo auth = YggdrasilAuthenticator.password(account, password).auth();
+						try
+						{
+							AuthInfo auth = YggdrasilAuthenticator.password(account, password).auth();
+							Platform.runLater(() -> {
 								handler.setValue(StrictProperty.State.of(StrictProperty.EnumState.PASS));
 								out.setValue(auth);
-								Logger.trace("online auth pass!");
-							}
-							catch (AuthenticationException e)
+							});
+							Logger.trace("online auth isPass!");
+						}
+						catch (AuthenticationException e)
+						{
+							if (e instanceof RemoteAuthenticationException && e.getMessage().contains("Invalid username or password"))
 							{
-								System.out.println(e.getMessage());
-								//TODO handle different situation
-								handler.setValue(StrictProperty.State.of(StrictProperty.EnumState.FAIL, "invalid"));
+								Platform.runLater(() -> handler.setValue(StrictProperty.State.of(StrictProperty.EnumState
+										.FAIL, "invalid", "credentials")));
 							}
-						});
+							else if (e.getCause() instanceof UnknownHostException)
+							{
+								Platform.runLater(() -> handler.setValue(StrictProperty.State.of(StrictProperty.EnumState
+										.FAIL, "invalid", "unknownhost")));
+							}
+							else
+							{
+								Logger.trace(e);
+							}
+							//TODO handle different situation
+						}
+
 					}
 				}
 
@@ -138,7 +153,7 @@ public enum DefaultAuthSetting implements ConditionAuth.Setting
 					return (stateHandler, v) -> {
 						if (v == null || v.isEmpty())
 							stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.FAIL, "null"));
-						else if (Patterns.emailPattern.matcher(v).matches())
+						else if (Patterns.EMAIL.matcher(v).matches())
 							stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.PASS));
 						else stateHandler.setValue(StrictProperty.State.of(StrictProperty.EnumState.FAIL, "invalid"));
 					};

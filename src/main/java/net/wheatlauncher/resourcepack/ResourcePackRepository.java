@@ -32,7 +32,7 @@ public abstract class ResourcePackRepository
 		String[] split = file.getName().split(".");
 		final String name = split[0];
 		if (file.isDirectory() && validateDir(file))
-			Core.INSTANCE.getIOService().submit(() -> {
+			Core.INSTANCE.getService().submit(() -> {
 				boolean mkdir = new File(getRoot(), file.getName()).mkdir();
 				File[] files = file.listFiles();
 				while (files != null)
@@ -45,7 +45,7 @@ public abstract class ResourcePackRepository
 				}
 			});
 		else if (file.isFile() && file.getName().endsWith(".zip") && validateZip(file))
-			Core.INSTANCE.getIOService().submit(() -> {
+			Core.INSTANCE.getService().submit(() -> {
 				try
 				{
 					FileUtils.copyFile(file, new File(getRoot(), name + ".zip"));
