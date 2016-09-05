@@ -1,9 +1,9 @@
-package net.wheatlauncher.mod.meta;
+package net.wheatlauncher.internal.mod.meta;
 
 import jdk.internal.org.objectweb.asm.AnnotationVisitor;
 import jdk.internal.org.objectweb.asm.ClassVisitor;
 import jdk.internal.org.objectweb.asm.Opcodes;
-import net.wheatlauncher.mod.ModMeta;
+import net.wheatlauncher.Mod;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * @author ci010
  */
-public class RuntimeAnnotation implements ModMeta
+public class RuntimeAnnotation implements Mod.Meta
 {
 	private String modid, version, name, mcVersion, fingerprint, updateJson, dependencies;
 	private boolean remoteVersion, saveVersion, clientOnly, severOnly;
@@ -84,8 +84,8 @@ public class RuntimeAnnotation implements ModMeta
 		return null;
 	}
 
-	@Override
-	public ModMeta merge(ModMeta meta)
+//	@Override
+	public Mod.Meta merge(Mod.Meta meta)
 	{
 		if (meta == this)
 			return this;
@@ -112,7 +112,7 @@ public class RuntimeAnnotation implements ModMeta
 		@Override
 		public AnnotationVisitor visitAnnotation(String s, boolean b)
 		{
-			if (s.equals("Lnet/minecraftforge/fml/common/Mod;"))
+			if (s.equals("Lnet/minecraftforge/fml/common/ModFile;"))
 				return new AnnoVisitor(new HashMap<>());
 			return null;
 		}

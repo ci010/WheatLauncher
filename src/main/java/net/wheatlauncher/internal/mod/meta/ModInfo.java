@@ -1,6 +1,6 @@
-package net.wheatlauncher.mod.meta;
+package net.wheatlauncher.internal.mod.meta;
 
-import net.wheatlauncher.mod.ModMeta;
+import net.wheatlauncher.Mod;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 
@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * @author ci010
  */
-public class ModInfo implements ModMeta
+public class ModInfo implements Mod.Meta
 {
 	private String modId;
 	private String name;
@@ -95,8 +95,8 @@ public class ModInfo implements ModMeta
 		return null;
 	}
 
-	@Override
-	public ModMeta merge(ModMeta meta)
+//	@Override
+	public Mod.Meta merge(Mod.Meta meta)
 	{
 		if (meta == this)
 			return this;

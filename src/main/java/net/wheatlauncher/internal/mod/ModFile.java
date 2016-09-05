@@ -1,8 +1,9 @@
-package net.wheatlauncher.mod;
+package net.wheatlauncher.internal.mod;
 
 import jdk.internal.org.objectweb.asm.ClassReader;
-import net.wheatlauncher.mod.meta.ModInfo;
-import net.wheatlauncher.mod.meta.RuntimeAnnotation;
+import net.wheatlauncher.Mod;
+import net.wheatlauncher.internal.mod.meta.ModInfo;
+import net.wheatlauncher.internal.mod.meta.RuntimeAnnotation;
 import net.wheatlauncher.utils.Patterns;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
@@ -18,13 +19,13 @@ import java.util.zip.ZipEntry;
 /**
  * @author ci010
  */
-public class Mod implements Iterable<ModMeta>
+public class ModFile implements Iterable<Mod.Meta>
 {
 	private Type type;
 	private File file;
-	private ModMeta[] modMeta;
+	private Mod.Meta[] modMeta;
 
-	private Mod(Type type, File file, ModMeta[] modMeta)
+	private ModFile(Type type, File file, Mod.Meta[] modMeta)
 	{
 		this.type = type;
 		this.file = file;
@@ -39,12 +40,12 @@ public class Mod implements Iterable<ModMeta>
 	public Set<String> getAllModId()
 	{
 		HashSet<String> set = new HashSet<>();
-		for (ModMeta meta : modMeta)
+		for (Mod.Meta meta : modMeta)
 			set.add(meta.getModId());
 		return set;
 	}
 
-	public ModMeta getMeta(String modid)
+	public Mod.Meta getMeta(String modid)
 	{
 		for (int i = 0; i < modMeta.length; i++)
 			if (modMeta[i].getModId().equals(modid))
@@ -58,7 +59,7 @@ public class Mod implements Iterable<ModMeta>
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		Mod that = (Mod) o;
+		ModFile that = (ModFile) o;
 
 		if (that.type != this.type) return false;
 		return file.equals(that.file);
@@ -73,7 +74,7 @@ public class Mod implements Iterable<ModMeta>
 	}
 
 	@Override
-	public Iterator<ModMeta> iterator()
+	public Iterator<Mod.Meta> iterator()
 	{
 		return Arrays.asList(modMeta).iterator();
 	}
@@ -83,9 +84,9 @@ public class Mod implements Iterable<ModMeta>
 		JAR
 				{
 					@Override
-					public Mod parseFile(File file) throws IOException
+					public ModFile parseFile(File file) throws IOException
 					{
-						List<ModMeta> meta = new ArrayList<>();
+						List<Mod.Meta> meta = new ArrayList<>();
 						JarFile jar = new JarFile(file);
 						try
 						{
@@ -136,7 +137,7 @@ public class Mod implements Iterable<ModMeta>
 		DIR
 				{
 					@Override
-					public Mod parseFile(File file)
+					public ModFile parseFile(File file)
 					{
 						return null;
 					}
@@ -154,7 +155,7 @@ public class Mod implements Iterable<ModMeta>
 					}
 				};
 
-		public abstract Mod parseFile(File file) throws IOException;
+		public abstract ModFile parseFile(File file) throws IOException;
 
 		public abstract String getSuffix();
 

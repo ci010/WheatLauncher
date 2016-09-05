@@ -1,6 +1,6 @@
-package net.wheatlauncher.mod.meta;
+package net.wheatlauncher.internal.mod.meta;
 
-import net.wheatlauncher.mod.ModMeta;
+import net.wheatlauncher.Mod;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -8,9 +8,9 @@ import java.util.Set;
 /**
  * @author ci010
  */
-public class SuperModMeta implements ModMeta
+public class SuperModMeta implements Mod.Meta
 {
-	private ModMeta info, annoInfo;
+	private Mod.Meta info, annoInfo;
 	private Set<String> supportVersions;
 
 	SuperModMeta(ModInfo info, RuntimeAnnotation annoInfo)
@@ -64,8 +64,8 @@ public class SuperModMeta implements ModMeta
 		return meta;
 	}
 
-	@Override
-	public ModMeta merge(ModMeta meta)
+//	@Override
+	public Mod.Meta merge(Mod.Meta meta)
 	{
 		return null;
 	}

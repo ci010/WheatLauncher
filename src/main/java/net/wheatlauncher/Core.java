@@ -2,8 +2,8 @@ package net.wheatlauncher;
 
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
+import net.wheatlauncher.internal.repository.ModRepository;
 import net.wheatlauncher.launch.LaunchProfile;
-import net.wheatlauncher.mod.ModRepository;
 import net.wheatlauncher.utils.Logger;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;

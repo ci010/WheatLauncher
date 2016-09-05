@@ -1,4 +1,4 @@
-package net.wheatlauncher.mod;
+package net.wheatlauncher.internal.mod;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
