@@ -86,7 +86,7 @@
 /* Icons Demo */
 .icon{
 	-fx-text-fill: #FE774D;
-	-fx-padding: 10;
+	/*-fx-padding: 10;*/
 	-fx-cursor: hand;
 }
 .icons-rippler{
@@ -173,6 +173,7 @@
 	-fx-background-insets: 2, 0, 0;
 	-fx-background-radius: 2em;
 }
+/*
 
 
 .jfx-list-cell-container{
@@ -183,13 +184,13 @@
 }
 
 
-.jfx-list-cell:odd:selected > .jfx-rippler > StackPane , .jfx-list-cell:even:selected > .jfx-rippler > StackPane{ 
+.jfx-list-cell:odd:selected > .jfx-rippler > StackPane , .jfx-list-cell:even:selected > .jfx-rippler > StackPane{
 	-fx-background-color: rgba(0,0,255,0.2);
 }
 
 .jfx-list-cell {
-	-fx-background-insets: 0.0 ; 
-	-fx-text-fill: BLACK; 
+	-fx-background-insets: 0.0 ;
+	-fx-text-fill: BLACK;
 }
 .jfx-list-cell:odd, .jfx-list-cell:even {
 	-fx-background-color:  WHITE;
@@ -201,6 +202,7 @@
 .jfx-list-cell .jfx-rippler{
 	-fx-rippler-fill:BLUE;
 }
+*/
 
 
 .jfx-list-view {

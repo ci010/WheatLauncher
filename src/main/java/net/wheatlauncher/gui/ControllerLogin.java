@@ -15,7 +15,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import net.wheatlauncher.Core;
 import net.wheatlauncher.utils.*;
 
@@ -35,10 +34,13 @@ public class ControllerLogin implements ReloadableController
 
 	@FXML
 	private JFXPasswordField password;
+
+	@FXML
 	private JFXSpinner spinner;
 
 	@FXML
 	private JFXToggleNode onlineMode = new JFXToggleNode();
+
 	@FXML
 	private JFXButton login;
 
@@ -48,32 +50,32 @@ public class ControllerLogin implements ReloadableController
 	@FXML
 	private StackPane btnPane;
 
-	private ValidatorAuth
-			accountValid = new ValidatorAuth("account"),
-			passwordValid = new ValidatorAuth("password");
+	@FXML
+	private ValidatorAuth accountValid, passwordValid;
 
 	@FXML
 	private StackPane root;
+
 	@FXML
 	private ValidationFacade launchValid;
 
 	private JFXDialog dialog = new JFXDialog();
 
-	private void setupGUI()
+	@PostConstruct
+	public void init()
 	{
-		spinner = new JFXSpinner();
-		spinner.setStyle("-fx-radius:16");
-		spinner.getStyleClass().add("materialDesign-purple, first-spinner");
-		spinner.startingAngleProperty().set(-40);
-		onlineMode.setSelectedColor(Color.WHEAT);
+		Logger.trace("init");
+		btnPane.getChildren().remove(spinner);
+
 		onlineMode.setTooltip(new Tooltip(LanguageMap.INSTANCE.translate("online.mode")));
-		account.setValidators(accountValid);
-		password.setValidators(passwordValid);
+//		account.setValidators(accountValid);
+//		password.setValidators(passwordValid);
 		EventHandler<? super KeyEvent> handler = event -> {
 			if (event.getCode() == KeyCode.ENTER) login.fire();
 		};
 		this.account.setOnKeyReleased(handler);
 		this.password.setOnKeyReleased(handler);
+
 		accountValid.hasErrorsProperty().addListener(observable -> accountValid.validate());
 		passwordValid.hasErrorsProperty().addListener(observable -> passwordValid.validate());
 
@@ -81,15 +83,6 @@ public class ControllerLogin implements ReloadableController
 		password.textProperty().addListener(observable -> password.validate());
 
 		login.setOnAction(event -> flowContext.getRegisteredObject(PageSwitcher.class).switchToQuite("preview"));
-	}
-
-	@PostConstruct
-	public void init()
-	{
-		Logger.trace("init");
-		setupGUI();
-
-
 
 		Logger.trace("add listener to core's launch profile");
 		Core.INSTANCE.selectLaunchProfile().addListener(((observable, oldValue, newValue) -> {

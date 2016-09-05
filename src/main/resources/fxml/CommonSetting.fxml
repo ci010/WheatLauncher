@@ -1,0 +1,24 @@
+<?import com.jfoenix.controls.JFXSlider?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<?import net.wheatlauncher.gui.ColorTransitionButton?>
+<VBox fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
+      xmlns="http://javafx.com/javafx/2.2" fx:controller="net.wheatlauncher.gui.ControllerCommonSetting">
+    <HBox>
+        <JFXTextField fx:id="minecraftLocation"/>
+        <ColorTransitionButton fx:id="browsMinecraft"/>
+    </HBox>
+    <HBox>
+        <JFXTextField fx:id="javaLocation"/>
+        <ColorTransitionButton fx:id="browsJava"/>
+    </HBox>
+    <HBox>
+        <Label>Memory</Label>
+        <JFXSlider fx:id="memory"/>
+    </HBox>
+    <HBox>
+        <Label>Resolution</Label>
+        <JFXSlider fx:id="resolution"/>
+    </HBox>
+</VBox>

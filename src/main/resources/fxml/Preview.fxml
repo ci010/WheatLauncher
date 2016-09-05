@@ -11,7 +11,7 @@
     <VBox fx:id="leftBox" prefWidth="200" maxWidth="400" spacing="10" alignment="CENTER"
           style="-fx-padding:15,5; -fx-background-color:BROWN">
         <Label fx:id="player" style="-fx-font-size: 16.0px;-fx-text-fill: rgba(0.0, 0.0, 0.0, 0.87);"/>
-        <SkinCanvas fx:id="canvas"/>
+        <SkinCanvas fx:id="canvas" width="150" height="250" depth="4"/>
         <BorderPane>
             <left>
                 <ColorTransitionButton fx:id="setting" maxHeight="10" buttonType="RAISED">
@@ -20,6 +20,9 @@
                     </graphic>
                 </ColorTransitionButton>
             </left>
+            <center>
+                <ColorTransitionButton fx:id="profileName" buttonType="RAISED"/>
+            </center>
             <right>
                 <ColorTransitionButton fx:id="switchPlayer" maxHeight="10" buttonType="RAISED">
                     <graphic>
@@ -29,7 +32,9 @@
             </right>
         </BorderPane>
     </VBox>
-    <StackPane fx:id="rightBox" prefWidth="400" alignment="BOTTOM_RIGHT" style="fx-padding:10,10">
-        <ColorTransitionButton fx:id="launch" buttonType="RAISED" text="LAUNCH" prefWidth="100" prefHeight="40"/>
+    <StackPane fx:id="rightBox" prefWidth="400" alignment="BOTTOM_RIGHT" style="-fx-padding:17,10">
+        <ColorTransitionButton fx:id="launch" buttonType="RAISED" text="LAUNCH" style="-fx-padding:0,100,0,100"
+                               prefWidth="110"
+                               prefHeight="50"/>
     </StackPane>
 </HBox>

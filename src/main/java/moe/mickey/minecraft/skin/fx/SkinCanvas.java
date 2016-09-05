@@ -1,5 +1,10 @@
 package moe.mickey.minecraft.skin.fx;
 
+import com.jfoenix.effects.JFXDepthManager;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.*;
 import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
@@ -15,7 +20,6 @@ public class SkinCanvas extends Group
 	public static final Image ALEX = new Image(SkinCanvas.class.getResourceAsStream("/alex.png"));
 	public static final Image STEVE = new Image(SkinCanvas.class.getResourceAsStream("/steve.png"));
 	public static final Image CHOCOLATE = new Image(SkinCanvas.class.getResourceAsStream("/chocolate.png"));
-
 	public static final SkinCube ALEX_LARM = new SkinCube(3, 12, 4, 14F / 64F, 16F / 64F, 32F / 64F, 48F / 64F, 0F, true);
 	public static final SkinCube ALEX_RARM = new SkinCube(3, 12, 4, 14F / 64F, 16F / 64F, 40F / 64F, 16F / 64F, 0F, true);
 
@@ -25,7 +29,6 @@ public class SkinCanvas extends Group
 	protected Image srcSkin, skin;
 	protected boolean isSlim;
 
-	protected double preW, preH;
 	protected boolean msaa;
 
 	protected Group root = new Group();
@@ -93,7 +96,7 @@ public class SkinCanvas extends Group
 
 	protected SkinAnimationPlayer animationplayer = new SkinAnimationPlayer();
 
-	public SkinAnimationPlayer getAnimationplayer()
+	public final SkinAnimationPlayer getAnimationPlayer()
 	{
 		return animationplayer;
 	}
@@ -146,25 +149,6 @@ public class SkinCanvas extends Group
 		rarm.getZRotate().setPivotX(+rarmInside.getWidth() / 2);
 	}
 
-	public SkinCanvas()
-	{
-		this(150, 300);
-	}
-
-	public SkinCanvas(double preW, double preH)
-	{
-		this(STEVE, preW, preH, true);
-	}
-
-	public SkinCanvas(Image skin, double preW, double preH, boolean msaa)
-	{
-		this.skin = skin;
-		this.preW = preW;
-		this.preH = preH;
-		this.msaa = msaa;
-
-		init();
-	}
 
 	protected Material createMaterial()
 	{
@@ -189,7 +173,6 @@ public class SkinCanvas extends Group
 	{
 		return yRotate;
 	}
-
 
 	protected Group createPlayerModel()
 	{
@@ -219,30 +202,98 @@ public class SkinCanvas extends Group
 		return root;
 	}
 
+	public SkinCanvas()
+	{
+		this(150, 300);
+	}
+
+	public SkinCanvas(double preW, double preH)
+	{
+		this(STEVE, preW, preH, true);
+	}
+
+	public SkinCanvas(Image skin, double preW, double preH, boolean msaa)
+	{
+		this.skin = skin;
+		this.height.set(preH);
+		this.width.set(preW);
+		this.msaa = msaa;
+		init();
+	}
+
+	private IntegerProperty depth = new SimpleIntegerProperty(this, "depth");
+
+	public int getDepth()
+	{
+		return depth.get();
+	}
+
+	public IntegerProperty depthProperty()
+	{
+		return depth;
+	}
+
+	public void setDepth(int depth)
+	{
+		this.depth.set(depth);
+	}
+
+	private DoubleProperty width = new SimpleDoubleProperty(this, "width");
+
+	public double getWidth()
+	{
+		return width.get();
+	}
+
+	public DoubleProperty widthProperty()
+	{
+		return width;
+	}
+
+	public void setWidth(double width)
+	{
+		this.width.set(width);
+	}
+
+	private DoubleProperty height = new SimpleDoubleProperty(this, "height");
+
+	public double getHeight()
+	{
+		return height.get();
+	}
+
+	public DoubleProperty heightProperty()
+	{
+		return height;
+	}
+
+	public void setHeight(double height)
+	{
+		this.height.set(height);
+	}
+
 	public SubScene getSubScene()
 	{
 		return subScene;
 	}
 
-	protected SubScene createSubScene()
+	protected void init()
 	{
 		Group group = new Group();
 		group.getChildren().add(createPlayerModel());
 		group.getTransforms().add(zRotate);
 
+		this.depthProperty().addListener(observable -> JFXDepthManager.setDepth(this, depth.get()));
 		camera.getTransforms().addAll(yRotate, translate, scale);
 
-		subScene = new SubScene(group, preW, preH, true,
+		subScene = new SubScene(group, widthProperty().get(), heightProperty().get(), true,
 				msaa ? SceneAntialiasing.BALANCED : SceneAntialiasing.DISABLED);
+		subScene.widthProperty().bind(this.width);
+		subScene.heightProperty().bind(this.height);
 		subScene.setFill(Color.ALICEBLUE);
 		subScene.setCamera(camera);
 
-		return subScene;
-	}
-
-	protected void init()
-	{
-		getChildren().add(subScene = createSubScene());
+		getChildren().add(subScene);
 	}
 
 }

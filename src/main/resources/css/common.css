@@ -9,3 +9,44 @@
 	-fx-background-color:WHITESMOKE;
 	-fx-alignment:CENTER;
 }
+
+.transparent{
+	-fx-background-color:TRANSPARENT;
+}
+
+.brown box{
+	-fx-background-color:BROWN;
+	-fx-background-radius:5;
+	-fx-background-insets:-2 -2 -2 -2;
+}
+
+.jfx-list-view{
+	-fx-background-color:TRANSPARENT;
+	-fx-selection-bar: red;
+}
+/*
+
+.jfx-list-cell:odd, .jfx-list-cell:even{
+	-fx-selection-bar:red;
+	-fx-background-radius:5;
+	-fx-background-color:WHEAT;
+}
+
+.jfx-list-cell:selected{
+	-fx-background-color:RED;
+	-fx-selection-bar:red;
+}
+*/
+
+.jfx-button{
+	-fx-button-type: RAISED;
+	-fx-padding: 0.7em 0.57em;
+    -fx-font-size: 14px;
+    -fx-text-fill: BLACK;
+    -fx-background-radius:10;
+}
+
+.option-list-view {
+  	-fx-pref-width: 160.0px;
+  	-fx-background-color: WHITE ;
+}

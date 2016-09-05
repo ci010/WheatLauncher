@@ -1,46 +1,72 @@
-<?import com.jfoenix.controls.JFXSlider?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.control.Label?>
-<?import com.jfoenix.controls.JFXComboBox?>
-<?import javafx.scene.layout.HBox?>
-<?import net.wheatlauncher.gui.ColorTransitionButton?>
-<?import de.jensd.fx.fontawesome.Icon?>
+<?import com.jfoenix.controls.*?>
 <?import com.jfoenix.validation.ValidationFacade?>
-<StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
-           xmlns="http://javafx.com/javafx/2.2" style="-fx-background-color:WHITESMOKE;">
-    <VBox alignment="TOP_CENTER" spacing="10" prefWidth="500" maxWidth="400" maxHeight="400">
-
-        <HBox alignment="CENTER" spacing="5" style="-fx-padding: 10 0 10 50;">
-            <ValidationFacade fx:id="validMcLocation">
-                <control>
-                    <JFXComboBox fx:id="mcLocation" minWidth="200" maxWidth="300"
-                                 promptText="Minecraft Directory"/>
-                </control>
-            </ValidationFacade>
-            <ColorTransitionButton fx:id="browsMC" scaleY="0.4" scaleX="0.4" buttonType="RAISED">
-                <graphic>
-                    <Icon awesomeIcon="FOLDER" size="3em" styleClass="icon"/>
-                </graphic>
-            </ColorTransitionButton>
+<?import de.jensd.fx.fontawesome.Icon?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<FlowPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
+          xmlns="http://javafx.com/javafx/2.2" styleClass="transparent"
+          fx:controller="net.wheatlauncher.gui.ControllerSetting" minWidth="400"
+          hgap="30" vgap="30">
+    <VBox spacing="5" alignment="CENTER"
+          style="-fx-background-color:WHITE; -fx-background-insets:-2; -fx-background-radius:3">
+        <HBox alignment="CENTER" spacing="5">
+            <Label fx:id="profileLabel" contentDisplay="RIGHT">
+                Profile
+            </Label>
+            <!--<JFXButton fx:id="editProfile">-->
+            <!--<graphic>-->
+            <JFXRippler fx:id="optionsRippler">
+                <Icon fx:id="editProfile" awesomeIcon="PENCIL_SQUARE" size="1.5em"/>
+            </JFXRippler>
+            <!--</graphic>-->
+            <!--</JFXButton>-->
         </HBox>
-        <HBox alignment="CENTER" spacing="5" style="-fx-padding: 10 0 10 50;">
-            <ValidationFacade fx:id="validJAVALocation">
-                <control>
-                    <JFXComboBox fx:id="javaLocation" minWidth="200" maxWidth="300"
-                                 promptText="Java Directory"/>
-                </control>
-            </ValidationFacade>
-            <ColorTransitionButton fx:id="browsJAVA" scaleY="0.4" scaleX="0.4" buttonType="RAISED">
-                <graphic>
-                    <Icon awesomeIcon="FOLDER" size="3em" styleClass="icon"/>
-                </graphic>
-            </ColorTransitionButton>
-        </HBox>
-        <JFXComboBox fx:id="versions"/>
-        <JFXSlider fx:id="memory" orientation="HORIZONTAL" maxWidth="200" min="256" max="2048"
-                   showTickMarks="true" snapToTicks="true"
-                   minorTickCount="0"
-                   majorTickUnit="256"/>
+        <ValidationFacade fx:id="validProfile">
+            <!-- style="-fx-background-color:BROWN; -fx-background-insets:-10; -fx-background-radius:5;"-->
+            <control>
+                <JFXComboBox fx:id="profile"
+                             promptText="profile" maxWidth="100"/>
+            </control>
+        </ValidationFacade>
     </VBox>
-</StackPane>
+    <VBox alignment="CENTER" spacing="8"
+          style="-fx-background-color:WHITE; -fx-background-insets:-2; -fx-background-radius:3">
+        <Label>Version</Label>
+        <ValidationFacade fx:id="validVersion">
+            <control>
+                <JFXComboBox fx:id="versions" promptText="Version" prefWidth="250"/>
+            </control>
+        </ValidationFacade>
+    </VBox>
+
+    <JFXListView fx:id="options"
+                 depthProperty="3" minWidth="100" expanded="true">
+        <Label>Common</Label>
+        <Label>Minecraft</Label>
+        <Label>Other</Label>
+    </JFXListView>
+
+    <StackPane fx:id="rightBody"/>
+
+    <JFXPopup fx:id="profilePopup">
+        <JFXListView styleClass="option-list-view">
+            <Label fx:id="renameProfile">
+                Rename
+                <!--<graphic>
+                    <Icon awesomeIcon="USER" size="1.5em" style=";"
+                          styleClass="option-jfx-list-view-icon"/>
+                </graphic>-->
+            </Label>
+            <Label fx:id="newProfile">
+                New Profile
+            </Label>
+            <Label fx:id="deleteProfile">
+                Delete
+                <!-- <graphic>
+                     <Icon awesomeIcon="REPLY" size="1.5em" style=";"
+                           styleClass="option-jfx-list-view-icon"/>
+                 </graphic>-->
+            </Label>
+        </JFXListView>
+    </JFXPopup>
+</FlowPane>
