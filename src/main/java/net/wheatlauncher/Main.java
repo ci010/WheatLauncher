@@ -45,6 +45,7 @@ public class Main extends Application
 			lang = ResourceBundle.getBundle("lang", Locale.ENGLISH);
 		}
 		viewConfiguration.setResources(lang);
+//		viewConfiguration.setBuilderFactory(new LayerStack());
 		Flow flow = new Flow(ControllerMain.class, viewConfiguration);
 
 		stage.setFullScreen(false);

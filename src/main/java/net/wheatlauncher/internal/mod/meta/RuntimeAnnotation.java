@@ -12,7 +12,7 @@ import java.util.Set;
 /**
  * @author ci010
  */
-public class RuntimeAnnotation implements Mod.Meta
+public class RuntimeAnnotation implements Mod.Release
 {
 	private String modid, version, name, mcVersion, fingerprint, updateJson, dependencies;
 	private boolean remoteVersion, saveVersion, clientOnly, severOnly;
@@ -85,7 +85,7 @@ public class RuntimeAnnotation implements Mod.Meta
 	}
 
 //	@Override
-	public Mod.Meta merge(Mod.Meta meta)
+	public Mod.Release merge(Mod.Release meta)
 	{
 		if (meta == this)
 			return this;
@@ -94,7 +94,7 @@ public class RuntimeAnnotation implements Mod.Meta
 			if (meta instanceof RuntimeAnnotation) //this should not happen... it's better to just ignore it than throw exception
 				return this;
 			if (meta instanceof ModInfo)
-				return new SuperModMeta((ModInfo) meta, this);
+				return new ReleaseImpl((ModInfo) meta, this);
 		}
 		return null;
 	}

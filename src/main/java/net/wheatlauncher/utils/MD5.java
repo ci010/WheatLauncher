@@ -6,61 +6,30 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
 
 /**
  * @author ci010
  */
 public class MD5
 {
-	public static class Key
+	public static String toString(byte[] md5)
 	{
-		private byte[] bytes;
+		char[] hexDigits = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+		char[] resultCharArray = new char[md5.length * 2];
+		int index = 0;
 
-		public Key(byte[] bytes)
+		for (byte b : md5)
 		{
-			this.bytes = Arrays.copyOf(bytes, bytes.length);
+			resultCharArray[index++] = hexDigits[b >>> 4 & 0xf];
+			resultCharArray[index++] = hexDigits[b & 0xf];
 		}
-
-		public byte[] getBytes()
-		{
-			return Arrays.copyOf(bytes, bytes.length);
-		}
-
-		@Override
-		public boolean equals(Object o)
-		{
-			if (this == o) return true;
-			if (o == null || getClass() != o.getClass()) return false;
-
-			Key key = (Key) o;
-
-			return Arrays.equals(bytes, key.bytes);
-		}
-
-		@Override
-		public int hashCode()
-		{
-			return Arrays.hashCode(bytes);
-		}
+		return new String(resultCharArray);
 	}
 
-	public static Key getMD5Key(File file) throws IOException
-	{
-		return new Key(getMD5(file));
-	}
-
-	public static Key getMD5Key(InputStream stream) throws IOException
-	{
-		return new Key(getMD5(stream));
-	}
-
-	public static Key getMD5Key(byte[] bytes)
-	{
-		return new Key(bytes);
-	}
 
 	public static byte[] getMD5(File file) throws IOException
 	{
@@ -70,6 +39,16 @@ public class MD5
 	public static byte[] getMD5(InputStream stream) throws IOException
 	{
 		return getMD5(IOUtils.toByteArray(stream));
+	}
+
+	public static byte[] getMD5Fast(File file) throws IOException
+	{
+		FileInputStream in = new FileInputStream(file);
+		FileChannel ch = in.getChannel();
+		MappedByteBuffer byteBuffer = ch.map(FileChannel.MapMode.READ_ONLY, 0, file.length());
+		byte[] bytes = new byte[byteBuffer.capacity()];
+		byteBuffer.get(bytes);
+		return getMD5(bytes);
 	}
 
 	public static byte[] getMD5(byte[] bytes)

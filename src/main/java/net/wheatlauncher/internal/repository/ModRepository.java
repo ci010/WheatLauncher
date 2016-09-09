@@ -3,14 +3,15 @@ package net.wheatlauncher.internal.repository;
 import javafx.beans.value.ObservableValue;
 import net.wheatlauncher.MinecraftRepository;
 import net.wheatlauncher.Mod;
-import net.wheatlauncher.internal.ModImpl;
 import net.wheatlauncher.internal.mod.ModFile;
+import net.wheatlauncher.internal.mod.ModImpl;
 import net.wheatlauncher.utils.JsonSerializer;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -24,14 +25,21 @@ public class ModRepository implements MinecraftRepository<Mod>
 	private Set<ModFile> allModFile = new HashSet<>();
 	private Map<String, ModImpl> modIdToMod = new HashMap<>();
 
-	private void register(ModFile mod)
+	private File root;
+
+	public ModRepository(File root)
 	{
-		if (mod == null)
-			return;
-		if (allModFile.contains(mod))
-			return;
-		allModFile.add(mod);
-		for (Mod.Meta modMeta : mod)
+		this.root = root;
+	}
+
+	private boolean register(ModFile file)
+	{
+		if (file == null)
+			return false;
+		if (allModFile.contains(file))
+			return false;
+		allModFile.add(file);
+		for (Mod.Release modMeta : file)
 			if (modIdToMod.containsKey(modMeta.getModId()))
 				modIdToMod.get(modMeta.getModId()).register(modMeta);
 			else
@@ -40,6 +48,7 @@ public class ModRepository implements MinecraftRepository<Mod>
 				entry.register(modMeta);
 				modIdToMod.put(modMeta.getModId(), entry);
 			}
+		return true;
 	}
 
 	@Override
@@ -53,8 +62,18 @@ public class ModRepository implements MinecraftRepository<Mod>
 				for (File file : files)
 					for (ModFile.Type modType : ModFile.Type.values())
 						if (modType.match(file))
-							try {register(modType.parseFile(file));}
-							catch (IOException ignored) {}
+							try
+							{
+								ModFile modFile = modType.parseFile(file);
+								if (register(modFile))
+								{
+									File dir = new File(root, modFile.getMd5());
+									if (!dir.exists()) if (!dir.mkdir())
+										throw new IOException("Could not create directory for file " + file);
+									Files.copy(file.toPath(), new File(dir, file.getName()).toPath());
+								}
+							}
+							catch (IOException e) {e.printStackTrace();}
 		}
 	}
 

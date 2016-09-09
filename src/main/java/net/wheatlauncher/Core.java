@@ -75,7 +75,7 @@ public enum Core
 	private ListProperty<JavaEnvironment> javaHistory = new SimpleListProperty<>(FXCollections.observableArrayList());
 	private MapProperty<String, LaunchProfile> profileMapProperty = new SimpleMapProperty<>
 			(FXCollections.observableHashMap());
-	private ModRepository modRepository;
+	private ModRepository localModRepo;
 	private ObjectProperty<LaunchProfile> selectLaunchProperty = new SimpleObjectProperty<LaunchProfile>()
 	{
 		@Override

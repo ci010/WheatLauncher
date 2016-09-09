@@ -4,6 +4,7 @@ import jdk.internal.org.objectweb.asm.ClassReader;
 import net.wheatlauncher.Mod;
 import net.wheatlauncher.internal.mod.meta.ModInfo;
 import net.wheatlauncher.internal.mod.meta.RuntimeAnnotation;
+import net.wheatlauncher.utils.MD5;
 import net.wheatlauncher.utils.Patterns;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
@@ -19,38 +20,43 @@ import java.util.zip.ZipEntry;
 /**
  * @author ci010
  */
-public class ModFile implements Iterable<Mod.Meta>
+public class ModFile implements Iterable<Mod.Release>
 {
 	private Type type;
-	private File file;
-	private Mod.Meta[] modMeta;
+	private String md5;
+	private Mod.Release[] modMeta;
 
-	private ModFile(Type type, File file, Mod.Meta[] modMeta)
+	public ModFile(Type type, byte[] md5, Mod.Release[] modMeta)
 	{
 		this.type = type;
-		this.file = file;
+		this.md5 = MD5.toString(md5);
 		this.modMeta = modMeta;
-	}
-
-	public File getFile()
-	{
-		return file;
 	}
 
 	public Set<String> getAllModId()
 	{
 		HashSet<String> set = new HashSet<>();
-		for (Mod.Meta meta : modMeta)
+		for (Mod.Release meta : modMeta)
 			set.add(meta.getModId());
 		return set;
 	}
 
-	public Mod.Meta getMeta(String modid)
+	public Mod.Release getRelease(String modid)
 	{
 		for (int i = 0; i < modMeta.length; i++)
 			if (modMeta[i].getModId().equals(modid))
 				return modMeta[i];
 		return null;
+	}
+
+	public String getMd5()
+	{
+		return md5;
+	}
+
+	public Type getType()
+	{
+		return type;
 	}
 
 	@Override
@@ -59,22 +65,19 @@ public class ModFile implements Iterable<Mod.Meta>
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		ModFile that = (ModFile) o;
+		ModFile metas = (ModFile) o;
 
-		if (that.type != this.type) return false;
-		return file.equals(that.file);
+		return md5.equals(metas.md5);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		int result = type.hashCode();
-		result = 31 * result + file.hashCode();
-		return result;
+		return md5.hashCode();
 	}
 
 	@Override
-	public Iterator<Mod.Meta> iterator()
+	public Iterator<Mod.Release> iterator()
 	{
 		return Arrays.asList(modMeta).iterator();
 	}
@@ -86,7 +89,7 @@ public class ModFile implements Iterable<Mod.Meta>
 					@Override
 					public ModFile parseFile(File file) throws IOException
 					{
-						List<Mod.Meta> meta = new ArrayList<>();
+						List<Mod.Release> meta = new ArrayList<>();
 						JarFile jar = new JarFile(file);
 						try
 						{

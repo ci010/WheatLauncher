@@ -10,7 +10,7 @@ import java.util.Set;
 /**
  * @author ci010
  */
-public class ModInfo implements Mod.Meta
+public class ModInfo implements Mod.Release
 {
 	private String modId;
 	private String name;
@@ -96,7 +96,7 @@ public class ModInfo implements Mod.Meta
 	}
 
 //	@Override
-	public Mod.Meta merge(Mod.Meta meta)
+	public Mod.Release merge(Mod.Release meta)
 	{
 		if (meta == this)
 			return this;
@@ -105,7 +105,7 @@ public class ModInfo implements Mod.Meta
 			if (meta instanceof ModInfo) //this should not happen... it's better to just ignore it than throw exception
 				return this;
 			if (meta instanceof RuntimeAnnotation)
-				return new SuperModMeta(this, (RuntimeAnnotation) meta);
+				return new ReleaseImpl(this, (RuntimeAnnotation) meta);
 		}
 		return null;
 	}

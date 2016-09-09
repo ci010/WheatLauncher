@@ -2,12 +2,14 @@ package net.wheatlauncher.launch;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SetProperty;
+import javafx.beans.property.SimpleSetProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.ObservableValueBase;
 import net.wheatlauncher.Core;
+import net.wheatlauncher.Mod;
 import net.wheatlauncher.utils.*;
 import org.to2mbn.jmccc.auth.AuthInfo;
-import org.to2mbn.jmccc.auth.yggdrasil.YggdrasilAuthenticator;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.launch.LaunchException;
 import org.to2mbn.jmccc.launch.Launcher;
@@ -80,6 +82,8 @@ public class LaunchProfile
 	private Condition conditionLaunch = new Condition().add(javaEnvironmentSimpleStrictProperty,
 			minecraftLocationProperty, version, memory).add(conditionAuth);
 
+	private SetProperty<Mod.Release> selectedMod = new SimpleSetProperty<>();
+
 	protected void setupAuth(ConditionAuth auth)
 	{
 		Logger.trace("setup Auth");
@@ -100,11 +104,6 @@ public class LaunchProfile
 	public String getName()
 	{
 		return name;
-	}
-
-	public YggdrasilAuthenticator.PasswordProvider getPasswordProvider()
-	{
-		return conditionAuth;
 	}
 
 	public StrictProperty<String> versionProperty() {return version;}

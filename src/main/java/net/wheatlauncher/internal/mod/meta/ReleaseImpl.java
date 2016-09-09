@@ -8,12 +8,12 @@ import java.util.Set;
 /**
  * @author ci010
  */
-public class SuperModMeta implements Mod.Meta
+public class ReleaseImpl implements Mod.Release
 {
-	private Mod.Meta info, annoInfo;
+	private Mod.Release info, annoInfo;
 	private Set<String> supportVersions;
 
-	SuperModMeta(ModInfo info, RuntimeAnnotation annoInfo)
+	ReleaseImpl(ModInfo info, RuntimeAnnotation annoInfo)
 	{
 		this.info = info;
 		this.annoInfo = annoInfo;
@@ -50,6 +50,12 @@ public class SuperModMeta implements Mod.Meta
 	}
 
 	@Override
+	public String toString()
+	{
+		return "ReleaseImpl{modid: " + getModId() + ", version: " + getVersion() + "}";
+	}
+
+	@Override
 	public Set<String> getAllSupportMinecraftVersions()
 	{
 		return supportVersions;
@@ -64,8 +70,8 @@ public class SuperModMeta implements Mod.Meta
 		return meta;
 	}
 
-//	@Override
-	public Mod.Meta merge(Mod.Meta meta)
+	//	@Override
+	public Mod.Release merge(Mod.Release meta)
 	{
 		return null;
 	}

@@ -7,17 +7,17 @@ import java.util.Set;
 /**
  * @author ci010
  */
-public interface Mod extends Iterable<Mod.Meta>
+public interface Mod extends Iterable<Mod.Release>
 {
 	String getModId();
 
-	Meta getMeta(String version);
+	Release getRelease(String version);
 
-	List<Meta> getMetaFromMinecraftVersion(String minecraftVersion);
+	List<Release> getReleaseFromMinecraftVersion(String minecraftVersion);
 
-	Meta getLatestMetaFromMinecraftVersion(String minecraftVersion);
+	Release getLatestReleaseFromMinecraftVersion(String minecraftVersion);
 
-	interface Meta
+	interface Release
 	{
 		//String
 		String DESCRIPTION = "description", UPDATE_JSON = "updateJSON", URL = "url", LOGO = "logoFile", CREDITS = "credits",
@@ -30,7 +30,7 @@ public interface Mod extends Iterable<Mod.Meta>
 		//String[]
 		String AUTHOR_LIST = "author_list", SCREENSHOT = "screenShot";
 
-		Comparator<Meta> COMPARATOR = (o1, o2) -> {
+		Comparator<Release> COMPARATOR = (o1, o2) -> {
 			if (o1.getModId().compareTo(o2.getModId()) == 0)
 				return o1.getVersion().compareTo(o2.getVersion());
 			return Integer.MIN_VALUE;
