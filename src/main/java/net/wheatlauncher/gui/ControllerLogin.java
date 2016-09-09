@@ -82,7 +82,7 @@ public class ControllerLogin implements ReloadableController
 		account.textProperty().addListener(observable -> account.validate());
 		password.textProperty().addListener(observable -> password.validate());
 
-		login.setOnAction(event -> flowContext.getRegisteredObject(PageSwitcher.class).switchToQuite("preview"));
+		login.setOnAction(event -> flowContext.getRegisteredObject(PageManager.class).switchToQuite("preview"));
 
 		Logger.trace("add listener to core's launch profile");
 		Core.INSTANCE.selectLaunchProfile().addListener(((observable, oldValue, newValue) -> {

@@ -37,4 +37,6 @@
                                prefWidth="110"
                                prefHeight="50"/>
     </StackPane>
+
+    <fx:include fx:id="settingDialog" source="Setting.fxml"/>
 </HBox>

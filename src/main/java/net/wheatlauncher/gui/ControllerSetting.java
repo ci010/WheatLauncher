@@ -2,15 +2,14 @@ package net.wheatlauncher.gui;
 
 import com.jfoenix.controls.*;
 import com.jfoenix.validation.ValidationFacade;
-import de.jensd.fx.fontawesome.Icon;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
+import net.wheatlauncher.utils.Logger;
 import org.to2mbn.jmccc.option.JavaEnvironment;
-import org.to2mbn.jmccc.option.MinecraftDirectory;
 
 import javax.annotation.PostConstruct;
 
@@ -24,16 +23,12 @@ public class ControllerSetting implements ReloadableController
 	public ValidationFacade validMcLocation;
 	public ValidationFacade validVersion;
 
-	public StackPane rightBody;
 	public Label profileLabel;
 	public JFXPopup profilePopup;
-	public Label renameProfile;
-	public Label newProfile;
-	public Label deleteProfile;
-
-	@FXML
-	public Icon editProfile;
-	public JFXRippler optionsRippler;
+	@FXMLInnerController
+	public ControllerSettingProfile profilePopupController;
+	public JFXRippler optionsEditRegion;
+	public JFXDialog rootDialog;
 
 	private JFXSlider memory;
 	private ValidationFacade validJAVALocation;
@@ -43,9 +38,6 @@ public class ControllerSetting implements ReloadableController
 
 	@FXML
 	private JFXComboBox<String> versions;
-
-	@FXML
-	private JFXComboBox<MinecraftDirectory> mcLocation;
 
 	@FXML
 	private JFXListView<Label> options;
@@ -59,6 +51,8 @@ public class ControllerSetting implements ReloadableController
 	@FXML
 	private FlowPane root;
 
+	public StackPane rightBody;
+
 //	Color freshColor = new Color(Color.BROWN.getRed(), Color.BROWN.getRed(), Color.BROWN.getRed(), 1);
 //	Background brown = new Background(
 //			new BackgroundFill(new Color(Color.BROWN.getRed(), Color.BROWN.getGreen(), Color.BROWN.getBlue(), 0.7),
@@ -68,14 +62,18 @@ public class ControllerSetting implements ReloadableController
 	@PostConstruct
 	public void setup()
 	{
-		root.getChildren().remove(profilePopup);
+		Logger.trace("setup setting");
+		rootDialog.setOverlayClose(false);
+		rootDialog.getChildren().remove(profilePopup);
 		profilePopup.setPopupContainer(root);
-		profilePopup.setSource(optionsRippler);
-		optionsRippler.setOnMouseEntered(event -> {
+		profilePopup.setSource(optionsEditRegion);
+		optionsEditRegion.setOnMouseClicked(event -> {
+			System.out.println("show");
 			profilePopup.show(JFXPopup.PopupVPosition.TOP, JFXPopup.PopupHPosition.LEFT,
 					-150, -80);
 		});
-		optionsRippler.setOnMouseExited(event -> profilePopup.close());
+
+//		optionsEditRegion.setOnMouseExited(event -> profilePopup.close());
 
 //		profileButton.setOnAction(event -> profilePopup.show(JFXPopup.PopupVPosition.TOP, JFXPopup.PopupHPosition.LEFT,
 //				-12, 15));
@@ -176,11 +174,9 @@ public class ControllerSetting implements ReloadableController
 		}
 	}
 
-	public Runnable close;
-
 	public void exit()
 	{
-		close.run();
+		rootDialog.close();
 	}
 
 	@Override

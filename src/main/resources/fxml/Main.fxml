@@ -8,8 +8,7 @@
     <!--<HBox fx:id="top" alignment="TOP_RIGHT" style="-fx-padding:0,0,40,0; -fx-background-color:WHITESMOKE;"-->
     <!--maxHeight="40" maxWidth="40">-->
     <ColorTransitionButton fx:id="close" prefHeight="40" prefWidth="40"
-                           buttonType="RAISED"
-                           style="-fx-padding:0,0,400,0; -fx-background-color:WHEAT; -fx-button-target-color:RED;">
+                           hoverColor="red" transitionDuration="200ms" style="-fx-background-radius:0">
         <graphic>
             <Icon awesomeIcon="CLOSE" scaleX="1.3" scaleY="1.3" style="-fx-font-family:FontAwesome;"/>
         </graphic>

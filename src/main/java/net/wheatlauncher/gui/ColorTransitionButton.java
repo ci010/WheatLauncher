@@ -3,15 +3,13 @@ package net.wheatlauncher.gui;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.skins.JFXButtonSkin;
 import com.sun.javafx.css.SubCssMetaData;
+import com.sun.javafx.css.converters.DurationConverter;
 import com.sun.javafx.css.converters.InsetsConverter;
 import com.sun.javafx.css.converters.PaintConverter;
 import com.sun.javafx.scene.layout.region.CornerRadiiConverter;
 import javafx.animation.Animation;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.WritableValue;
-import javafx.css.CssMetaData;
-import javafx.css.SimpleStyleableObjectProperty;
-import javafx.css.Styleable;
+import javafx.css.*;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Control;
@@ -61,7 +59,7 @@ public class ColorTransitionButton extends JFXButton
 			button.setRipplerFill(button.getBackground().getFills().get(0).getFill());
 			hoverAnimation = RegionAnimation.create(button,
 					new BackgroundFill(getHoverColor(), getHoverRadii(), getHoverInsets()),
-					Duration.millis(400));
+					getTransitionDuration());
 			button.hoverProperty().addListener((observable, oldValue, newValue) -> {
 				hoverAnimation.setRate(newValue ? 1 : -1);
 				hoverAnimation.play();
@@ -72,6 +70,9 @@ public class ColorTransitionButton extends JFXButton
 
 	private static class StyleableProperties
 	{
+		private static final List<CssMetaData<? extends Styleable, ?>> CHILD_STYLEABLES;
+
+
 		static final CssMetaData<Node, Paint> BACKGROUND_COLOR =
 				new SubCssMetaData<>("-fx-hover-background-color",
 						PaintConverter.getInstance(),
@@ -86,6 +87,41 @@ public class ColorTransitionButton extends JFXButton
 				new SubCssMetaData<>("-fx-hover-background-insets",
 						InsetsConverter.getInstance(),
 						Insets.EMPTY);
+
+		static final CssMetaData<ColorTransitionButton, Duration> TRANSITION_DURATION = new
+				CssMetaData<ColorTransitionButton, Duration>("-fx-hover-transition-duration",
+						DurationConverter.getInstance(),
+						Duration.millis(400))
+				{
+					@Override
+					public void set(ColorTransitionButton styleable, Duration value, StyleOrigin origin)
+					{
+						System.out.println("set " + value);
+						super.set(styleable, value, origin);
+					}
+
+					@Override
+					public boolean isSettable(ColorTransitionButton styleable)
+					{
+						return true;
+					}
+
+					@Override
+					public StyleableProperty<Duration> getStyleableProperty(ColorTransitionButton styleable)
+					{
+						return styleable.transitionDuration;
+					}
+				};
+
+		static
+		{
+			final List<CssMetaData<? extends Styleable, ?>> styleables =
+					new ArrayList<>(Control.getClassCssMetaData());
+			Collections.addAll(styleables,
+					BACKGROUND_COLOR, BACKGROUND_INSETS, BACKGROUND_RADIUS, TRANSITION_DURATION
+			);
+			CHILD_STYLEABLES = Collections.unmodifiableList(styleables);
+		}
 	}
 
 	public Paint getHoverColor()
@@ -93,7 +129,7 @@ public class ColorTransitionButton extends JFXButton
 		return hoverColor.get();
 	}
 
-	public ObjectProperty<Paint> hoverColorProperty()
+	public StyleableObjectProperty<Paint> hoverColorProperty()
 	{
 		return hoverColor;
 	}
@@ -108,7 +144,7 @@ public class ColorTransitionButton extends JFXButton
 		return hoverInsets.get();
 	}
 
-	public ObjectProperty<Insets> hoverInsetsProperty()
+	public StyleableObjectProperty<Insets> hoverInsetsProperty()
 	{
 		return hoverInsets;
 	}
@@ -123,7 +159,7 @@ public class ColorTransitionButton extends JFXButton
 		return hoverRadii.get();
 	}
 
-	public ObjectProperty<CornerRadii> hoverRadiiProperty()
+	public StyleableObjectProperty<CornerRadii> hoverRadiiProperty()
 	{
 		return hoverRadii;
 	}
@@ -133,17 +169,36 @@ public class ColorTransitionButton extends JFXButton
 		this.hoverRadii.set(hoverRadii);
 	}
 
-	private ObjectProperty<Paint> hoverColor = new SimpleStyleableObjectProperty<>(StyleableProperties.BACKGROUND_COLOR,
+	public Duration getTransitionDuration()
+	{
+		return transitionDuration.get();
+	}
+
+	public StyleableObjectProperty<Duration> transitionDurationProperty()
+	{
+		return transitionDuration;
+	}
+
+	public void setTransitionDuration(Duration transitionDuration)
+	{
+		this.transitionDuration.set(transitionDuration);
+	}
+
+	private StyleableObjectProperty<Paint> hoverColor = new SimpleStyleableObjectProperty<>(StyleableProperties.BACKGROUND_COLOR,
 			this, "hoverColor", Color.TOMATO);
 
-	private ObjectProperty<Insets> hoverInsets = new SimpleStyleableObjectProperty<>(
+	private StyleableObjectProperty<Insets> hoverInsets = new SimpleStyleableObjectProperty<>(
 			StyleableProperties.BACKGROUND_INSETS,
 			this, "hoverInsets", Insets.EMPTY);
 
-	private ObjectProperty<CornerRadii> hoverRadii = new SimpleStyleableObjectProperty<>(
+	private StyleableObjectProperty<CornerRadii> hoverRadii = new SimpleStyleableObjectProperty<>(
 			StyleableProperties.BACKGROUND_RADIUS,
 			this, "hoverRadii", CornerRadii.EMPTY);
-	//
+
+	private StyleableObjectProperty<Duration> transitionDuration = new SimpleStyleableObjectProperty<>(
+			StyleableProperties.TRANSITION_DURATION,
+			this, "transitionDuration", Duration.millis(400));
+
 	private static List<CssMetaData<? extends Styleable, ?>> STYLEABLES;
 
 	@Override
@@ -152,14 +207,17 @@ public class ColorTransitionButton extends JFXButton
 		if (STYLEABLES == null)
 		{
 			final List<CssMetaData<? extends Styleable, ?>> styleables =
-					new ArrayList<>(Control.getClassCssMetaData());
+					new ArrayList<>();
 			styleables.addAll(super.getControlCssMetaData());
-			styleables.add(StyleableProperties.BACKGROUND_COLOR);
-			styleables.add(StyleableProperties.BACKGROUND_RADIUS);
-			styleables.add(StyleableProperties.BACKGROUND_INSETS);
+			styleables.addAll(getClassCssMetaData());
 			STYLEABLES = Collections.unmodifiableList(styleables);
 		}
 		return STYLEABLES;
+	}
+
+	public static List<CssMetaData<? extends Styleable, ?>> getClassCssMetaData()
+	{
+		return StyleableProperties.CHILD_STYLEABLES;
 	}
 
 }
