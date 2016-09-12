@@ -47,7 +47,7 @@ public class ModImpl implements Mod
 	@Override
 	public String toString()
 	{
-		return "Mod{" +
+		return "Artifact{" +
 				"modId='" + modId +
 				" , versions=[" + modVersionToToken.keySet().stream().collect(Collectors.joining(", ")) + "]" +
 				'\'' +
