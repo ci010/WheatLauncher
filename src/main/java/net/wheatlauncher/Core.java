@@ -2,7 +2,6 @@ package net.wheatlauncher;
 
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
-import net.wheatlauncher.internal.repository.ModControl;
 import net.wheatlauncher.launch.LaunchProfile;
 import net.wheatlauncher.utils.Logger;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
@@ -75,7 +74,6 @@ public enum Core
 	private ListProperty<JavaEnvironment> javaHistory = new SimpleListProperty<>(FXCollections.observableArrayList());
 	private MapProperty<String, LaunchProfile> profileMapProperty = new SimpleMapProperty<>
 			(FXCollections.observableHashMap());
-	private ModControl localModRepo;
 	private ObjectProperty<LaunchProfile> selectLaunchProperty = new SimpleObjectProperty<LaunchProfile>()
 	{
 		@Override

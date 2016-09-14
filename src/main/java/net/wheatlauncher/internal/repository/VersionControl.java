@@ -1,6 +1,8 @@
 package net.wheatlauncher.internal.repository;
 
+import net.wheatlauncher.Core;
 import net.wheatlauncher.utils.JsonSerializer;
+import net.wheatlauncher.utils.resource.ArchiveRepository;
 import net.wheatlauncher.utils.resource.ResourceType;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.version.Version;
@@ -16,8 +18,8 @@ public class VersionControl //implements MinecraftRepository<String>
 
 	public VersionControl()
 	{
-		ArchiveRepository.Builder<Version> builder =
-				new ArchiveRepository.Builder<>("versions",
+		this.versionArchiveRepository =
+				new ArchiveRepository.Builder<>(Core.INSTANCE.getArchivesRoot(), "versions",
 						new JsonSerializer<Version>()
 						{
 							@Override
@@ -34,7 +36,7 @@ public class VersionControl //implements MinecraftRepository<String>
 						})
 						.registerParser(ResourceType.DIR, file -> {
 							return null;
-						});
+						}).build();
 	}
 
 	public boolean contains(Version version)

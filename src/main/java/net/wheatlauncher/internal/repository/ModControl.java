@@ -3,12 +3,14 @@ package net.wheatlauncher.internal.repository;
 import javafx.beans.property.ListProperty;
 import javafx.collections.MapChangeListener;
 import jdk.internal.org.objectweb.asm.ClassReader;
+import net.wheatlauncher.Core;
 import net.wheatlauncher.Mod;
 import net.wheatlauncher.internal.mod.ModImpl;
 import net.wheatlauncher.internal.mod.meta.ModInfo;
 import net.wheatlauncher.internal.mod.meta.RuntimeAnnotation;
 import net.wheatlauncher.utils.JsonSerializer;
 import net.wheatlauncher.utils.Patterns;
+import net.wheatlauncher.utils.resource.ArchiveRepository;
 import net.wheatlauncher.utils.resource.ArchiveResource;
 import net.wheatlauncher.utils.resource.ResourceType;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
@@ -34,7 +36,8 @@ public class ModControl
 
 	public ModControl()
 	{
-		ArchiveRepository.Builder<Mod.Release[]> builder = new ArchiveRepository.Builder<>("mods",
+		ArchiveRepository.Builder<Mod.Release[]> builder = new ArchiveRepository.Builder<>(
+				Core.INSTANCE.getArchivesRoot(), "mods",
 				new JsonSerializer<Mod.Release[]>()
 				{
 					@Override
@@ -121,23 +124,64 @@ public class ModControl
 	}
 
 	private ListProperty<Mod.Release> selectMod;
-//	private boolean register(ModFile file)
+//
+//	private class CurseModRepo implements ArchiveRepository.RemoteRepository<Mod.Release[]>
 //	{
-//		if (file == null)
+//		private Map<String, String> modidToCursePage = new HashMap<>();
+//		private HttpRequester requester;
+//		private Map<String, CurseForgeMinecraftProject> cached = new HashMap<>();
+//
+//		public CurseModRepo(HttpRequester requester)
+//		{
+//			this.requester = requester;
+//		}
+//
+//		@Override
+//		public String getName()
+//		{
+//			return "curse";
+//		}
+//
+//		@Override
+//		public Class<Mod.Release[]> getType()
+//		{
+//			return Mod.Release[].class;
+//		}
+//
+//		@Override
+//		public boolean hasResource(String path) throws IOException
+//		{
+//			String[] split = path.split(File.separator);
+//			String modid = split[0];
+//			String cursePage = modidToCursePage.get(modid);
+//			CurseForgeMinecraftProject project = CurseForgeMinecraftProject.fetchProject(requester, cursePage);
+//			if (!project.isEmpty())
+//			{
+//				cached.put(path, project);
+//				return true;
+//			}
 //			return false;
-//		if (allModFile.contains(file))
-//			return false;
-//		allModFile.add(file);
-//		for (Artifact.Release modMeta : file.getContainData())
-//			if (modIdToMod.containsKey(modMeta.getModId()))
-//				modIdToMod.get(modMeta.getModId()).register(modMeta);
+//		}
+//
+//		@Override
+//		public File fetchTo(ArchiveRepository<Mod.Release[]> repository, String path) throws IOException
+//		{
+//			String[] split = path.split(File.separator);
+//			String modid = split[0], version = split[1];
+//			CurseForgeMinecraftProject project;
+//			if (cached.containsKey(path))
+//				project = cached.get(path);
 //			else
 //			{
-//				ModImpl entry = new ModImpl(modMeta.getModId());
-//				entry.register(modMeta);
-//				modIdToMod.put(modMeta.getModId(), entry);
+//				String cursePage = modidToCursePage.get(modid);
+//				project = CurseForgeMinecraftProject.fetchProject(requester, cursePage);
+//				if (!project.isEmpty())
+//				{
+//
+//				}
 //			}
-//		return true;
+//			return null;
+//		}
 //	}
 
 }

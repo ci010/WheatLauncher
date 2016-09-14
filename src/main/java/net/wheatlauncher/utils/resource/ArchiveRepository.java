@@ -1,15 +1,15 @@
-package net.wheatlauncher.internal.repository;
+package net.wheatlauncher.utils.resource;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-import net.wheatlauncher.Core;
 import net.wheatlauncher.utils.JsonSerializer;
 import net.wheatlauncher.utils.MD5;
-import net.wheatlauncher.utils.resource.ArchiveResource;
-import net.wheatlauncher.utils.resource.ResourceType;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CombinedDownloadCallback;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 
 import java.io.*;
@@ -24,31 +24,27 @@ import java.util.function.Function;
 /**
  * @author ci010
  */
-public class ArchiveRepository<T> implements ChangeListener<MinecraftDirectory>
+public class ArchiveRepository<T>
 {
 	private ObservableMap<String, ArchiveResource<T>> archesMap = FXCollections.observableHashMap();
 	private ObservableMap<String, ArchiveResource<T>> archesMapView = FXCollections.unmodifiableObservableMap(archesMap);
 	private final File repoRoot;
 
+	private List<RemoteRepository<T>> remoteRepositories = Collections.emptyList();
 	private String path;
 	private Map<ResourceType, Function<File, T>> parserMap = new EnumMap<>(ResourceType.class);
 	private JsonSerializer<T> serializer;
 	private StorageHandler<T> storageHandler;
 
-	public interface RemoteRepository
-	{
-		boolean hasResource(String path);
-	}
-
 	public interface StorageHandler<T>
 	{
-		StoragePath[] dispatch(T rawData, JSONObject jsonData);
+		StoragePath[] dispatch(ArchiveResource<T> resource, JSONObject jsonData);
 	}
 
-	public static StorageHandler<?> DEFAULT = (rawData, jsonData) ->
-			new StoragePath[]{new StoragePath("", jsonData)};
+	public static StorageHandler<?> DEFAULT = (resource, jsonData) ->
+			new StoragePath[]{new StoragePath(resource.getName(), jsonData)};
 
-	private ArchiveRepository(String path,
+	private ArchiveRepository(File root, String path,
 							  Map<ResourceType, Function<File, T>> parserMap,
 							  JsonSerializer<T> serializer,
 							  StorageHandler<T> handler)
@@ -57,7 +53,7 @@ public class ArchiveRepository<T> implements ChangeListener<MinecraftDirectory>
 		this.parserMap = parserMap;
 		this.serializer = serializer;
 		this.storageHandler = handler;
-		this.repoRoot = new File(Core.INSTANCE.getArchivesRoot(), path);
+		this.repoRoot = new File(root, path);
 		this.repoRoot.mkdir();
 		this.getCacheRoot().mkdir();
 		this.getIndexRoot().mkdir();
@@ -67,7 +63,8 @@ public class ArchiveRepository<T> implements ChangeListener<MinecraftDirectory>
 	{
 		for (Map.Entry<String, ArchiveResource<T>> entry : archesMap.entrySet())
 		{
-			StoragePath[] storagePaths = storageHandler.dispatch(entry.getValue().getContainData(), this.writeArchiveToJson(entry.getValue()));
+			StoragePath[] storagePaths = storageHandler.dispatch(entry.getValue(),
+					this.writeArchiveToJson(entry.getValue()));
 			File index = getIndexRoot();
 			for (StoragePath storagePath : storagePaths)
 			{
@@ -79,9 +76,9 @@ public class ArchiveRepository<T> implements ChangeListener<MinecraftDirectory>
 		}
 	}
 
-	private void trySave(ArchiveResource<T> resource) throws IOException
+	private void saveResource(ArchiveResource<T> resource) throws IOException
 	{
-		StoragePath[] storagePaths = storageHandler.dispatch(resource.getContainData(), this.writeArchiveToJson(resource));
+		StoragePath[] storagePaths = storageHandler.dispatch(resource, this.writeArchiveToJson(resource));
 		File index = getIndexRoot();
 		for (StoragePath storagePath : storagePaths)
 		{
@@ -100,13 +97,13 @@ public class ArchiveRepository<T> implements ChangeListener<MinecraftDirectory>
 			@Override
 			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
 			{
-				tryLoad(file.toFile());
+				loadResource(file.toFile());
 				return super.visitFile(file, attrs);
 			}
 		});
 	}
 
-	private ArchiveResource<T> tryLoad(File file) throws FileNotFoundException
+	private ArchiveResource<T> loadResource(File file) throws FileNotFoundException
 	{
 		JSONObject jsonObject = new JSONObject(new FileInputStream(file));
 		ArchiveResource<T> tArchiveResource = ArchiveRepository.this.readArchiveFromJson(jsonObject);
@@ -118,6 +115,7 @@ public class ArchiveRepository<T> implements ChangeListener<MinecraftDirectory>
 	{
 		JSONObject dataObj = new JSONObject();
 		dataObj.put("type", data.getType().toString());
+		dataObj.put("name", data.getName());
 		dataObj.put("hash", data.getHash());
 		dataObj.put("data", serializer.serialize(data.getContainData()));
 		return dataObj;
@@ -127,8 +125,9 @@ public class ArchiveRepository<T> implements ChangeListener<MinecraftDirectory>
 	{
 		ResourceType type = ResourceType.valueOf(dataObj.getString("type"));
 		String md5 = dataObj.getString("hash");
+		String name = dataObj.optString("name");
 		T data = serializer.deserialize(dataObj.getJSONObject("data"));
-		return new ArchiveResource<>(type, md5, data);
+		return new ArchiveResource<>(type, md5, data).setName(name);
 	}
 
 	public ObservableMap<String, ArchiveResource<T>> getAllStorage() {return archesMapView;}
@@ -138,14 +137,14 @@ public class ArchiveRepository<T> implements ChangeListener<MinecraftDirectory>
 		return path;
 	}
 
-	public File getFileLocation(ArchiveResource<T> resource)
+	public File getResourceFile(ArchiveResource<T> resource)
 	{
 		return new File(getCacheRoot(), resource.getHash() + resource.getType().getSuffix());
 	}
 
 	private Map<String, ArchiveResource<T>> cachedIndexedMap = new HashMap<>();
 
-	public Optional<ArchiveResource<T>> findResource(String indexPath)
+	public Optional<ArchiveResource<T>> findResource(String indexPath) throws IOException
 	{
 		if (indexPath == null) return null;
 		ArchiveResource<T> resource = this.cachedIndexedMap.get(indexPath);
@@ -154,22 +153,45 @@ public class ArchiveRepository<T> implements ChangeListener<MinecraftDirectory>
 			File file = new File(getIndexRoot(), indexPath + ".json");
 			if (file.isFile())
 			{
-				try
-				{
-					resource = tryLoad(file);
-					cachedIndexedMap.put(indexPath, resource);
-				}
-				catch (FileNotFoundException e)
-				{
-					e.printStackTrace();
-				}
+				resource = loadResource(file);
+				cachedIndexedMap.put(indexPath, resource);
 			}
 			else
+				for (RemoteRepository<T> repository : remoteRepositories)
+					if (repository.hasResource(indexPath))
+						repository.fetch(indexPath, createCallback());
+		}
+		return Optional.ofNullable(resource);
+	}
+
+	private CombinedDownloadCallback<File> createCallback()
+	{
+		return new CombinedDownloadCallback<File>()
+		{
+			@Override
+			public <R> DownloadCallback<R> taskStart(DownloadTask<R> task)
+			{
+				return null;
+			}
+
+			@Override
+			public void done(File result)
 			{
 
 			}
-		}
-		return Optional.ofNullable(resource);
+
+			@Override
+			public void failed(Throwable e)
+			{
+
+			}
+
+			@Override
+			public void cancelled()
+			{
+
+			}
+		};
 	}
 
 	public File getIndexRoot()
@@ -182,49 +204,66 @@ public class ArchiveRepository<T> implements ChangeListener<MinecraftDirectory>
 		return new File(repoRoot, "cache");
 	}
 
-	@Override
-	public void changed(ObservableValue<? extends MinecraftDirectory> observable, MinecraftDirectory oldValue, MinecraftDirectory newValue)
+	private void scanFile(File file)
 	{
+		try
+		{
+			ResourceType resourceType = ResourceType.getType(file);
+			if (resourceType != null && parserMap.containsKey(resourceType))
+			{
+				String md5 = MD5.toString(MD5.getMD5Fast(file));
+				if (!archesMap.containsKey(md5))
+				{
+					File target = new File(getCacheRoot(),
+							md5 + resourceType.getSuffix());
+					if (!target.isFile()) Files.copy(file.toPath(), target.toPath());
+					String simpleName = file.getName().replace(resourceType.getSuffix(), "");
+					ArchiveResource<T> resource = new ArchiveResource<>(resourceType, md5, parserMap.get
+							(resourceType).apply(target)).setName(simpleName);
+					this.archesMap.put(md5, resource);
+					this.saveResource(resource);
+				}
+			}
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public void bind(ObservableValue<MinecraftDirectory> directoryTarget)
+	{
+		directoryTarget.addListener(dirListener);
+	}
+
+	public void unbind(ObservableValue<MinecraftDirectory> directoryTarget)
+	{
+		directoryTarget.removeListener(dirListener);
+	}
+
+	private ChangeListener<MinecraftDirectory> dirListener = (observable, oldValue, newValue) -> {
 		File dir = new File(newValue.getRoot(), path);
 		if (!dir.exists()) return;
 
 		File[] files = dir.listFiles();
-		if (files != null)
+		if (files != null && files.length > 0)
 			for (File file : files)
-				try
-				{
-					ResourceType resourceType = ResourceType.getType(file);
-					if (resourceType != null && parserMap.containsKey(resourceType))
-					{
-						String md5 = MD5.toString(MD5.getMD5Fast(file));
-						if (!archesMap.containsKey(md5))
-						{
-							Files.copy(file.toPath(), new File(getCacheRoot(),
-									md5 + resourceType.getSuffix()).toPath());
-							ArchiveResource<T> resource = new ArchiveResource<>(resourceType, md5, parserMap.get
-									(resourceType).apply(file));
-							archesMap.put(md5, resource);
-							trySave(resource);
-						}
-					}
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-	}
+				this.scanFile(file);
+	};
 
 	public static class Builder<T> implements javafx.util.Builder<ArchiveRepository<T>>
 	{
 		private String path;
+		private File parent;
 		private Map<ResourceType, Function<File, T>> parserMap = new EnumMap<>(ResourceType.class);
 		private JsonSerializer<T> serializer;
 		private StorageHandler<T> storageHandler = (StorageHandler<T>) DEFAULT;
 
-		public Builder(String path, JsonSerializer<T> serializer)
+		public Builder(File parent, String path, JsonSerializer<T> serializer)
 		{
 			Objects.requireNonNull(path);
 			Objects.requireNonNull(serializer);
+			this.parent = parent;
 			this.path = path;
 			this.serializer = serializer;
 		}
@@ -249,7 +288,7 @@ public class ArchiveRepository<T> implements ChangeListener<MinecraftDirectory>
 		{
 			if (parserMap.isEmpty()) throw new IllegalStateException("The parser map is still empty! This repository " +
 					"won't work!");
-			return new ArchiveRepository<>(path, parserMap, serializer, storageHandler);
+			return new ArchiveRepository<>(parent, path, parserMap, serializer, storageHandler);
 		}
 	}
 }

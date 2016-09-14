@@ -1,8 +1,7 @@
-package net.wheatlauncher.internal.repository;
+package net.wheatlauncher.utils.resource;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import net.wheatlauncher.Core;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 
 import java.io.File;
@@ -16,15 +15,16 @@ import java.nio.file.attribute.BasicFileAttributes;
 /**
  * @author ci010
  */
-public class BackupRepository implements ChangeListener<MinecraftDirectory>
+public class BackupRepository
 {
 	private String path;
 	private File repoRoot;
 
-	public BackupRepository(String path)
+	public BackupRepository(File parent, String path)
 	{
 		this.path = path;
-		this.repoRoot = new File(Core.INSTANCE.getBackupRoot(), path);
+		this.repoRoot = new File(parent, path);
+		this.repoRoot.mkdirs();
 	}
 
 	public File getRoot()
@@ -42,9 +42,19 @@ public class BackupRepository implements ChangeListener<MinecraftDirectory>
 		return new File(repoRoot, path);
 	}
 
-	public void backup(MinecraftDirectory directory)
+	public void bind(ObservableValue<MinecraftDirectory> fileObservableValue)
 	{
-		File root = new File(directory.getRoot(), path);
+		fileObservableValue.addListener(dirListener);
+	}
+
+	public void unbind(ObservableValue<MinecraftDirectory> fileObservableValue)
+	{
+		fileObservableValue.removeListener(dirListener);
+	}
+
+	public void backup(File directory)
+	{
+		File root = new File(directory, path);
 		if (!root.exists()) return;
 		try
 		{
@@ -70,9 +80,5 @@ public class BackupRepository implements ChangeListener<MinecraftDirectory>
 		}
 	}
 
-	@Override
-	public void changed(ObservableValue<? extends MinecraftDirectory> observable, MinecraftDirectory oldValue, MinecraftDirectory newValue)
-	{
-		backup(newValue);
-	}
+	private ChangeListener<MinecraftDirectory> dirListener = (observable, oldValue, newValue) -> backup(newValue.getRoot());
 }

@@ -1,4 +1,4 @@
-package net.wheatlauncher.internal.repository;
+package net.wheatlauncher.utils.resource;
 
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 

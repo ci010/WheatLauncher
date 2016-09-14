@@ -1,5 +1,7 @@
 package net.wheatlauncher.internal.repository;
 
+import net.wheatlauncher.Core;
+import net.wheatlauncher.utils.resource.BackupRepository;
 import org.to2mbn.jmccc.version.Library;
 import org.to2mbn.jmccc.version.Native;
 
@@ -8,8 +10,8 @@ import org.to2mbn.jmccc.version.Native;
  */
 public class LibraryControl
 {
-	private BackupRepository libRepo = new BackupRepository("libraries");
-	private BackupRepository nativeRepo = new BackupRepository("natives");
+	private BackupRepository libRepo = new BackupRepository(Core.INSTANCE.getBackupRoot(), "libraries");
+	private BackupRepository nativeRepo = new BackupRepository(Core.INSTANCE.getBackupRoot(), "natives");
 
 	public boolean contains(Library library)
 	{

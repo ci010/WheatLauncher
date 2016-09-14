@@ -1,9 +1,11 @@
 package net.wheatlauncher.internal.repository;
 
 import javafx.scene.image.Image;
+import net.wheatlauncher.Core;
 import net.wheatlauncher.ResourcePack;
 import net.wheatlauncher.internal.ResourcePackImpl;
 import net.wheatlauncher.utils.JsonSerializer;
+import net.wheatlauncher.utils.resource.ArchiveRepository;
 import net.wheatlauncher.utils.resource.ArchiveResource;
 import net.wheatlauncher.utils.resource.ResourceType;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
@@ -36,7 +38,15 @@ public class ResourcePackControl
 	public Optional<ResourcePack> getResourcePack(String name)
 	{
 		Optional<ArchiveResource<ResourcePack>> resource =
-				archiveRepository.findResource(name);
+				null;
+		try
+		{
+			resource = archiveRepository.findResource(name);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 		if (resource.isPresent()) return Optional.ofNullable(resource.get().getContainData());
 		else return Optional.empty();
 	}
@@ -47,7 +57,7 @@ public class ResourcePackControl
 		if (resource.isPresent())
 		{
 			ArchiveResource<ResourcePack> archiveResource = resource.get();
-			File f = archiveRepository.getFileLocation(archiveResource);
+			File f = archiveRepository.getResourceFile(archiveResource);
 			if (archiveResource.getType() == ResourceType.DIR)
 			{
 				File png = new File(f, "pack.png");
@@ -65,7 +75,7 @@ public class ResourcePackControl
 
 	public ResourcePackControl()
 	{
-		archiveRepository = new ArchiveRepository.Builder<>("resourcepacks",
+		archiveRepository = new ArchiveRepository.Builder<>(Core.INSTANCE.getArchivesRoot(), "resourcepacks",
 				new JsonSerializer<ResourcePack>()
 				{
 					@Override
