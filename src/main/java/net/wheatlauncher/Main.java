@@ -56,15 +56,17 @@ public class Main extends Application
 		FlowHandler flowHandler = flow.createHandler(flowContext);
 		flowHandler.start(container);
 
-		final Scene scene = new Scene(container.getView(), 512, 380);
+		final Scene scene = new Scene(container.getView(), 600, 430);//old 512 380  542, 380
 		stage.initStyle(StageStyle.TRANSPARENT);
 		scene.getStylesheets().add(Main.class.getResource("/css/jfoenix-main-demo.css").toExternalForm());
 		scene.getStylesheets().add(Main.class.getResource("/css/common.css").toExternalForm());
-		container.getView().setOnMousePressed(event -> {
+		container.getView().setOnMousePressed(event ->
+		{
 			xOffset = event.getSceneX();
 			yOffset = event.getSceneY();
 		});
-		container.getView().setOnMouseDragged(event -> {
+		container.getView().setOnMouseDragged(event ->
+		{
 			stage.setX(event.getScreenX() - xOffset);
 			stage.setY(event.getScreenY() - yOffset);
 		});
@@ -74,4 +76,10 @@ public class Main extends Application
 		Core.INSTANCE.onInit();
 	}
 
+	@Override
+	public void stop() throws Exception
+	{
+		Core.INSTANCE.onDestroy();
+		System.out.println("Stop");
+	}
 }

@@ -1,5 +1,7 @@
 package net.wheatlauncher.utils;
 
+import org.to2mbn.jmccc.util.Platform;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
@@ -13,6 +15,27 @@ import static java.nio.file.StandardCopyOption.*;
  */
 public class DirUtils
 {
+	public static File getAvailableWorkDir()
+	{
+		File root;
+		switch (Platform.CURRENT)
+		{
+			case WINDOWS:
+				String appdata = System.getenv("APPDATA");
+				root = new File(appdata == null ? System.getProperty("user.home", ".") : appdata, ".launcher/");
+				break;
+			case LINUX:
+				root = new File(System.getProperty("user.home", "."), ".launcher/");
+				break;
+			case OSX:
+				root = new File("Library/Application Support/launcher/");
+				break;
+			default:
+				root = new File(System.getProperty("user.home", ".") + "/");
+		}
+		return root;
+	}
+
 	public static void copy(File dir, File target) throws IOException
 	{
 		if (!dir.isDirectory())

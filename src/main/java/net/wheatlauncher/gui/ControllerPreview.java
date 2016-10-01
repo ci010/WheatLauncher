@@ -8,16 +8,17 @@ import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.animation.Animation;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import moe.mickey.minecraft.skin.fx.SkinCanvas;
 import moe.mickey.minecraft.skin.fx.animation.SkinAniRunning;
 import net.wheatlauncher.Core;
-import net.wheatlauncher.launch.LaunchProfile;
+import net.wheatlauncher.LaunchProfile;
+import net.wheatlauncher.gui.setting.ControllerSetting;
 import net.wheatlauncher.utils.ControlUtils;
 import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.AuthenticationException;
@@ -29,6 +30,7 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil.YggdrasilProfileServiceBui
 import org.to2mbn.jmccc.util.UUIDUtils;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.Map;
 
@@ -75,29 +77,43 @@ public class ControllerPreview implements ReloadableController
 		root.getChildren().remove(settingDialog);
 		settingDialog.setDialogContainer(flowContext.getRegisteredObject(StackPane.class));
 
+		settingDialog.setOverlayClose(true);
+
 		JFXDepthManager.setDepth(leftBox, 3);
 		animation = new AnimationRotate(canvas);
 		canvas.getAnimationPlayer().addSkinAnimation(new SkinAniRunning(100, 100, 30, canvas));
 		profileName.setOnAction(event -> openDialog());
+		settingDialog.setOnDialogClosed(event -> settingDialogController.unload());
 
-		profileName.setTooltip(new Tooltip("Switch profile"));
-		setting.setTooltip(new Tooltip("Setting"));
-		switchPlayer.setTooltip(new Tooltip("Switch account"));
+//		profileName.setTooltip(new Tooltip("Switch profile"));
+//		setting.setTooltip(new Tooltip("Setting"));
+//		switchPlayer.setTooltip(new Tooltip("Switch account"));
 		switchPlayer.setOnAction(action -> flowContext.getRegisteredObject(PageManager.class).switchToQuite("login"));
+
+		Core.INSTANCE.selectedProfileProperty().addListener(observable ->
+		{
+			profileName.textProperty().bind(Bindings.createStringBinding(() ->
+							Core.INSTANCE.selectedProfileProperty().get().nameProperty().get(),
+					Core.INSTANCE.selectedProfileProperty().get().nameProperty()));
+			player.textProperty().bind(Bindings.createStringBinding(() ->
+							Core.INSTANCE.selectedProfileProperty().get().accountProperty().getValue(),
+					Core.INSTANCE.selectedProfileProperty().get().accountProperty()));
+			flowContext.getRegisteredObject(PageManager.class).switchToQuite("login");
+		});
 	}
 
-	private boolean firstOpen = true;
+	@PreDestroy
+	public void distroy()
+	{
+
+	}
 
 	private void openDialog()
 	{
-		if (firstOpen)
-		{
-			firstOpen = false;
-			ControlUtils.setDialogHolderBackground(settingDialog, new Background(new BackgroundFill(Color.TRANSPARENT, null,
-					null)));
-			settingDialog.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0.7), null, null)));
-		}
-		System.out.println(settingDialog);
+		ControlUtils.setDialogHolderBackground(settingDialog, new Background(new BackgroundFill(Color.TRANSPARENT, null,
+				null)));
+//		settingDialog.setBackground(new Background(new BackgroundFill(Color.rgb(0, 0, 0, 0.7), null, null)));
+		settingDialogController.reload();
 		settingDialog.show();
 	}
 
@@ -108,17 +124,18 @@ public class ControllerPreview implements ReloadableController
 		LaunchProfile currentProfile = Core.INSTANCE.getCurrentProfile();
 		if (currentProfile.onlineModeProperty().get())
 		{
-			ProfileService profileService = YggdrasilProfileServiceBuilder.buildDefault();
 			AuthInfo authInfo = currentProfile.authInfoProperty().get();
 			if (authInfo == null)
 				throw new IllegalStateException();
 			try
 			{
+				ProfileService profileService = YggdrasilProfileServiceBuilder.buildDefault();
 				PropertiesGameProfile gameProfile = profileService.getGameProfile(UUIDUtils.toUUID(authInfo.getUUID()));
 				Map<TextureType, Texture> textures = profileService.getTextures(gameProfile);
 				Texture texture = textures.get(TextureType.SKIN);
 				String model = texture.getMetadata().get("model");
-				Core.INSTANCE.getService().submit(() -> {
+				Core.INSTANCE.getService().submit(() ->
+				{
 					try
 					{
 						Image image = new Image(texture.openStream());
@@ -136,13 +153,12 @@ public class ControllerPreview implements ReloadableController
 			}
 		}
 		animation.play();
-		profileName.setText(currentProfile.getName());
-		player.setText(currentProfile.getUserName());
 	}
 
 	@Override
 	public void unload()
 	{
+		settingDialog.close();
 		animation.stop();
 	}
 }

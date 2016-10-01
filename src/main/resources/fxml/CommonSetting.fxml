@@ -1,24 +1,37 @@
 <?import com.jfoenix.controls.JFXSlider?>
-<?import com.jfoenix.controls.JFXTextField?>
+<?import de.jensd.fx.fontawesome.Icon?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
 <?import net.wheatlauncher.gui.ColorTransitionButton?>
 <VBox fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
-      xmlns="http://javafx.com/javafx/2.2" fx:controller="net.wheatlauncher.gui.ControllerCommonSetting">
-    <HBox>
-        <JFXTextField fx:id="minecraftLocation"/>
-        <ColorTransitionButton fx:id="browsMinecraft"/>
+      xmlns="http://javafx.com/javafx/2.2" fx:controller="net.wheatlauncher.gui.setting.ControllerCommonSetting"
+      style="-fx-background-color:WHITE; -fx-padding:10;">
+    <HBox alignment="CENTER">
+        <Label fx:id="minecraftLocation"/>
+        <ColorTransitionButton fx:id="browsMinecraft" style="-fx-padding:3,3,3,3; -fx-background-color:TRANSPARENT;">
+            <graphic>
+                <Icon awesomeIcon="FILE"/>
+            </graphic>
+        </ColorTransitionButton>
     </HBox>
-    <HBox>
-        <JFXTextField fx:id="javaLocation"/>
-        <ColorTransitionButton fx:id="browsJava"/>
+    <HBox alignment="CENTER">
+        <Label fx:id="javaLocation"/>
+        <ColorTransitionButton fx:id="browsJava" style="-fx-padding:3,3,3,3; -fx-background-color:TRANSPARENT;">
+            <graphic>
+                <Icon awesomeIcon="FILE"/>
+            </graphic>
+        </ColorTransitionButton>
     </HBox>
     <HBox>
         <Label>Memory</Label>
-        <JFXSlider fx:id="memory"/>
+        <JFXSlider fx:id="memory" showTickMarks="true"
+                   snapToTicks="true" majorTickUnit="256" minorTickCount="0"
+                   max="3072" min="256"/>
     </HBox>
     <HBox>
         <Label>Resolution</Label>
-        <JFXSlider fx:id="resolution"/>
+        <JFXSlider fx:id="resolution" showTickMarks="true"
+                   majorTickUnit="1" minorTickCount="0"
+                   snapToTicks="true" max="5"/>
     </HBox>
 </VBox>

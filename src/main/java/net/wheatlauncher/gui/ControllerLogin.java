@@ -15,8 +15,12 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import net.launcher.utils.Logger;
+import net.launcher.utils.State;
 import net.wheatlauncher.Core;
-import net.wheatlauncher.utils.*;
+import net.wheatlauncher.utils.EventListenerUtils;
+import net.wheatlauncher.utils.LanguageMap;
+import net.wheatlauncher.utils.ValidatorAuth;
 
 import javax.annotation.PostConstruct;
 
@@ -68,9 +72,10 @@ public class ControllerLogin implements ReloadableController
 		btnPane.getChildren().remove(spinner);
 
 		onlineMode.setTooltip(new Tooltip(LanguageMap.INSTANCE.translate("online.mode")));
-//		account.setValidators(accountValid);
-//		password.setValidators(passwordValid);
-		EventHandler<? super KeyEvent> handler = event -> {
+		account.setValidators(accountValid);
+		password.setValidators(passwordValid);
+		EventHandler<? super KeyEvent> handler = event ->
+		{
 			if (event.getCode() == KeyCode.ENTER) login.fire();
 		};
 		this.account.setOnKeyReleased(handler);
@@ -84,8 +89,9 @@ public class ControllerLogin implements ReloadableController
 
 		login.setOnAction(event -> flowContext.getRegisteredObject(PageManager.class).switchToQuite("preview"));
 
-		Logger.trace("add listener to core's launch profile");
-		Core.INSTANCE.selectLaunchProfile().addListener(((observable, oldValue, newValue) -> {
+		Logger.trace("onWatch listener to core's launch profile");
+		Core.INSTANCE.selectedProfileProperty().addListener(((observable, oldValue, newValue) ->
+		{
 			Logger.trace("detect launch profile change");
 			if (oldValue != null)
 			{
@@ -101,8 +107,8 @@ public class ControllerLogin implements ReloadableController
 				onlineMode.selectedProperty().unbindBidirectional(oldValue.onlineModeProperty());
 			}
 
-			ListenerUtils.addListenerAndNotify(newValue.loginState(), stateChangeListener);
-			ListenerUtils.addListenerAndNotify(newValue.settingName(), settingChangeListener);
+			EventListenerUtils.addListenerAndNotify(newValue.loginState(), stateChangeListener);
+			EventListenerUtils.addListenerAndNotify(newValue.settingName(), settingChangeListener);
 
 			newValue.accountProperty().bindBidirectional(account.textProperty());
 			newValue.accountProperty().state().addListener(accountValid);
@@ -123,25 +129,27 @@ public class ControllerLogin implements ReloadableController
 			box.requestFocus();
 	}
 
-	private ChangeListener<StrictProperty.EnumState> stateChangeListener = (obv, oldV, newV) -> {
+	private ChangeListener<State.Values> stateChangeListener = (obv, oldV, newV) ->
+	{
 		Logger.trace("login state change " + oldV + " -> " + newV);
-		if (oldV == StrictProperty.EnumState.PENDING)
+		if (oldV == State.Values.PENDING)
 		{
 			btnPane.getChildren().remove(spinner);
 			btnPane.getChildren().add(launchValid);
 		}
-		if (newV == StrictProperty.EnumState.PENDING)
+		if (newV == State.Values.PENDING)
 		{
 			btnPane.getChildren().remove(launchValid);
 			btnPane.getChildren().add(spinner);
 		}
-		else if (newV == StrictProperty.EnumState.FAIL)
+		else if (newV == State.Values.FAIL)
 			login.setDisable(true);
-		else if (newV == StrictProperty.EnumState.PASS)
+		else if (newV == State.Values.PASS)
 			login.setDisable(false);
 	};
 
-	private ChangeListener<String> settingChangeListener = (observable, oldValue, newValue) -> {
+	private ChangeListener<String> settingChangeListener = (observable, oldValue, newValue) ->
+	{
 		Logger.trace("Auth Setting change " + oldValue + " -> " + newValue);
 
 		//clear the old data. I don't know why I have to do this twice after I bindBiDirection....
@@ -150,7 +158,7 @@ public class ControllerLogin implements ReloadableController
 
 		account.setPromptText(LanguageMap.INSTANCE.translate(newValue + ".account"));
 		accountValid.setOnlineType(newValue);
-		password.setDisable(!Core.INSTANCE.selectLaunchProfile().get().isPasswordEnable());
+		password.setDisable(!Core.INSTANCE.selectedProfileProperty().get().isPasswordEnable());
 		if (!password.isDisable())
 		{
 			password.setPromptText(LanguageMap.INSTANCE.translate(newValue + ".password"));

@@ -5,7 +5,6 @@ import io.datafx.controller.context.ViewContext;
 import io.datafx.controller.flow.FlowException;
 import io.datafx.controller.flow.FlowHandler;
 import io.datafx.controller.flow.FlowView;
-import javafx.scene.layout.Pane;
 import net.wheatlauncher.utils.ControlUtils;
 
 import java.util.HashMap;
@@ -39,6 +38,8 @@ public class PageManager //implements BuilderFactory
 		{
 			try
 			{
+				if (current != null)
+					reg.get(current).getController().unload();
 				viewContext.getController().reload();
 				handler.setNewView(new FlowView<>(viewContext), false);
 				current = name;
@@ -49,20 +50,13 @@ public class PageManager //implements BuilderFactory
 		return false;
 	}
 
-	public Pane getCurrentSurfaceContainer()
-	{
-		LayerStack layerStack = handler.getFlowContext().getRegisteredObject(LayerStack.class);
-		Pane currentSurfaceLayer = layerStack.getCurrentSurfaceLayer();
-		if (currentSurfaceLayer != null)
-			return currentSurfaceLayer;
-		return (Pane) handler.getCurrentView().getViewContext().getRootNode();
-	}
-
 	public void switchTo(String name) throws FlowException
 	{
 		ViewContext<? extends ReloadableController> viewContext = reg.get(name);
 		if (viewContext != null)
 		{
+			if (current != null)
+				reg.get(current).getController().unload();
 			viewContext.getController().reload();
 			handler.setNewView(new FlowView<>(viewContext), false);
 			current = name;

@@ -1,20 +1,23 @@
 <?import com.jfoenix.controls.*?>
 <?import com.jfoenix.validation.ValidationFacade?>
 <?import de.jensd.fx.fontawesome.Icon?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 <JFXDialog fx:id="rootDialog" xmlns:fx="http://javafx.com/fxml/1"
            xmlns="http://javafx.com/javafx/2.2"
-           fx:controller="net.wheatlauncher.gui.ControllerSetting">
+           fx:controller="net.wheatlauncher.gui.setting.ControllerSetting">
     <FlowPane fx:id="root" minWidth="400" styleClass="transparent"
-              hgap="30" vgap="30">
+              hgap="30" vgap="30" alignment="CENTER">
         <VBox spacing="5" alignment="CENTER"
               style="-fx-background-color:WHITE; -fx-background-insets:-2; -fx-background-radius:3">
             <HBox alignment="CENTER" spacing="5">
                 <Label fx:id="profileLabel" contentDisplay="RIGHT">
                     Profile
                 </Label>
-                <JFXRippler fx:id="optionsEditRegion">
+                <JFXRippler fx:id="editProfileRegion" maxWidth="10" maxHeight="10">
                     <Icon awesomeIcon="PENCIL_SQUARE" size="1.5em"/>
                 </JFXRippler>
             </HBox>
@@ -36,14 +39,14 @@
             </ValidationFacade>
         </VBox>
 
-        <JFXListView fx:id="options"
-                     depthProperty="3" minWidth="100" expanded="true">
-            <Label>Common</Label>
-            <Label>Minecraft</Label>
-            <Label>Other</Label>
-        </JFXListView>
-
-        <StackPane fx:id="rightBody"/>
+        <JFXTabPane fx:id="optionsTest" prefWidth="380">
+            <Tab text="Common">
+                <fx:include fx:id="commonSetting" source="CommonSetting.fxml"/>
+            </Tab>
+            <Tab text="Minecraft">
+                <fx:include fx:id="gameSetting" source="GameSettingsVanilla.fxml"/>
+            </Tab>
+        </JFXTabPane>
     </FlowPane>
     <fx:include fx:id="profilePopup" source="Setting_Profile.fxml"/>
 </JFXDialog>

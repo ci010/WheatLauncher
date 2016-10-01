@@ -22,6 +22,10 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 /**
+ * This class is a copy of {@link io.datafx.controller.ViewFactory}.
+ * The basic propose of this class is fix the bug, forcing controller constructing, when it loads {@code <fx:include>}
+ * tag. It just one line fix at line 109.
+ *
  * @author ci010
  */
 public class ViewFactoryReload
@@ -102,7 +106,8 @@ public class ViewFactoryReload
 			fxmlLoader.setCharset(viewConfiguration.getCharset());
 			fxmlLoader.setResources(viewConfiguration.getResources());
 			fxmlLoader.setController(controller);
-//			fxmlLoader.setControllerFactory((c) -> controller); fuck this...
+//			fxmlLoader.setControllerFactory((c) -> controller);
+//			To prevent child FXMLLoader construct a same controller...
 			return fxmlLoader;
 		}
 	}

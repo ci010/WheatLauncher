@@ -3,6 +3,8 @@ package net.wheatlauncher.utils;
 import javafx.beans.InvalidationListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.ObservableValueBase;
+import net.launcher.utils.State;
+import net.launcher.utils.StrictProperty;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,22 +13,22 @@ import java.util.List;
 /**
  * @author ci010
  */
-public class Condition extends ObservableValueBase<StrictProperty.EnumState>
+public class Condition extends ObservableValueBase<State.Values>
 {
-	private List<ObservableValue<StrictProperty.EnumState>> conditions;
-	private StrictProperty.EnumState state;
+	private List<ObservableValue<State.Values>> conditions;
+	private State.Values state;
 	public String name;
 	private InvalidationListener listener = (observable) -> {
 //		System.out.println();
-//		Logger.trace("[" + name + "] invalid");
-		StrictProperty.EnumState state = StrictProperty.EnumState.PASS;
-		for (ObservableValue<StrictProperty.EnumState> subCondition : conditions)
+//		Logger.trace("[" + nameProperty + "] invalid");
+		State.Values state = State.Values.PASS;
+		for (ObservableValue<State.Values> subCondition : conditions)
 			state = state.and(subCondition.getValue());
 //		System.out.println("[Condition]new state is " + state);
-//		if (state == StrictProperty.EnumState.FAIL)
+//		if (state == StrictProperty.Values.FAIL)
 //		{
 //			StringBuilder builder = new StringBuilder();
-//			for (ObservableValue<StrictProperty.EnumState> condition : conditions)
+//			for (ObservableValue<StrictProperty.Values> condition : conditions)
 //				builder.append(condition.getValue()).append(" ");
 //			System.out.println(builder);
 //
@@ -49,45 +51,45 @@ public class Condition extends ObservableValueBase<StrictProperty.EnumState>
 	{
 		if (conditions == null || conditions.length == 0)
 			return this;
-		ObservableValue<StrictProperty.EnumState>[] arr = new ObservableValue[conditions.length];
+		ObservableValue<State.Values>[] arr = new ObservableValue[conditions.length];
 		for (int i = 0; i < arr.length; i++)
 			arr[i] = new Wrap(conditions[i].state());
 		this.add(arr);
 		return this;
 	}
 
-	public final Condition add(ObservableValue<StrictProperty.State> state)
+	public final Condition add(ObservableValue<State> state)
 	{
 		if (state == null) return this;
 		this.add(new Wrap(state));
 		return this;
 	}
 
-	private class Wrap extends ObservableValueBase<StrictProperty.EnumState>
+	private class Wrap extends ObservableValueBase<State.Values>
 	{
-		ObservableValue<StrictProperty.State> state;
+		ObservableValue<State> state;
 
-		public Wrap(ObservableValue<StrictProperty.State> state)
+		public Wrap(ObservableValue<State> state)
 		{
 			this.state = state;
 			state.addListener(observable -> fireValueChangedEvent());
 		}
 
 		@Override
-		public StrictProperty.EnumState getValue()
+		public State.Values getValue()
 		{
 			return state.getValue().getState();
 		}
 	}
 
 	@SafeVarargs
-	public final Condition add(ObservableValue<StrictProperty.EnumState>... conditions)
+	public final Condition add(ObservableValue<State.Values>... conditions)
 	{
 		if (conditions == null || conditions.length == 0)
 			return this;
 		if (this.conditions == null)
 			this.conditions = new ArrayList<>();
-		for (ObservableValue<StrictProperty.EnumState> condition : conditions)
+		for (ObservableValue<State.Values> condition : conditions)
 			condition.addListener(listener);
 		Collections.addAll(this.conditions, conditions);
 		listener.invalidated(this);
@@ -95,7 +97,7 @@ public class Condition extends ObservableValueBase<StrictProperty.EnumState>
 	}
 
 	@Override
-	public StrictProperty.EnumState getValue()
+	public State.Values getValue()
 	{
 		return state;
 	}

@@ -1,5 +1,6 @@
 <?import de.jensd.fx.fontawesome.Icon?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
@@ -15,16 +16,26 @@
         <BorderPane>
             <left>
                 <ColorTransitionButton fx:id="setting" maxHeight="10" buttonType="RAISED">
+                    <tooltip>
+                        <Tooltip text="Setting"/>
+                    </tooltip>
                     <graphic>
                         <Icon awesomeIcon="GEAR" scaleX="1.3" scaleY="1.3" style="-fx-font-family:FontAwesome;"/>
                     </graphic>
                 </ColorTransitionButton>
             </left>
             <center>
-                <ColorTransitionButton fx:id="profileName" buttonType="RAISED"/>
+                <ColorTransitionButton fx:id="profileName" buttonType="RAISED">
+                    <tooltip>
+                        <Tooltip text="Switch profile"/>
+                    </tooltip>
+                </ColorTransitionButton>
             </center>
             <right>
                 <ColorTransitionButton fx:id="switchPlayer" maxHeight="10" buttonType="RAISED">
+                    <tooltip>
+                        <Tooltip text="Switch account"/>
+                    </tooltip>
                     <graphic>
                         <Icon awesomeIcon="USER" scaleX="1.3" scaleY="1.3" style="-fx-font-family:FontAwesome;"/>
                     </graphic>

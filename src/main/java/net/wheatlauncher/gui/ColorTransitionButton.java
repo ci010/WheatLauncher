@@ -31,8 +31,10 @@ public class ColorTransitionButton extends JFXButton
 {
 	private boolean shouldApplyCss = true;
 
+	public ColorTransitionButton()
 	{
 		this.disableProperty().addListener(observable -> shouldApplyCss = true);
+		this.getStyleClass().add(DEFAULT_STYLE_CLASS);
 	}
 
 	@Override
@@ -60,7 +62,8 @@ public class ColorTransitionButton extends JFXButton
 			hoverAnimation = RegionAnimation.create(button,
 					new BackgroundFill(getHoverColor(), getHoverRadii(), getHoverInsets()),
 					getTransitionDuration());
-			button.hoverProperty().addListener((observable, oldValue, newValue) -> {
+			button.hoverProperty().addListener((observable, oldValue, newValue) ->
+			{
 				hoverAnimation.setRate(newValue ? 1 : -1);
 				hoverAnimation.play();
 			});
@@ -220,4 +223,6 @@ public class ColorTransitionButton extends JFXButton
 		return StyleableProperties.CHILD_STYLEABLES;
 	}
 
+	private static final String DEFAULT_STYLE_CLASS = "colored-button";
 }
+

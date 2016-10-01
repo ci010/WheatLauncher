@@ -1,20 +1,21 @@
 <?import com.jfoenix.controls.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.*?>
 <JFXPopup fx:id="profilePopup" xmlns:fx="http://javafx.com/fxml/1"
-          xmlns="http://javafx.com/javafx/2.2" fx:controller="net.wheatlauncher.gui.ControllerSettingProfile">
+          xmlns="http://javafx.com/javafx/2.2" fx:controller="net.wheatlauncher.gui.setting.ControllerSettingProfile">
     <StackPane fx:id="dialogHolder">
         <JFXDialog fx:id="newProfileDialog">
             <JFXDialogLayout>
                 <heading>
-                    <Label>New Profile</Label>
+                    <Label StackPane.alignment="CENTER">New Profile</Label>
                 </heading>
                 <body>
-                    <JFXTextField fx:id="newProfileTextField"/>
+                    <JFXTextField fx:id="newProfileTextField" promptText="New Name" maxWidth="50"/>
                 </body>
                 <actions>
                     <JFXButton fx:id="cancelNewProfile" styleClass="dialog-accept">CANCEL
                     </JFXButton>
+                    <HBox prefWidth="20"/>
                     <JFXButton fx:id="acceptNewProfile" styleClass="dialog-accept">ACCEPT
                     </JFXButton>
                 </actions>
@@ -24,14 +25,15 @@
         <JFXDialog fx:id="renameProfileDialog">
             <JFXDialogLayout>
                 <heading>
-                    <Label>Rename Profile</Label>
+                    <Label StackPane.alignment="CENTER">Rename Profile</Label>
                 </heading>
                 <body>
-                    <JFXTextField fx:id="renameProfileTextField"/>
+                    <JFXTextField fx:id="renameProfileTextField" promptText="New Name" maxWidth="50"/>
                 </body>
                 <actions>
                     <JFXButton fx:id="cancelRename" styleClass="dialog-accept">CANCEL
                     </JFXButton>
+                    <HBox prefWidth="20"/>
                     <JFXButton fx:id="acceptRename" styleClass="dialog-accept">ACCEPT
                     </JFXButton>
                 </actions>
@@ -41,23 +43,24 @@
         <JFXDialog fx:id="deleteProfileDialog">
             <JFXDialogLayout>
                 <heading>
-                    <Label>Delete Profile</Label>
+                    <Label StackPane.alignment="CENTER">Delete Profile</Label>
                 </heading>
                 <body>
                     <Label>This will delete all the information of the profile. Are you sure?
-                        (the game data will be saved, nogame files will be delete.)
+                        (the game data will be saved, no game files will be delete.)
                     </Label>
                 </body>
                 <actions>
                     <JFXButton fx:id="cancelDelete" styleClass="dialog-accept">CANCEL
                     </JFXButton>
+                    <HBox prefWidth="20"/>
                     <JFXButton fx:id="acceptDelete" styleClass="dialog-accept">ACCEPT
                     </JFXButton>
                 </actions>
             </JFXDialogLayout>
         </JFXDialog>
     </StackPane>
-    <JFXListView styleClass="option-list-view">
+    <JFXListView fx:id="optionList" styleClass="option-list-view">
         <Label fx:id="renameProfile">
             Rename
         </Label>
