@@ -3,7 +3,7 @@ package net.wheatlauncher;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
-import net.launcher.setting.Option;
+import net.launcher.game.setting.Option;
 import net.launcher.utils.ChangeListenerCache;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.util.IOUtils;
@@ -143,10 +143,10 @@ public class GameSettings
 			}
 		}
 
-		ALL.stream().filter(option -> option.sourceFile().equals(domain) && cached.containsKey(option)
-				&& (!file.isFile() || properties.containsKey(option.getName())))
-				.forEach(option -> properties.put(option.getName(), cached.get(option).getValue()));
-		lock.lock();
+//		ALL.stream().filter(option -> option.sourceFile().equals(domain) && cached.containsKey(option)
+//				&& (!file.isFile() || properties.containsKey(option.getName())))
+//				.forEach(option -> properties.put(option.getName(), cached.get(option).getValue()));
+//		lock.lock();
 
 		String property = System.getProperty("line.separator");
 		String collect = cfg.entrySet().stream().map(pair -> pair.getKey() + ":" + pair.getValue() + property).collect(Collectors.joining("\n"));
@@ -182,8 +182,8 @@ public class GameSettings
 
 	private static Option<?> fromString(String s)
 	{
-		for (Option option : ALL)
-			if (option.getName().equals(s)) return option;
+//		for (Option option : ALL)
+//			if (option.getName().equals(s)) return option;
 		return null;
 	}
 

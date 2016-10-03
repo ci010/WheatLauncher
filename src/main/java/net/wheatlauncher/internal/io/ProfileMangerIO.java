@@ -3,14 +3,14 @@ package net.wheatlauncher.internal.io;
 import javafx.beans.property.Property;
 import javafx.collections.ListChangeListener;
 import javafx.util.Pair;
-import net.launcher.ILaunchProfile;
+import net.launcher.LaunchProfile;
 import net.launcher.LaunchProfileManager;
 import net.launcher.LaunchProfileMangerBuilder;
+import net.launcher.game.setting.Option;
 import net.launcher.io.LoadHandler;
 import net.launcher.io.MappedStorageType;
 import net.launcher.io.SaveHandler;
 import net.launcher.io.SourceObject;
-import net.launcher.setting.Option;
 
 import java.io.File;
 import java.io.IOException;
@@ -61,12 +61,12 @@ public class ProfileMangerIO
 	}
 
 
-	public File getProfileDir(ILaunchProfile profile)
+	public File getProfileDir(LaunchProfile profile)
 	{
 		return new File(root, "profiles/" + profile.nameProperty().getValue());
 	}
 
-	public File getProfileSettingFile(ILaunchProfile profile)
+	public File getProfileSettingFile(LaunchProfile profile)
 	{
 		return new File(getProfileDir(profile), "profile.json");
 	}
@@ -91,9 +91,9 @@ public class ProfileMangerIO
 	{
 		ProfileMangerIO io = new ProfileMangerIO(root);
 		io.mangerSaveHandler.add(manager);
-		manager.allProfilesProperty().addListener((ListChangeListener<ILaunchProfile>) c ->
+		manager.allProfilesProperty().addListener((ListChangeListener<LaunchProfile>) c ->
 		{
-			for (ILaunchProfile iLaunchProfile : c.getAddedSubList())
+			for (LaunchProfile iLaunchProfile : c.getAddedSubList())
 				io.profileSaveHandler.add(iLaunchProfile);
 		});
 		return io;

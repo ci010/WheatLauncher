@@ -3,7 +3,7 @@ package net.launcher;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.*;
 import net.launcher.auth.AuthenticationIndicator;
-import net.launcher.setting.Option;
+import net.launcher.game.setting.Option;
 import net.launcher.utils.*;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.LaunchOption;
@@ -18,7 +18,7 @@ import java.util.*;
 /**
  * @author ci010
  */
-class LaunchProfileImpl implements ILaunchProfile
+public class LaunchProfileImpl implements LaunchProfile
 {
 	private StringProperty name = new SimpleStringProperty("default");
 	private StrictProperty<WindowSize> winSize = new WrappedStrictProperty<>(new SimpleStrictProperty<>(new WindowSize(856, 482)));

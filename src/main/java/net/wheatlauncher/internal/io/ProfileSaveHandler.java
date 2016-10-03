@@ -2,7 +2,7 @@ package net.wheatlauncher.internal.io;
 
 import javafx.beans.Observable;
 import javafx.beans.property.Property;
-import net.launcher.ILaunchProfile;
+import net.launcher.LaunchProfile;
 import net.launcher.io.SaveHandler;
 import net.launcher.io.SourceObject;
 
@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 /**
  * @author ci010
  */
-class ProfileSaveHandler extends SaveHandler<ILaunchProfile>
+class ProfileSaveHandler extends SaveHandler<LaunchProfile>
 {
 	ProfileSaveHandler(File root)
 	{
@@ -21,7 +21,7 @@ class ProfileSaveHandler extends SaveHandler<ILaunchProfile>
 	}
 
 	@Override
-	protected void onWatch(ILaunchProfile value, Map<SourceObject, Observable[]> map)
+	protected void onWatch(LaunchProfile value, Map<SourceObject, Observable[]> map)
 	{
 		map.put(ProfileMangerIO.PROFILE.create("profiles", value.nameProperty().getValue()),
 				new Observable[]{
@@ -46,7 +46,7 @@ class ProfileSaveHandler extends SaveHandler<ILaunchProfile>
 	}
 
 	@Override
-	protected void decorateMap(ILaunchProfile value, SourceObject src, Map<String, String> map)
+	protected void decorateMap(LaunchProfile value, SourceObject src, Map<String, String> map)
 	{
 		if (ProfileMangerIO.PROFILE.isTypeOf(src))
 		{

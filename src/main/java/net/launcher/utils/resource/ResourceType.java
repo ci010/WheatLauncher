@@ -2,7 +2,10 @@ package net.launcher.utils.resource;
 
 import net.launcher.utils.Patterns;
 
-import java.io.File;
+import java.io.*;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * @author ci010
@@ -22,6 +25,16 @@ public enum ResourceType
 				{
 					return Patterns.JAR.matcher(file.getName()).matches();
 				}
+
+				@Override
+				public InputStream openStream(File file, String path) throws IOException
+				{
+					JarFile jar = new JarFile(file);
+					ZipEntry entry = jar.getEntry(path);
+					if (entry != null)
+						return jar.getInputStream(entry);
+					return null;
+				}
 			},
 	ZIP
 			{
@@ -35,6 +48,16 @@ public enum ResourceType
 				public boolean match(File file)
 				{
 					return Patterns.ZIP.matcher(file.getName()).matches();
+				}
+
+				@Override
+				public InputStream openStream(File file, String path) throws IOException
+				{
+					ZipFile zipFile = new ZipFile(file);
+					ZipEntry entry = zipFile.getEntry(path);
+					if (entry != null)
+						return zipFile.getInputStream(entry);
+					return null;
 				}
 			},
 	DIR
@@ -50,11 +73,18 @@ public enum ResourceType
 				{
 					return file.isDirectory();
 				}
+
+				public InputStream openStream(File file, String path) throws FileNotFoundException
+				{
+					return new FileInputStream(new File(file, path));
+				}
 			};
 
 	public abstract String getSuffix();
 
 	public abstract boolean match(File file);
+
+	public abstract InputStream openStream(File file, String path) throws IOException;
 
 	public static ResourceType getType(File file)
 	{

@@ -2,7 +2,7 @@ package net.wheatlauncher.internal.io;
 
 import javafx.beans.Observable;
 import javafx.beans.property.ReadOnlyListProperty;
-import net.launcher.ILaunchProfile;
+import net.launcher.LaunchProfile;
 import net.launcher.LaunchProfileManager;
 import net.launcher.io.SaveHandler;
 import net.launcher.io.SourceObject;
@@ -33,8 +33,8 @@ class ProfileMangerSaveHandler extends SaveHandler<LaunchProfileManager>
 	{
 		map.put("selecting", value.selectedProfileProperty().getValue().nameProperty().getValue());
 		JSONArray arr = new JSONArray();
-		ReadOnlyListProperty<ILaunchProfile> profiles = value.allProfilesProperty();
-		for (ILaunchProfile profile : profiles)
+		ReadOnlyListProperty<LaunchProfile> profiles = value.allProfilesProperty();
+		for (LaunchProfile profile : profiles)
 			arr.put(profile.nameProperty().getValue());
 		map.put("profiles", arr.toString());
 	}

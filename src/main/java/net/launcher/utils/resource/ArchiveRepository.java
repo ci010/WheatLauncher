@@ -7,7 +7,6 @@ import javafx.collections.ObservableMap;
 import net.launcher.utils.MD5;
 import net.launcher.utils.serial.BiSerializer;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 
 import java.io.*;
@@ -25,10 +24,9 @@ import java.util.function.Function;
 public class ArchiveRepository<T>
 {
 	private ObservableMap<String, ArchiveResource<T>> archesMap = FXCollections.observableHashMap();
-	private ObservableMap<String, ArchiveResource<T>> archesMapView = FXCollections.unmodifiableObservableMap(archesMap);
+	private ObservableMap<String, ArchiveResource<T>> view = FXCollections.unmodifiableObservableMap(archesMap);
 	private final File repoRoot;
 
-	private List<RemoteArchiveRepository<T>> remoteRepositories = Collections.emptyList();
 	private String path;
 	private Map<ResourceType, Function<File, T>> parserMap = new EnumMap<>(ResourceType.class);
 	private BiSerializer<T, JSONObject> serializer;
@@ -99,11 +97,39 @@ public class ArchiveRepository<T>
 		});
 	}
 
-	private ArchiveResource<T> loadResource(File file) throws FileNotFoundException
+	public void exportResource(ArchiveResource<T> resource, File target) throws IOException
 	{
-		JSONObject jsonObject = new JSONObject(new FileInputStream(file));
+		File resourceFile = getResourceFile(resource);
+		Files.copy(resourceFile.toPath(), target.toPath());
+	}
+
+	public T importFile(File file) throws IOException
+	{
+		ResourceType resourceType = ResourceType.getType(file);
+		if (resourceType != null && parserMap.containsKey(resourceType))
+		{
+			String md5 = MD5.toString(MD5.getMD5Fast(file));
+			if (!archesMap.containsKey(md5))
+			{
+				File target = new File(repoRoot, toCachePath(md5, resourceType));
+				if (!target.isFile()) Files.copy(file.toPath(), target.toPath());
+				String simpleName = file.getName().replace(resourceType.getSuffix(), "");
+				ArchiveResource<T> resource = new ArchiveResource<>(resourceType, md5, parserMap.get
+						(resourceType).apply(target)).setName(simpleName);
+				this.archesMap.put(md5, resource);
+				this.saveResource(resource);
+				return resource.getContainData();
+			}
+			else return archesMap.get(md5).getContainData();
+		}
+		return null;
+	}
+
+	private ArchiveResource<T> loadResource(File indexFile) throws FileNotFoundException
+	{
+		JSONObject jsonObject = new JSONObject(new FileInputStream(indexFile));
 		ArchiveResource<T> tArchiveResource = ArchiveRepository.this.readArchiveFromJson(jsonObject);
-		ArchiveRepository.this.archesMap.put(tArchiveResource.getHash(), tArchiveResource);
+		this.archesMap.put(tArchiveResource.getHash(), tArchiveResource);
 		return tArchiveResource;
 	}
 
@@ -126,16 +152,22 @@ public class ArchiveRepository<T>
 		return new ArchiveResource<>(type, md5, data).setName(name);
 	}
 
-	public ObservableMap<String, ArchiveResource<T>> getAllStorage() {return archesMapView;}
+	public ObservableMap<String, ArchiveResource<T>> getAllStorage() {return view;}
 
 	public String getRoot()
 	{
 		return path;
 	}
 
-	public File getResourceFile(ArchiveResource<T> resource)
+	private File getResourceFile(ArchiveResource<T> resource)
 	{
 		return new File(repoRoot, toCachePath(resource.getHash(), resource.getType()));
+	}
+
+	public InputStream openStream(ArchiveResource<T> resource, String path) throws IOException
+	{
+		File resourceFile = getResourceFile(resource);
+		return resource.getType().openStream(resourceFile, path);
 	}
 
 	private Map<String, ArchiveResource<T>> cachedIndexedMap = new HashMap<>();
@@ -160,11 +192,6 @@ public class ArchiveRepository<T>
 		return Optional.ofNullable(resource);
 	}
 
-	private DownloadCallback<File> createCallback()
-	{
-		return null;
-	}
-
 	private String toIndexPath(String path)
 	{
 		return "index/" + path + ".json";
@@ -175,31 +202,6 @@ public class ArchiveRepository<T>
 		return "cache/" + hash + type.getSuffix();
 	}
 
-	private void scanFile(File file)
-	{
-		try
-		{
-			ResourceType resourceType = ResourceType.getType(file);
-			if (resourceType != null && parserMap.containsKey(resourceType))
-			{
-				String md5 = MD5.toString(MD5.getMD5Fast(file));
-				if (!archesMap.containsKey(md5))
-				{
-					File target = new File(repoRoot, toCachePath(md5, resourceType));
-					if (!target.isFile()) Files.copy(file.toPath(), target.toPath());
-					String simpleName = file.getName().replace(resourceType.getSuffix(), "");
-					ArchiveResource<T> resource = new ArchiveResource<>(resourceType, md5, parserMap.get
-							(resourceType).apply(target)).setName(simpleName);
-					this.archesMap.put(md5, resource);
-					this.saveResource(resource);
-				}
-			}
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-	}
 
 	public void bind(ObservableValue<MinecraftDirectory> directoryTarget)
 	{
@@ -216,10 +218,20 @@ public class ArchiveRepository<T>
 		File dir = new File(newValue.getRoot(), path);
 		if (!dir.exists()) return;
 
+		IOException ex = null;
 		File[] files = dir.listFiles();
 		if (files != null && files.length > 0)
 			for (File file : files)
-				this.scanFile(file);
+				try
+				{
+					this.importFile(file);
+				}
+				catch (IOException e)
+				{
+					if (ex == null) ex = e;
+					else ex.addSuppressed(e);
+				}
+		if (ex != null) ex.printStackTrace();//TODO handle
 	};
 
 	public static class Builder<T> implements javafx.util.Builder<ArchiveRepository<T>>

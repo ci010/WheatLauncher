@@ -6,7 +6,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
-import net.launcher.ILaunchProfile;
+import net.launcher.LaunchProfile;
 import net.launcher.utils.Logger;
 import net.launcher.utils.State;
 import net.launcher.utils.StrictProperty;
@@ -22,9 +22,9 @@ public abstract class AuthenticationIndicator
 {
 	private ObjectProperty<AuthInfo> info = new SimpleObjectProperty<>();
 	private ObjectProperty<State> state = new SimpleObjectProperty<>(State.of(State.Values.FAIL));
-	private Map<ILaunchProfile, InvalidationListener> listenerMap = new HashMap<>();
+	private Map<LaunchProfile, InvalidationListener> listenerMap = new HashMap<>();
 
-	private InvalidationListener createListner(final ILaunchProfile profile)
+	private InvalidationListener createListner(final LaunchProfile profile)
 	{
 		return (observable ->
 		{
@@ -40,7 +40,7 @@ public abstract class AuthenticationIndicator
 		});
 	}
 
-	public void watch(ILaunchProfile profile)
+	public void watch(LaunchProfile profile)
 	{
 		AuthenticationIndicator value = profile.authProperty().getValue();
 		if (this != value)
@@ -60,7 +60,7 @@ public abstract class AuthenticationIndicator
 		}
 	}
 
-	public void unWatch(ILaunchProfile profile)
+	public void unWatch(LaunchProfile profile)
 	{
 		InvalidationListener listener = listenerMap.get(profile);
 		if (listener == null) return;

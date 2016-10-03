@@ -10,15 +10,15 @@ import java.util.Optional;
  */
 public interface LaunchProfileManager
 {
-	ILaunchProfile newProfileAndSelect(String name);
+	LaunchProfile newProfileAndSelect(String name);
 
-	ILaunchProfile newProfile(String name);
+	LaunchProfile newProfile(String name);
 
-	Optional<ILaunchProfile> getProfile(String name);
+	Optional<LaunchProfile> getProfile(String name);
 
 	void select(String profileName);
 
-	ReadOnlyProperty<ILaunchProfile> selectedProfileProperty();
+	ReadOnlyProperty<LaunchProfile> selectedProfileProperty();
 
-	ReadOnlyListProperty<ILaunchProfile> allProfilesProperty();
+	ReadOnlyListProperty<LaunchProfile> allProfilesProperty();
 }

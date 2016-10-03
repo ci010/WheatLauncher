@@ -3,6 +3,7 @@ package net.launcher;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.to2mbn.jmccc.util.Builder;
 
 import java.util.Optional;
 
@@ -11,24 +12,25 @@ import java.util.Optional;
  */
 class LaunchProfileMangerImpl implements LaunchProfileManager
 {
-	private ObservableList<ILaunchProfile> profiles = FXCollections.observableArrayList();
-	private ListProperty<ILaunchProfile> profilesProperty = new SimpleListProperty<>(profiles);
-	private ObjectProperty<ILaunchProfile> selectingProfile = new SimpleObjectProperty<>();
+	private ObservableList<LaunchProfile> profiles = FXCollections.observableArrayList();
+	private ListProperty<LaunchProfile> profilesProperty = new SimpleListProperty<>(profiles);
+	private ObjectProperty<LaunchProfile> selectingProfile = new SimpleObjectProperty<>();
+	private Builder<LaunchProfile> factory;
 
-	LaunchProfileMangerImpl() {}
+	LaunchProfileMangerImpl(Builder<LaunchProfile> factory) {this.factory = factory;}
 
 	@Override
-	public ILaunchProfile newProfileAndSelect(String name)
+	public LaunchProfile newProfileAndSelect(String name)
 	{
-		ILaunchProfile profile = newProfile(name);
+		LaunchProfile profile = newProfile(name);
 		select(name);
 		return profile;
 	}
 
 	@Override
-	public Optional<ILaunchProfile> getProfile(String name)
+	public Optional<LaunchProfile> getProfile(String name)
 	{
-		for (ILaunchProfile profile : profiles)
+		for (LaunchProfile profile : profiles)
 			if (profile.nameProperty().getValue().equals(name))
 				return Optional.of(profile);
 		return Optional.empty();
@@ -41,21 +43,21 @@ class LaunchProfileMangerImpl implements LaunchProfileManager
 	}
 
 	@Override
-	public ReadOnlyProperty<ILaunchProfile> selectedProfileProperty()
+	public ReadOnlyProperty<LaunchProfile> selectedProfileProperty()
 	{
 		return selectingProfile;
 	}
 
 	@Override
-	public ReadOnlyListProperty<ILaunchProfile> allProfilesProperty()
+	public ReadOnlyListProperty<LaunchProfile> allProfilesProperty()
 	{
 		return profilesProperty;
 	}
 
 	@Override
-	public ILaunchProfile newProfile(String name)
+	public LaunchProfile newProfile(String name)
 	{
-		LaunchProfileImpl profile = new LaunchProfileImpl();
+		LaunchProfile profile = factory.build();
 		profile.nameProperty().setValue(name);
 		if (getProfile(profile.nameProperty().getValue()) != null)
 			throw new IllegalArgumentException("duplicated launch profile!");

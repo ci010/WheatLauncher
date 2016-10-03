@@ -1,13 +1,13 @@
 package net.wheatlauncher.internal.io;
 
-import net.launcher.GameSetting;
-import net.launcher.ILaunchProfile;
+import net.launcher.LaunchProfile;
 import net.launcher.LaunchProfileManager;
 import net.launcher.LaunchProfileMangerBuilder;
 import net.launcher.auth.AuthenticationIndicatorFactory;
+import net.launcher.game.GameSettings;
+import net.launcher.game.setting.Option;
 import net.launcher.io.LoadHandler;
 import net.launcher.io.SourceObject;
-import net.launcher.setting.Option;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
@@ -23,15 +23,15 @@ import java.util.Optional;
  */
 class ProfileManagerLoadHandler extends LoadHandler<LaunchProfileManager>
 {
-	private LoadHandler<ILaunchProfile> child;
+	private LoadHandler<LaunchProfile> child;
 
 	ProfileManagerLoadHandler(File root)
 	{
 		super(root);
-		child = new LoadHandler<ILaunchProfile>(root)
+		child = new LoadHandler<LaunchProfile>(root)
 		{
 			@Override
-			protected ILaunchProfile load(SourceObject object, Map<String, String> dataMap, ILaunchProfile profile)
+			protected LaunchProfile load(SourceObject object, Map<String, String> dataMap, LaunchProfile profile)
 			{
 				if (ProfileMangerIO.PROFILE.isTypeOf(object))
 				{
@@ -65,7 +65,7 @@ class ProfileManagerLoadHandler extends LoadHandler<LaunchProfileManager>
 					if (dataMap.containsKey("version"))
 						profile.versionProperty().setValue(dataMap.get("version"));
 				}
-				else GameSetting.getOptionBySource(object).forEach(option -> setupOption(profile, dataMap, option));
+				else GameSettings.getOptionBySource(object).forEach(option -> setupOption(profile, dataMap, option));
 				return profile;
 			}
 		};
@@ -83,8 +83,8 @@ class ProfileManagerLoadHandler extends LoadHandler<LaunchProfileManager>
 			String profileName = arr.getString(i);
 			ProfileMangerIO.PROFILE.createIfExist(getRoot(), profileName, "profile.json").ifPresent(o ->
 			{
-				ILaunchProfile profile = manager.newProfile(profileName);
-				GameSetting.getSourcesView().forEach(prototype ->
+				LaunchProfile profile = manager.newProfile(profileName);
+				GameSettings.getSourcesView().forEach(prototype ->
 				{
 					try
 					{
@@ -118,7 +118,7 @@ class ProfileManagerLoadHandler extends LoadHandler<LaunchProfileManager>
 		return manager;
 	}
 
-	private <T> void setupOption(ILaunchProfile profile, Map<String, String> dataMap, Option<T> option)
+	private <T> void setupOption(LaunchProfile profile, Map<String, String> dataMap, Option<T> option)
 	{
 		profile.getSetting(option).ifPresent(p -> p.setValue(option.deserialize(dataMap.get(option.getName()))));
 	}

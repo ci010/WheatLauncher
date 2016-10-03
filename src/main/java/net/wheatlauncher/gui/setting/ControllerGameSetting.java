@@ -7,9 +7,9 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Labeled;
 import javafx.scene.layout.VBox;
-import net.launcher.GameSetting;
-import net.launcher.setting.IntOption;
-import net.launcher.setting.Option;
+import net.launcher.game.GameSettings;
+import net.launcher.game.setting.IntOption;
+import net.launcher.game.setting.Option;
 import net.wheatlauncher.Core;
 import net.wheatlauncher.LaunchProfile;
 import net.wheatlauncher.utils.LanguageMap;
@@ -41,14 +41,14 @@ public class ControllerGameSetting
 	@PostConstruct
 	public void init()
 	{
-		entityShadow.setOnAction(setupBool(entityShadow, GameSetting.ENTITY_SHADOWS));
-		renderCloud.setOnAction(setupBool(renderCloud, GameSetting.RENDER_CLOUDS));
-		enableFBO.setOnAction(setupBool(enableFBO, GameSetting.FBO_ENABLE));
-		enableVBO.setOnAction(setupBool(enableVBO, GameSetting.USE_VBO));
-		graphic.setOnAction(setupBool(graphic, GameSetting.GRAPHIC));
-		mipmap.setOnAction(setupStep(mipmap, GameSetting.MIPMAP_LEVELS));
-		particle.setOnAction(setupStep(particle, GameSetting.PARTICLES));
-		ambientOcclusion.setOnAction(setupStep(ambientOcclusion, GameSetting.AMBIENT_OCCLUSION));
+		entityShadow.setOnAction(setupBool(entityShadow, GameSettings.ENTITY_SHADOWS));
+		renderCloud.setOnAction(setupBool(renderCloud, GameSettings.RENDER_CLOUDS));
+		enableFBO.setOnAction(setupBool(enableFBO, GameSettings.FBO_ENABLE));
+		enableVBO.setOnAction(setupBool(enableVBO, GameSettings.USE_VBO));
+		graphic.setOnAction(setupBool(graphic, GameSettings.GRAPHIC));
+		mipmap.setOnAction(setupStep(mipmap, GameSettings.MIPMAP_LEVELS));
+		particle.setOnAction(setupStep(particle, GameSettings.PARTICLES));
+		ambientOcclusion.setOnAction(setupStep(ambientOcclusion, GameSettings.AMBIENT_OCCLUSION));
 	}
 
 	private EventHandler<ActionEvent> setupStep(Labeled labeled, IntOption.Step step)

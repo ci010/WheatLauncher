@@ -1,6 +1,6 @@
 package net.wheatlauncher;
 
-import net.launcher.Mod;
+import net.launcher.game.Mod;
 import net.launcher.utils.resource.RemoteArchiveRepository;
 
 import java.io.File;

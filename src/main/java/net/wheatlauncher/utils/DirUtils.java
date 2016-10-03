@@ -22,13 +22,13 @@ public class DirUtils
 		{
 			case WINDOWS:
 				String appdata = System.getenv("APPDATA");
-				root = new File(appdata == null ? System.getProperty("user.home", ".") : appdata, ".launcher/");
+				root = new File(appdata == null ? System.getProperty("user.home", ".") : appdata);
 				break;
 			case LINUX:
-				root = new File(System.getProperty("user.home", "."), ".launcher/");
+				root = new File(System.getProperty("user.home", "."));
 				break;
 			case OSX:
-				root = new File("Library/Application Support/launcher/");
+				root = new File("Library/Application Support/");
 				break;
 			default:
 				root = new File(System.getProperty("user.home", ".") + "/");
