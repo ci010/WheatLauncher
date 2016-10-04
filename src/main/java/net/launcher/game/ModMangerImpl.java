@@ -4,10 +4,10 @@ import javafx.collections.MapChangeListener;
 import jdk.internal.org.objectweb.asm.ClassReader;
 import net.launcher.game.mod.*;
 import net.launcher.utils.Patterns;
+import net.launcher.utils.StringUtils;
 import net.launcher.utils.resource.ArchiveRepository;
 import net.launcher.utils.resource.ArchiveResource;
 import net.launcher.utils.resource.ResourceType;
-import net.launcher.utils.resource.StoragePath;
 import net.launcher.utils.serial.BiSerializer;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
@@ -19,14 +19,13 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Future;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 /**
  * @author ci010
  */
-class ModMangerImpl implements ModManger
+class ModMangerImpl implements ModManager
 {
 	private ArchiveRepository<Mod.Release[]> archiveResource;
 	private Map<String, ModImpl> modIdToMod = new HashMap<>();
@@ -37,37 +36,24 @@ class ModMangerImpl implements ModManger
 		Function<File, Mod.Release[]> zipJar = (file) ->
 		{
 			List<Mod.Release> releases = new ArrayList<>();
-
-			ZipFile zip = null;
 			try
 			{
-				zip = new ZipFile(file);
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
-			try
-			{
-				ModInfo empty = ModInfo.empty();
-				RuntimeAnnotation emptyAnno = RuntimeAnnotation.empty();
-				Map<String, ModInfo> cacheInfoMap = new HashMap<>();
-				final Map<String, RuntimeAnnotation> annotationMap = new HashMap<>();
+				ZipFile zip = new ZipFile(file);
+				Map<String, JSONObject> cacheInfoMap = new HashMap<>();
+				final Map<String, Map<String, Object>> annotationMap = new HashMap<>();
 				ZipEntry modInfo = zip.getEntry("mcmod.info");
 				if (modInfo != null)
 				{
 					String modInfoString = IOUtils.toString(zip.getInputStream(modInfo));
 
 					JSONArray arr;
-					if (modInfoString.startsWith("{"))
-						arr = new JSONObject(modInfoString).getJSONArray("modList");
-					else
-						arr = new JSONArray(modInfoString);
+					if (modInfoString.startsWith("{")) arr = new JSONObject(modInfoString).getJSONArray("modList");
+					else arr = new JSONArray(modInfoString);
 
 					for (int i = 0; i < arr.length(); i++)
 					{
-						ModInfo info = new ModInfo(arr.getJSONObject(i));
-						cacheInfoMap.put(info.getModId(), info);
+						String modid = arr.getJSONObject(i).optString("modid");
+						if (StringUtils.isNotEmpty(modid)) cacheInfoMap.put(modid, arr.getJSONObject(i));
 					}
 				}
 
@@ -77,34 +63,70 @@ class ModMangerImpl implements ModManger
 					{
 						set.clear();
 						ClassReader reader = new ClassReader(zip.getInputStream(jarEntry));
-						reader.accept(new RuntimeAnnotation.Visitor(set), 0);
+						reader.accept(new ModAnnotationVisitor(set), 0);
 						if (!set.isEmpty())
-							set.stream().map(RuntimeAnnotation::new).forEach(annotation -> annotationMap.put(annotation.getModId(), annotation));
+						{
+							for (Map<String, Object> stringObjectMap : set)
+							{
+								String modid = stringObjectMap.get("modid").toString();
+								if (StringUtils.isNotEmpty(modid)) annotationMap.put(modid, stringObjectMap);
+							}
+						}
 					}
-				Set<String> union = cacheInfoMap.keySet();
+				Set<String> union = new HashSet<>(cacheInfoMap.keySet());
 				union.addAll(annotationMap.keySet());
 				for (String s : union)
 				{
-					ModInfo info = cacheInfoMap.get(s);
-					RuntimeAnnotation anno = annotationMap.get(s);
-					releases.add(new ReleaseImpl(s, new ModMetaDataImpl(info == null ? empty : info,
-							anno == null ? emptyAnno : anno)));
+					MetaDataImpl meta = new MetaDataImpl();
+					JSONObject info = cacheInfoMap.get(s);
+					if (info != null) meta.loadFromModInfo(info);
+					Map<String, Object> anno = annotationMap.get(s);
+					if (anno != null) meta.loadFromAnnotationMap(anno);
+					releases.add(new ReleaseImpl(meta));
 				}
 			}
-			catch (Exception ignored) {}
+			catch (Exception ignored)
+			{
+				Thread.getDefaultUncaughtExceptionHandler().uncaughtException(Thread.currentThread(), ignored);
+			}
 			return releases.toArray(new Mod.Release[releases.size()]);
 		};
 		archiveResource = new ArchiveRepository.Builder<Mod.Release[]>(
 				root, "mods",
-				BiSerializer.combine((s, m) -> null, (s, m) -> null))
+				BiSerializer.combine((releases, context) ->
+				{
+					JSONObject jsonObject = new JSONObject();
+					for (Mod.Release release : releases)
+					{
+						jsonObject.put("modId", release.getModId())
+								.put("version", (release.getVersion()))
+								.put("nickName", (release.getNickName()));
+						JSONObject meta = new JSONObject();
+						jsonObject.put("meta", meta);
+						ModMetaData metaData = release.getMetaData();
+						meta.put("name", (metaData.getName()))
+								.put("logo", (metaData.getLogoFile()))
+								.put("description", (metaData.getDescription()))
+								.put("updateJSON", (metaData.getUpdateJSON()))
+								.put("acceptableRemoteVersions", metaData.acceptableRemoteVersions())
+								.put("acceptableSaveVersions", metaData.acceptableSaveVersions())
+								.put("credits", metaData.getCredits())
+								.put("authorList", JSONObject.valueToString(metaData.getAuthorList()))
+								.put("url", metaData.getUrl())
+								.put("parent", metaData.getParent())
+								.put("screenShots", JSONObject.valueToString(metaData.getScreenshots()))
+								.put("mcVersion", metaData.getAcceptMinecraftVersion())
+								.put("fingerprint", metaData.getFingerprint())
+								.put("dependencies", metaData.getDependencies());
+					}
+					return jsonObject;
+				}, (json, context) ->
+				{
+					String modId = json.getString("modId");
+					return null;
+				}))
 				.registerParser(ResourceType.JAR, zipJar)
 				.registerParser(ResourceType.ZIP, zipJar)
-				.setStorageHandler((resource, jsonData) ->
-						Arrays.stream(resource.getContainData()).map(release ->
-								new StoragePath(release.getVersion() + "/" + release.getModId(),
-										jsonData.getJSONObject(release.getModId())))
-								.collect(Collectors.toList())
-								.toArray(new StoragePath[resource.getContainData().length]))
 				.build();
 		archiveResource.getAllStorage().addListener(new MapChangeListener<String, ArchiveResource<Mod.Release[]>>()
 		{

@@ -5,7 +5,15 @@ package net.launcher.game.mod;
  */
 public interface ModMetaData
 {
+	String getModId();
+
+	String getName();
+
 	String getDescription();
+
+	String getVersion();
+
+	String getAcceptMinecraftVersion();
 
 	String getUpdateJSON();
 
@@ -21,23 +29,19 @@ public interface ModMetaData
 
 	String[] getScreenshots();
 
-	String getMcVersion();
-
 	String getFingerprint();
-
-	String getUpdateJson();
 
 	String getDependencies();
 
-	boolean isRemoteVersion();
+	String acceptableRemoteVersions();
 
-	boolean isSaveVersion();
+	String acceptableSaveVersions();
 
 	boolean isClientOnly();
 
 	boolean isSeverOnly();
 
-	String getCollapsedName();
+	String getAlternativeName();
 
 	String getCollapsedVersion();
 }

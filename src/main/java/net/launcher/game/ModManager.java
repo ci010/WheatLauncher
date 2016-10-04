@@ -11,7 +11,7 @@ import java.util.concurrent.Future;
 /**
  * @author ci010
  */
-public interface ModManger
+public interface ModManager
 {
 	Set<String> getAllModId();
 

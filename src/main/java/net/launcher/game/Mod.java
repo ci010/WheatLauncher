@@ -1,6 +1,7 @@
 package net.launcher.game;
 
 import net.launcher.game.mod.ModMetaData;
+import net.minecraftforge.fml.common.versioning.VersionRange;
 
 import java.util.Comparator;
 import java.util.List;
@@ -13,6 +14,8 @@ public interface Mod extends Iterable<Mod.Release>
 	String getModId();
 
 	Release getRelease(String version);
+
+	List<Mod.Release> getAllReleases();
 
 	List<Release> getReleaseFromMinecraftVersion(String minecraftVersion);
 
@@ -31,9 +34,9 @@ public interface Mod extends Iterable<Mod.Release>
 
 		String getVersion();
 
-		String getName();
-
 		String getNickName();
+
+		VersionRange getAcceptVersionRange();
 
 		void setNickName(String nickName);
 

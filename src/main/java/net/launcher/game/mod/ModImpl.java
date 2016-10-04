@@ -2,10 +2,7 @@ package net.launcher.game.mod;
 
 import net.launcher.game.Mod;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -17,20 +14,23 @@ public class ModImpl implements Mod
 
 	private Map<String, Release> modVersionToToken = new HashMap<>();
 	private Map<String, List<Release>> mcVersionToMeta = new HashMap<>();
+	private List<Release> view = new ArrayList<>();
 
 	public ModImpl(String modId)
 	{
 		this.modId = modId;
 	}
 
-	public void register(Release modMeta)
+	public boolean register(Release modMeta)
 	{
 		if (modVersionToToken.containsKey(modMeta.getVersion()))
 		{
+
 			//onWatch to pending
 		}
 		else
 			modVersionToToken.put(modMeta.getVersion(), modMeta);
+		return true;
 	}
 
 	public String getModId()
@@ -42,6 +42,12 @@ public class ModImpl implements Mod
 	public Release getRelease(String version)
 	{
 		return modVersionToToken.get(version);
+	}
+
+	@Override
+	public List<Release> getAllReleases()
+	{
+		return view;
 	}
 
 	@Override
