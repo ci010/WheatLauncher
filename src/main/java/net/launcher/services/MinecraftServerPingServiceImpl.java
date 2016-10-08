@@ -1,6 +1,8 @@
 package net.launcher.services;
 
 import net.launcher.game.ServerInfo;
+import net.launcher.game.ServerStatus;
+import net.launcher.utils.Callbacks1;
 import net.launcher.utils.MessageUtils;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
@@ -26,49 +28,36 @@ class MinecraftServerPingServiceImpl implements MinecraftServerPingService
 		this.service = service;
 	}
 
-	private abstract class Task extends CallbackAdapter<ServerInfo>
+	private class Task extends CallbackAdapter<ServerStatus>
 	{
-		FutureTask<ServerInfo> future;
 		Callback<ServerInfo> callback;
-		SocketChannel open;
+		SocketChannel channel;
 		boolean waitPing;
+		private ServerInfo info;
 
-		Task(FutureTask<ServerInfo> future, Callback<ServerInfo> callback, SocketChannel open, boolean waitPing)
+		Task(Callback<ServerInfo> callback, SocketChannel open, boolean waitPing, ServerInfo info)
 		{
-			this.future = future;
 			this.callback = callback;
-			this.open = open;
+			this.channel = open;
 			this.waitPing = waitPing;
+			this.info = info;
 		}
 
 		@Override
-		public void done(ServerInfo result)
+		public void done(ServerStatus result)
 		{
 			if (!waitPing)
 			{
-				future.run();
-				callback.done(result);
-				service.submit(new PingTask(result, Callbacks.whatever(this::close), open));
+				callback.done(info);
+				service.submit(new PingTask(info, Callbacks.whatever(this::close), channel));
 			}
 			else
-				service.submit(new PingTask(result, new CallbackAdapter<ServerInfo>()
-				{
-					@Override
-					public void done(ServerInfo result)
-					{
-						future.run();
-						callback.done(result);
-						close();
-					}
-
-					@Override
-					public void failed(Throwable e) {Task.this.failed(e);}
-				}, open));
+				service.submit(new PingTask(info, Callbacks.group(callback, Callbacks.whatever(this::close)), channel));
 		}
 
-		protected void close()
+		void close()
 		{
-			try {open.close();}
+			try {channel.close();}
 			catch (IOException ignored) {}
 		}
 
@@ -76,57 +65,40 @@ class MinecraftServerPingServiceImpl implements MinecraftServerPingService
 		public void failed(Throwable t)
 		{
 			callback.failed(t);
-			future.cancel(false);
 			close();
 		}
 	}
 
 	@Override
-	public Future<ServerInfo> fetchInfo(final ServerInfo info, final Callback<ServerInfo> callback)
+	public Future<ServerStatus> fetchInfo(final ServerInfo info, final Callback<ServerInfo> callback)
 	{
 		return fetchInfo0(info, callback, false);
 	}
 
-	private Future<ServerInfo> fetchInfo0(final ServerInfo info, final Callback<ServerInfo> callback, boolean waitPing)
+
+	@Override
+	public Future<ServerStatus> fetchInfoAndWaitPing(ServerInfo info, Callback<ServerInfo> callback)
 	{
-		info.setServerMOTD("Pinging...");
-		info.setPingToServer(-1L);
-		info.setPlayerList(null);
+		return fetchInfo0(info, callback, true);
+	}
+
+	private Future<ServerStatus> fetchInfo0(final ServerInfo info, final Callback<ServerInfo> callback, boolean waitPing)
+	{
+		info.setStatus(ServerStatus.pinging());
 		try
 		{
 			SocketChannel open = SocketChannel.open(MessageUtils.getAddress(info.getHostName()));
-			FutureTask<ServerInfo> future = new FutureTask<>(() -> info);
-			CallbackAdapter<ServerInfo> adapter = new Task(future, callback, open, false)
-			{
-				@Override
-				public void failed(Throwable e)
-				{
-					service.submit(new HandshakeTaskLegacy(info, new Task(future, callback, open, false)
-					{
-						@Override
-						public void failed(Throwable t)
-						{
-							t.addSuppressed(e);
-							super.failed(t);
-						}
-					}, open));
-				}
-			};
-			service.submit(new HandshakeTask(info, adapter, open), info);
+			CallbackAdapter<ServerStatus> adapter = new Task(callback, open, waitPing, info);
+			FutureTask<ServerStatus> future = Callbacks1.createWithFallback(new HandshakeTask(info, open), new
+					HandshakeTaskLegacy(info, open), adapter);
+			service.submit(future);
 			return future;
 		}
 		catch (IOException e)
 		{
 			callback.failed(e);
-			return CompletableFuture.completedFuture(info);
+			return CompletableFuture.completedFuture(null);
 		}
-	}
-
-
-	@Override
-	public Future<ServerInfo> fetchInfoAndWaitPing(ServerInfo info, Callback<ServerInfo> callback)
-	{
-		return fetchInfo0(info, callback, true);
 	}
 
 	@Override

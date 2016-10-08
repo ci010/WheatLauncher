@@ -1,55 +1,47 @@
 package net.launcher.services;
 
 import net.launcher.game.ServerInfo;
+import net.launcher.game.ServerStatus;
 import net.launcher.utils.MessageUtils;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
+import java.util.concurrent.Callable;
 
 /**
  * @author ci010
  */
-class HandshakeTaskLegacy implements Runnable
+class HandshakeTaskLegacy implements Callable<ServerStatus>
 {
 	private ServerInfo info;
-	private Callback<ServerInfo> callback;
 	private SocketChannel channel;
 
-	HandshakeTaskLegacy(ServerInfo info, Callback<ServerInfo> callback, SocketChannel channel)
+	HandshakeTaskLegacy(ServerInfo info, SocketChannel channel)
 	{
 		this.info = info;
-		this.callback = callback;
 		this.channel = channel;
 	}
 
 	@Override
-	public void run()
+	public ServerStatus call() throws Exception
 	{
+		String[] strings = pingServerLegacy0();
+		String gameVersion = strings[1], MOTO = strings[2];
+
+		int players = -1, capability = -1, protocol = -1;
 		try
 		{
-			String[] strings = pingServerLegacy0();
-			String gameVersion = strings[0], MOTO = strings[1];
-
-			int players = -1, capability = -1;
-			try
-			{
-				players = Integer.parseInt(strings[2]);
-				capability = Integer.parseInt(strings[3]);
-			}
-			catch (Exception ignored) {}
-			info.setProtocolVersion(-1);
-			info.setServerMOTD(MOTO);
-			info.setGameVersion(gameVersion);
-			info.setOnlinePlayersInfo(players, capability);
+			protocol = Integer.parseInt(strings[0]);
+			players = Integer.parseInt(strings[3]);
+			capability = Integer.parseInt(strings[4]);
 		}
-		catch (IOException e)
-		{
-			callback.failed(e);
-		}
+		catch (Exception ignored) {}
+		ServerStatus status = new ServerStatus(gameVersion, MOTO, protocol, players, capability);
+		info.setStatus(status);
+		return status;
 	}
 
 	private String[] pingServerLegacy0() throws IOException
@@ -58,7 +50,7 @@ class HandshakeTaskLegacy implements Runnable
 		if (channel == null)
 			channel = SocketChannel.open(address);
 		if (channel == null || !channel.isConnected())
-			throw new IOException("Cannot open channel to " + info.getHostName());
+			throw new IOException("Cannot channel channel to " + info.getHostName());
 
 		ByteBuffer buffer = ByteBuffer.allocate(256);
 		buffer.put((byte) 254);
@@ -99,7 +91,7 @@ class HandshakeTaskLegacy implements Runnable
 
 			if (split[0].equals("\u00a71"))
 				if (split.length == 6)
-					return new String[]{split[2], split[3], split[4], split[5]};
+					return new String[]{split[1], split[2], split[3], split[4], split[5]};
 		}
 		throw new IOException("");
 	}

@@ -53,11 +53,9 @@ class PingTask implements Runnable
 			byteBuffer.get(); //length
 			byteBuffer.get(); //id
 			long startTime = byteBuffer.getLong();
-			info.setPingToServer(System.currentTimeMillis() - startTime);
+			info.getStatus().setPingToServer(System.currentTimeMillis() - startTime);
 			if (callback != null)
 				callback.done(info);
-			channel.finishConnect();
-			channel.close();
 		}
 		catch (IOException e)
 		{
