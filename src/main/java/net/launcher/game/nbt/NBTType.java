@@ -103,28 +103,28 @@ public enum NBTType
 		NBTType tp = tag.getType();
 		switch (tp)
 		{
-			case BYTE: out.writeByte(tag.getAsPrimitive().getAsByte()); break;
-			case SHORT: out.writeShort(tag.getAsPrimitive().getAsShort()); break;
-			case INTEGER: out.writeInt(tag.getAsPrimitive().getAsInt()); break;
-			case LONG: out.writeLong(tag.getAsPrimitive().getAsLong()); break;
-			case FLOAT: out.writeFloat(tag.getAsPrimitive().getAsFloat()); break;
-			case DOUBLE: out.writeDouble(tag.getAsPrimitive().getAsDouble()); break;
+			case BYTE: out.writeByte(tag.asPrimitive().asByte()); break;
+			case SHORT: out.writeShort(tag.asPrimitive().asShort()); break;
+			case INTEGER: out.writeInt(tag.asPrimitive().asInt()); break;
+			case LONG: out.writeLong(tag.asPrimitive().asLong()); break;
+			case FLOAT: out.writeFloat(tag.asPrimitive().asFloat()); break;
+			case DOUBLE: out.writeDouble(tag.asPrimitive().asDouble()); break;
 
 			case BYTE_ARR:
-				byte[] bytes = tag.getAsPrimitive().getAsByteArray();
+				byte[] bytes = tag.asPrimitive().asByteArray();
 				out.writeInt(bytes.length);
 				out.write(bytes);
 				break;
-			case STRING: out.writeUTF(tag.getAsPrimitive().getAsString()); break;
+			case STRING: out.writeUTF(tag.asPrimitive().asString()); break;
 			case LIST:
-				NBTList list = tag.getAsList();
+				NBTList list = tag.asList();
 				byte type = list.isEmpty() ? 1 : list.get(0).getType().getId();
 				out.writeByte(type);
 				out.writeInt(list.size());
 				for (NBT n : list) writeTag(n, out);
 				break;
 			case COMPOUND:
-				NBTCompound map = tag.getAsCompound();
+				NBTCompound map = tag.asCompound();
 				for (Map.Entry<String, NBT> entry : map.entrySet())
 				{
 					out.writeByte(entry.getValue().getType().getId());
@@ -134,7 +134,7 @@ public enum NBTType
 				out.writeByte(0);
 				break;
 			case INT_ARR:
-				int[] intArray = tag.getAsPrimitive().getAsIntArray();
+				int[] intArray = tag.asPrimitive().asIntArray();
 				out.writeInt(intArray.length);
 				for (int i = 0; i < intArray.length; i++)
 					out.writeInt(intArray[i]);

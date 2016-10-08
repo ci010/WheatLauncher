@@ -23,43 +23,43 @@ public class NBTPrimitive extends NBT
 	}
 
 	@Override
-	public NBTPrimitive getAsPrimitive() {return this;}
+	public NBTPrimitive asPrimitive() {return this;}
 
 	@Override
 	public NBT clone()
 	{
 		if (this.isType(NBTType.INT_ARR))
 		{
-			int[] array = getAsIntArray();
+			int[] array = asIntArray();
 			return new NBTPrimitive(Arrays.copyOf(array, array.length), NBTType.INT_ARR);
 		}
 		if (this.isType(NBTType.BYTE_ARR))
 		{
-			byte[] array = getAsByteArray();
+			byte[] array = asByteArray();
 			return new NBTPrimitive(Arrays.copyOf(array, array.length), NBTType.BYTE_ARR);
 		}
 		return new NBTPrimitive(v, this.getType());
 	}
 
-	public String getAsString() {return (String) v;}
+	public String asString() {return (String) v;}
 
-	public int getAsInt() {return (int) v;}
+	public int asInt() {return (int) v;}
 
-	public byte getAsByte() {return (byte) v;}
+	public byte asByte() {return (byte) v;}
 
-	public long getAsLong() {return (long) v;}
+	public long asLong() {return (long) v;}
 
-	public short getAsShort() {return (short) v;}
+	public short asShort() {return (short) v;}
 
-	public float getAsFloat() {return (float) v;}
+	public float asFloat() {return (float) v;}
 
-	public double getAsDouble() {return (double) v;}
+	public double asDouble() {return (double) v;}
 
-	public byte[] getAsByteArray() {return (byte[]) v;}
+	public byte[] asByteArray() {return (byte[]) v;}
 
-	public int[] getAsIntArray() {return (int[]) v;}
+	public int[] asIntArray() {return (int[]) v;}
 
-	public boolean getAsBoolean() {return getAsByte() != 0;}
+	public boolean asBool() {return asByte() != 0;}
 
 	@Override
 	public String toString()

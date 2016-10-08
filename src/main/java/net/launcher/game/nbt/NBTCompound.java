@@ -21,7 +21,7 @@ public class NBTCompound extends NBT
 	}
 
 	@Override
-	public NBTCompound getAsCompound() {return this;}
+	public NBTCompound asCompound() {return this;}
 
 	@Override
 	public NBT clone()
@@ -35,29 +35,65 @@ public class NBTCompound extends NBT
 	@Override
 	public boolean isCompound() {return true;}
 
-	public void put(String s, NBT tag)
+	public NBTCompound put(String s, NBT tag)
 	{
 		map.put(s, tag);
+		return this;
 	}
 
-	public void put(String s, String v)
+	public NBTCompound put(String s, String v)
 	{
 		map.put(s, NBT.string(v));
+		return this;
+
 	}
 
-	public void put(String s, Number n)
+	public NBTCompound put(String s, Number n)
 	{
 		map.put(s, NBT.number(n));
+		return this;
 	}
 
-	public void put(String s, boolean b)
+	public NBTCompound put(String s, boolean b)
 	{
 		map.put(s, NBT.bool(b));
+		return this;
+	}
+
+	public NBTCompound option(String s, NBT nbt)
+	{
+		if (s == null || nbt == null || nbt == NBT.empty()) return this;
+		put(s, nbt);
+		return this;
+	}
+
+	public NBTCompound option(String s, String v)
+	{
+		if (s == null || v == null) return this;
+		put(s, v);
+		return this;
+	}
+
+	public NBTCompound option(String s, Number n)
+	{
+		if (s == null || n == null) return this;
+		put(s, n);
+		return this;
+	}
+
+	public NBTCompound option(String s, boolean b)
+	{
+		if (s == null) return this;
+		put(s, b);
+		return this;
 	}
 
 	public NBT get(String s)
 	{
-		return map.get(s);
+		NBT nbt = map.get(s);
+		if (nbt == null)
+			nbt = NBT.empty();
+		return nbt;
 	}
 
 	public Optional<NBT> option(String s)

@@ -16,6 +16,8 @@ public abstract class NBT implements Cloneable
 
 	public NBTType getType() {return type;}
 
+	public boolean isNull() {return this == NBT.empty();}
+
 	public boolean isType(NBTType type) { return this.type == type;}
 
 	public boolean isPrimitive() {return false;}
@@ -24,11 +26,55 @@ public abstract class NBT implements Cloneable
 
 	public boolean isList() {return false;}
 
-	public NBTPrimitive getAsPrimitive() {throw new UnsupportedOperationException();}
+	public NBTPrimitive asPrimitive() {throw new UnsupportedOperationException();}
 
-	public NBTCompound getAsCompound() {throw new UnsupportedOperationException();}
+	public NBTCompound asCompound() {throw new UnsupportedOperationException();}
 
-	public NBTList getAsList() {throw new UnsupportedOperationException();}
+	public NBTList asList() {throw new UnsupportedOperationException();}
+
+	public String asString() {throw new UnsupportedOperationException();}
+
+	public String asString(String option) { try {return asString();}catch (Exception e) {return option;}}
+
+	public int asInt() {throw new UnsupportedOperationException();}
+
+	public int asInt(int option) { try {return asInt();}catch (Exception e) {return option;}}
+
+	public float asFloat() {throw new UnsupportedOperationException();}
+
+	public float asFloat(float option) { try {return asFloat();}catch (Exception e) {return option;}}
+
+	public byte asByte() {throw new UnsupportedOperationException();}
+
+	public byte asByte(byte option) { try {return asByte();}catch (Exception e) {return option;}}
+
+	public long asLong() {throw new UnsupportedOperationException();}
+
+	public long asLong(long option) { try {return asLong();}catch (Exception e) {return option;}}
+
+	public short asShort() {throw new UnsupportedOperationException();}
+
+	public short asShort(short option) { try {return asShort();}catch (Exception e) {return option;}}
+
+	public double asDouble() {throw new UnsupportedOperationException();}
+
+	public double asDouble(double option) { try {return asDouble();}catch (Exception e) {return option;}}
+
+	public boolean asBool() {throw new UnsupportedOperationException();}
+
+	public boolean asBool(boolean option) { try {return asBool();}catch (Exception e) {return option;}}
+
+	public byte[] asByteArray() {throw new UnsupportedOperationException();}
+
+	public byte[] asByteArray(byte[] option) { try {return asByteArray();}catch (Exception e) {return option;}}
+
+	public int[] asIntArray() {throw new UnsupportedOperationException();}
+
+	public int[] asIntArray(int[] option) { try {return asIntArray();}catch (Exception e) {return option;}}
+
+	public boolean asBoolean() {throw new UnsupportedOperationException();}
+
+	public boolean asIntArray(boolean option) { try {return asBool();}catch (Exception e) {return option;}}
 
 	public abstract NBT clone();
 
@@ -116,4 +162,14 @@ public abstract class NBT implements Cloneable
 		}
 		cache.renameTo(file);
 	}
+
+	public static NBT empty()
+	{
+		if (NULL == null)
+			NULL = new NBTEnd();
+		return NULL;
+	}
+
+	private static NBT NULL;
+
 }

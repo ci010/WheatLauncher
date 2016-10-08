@@ -75,7 +75,7 @@ public class NBTList extends NBT implements Iterable<NBT>
 	}
 
 	@Override
-	public NBTList getAsList()
+	public NBTList asList()
 	{
 		return this;
 	}
