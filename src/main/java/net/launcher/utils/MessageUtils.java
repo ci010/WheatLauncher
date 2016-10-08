@@ -1,8 +1,8 @@
 package net.launcher.utils;
 
 import javax.naming.directory.InitialDirContext;
+import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Hashtable;
@@ -12,7 +12,7 @@ import java.util.Hashtable;
  */
 public class MessageUtils
 {
-	public static SocketAddress getAddress(String host)
+	public static InetSocketAddress getAddress(String host)
 	{
 		if (host == null) return null;
 		String[] split = host.split(":");
@@ -80,6 +80,22 @@ public class MessageUtils
 			input >>>= 7;
 		}
 		byteBuffer.put((byte) input);
+	}
+
+	public static int readVarInt(ByteBuffer byteBuffer) throws IOException
+	{
+		int i = 0;
+		int j = 0;
+		for (; ; )
+		{
+			int k = byteBuffer.get();
+			i |= (k & 0x7F) << j++ * 7;
+			if (j > 5)
+				throw new IOException("VarInt too big: " + j);
+			if ((k & 0x80) != 128)
+				break;
+		}
+		return i;
 	}
 
 	public static void writeString(ByteBuffer byteBuffer, String s)
