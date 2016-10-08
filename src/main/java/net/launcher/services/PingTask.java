@@ -28,7 +28,11 @@ class PingTask implements Runnable
 	public void run()
 	{
 		String ip = info.getHostName();
-		if (ip == null) return;
+		if (ip == null)
+		{
+			callback.failed(new IllegalStateException("The server info's host name is empty!"));
+			return;
+		}
 		long l = System.currentTimeMillis();
 		try
 		{
