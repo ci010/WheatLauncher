@@ -8,6 +8,7 @@ import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.util.Collections;
@@ -15,8 +16,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
 
-import static net.launcher.utils.MessageUtils.writeString;
-import static net.launcher.utils.MessageUtils.writeVarInt;
+import static net.launcher.utils.MessageUtils.*;
 
 /**
  * @author ci010
@@ -103,23 +103,22 @@ class HandshakeTask implements Runnable
 
 	private String handshake(ServerInfo info) throws IOException
 	{
-		StringBuilder str = new StringBuilder();
+		InetSocketAddress address = MessageUtils.getAddress(info.getHostName());
 
 		if (channel == null)
-			channel = SocketChannel.open(MessageUtils.getAddress(info.getHostName()));
+			channel = SocketChannel.open(address);
 		if (channel == null || !channel.isConnected())
 			throw new IOException("Cannot open channel to " + info.getHostName());
-
 
 		ByteBuffer buffer = ByteBuffer.allocate(256); //handshake
 		buffer.put((byte) 0x00);
 		writeVarInt(buffer, 210);
-		writeString(buffer, "127.0.0.1\0FML\0");
-		buffer.putShort((short) (25565 & 0xffff));
+		writeString(buffer, address.getHostName());
+		buffer.putShort((short) (address.getPort() & 0xffff));
 		writeVarInt(buffer, 1);
 		buffer.flip();
 
-		ByteBuffer handshake = ByteBuffer.allocate(buffer.limit() + 8); //wrap handle shake with it size
+		ByteBuffer handshake = ByteBuffer.allocate(buffer.limit() + 8); //wrap handleshake with it size
 		writeVarInt(handshake, buffer.limit());
 		handshake.put(buffer);
 		handshake.flip();
@@ -133,12 +132,16 @@ class HandshakeTask implements Runnable
 		channel.read(buffer);
 		buffer.flip();
 
-		for (int i = 0; i < 5; i++) //5 redundant
-			buffer.get();
+		readVarInt(buffer);// size
+		int id = readVarInt(buffer);
+		if (id == -1)
+			throw new IOException("Premature end of stream.");
+		if (id != 0x00)
+			throw new IOException("Illegal packet id: " + id);
 
-		while (buffer.position() != buffer.limit())
-			str.append((char) buffer.get());
-
-		return str.toString();
+		int length = readVarInt(buffer);
+		byte[] bytes = new byte[length];
+		buffer.get(bytes);
+		return new String(bytes);
 	}
 }

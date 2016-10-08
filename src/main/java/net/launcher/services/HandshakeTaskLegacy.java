@@ -5,8 +5,10 @@ import net.launcher.utils.MessageUtils;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 
 /**
  * @author ci010
@@ -29,7 +31,7 @@ class HandshakeTaskLegacy implements Runnable
 	{
 		try
 		{
-			String[] strings = pingServerLegacy0(info.getHostName(), 25565);
+			String[] strings = pingServerLegacy0();
 			String gameVersion = strings[0], MOTO = strings[1];
 
 			int players = -1, capability = -1;
@@ -50,10 +52,11 @@ class HandshakeTaskLegacy implements Runnable
 		}
 	}
 
-	private String[] pingServerLegacy0(String serverIp, int port) throws IOException
+	private String[] pingServerLegacy0() throws IOException
 	{
+		InetSocketAddress address = MessageUtils.getAddress(info.getHostName());
 		if (channel == null)
-			channel = SocketChannel.open(MessageUtils.getAddress(info.getHostName()));
+			channel = SocketChannel.open(address);
 		if (channel == null || !channel.isConnected())
 			throw new IOException("Cannot open channel to " + info.getHostName());
 
@@ -66,14 +69,14 @@ class HandshakeTaskLegacy implements Runnable
 
 		for (char c0 : achar) buffer.putChar(c0);
 
-		buffer.putShort((short) (7 + 2 * serverIp.length()));
+		buffer.putShort((short) (7 + 2 * address.getHostName().length()));
 		buffer.put((byte) 127);
-		achar = serverIp.toCharArray();
+		achar = address.getHostName().toCharArray();
 		buffer.putShort((short) achar.length);
 
 		for (char c1 : achar) buffer.putChar(c1);
 
-		buffer.putInt(25565);
+		buffer.putInt(address.getPort());
 		buffer.flip();
 
 		channel.write(buffer);
@@ -83,22 +86,21 @@ class HandshakeTaskLegacy implements Runnable
 		channel.read(buffer);
 		buffer.flip();
 
-		for (int i = 0; i < 18; i++)
-			buffer.get();
-
-		byte[] bytes1 = new byte[buffer.limit() - 18];
-		buffer.get(bytes1);
-
-		StringBuilder builder = new StringBuilder();
-
-		boolean isEven = false;
-		for (byte b : bytes1)
+		int head = Byte.toUnsignedInt(buffer.get());
+		if (head == 255)
 		{
-			if (!isEven)
-				if (b == 0) builder.append("\0");
-				else builder.append((char) b);
-			isEven = !isEven;
+			int size = buffer.getShort();
+
+			byte[] bytes = new byte[size * 2];
+			buffer.get(bytes);
+
+			String content = new String(bytes, Charset.forName("UTF_16BE"));
+			String[] split = content.split("\u0000");
+
+			if (split[0].equals("\u00a71"))
+				if (split.length == 6)
+					return new String[]{split[2], split[3], split[4], split[5]};
 		}
-		return builder.toString().split("\0");
+		throw new IOException("");
 	}
 }
