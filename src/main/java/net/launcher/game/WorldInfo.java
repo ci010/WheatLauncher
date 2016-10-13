@@ -128,16 +128,18 @@ public class WorldInfo
 
 	public static Deserializer<WorldInfo, NBTCompound> SERIALIZER = (compound, context) ->
 	{
-		long lastPlayed1 = compound.get("LastPlayed").getAsPrimitive().getAsLong();
-		long sizeOnDisk = compound.get("SizeOnDisk").getAsPrimitive().getAsLong();
-		String levelName = compound.get("LevelName").getAsPrimitive().getAsString();
-		boolean hardcore = compound.get("hardcore").getAsPrimitive().getAsBoolean();
-		GameType gameType1 = GameType.getByID(compound.get("GameType").getAsPrimitive().getAsInt());
-		boolean allowCommands = compound.option("allowCommands").orElse(NBT.bool(gameType1 == GameType.CREATIVE)).getAsPrimitive().getAsBoolean();
-		int spawnX1 = compound.get("SpawnX").getAsPrimitive().getAsInt();
-		int spawnY1 = compound.get("SpawnY").getAsPrimitive().getAsInt();
-		int spawnZ1 = compound.get("SpawnZ").getAsPrimitive().getAsInt();
+		long lastPlayed1 = compound.get("LastPlayed").asPrimitive().asLong();
+		long sizeOnDisk = compound.get("SizeOnDisk").asPrimitive().asLong();
+		String levelName = compound.get("LevelName").asPrimitive().asString();
+		boolean hardcore = compound.get("hardcore").asPrimitive().asBool();
+		GameType gameType1 = GameType.getByID(compound.get("GameType").asPrimitive().asInt());
+		boolean allowCommands = compound.option("allowCommands").orElse(NBT.bool(gameType1 == GameType.CREATIVE))
+				.asPrimitive().asBool();
+		int spawnX1 = compound.get("SpawnX").asPrimitive().asInt();
+		int spawnY1 = compound.get("SpawnY").asPrimitive().asInt();
+		int spawnZ1 = compound.get("SpawnZ").asPrimitive().asInt();
 		String fileName1 = (String) context.get("fileName");
+		if (fileName1 == null) fileName1 = "";
 		return new WorldInfo(fileName1, levelName, sizeOnDisk, lastPlayed1, gameType1, hardcore, allowCommands, spawnX1,
 				spawnY1, spawnZ1);
 	};

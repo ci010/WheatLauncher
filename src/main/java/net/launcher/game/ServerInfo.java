@@ -4,27 +4,21 @@ import javafx.scene.image.Image;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
 import net.launcher.utils.serial.BiSerializer;
-import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.util.Base64;
 
 import java.io.ByteArrayInputStream;
-import java.util.Arrays;
-import java.util.Map;
 
 /**
  * @author ci010
  */
 public class ServerInfo
 {
-	private String name, hostName, gameVersion, serverMOTD, serverIcon;
-	private long pingToServer;
-	private int version, onlinePlayers, capability;
-	private boolean lanServer, pinged;
+	private String name, hostName, serverIcon;
+
+	private boolean lanServer;
 	private ResourceMode resourceMode;
 
-	private GameProfile[] playerList;
-
-	private ModInfo modInfo;
+	private ServerStatus status;
 
 	public ServerInfo(String name, String hostName, ResourceMode resourceMode)
 	{
@@ -41,30 +35,14 @@ public class ServerInfo
 		this.resourceMode = resourceMode;
 	}
 
-	public void setServerMOTD(String serverMOTD)
+	public void setStatus(ServerStatus status)
 	{
-		this.serverMOTD = serverMOTD;
+		this.status = status;
 	}
 
-	public void setPingToServer(long pingToServer)
+	public ServerStatus getStatus()
 	{
-		this.pingToServer = pingToServer;
-	}
-
-	public void setOnlinePlayersInfo(int onlinePlayers, int capability)
-	{
-		this.onlinePlayers = onlinePlayers;
-		this.capability = capability;
-	}
-
-	public void setGameVersion(String gameVersion)
-	{
-		this.gameVersion = gameVersion;
-	}
-
-	public void setProtocolVersion(int version)
-	{
-		this.version = version;
+		return status;
 	}
 
 	public void setName(String name)
@@ -87,39 +65,9 @@ public class ServerInfo
 		this.lanServer = lanServer;
 	}
 
-	public int getOnlinePlayers()
-	{
-		return onlinePlayers;
-	}
-
-	public int getCapability()
-	{
-		return capability;
-	}
-
 	public void setResourceMode(ResourceMode resourceMode)
 	{
 		this.resourceMode = resourceMode;
-	}
-
-	public GameProfile[] getPlayerList()
-	{
-		return playerList;
-	}
-
-	public ModInfo getModInfo()
-	{
-		return modInfo;
-	}
-
-	public void setModInfo(ModInfo modInfo)
-	{
-		this.modInfo = modInfo;
-	}
-
-	public void setPlayerList(GameProfile[] playerList)
-	{
-		this.playerList = playerList;
 	}
 
 	public String getName()
@@ -132,39 +80,14 @@ public class ServerInfo
 		return hostName;
 	}
 
-	public String getGameVersion()
-	{
-		return gameVersion;
-	}
-
-	public String getServerMOTD()
-	{
-		return serverMOTD;
-	}
-
 	public String getServerIcon()
 	{
 		return serverIcon;
 	}
 
-	public long getPingToServer()
-	{
-		return pingToServer;
-	}
-
-	public int getProtocolVersion()
-	{
-		return version;
-	}
-
 	public boolean isLanServer()
 	{
 		return lanServer;
-	}
-
-	public boolean isPinged()
-	{
-		return pinged;
 	}
 
 	public ResourceMode getResourceMode()
@@ -192,18 +115,10 @@ public class ServerInfo
 		return "ServerInfo{" +
 				"name='" + name + '\'' +
 				", hostName='" + hostName + '\'' +
-				", gameVersion='" + gameVersion + '\'' +
-				", serverMOTD='" + serverMOTD + '\'' +
 				", serverIcon='" + serverIcon + '\'' +
-				", pingToServer=" + pingToServer +
-				", version=" + version +
-				", onlinePlayers=" + onlinePlayers +
-				", capability=" + capability +
 				", lanServer=" + lanServer +
-				", pinged=" + pinged +
 				", resourceMode=" + resourceMode +
-				", playerList=" + Arrays.toString(playerList) +
-				", modInfo=" + modInfo +
+				", status=" + status +
 				'}';
 	}
 
@@ -221,42 +136,4 @@ public class ServerInfo
 					serialized.get("icon").asString(""),
 					serialized.option("acceptTextures").map(nbt -> nbt.asBool() ? ResourceMode.ENABLED : ResourceMode.DISABLED).orElse(ResourceMode.PROMPT)));
 
-	public static class ModInfo
-	{
-		private String type;
-		private Map<String, String> modIdVersions;
-		private boolean isBlocked;
-
-		public ModInfo(String type, Map<String, String> modIdVersions, boolean isBlocked)
-		{
-			this.type = type;
-			this.modIdVersions = modIdVersions;
-			this.isBlocked = isBlocked;
-		}
-
-		public String getType()
-		{
-			return type;
-		}
-
-		public Map<String, String> getModIdVersions()
-		{
-			return modIdVersions;
-		}
-
-		public boolean isBlocked()
-		{
-			return isBlocked;
-		}
-
-		@Override
-		public String toString()
-		{
-			return "ModInfo{" +
-					"type='" + type + '\'' +
-					", modIdVersions=" + modIdVersions +
-					", isBlocked=" + isBlocked +
-					'}';
-		}
-	}
 }
