@@ -2,7 +2,7 @@ package net.launcher.services;
 
 import net.launcher.game.ServerInfo;
 import net.launcher.game.ServerStatus;
-import net.launcher.utils.Callbacks1;
+import net.launcher.utils.CallbacksOption;
 import net.launcher.utils.MessageUtils;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
@@ -13,7 +13,6 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 
 /**
  * @author ci010
@@ -88,10 +87,9 @@ class MinecraftServerPingServiceImpl implements MinecraftServerPingService
 		{
 			SocketChannel open = SocketChannel.open(MessageUtils.getAddress(info.getHostName()));
 			CallbackAdapter<ServerStatus> adapter = new Task(callback, open, waitPing, info);
-			FutureTask<ServerStatus> future = Callbacks1.createWithFallback(new HandshakeTask(info, open), new
-					HandshakeTaskLegacy(info, open), adapter);
-			service.submit(future);
-			return future;
+			return service.submit(CallbacksOption.wrapFallback(
+					new HandshakeTask(info, open),
+					new HandshakeTaskLegacy(info, open), adapter));
 		}
 		catch (IOException e)
 		{

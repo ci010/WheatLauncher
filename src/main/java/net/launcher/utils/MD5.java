@@ -43,12 +43,22 @@ public class MD5
 
 	public static byte[] getMD5Fast(File file) throws IOException
 	{
-		FileInputStream in = new FileInputStream(file);
-		FileChannel ch = in.getChannel();
-		MappedByteBuffer byteBuffer = ch.map(FileChannel.MapMode.READ_ONLY, 0, file.length());
-		byte[] bytes = new byte[byteBuffer.capacity()];
-		byteBuffer.get(bytes);
-		return getMD5(bytes);
+		if (file.isFile())
+			try (FileInputStream in = new FileInputStream(file))
+			{
+				try (FileChannel ch = in.getChannel())
+				{
+					MappedByteBuffer byteBuffer = ch.map(FileChannel.MapMode.READ_ONLY, 0, file.length());
+					byte[] bytes = new byte[byteBuffer.capacity()];
+					byteBuffer.get(bytes);
+					return getMD5(bytes);
+				}
+			}
+		else if (file.isDirectory())
+		{
+//			file.
+		}
+		throw new IOException();
 	}
 
 	public static byte[] getMD5(byte[] bytes)

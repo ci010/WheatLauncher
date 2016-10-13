@@ -1,4 +1,4 @@
-package net.launcher.services;
+package net.launcher.services.skin;
 
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;

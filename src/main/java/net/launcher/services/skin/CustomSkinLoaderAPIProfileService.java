@@ -1,4 +1,4 @@
-package net.launcher.services;
+package net.launcher.services.skin;
 
 import org.to2mbn.jmccc.auth.yggdrasil.core.PropertiesGameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
@@ -87,12 +87,8 @@ public class CustomSkinLoaderAPIProfileService extends SkinProfileService
 			{
 				JSONObject skinObject = new JSONObject(skinJson);
 				Set<String> strings = skinObject.keySet();
-				for (String s : strings)
-				{
-					skinType = s;
-					skin = skinObject.getString(skinType);
-					break;
-				}
+				skinType = strings.iterator().next();
+				skin = skinObject.getString(skinType);
 			}
 			else skin = skinJson;
 		}
