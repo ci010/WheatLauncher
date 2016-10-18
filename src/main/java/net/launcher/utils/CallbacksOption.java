@@ -2,7 +2,9 @@ package net.launcher.utils;
 
 
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
@@ -12,8 +14,24 @@ import java.util.function.Consumer;
  */
 public class CallbacksOption
 {
-	public static <T> Optional<T> call(Callable<T> callable, Consumer<Exception> exceptionConsumer)
+	@FunctionalInterface
+	public interface SafeCallable<V> extends Callable<V>
 	{
+		@Override
+		V call();
+	}
+
+	public static <T> Callable<T> wrap(SafeCallable<T> safeCallable)
+	{
+		Objects.requireNonNull(safeCallable);
+		return safeCallable;
+	}
+
+	public static <T> Optional<T> optional(Callable<T> callable, Consumer<Exception> exceptionConsumer)
+	{
+		Objects.requireNonNull(callable);
+		Objects.requireNonNull(exceptionConsumer);
+
 		try
 		{
 			return Optional.ofNullable(callable.call());
@@ -27,6 +45,8 @@ public class CallbacksOption
 
 	public static <T> Optional<T> whatever(Callable<T> callable)
 	{
+		Objects.requireNonNull(callable);
+
 		try
 		{
 			return Optional.ofNullable(callable.call());
@@ -37,94 +57,39 @@ public class CallbacksOption
 		}
 	}
 
-	public static <V> Callback<V> create(Consumer<V> consumer)
+	public static <V> Callback<V> accpet(Consumer<V> consumer)
 	{
-		return new Callback<V>()
+		Objects.requireNonNull(consumer);
+		return new CallbackAdapter<V>()
 		{
 			@Override
 			public void done(V result)
 			{
 				consumer.accept(result);
 			}
+		};
+	}
 
+	public static <V> Callback<V> handle(Consumer<Throwable> consumer)
+	{
+		Objects.requireNonNull(consumer);
+
+		return new CallbackAdapter<V>()
+		{
 			@Override
 			public void failed(Throwable e)
 			{
-				e.printStackTrace();
-			}
-
-			@Override
-			public void cancelled()
-			{}
-		};
-	}
-
-
-	public static <T> Runnable createTask(Callable<T> callable, Callback<T> callback)
-	{
-		return () ->
-		{
-			try
-			{
-				T call = callable.call();
-				callback.done(call);
-			}
-			catch (Exception e)
-			{
-				callback.failed(e);
-			}
-		};
-	}
-
-	public static <T> Callable<T> wrap(Callable<T> callable, Callback<T> callback)
-	{
-		return () ->
-		{
-			try
-			{
-				T call = callable.call();
-				callback.done(call);
-				return call;
-			}
-			catch (Exception e)
-			{
-				callback.failed(e);
-				throw e;
-			}
-		};
-	}
-
-	public static <T> Callable<T> wrapFallback(Callable<T> primary, Callable<T> fallback, Callback<T> callback)
-	{
-		return () ->
-		{
-			try
-			{
-				T call = primary.call();
-				callback.done(call);
-				return call;
-			}
-			catch (Exception e)
-			{
-				try
-				{
-					T call = fallback.call();
-					callback.done(call);
-					return call;
-				}
-				catch (Exception fail)
-				{
-					fail.addSuppressed(e);
-					callback.failed(fail);
-					throw fail;
-				}
+				consumer.accept(e);
 			}
 		};
 	}
 
 	public static <V> Callback<V> create(Consumer<V> consumer, Consumer<Throwable> handler)
 	{
-		return new Callback<V>()
+		Objects.requireNonNull(consumer);
+		Objects.requireNonNull(handler);
+
+		return new CallbackAdapter<V>()
 		{
 			@Override
 			public void done(V result)
@@ -137,30 +102,74 @@ public class CallbacksOption
 			{
 				handler.accept(e);
 			}
+		};
+	}
+
+	public static <T> Callback<T> empty()
+	{
+		return new Callback<T>()
+		{
+			@Override
+			public void done(T result) {}
+
+			@Override
+			public void failed(Throwable e) {}
 
 			@Override
 			public void cancelled() {}
 		};
 	}
 
-	public static <V> Callback<V> create(Consumer<V> consumer, Thread.UncaughtExceptionHandler handler)
+	public static <T> Callable<T> wrap(Callable<T> callable, Callback<T> callback)
 	{
-		return new Callback<V>()
+		Objects.requireNonNull(callable);
+
+		Callback<T> back = callback == null ? empty() : callback;
+		return () ->
 		{
-			@Override
-			public void done(V result)
+			try
 			{
-				consumer.accept(result);
+				T call = callable.call();
+				back.done(call);
+				return call;
 			}
-
-			@Override
-			public void failed(Throwable e)
+			catch (Exception e)
 			{
-				handler.uncaughtException(Thread.currentThread(), e);
+				back.failed(e);
+				throw e;
 			}
+		};
+	}
 
-			@Override
-			public void cancelled() {}
+	public static <T> Callable<T> wrapFallback(Callable<T> primary, Callable<T> fallback, Callback<T> callback)
+	{
+		Objects.requireNonNull(primary);
+		Objects.requireNonNull(fallback);
+		Callback<T> back = callback == null ? empty() : callback;
+
+		return () ->
+		{
+			try
+			{
+				T call = primary.call();
+				back.done(call);
+				return call;
+			}
+			catch (Exception e)
+			{
+				try
+				{
+					T call = fallback.call();
+					back.done(call);
+					return call;
+				}
+				catch (Exception fail)
+				{
+					fail.addSuppressed(e);
+					back.failed(fail);
+					throw fail;
+				}
+			}
 		};
 	}
 }

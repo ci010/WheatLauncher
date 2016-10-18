@@ -3,6 +3,7 @@ package net.launcher.utils.resource;
 import net.launcher.utils.Patterns;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -85,6 +86,11 @@ public enum ResourceType
 	public abstract boolean match(File file);
 
 	public abstract InputStream openStream(File file, String path) throws IOException;
+
+	public static ResourceType getType(Path file)
+	{
+		return getType(file.toFile());
+	}
 
 	public static ResourceType getType(File file)
 	{

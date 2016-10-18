@@ -1,84 +1,151 @@
 package net.launcher.utils.resource;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import org.to2mbn.jmccc.option.MinecraftDirectory;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.Future;
+import java.util.function.Consumer;
 
 /**
  * @author ci010
  */
-public class BackupRepository
+public class BackupRepository implements Repository.LocalRepository<Void>
 {
-	private String path;
-	private File repoRoot;
+	private Path repoRoot;
+	private Set<String> pathCache = new HashSet<>();
 
-	public BackupRepository(File parent, String path)
+	public BackupRepository(Path root)
 	{
-		this.path = path;
-		this.repoRoot = new File(parent, path);
-		this.repoRoot.mkdirs();
+		this.repoRoot = root;
+		try {Files.createDirectories(repoRoot);}
+		catch (IOException ignored) {}
 	}
 
-	public File getRoot()
+	@Override
+	public Future<Boolean> containResource(String path, Callback<Boolean> callback)
 	{
-		return repoRoot;
-	}
-
-	public boolean contains(String path)
-	{
-		return getPath(path).isFile();
-	}
-
-	public File getPath(String path)
-	{
-		return new File(repoRoot, path);
-	}
-
-	public void bind(ObservableValue<MinecraftDirectory> fileObservableValue)
-	{
-		fileObservableValue.addListener(dirListener);
-	}
-
-	public void unbind(ObservableValue<MinecraftDirectory> fileObservableValue)
-	{
-		fileObservableValue.removeListener(dirListener);
-	}
-
-	public void backup(File directory)
-	{
-		File root = new File(directory, path);
-		if (!root.exists()) return;
 		try
 		{
-			Files.walkFileTree(root.toPath(), new SimpleFileVisitor<Path>()
+			callback.done(Files.exists(repoRoot.resolve(path)));
+			pathCache.add(path);
+		}
+		catch (Throwable e)
+		{
+			callback.failed(e);
+		}
+	}
+
+	@Override
+	public Set<String> getAllVisiblePaths()
+	{
+		return pathCache;
+	}
+
+	@Override
+	public void check(Path directory, Consumer<Throwable> handler)
+	{
+		if (!Files.exists(directory)) handler.accept(new FileNotFoundException());
+		else
+			try
+			{
+				Files.walkFileTree(directory, new SimpleFileVisitor<Path>()
+				{
+					@Override
+					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+					{
+						FileVisitResult fileVisitResult = super.visitFile(file, attrs);
+						if (fileVisitResult == FileVisitResult.CONTINUE)
+						{
+							Path relativized = directory.relativize(file);
+							Path target = repoRoot.resolve(relativized);
+							if (!Files.exists(target))
+							{
+								Files.createDirectories(target.getParent());
+								Files.copy(file, target);
+								pathCache.add(relativized.toString());
+							}
+						}
+						return fileVisitResult;
+					}
+				});
+			}
+			catch (IOException e)
+			{
+				if (handler != null)
+					handler.accept(e);
+			}
+	}
+
+	@Override
+	public Delivery fetchResource(Path directory, String path, Callback<Void> callback, FetchOption option)
+	{
+		Path target = directory.resolve(path);
+		Path src = repoRoot.resolve(path);
+		if (!Files.exists(src))
+			callback.failed(new FileNotFoundException("cannot find file " + path + " in this repository."));
+		else
+			try
+			{
+				pathCache.add(path);
+				FetchUtils.fetch(src, target, option);
+				callback.done(null);
+			}
+			catch (IOException e)
+			{
+				callback.failed(e);
+			}
+		return null;
+	}
+
+	@Override
+	public Delivery fetchAllResources(Path directory, Callback<Void> callback, FetchOption option)
+	{
+		try
+		{
+			Files.walkFileTree(this.repoRoot, new SimpleFileVisitor<Path>()
 			{
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
 				{
-					Path relativized = root.toPath().relativize(file);
-					Path back = repoRoot.toPath().resolve(relativized);
-					if (!back.toFile().isFile())
+					FileVisitResult fileVisitResult = super.visitFile(file, attrs);
+					if (fileVisitResult == FileVisitResult.CONTINUE)
 					{
-						back.toFile().getParentFile().mkdirs();
-						Files.copy(file, back);
+						Path relativize = repoRoot.relativize(file);
+						FetchUtils.fetch(file, directory.resolve(relativize), option);
+						pathCache.add(relativize.toString());
 					}
-					return super.visitFile(file, attrs);
+					return fileVisitResult;
 				}
 			});
 		}
 		catch (IOException e)
 		{
-			e.printStackTrace();
+			callback.failed(e);
 		}
+		callback.done(null);
+		return null;
 	}
 
-	private ChangeListener<MinecraftDirectory> dirListener = (observable, oldValue, newValue) -> backup(newValue.getRoot());
+	@Override
+	public Future<Void> update()
+	{
+		Files.walkFileTree(this.repoRoot, new SimpleFileVisitor<Path>()
+		{
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+			{
+				FileVisitResult result = super.visitFile(file, attrs);
+				if (result == FileVisitResult.CONTINUE) pathCache.add(repoRoot.relativize(file).toString());
+				return result;
+			}
+		});
+	}
 }
