@@ -1,9 +1,11 @@
-package net.launcher.game;
+package net.launcher.game.resourcepack;
+
+import net.launcher.LaunchElement;
 
 /**
  * @author ci010
  */
-public class ResourcePack
+public class ResourcePack implements LaunchElement
 {
 	private String packName, description;
 	private int format;

@@ -10,7 +10,9 @@ import net.wheatlauncher.Core;
 import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.YggdrasilAuthenticator;
+import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
+import org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil.YggdrasilProfileServiceBuilder;
 
 import java.net.UnknownHostException;
 import java.util.TimerTask;
@@ -23,13 +25,19 @@ class OnlineAuth extends AuthenticationIndicator
 	private TimerTask task;
 
 	@Override
+	public ProfileService createProfileService()
+	{
+		return YggdrasilProfileServiceBuilder.buildDefault();
+	}
+
+	@Override
 	public String id()
 	{
 		return "online";
 	}
 
 	@Override
-	protected StrictProperty.Validator<String> accountValid()
+	public StrictProperty.Validator<String> accountValid()
 	{
 		return (stateHandler, v) ->
 		{
@@ -42,7 +50,7 @@ class OnlineAuth extends AuthenticationIndicator
 	}
 
 	@Override
-	protected StrictProperty.Validator<String> passwordValid()
+	public StrictProperty.Validator<String> passwordValid()
 	{
 		return ((stateHandler, v) ->
 		{

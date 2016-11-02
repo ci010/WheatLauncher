@@ -48,7 +48,6 @@ public class LaunchProfileImpl implements LaunchProfile
 			clientToken = new SimpleStringProperty(UUIDUtils.randomUnsignedUUID()),
 			accessToken = new SimpleStringProperty();
 	private StrictProperty<AuthenticationIndicator> indic = new WrappedStrictProperty<>(new SimpleStrictProperty<>());
-
 	{
 		indic.addListener((observable, oldV, newV) ->
 		{

@@ -81,7 +81,7 @@ class SkinMeSession implements SkinQueryService.Session
 
 	private void submit(int index, Callback<List<Skin>> callback)
 	{
-		service.submit(CallbacksOption.createTask(new QueryPage(index), callback));
+		service.submit(CallbacksOption.wrap(new QueryPage(index), callback));
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package net.launcher.utils.resource;
 
+import net.launcher.utils.ProgressCallback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 
 import java.net.Proxy;
@@ -31,28 +32,35 @@ public interface Repository<T>
 
 	/**
 	 * Fetch the resource to directory under the path.
-	 *
-	 * @param directory The target directory which the new resource will be placed in.
+	 *  @param directory The target directory which the new resource will be placed in.
 	 * @param path      The resource path.
 	 * @param callback  The job callback.
 	 * @param option    The fetch option.
 	 */
-	Delivery<T> fetchResource(Path directory, String path, Callback<T> callback, FetchOption option);
+	Delivery<T> fetchResource(Path directory, String path, ProgressCallback<T> callback, FetchOption option);
 
 	/**
 	 * Fetch all the resources recorded in memory into the directory.
-	 *
-	 * @param directory The target directory which the new resource will be placed in.
+	 *  @param directory The target directory which the new resource will be placed in.
 	 * @param callback  The job callback. {@link Callback#done(Object)} will only called when the task done.
 	 *                  {@link Callback#failed(Throwable)} will be called whenever there is an exception thrown.
 	 * @param option    The fetch option.
 	 */
-	Delivery<Void> fetchAllResources(Path directory, Callback<Void> callback, FetchOption option);
+	Delivery<Void> fetchAllResources(Path directory, ProgressCallback<Void> callback, FetchOption option);
 
 	/**
 	 * Update this repository indexes from the disk.
 	 */
 	Future<Void> update();
+
+	/**
+	 * Check the directory to find if there are some resources should be included into this repository. If any
+	 * exception thrown, The exception handler will get the exception.
+	 *
+	 * @param directory the target directory.
+	 * @param handler   The exception handler.
+	 */
+	void check(Path directory, Consumer<Throwable> handler);
 
 	interface Delivery<T> extends AutoCloseable, Future<T>
 	{
@@ -85,18 +93,6 @@ public interface Repository<T>
 		 * This will create hard link to the target directory. Notice that this cannot be created cross hard disk.
 		 */
 		HARD_LINK
-	}
-
-	interface LocalRepository<T> extends Repository<T>
-	{
-		/**
-		 * Check the directory to find if there are some resources should be included into this repository. If any
-		 * exception thrown, The exception handler will get the exception.
-		 *
-		 * @param directory the target directory.
-		 * @param handler   The exception handler.
-		 */
-		void check(Path directory, Consumer<Throwable> handler);
 	}
 
 	interface RemoteRepository<T> extends Repository<T>

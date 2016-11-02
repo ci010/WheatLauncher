@@ -1,12 +1,13 @@
 package net.launcher.services;
-/**
- * @author ci010
- */
 
 import javafx.util.Builder;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+/**
+ * @author ci010
+ */
 
 public class MinecraftServerPingServiceBuilder implements Builder<MinecraftServerPingService>
 {

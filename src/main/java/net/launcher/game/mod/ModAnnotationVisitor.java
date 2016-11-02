@@ -11,11 +11,11 @@ import java.util.Set;
 /**
  * @author ci010
  */
-public class ModAnnotationVisitor extends ClassVisitor
+class ModAnnotationVisitor extends ClassVisitor
 {
 	private Set<Map<String, Object>> set;
 
-	public ModAnnotationVisitor(Set<Map<String, Object>> set)
+	ModAnnotationVisitor(Set<Map<String, Object>> set)
 	{
 		super(Opcodes.ASM5);
 		this.set = set;

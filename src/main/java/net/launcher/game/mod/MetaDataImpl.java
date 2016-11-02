@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * @author ci010
  */
-public class MetaDataImpl implements ModMetaData
+class MetaDataImpl implements ModMetaData
 {
 	private String modId = StringUtils.EMPTY;
 	private String description = StringUtils.EMPTY;
@@ -31,15 +31,15 @@ public class MetaDataImpl implements ModMetaData
 
 	private boolean clientOnly, severOnly;
 
-	private String[] collapsed = new String[3];
+	private String[] collapsed = new String[4];
 
-	public void loadFromModInfo(JSONObject object)
+	void loadFromModInfo(JSONObject object)
 	{
 		putModID(object.optString("modid"));
 		putJson(object.optString("updateJSON"));
 		putVersion(object.optString("version"));
+		putName(object.optString("name"));
 
-		name = object.optString("name");
 		description = object.optString("description");
 		url = object.optString("url");
 		logoFile = object.optString("logoFile");
@@ -89,6 +89,14 @@ public class MetaDataImpl implements ModMetaData
 		else collapsed[2] = v;
 	}
 
+	private void putName(String v)
+	{
+		if (StringUtils.isEmpty(v)) return;
+		if (StringUtils.isEmpty(this.name))
+			this.name = v;
+		else collapsed[3] = v;
+	}
+
 	public void loadFromAnnotationMap(Map<String, Object> map)
 	{
 		map.forEach((s, o) ->
@@ -99,7 +107,7 @@ public class MetaDataImpl implements ModMetaData
 				case "version": putVersion((String) o); break;
 				case "updateJSON": putJson((String) o); break;
 
-				case "name": name = (String) o; break;
+				case "name": putName((String) o); break;
 				case "certificateFingerprint": fingerprint = (String) o; break;
 				case "dependencies": dependencies = (String) o; break;
 				case "acceptableRemoteVersions": acceptableRemoteVersions = (String) o; break;
@@ -224,12 +232,12 @@ public class MetaDataImpl implements ModMetaData
 	@Override
 	public String getAlternativeName()
 	{
-		return null;
+		return collapsed[3];
 	}
 
 	@Override
 	public String getCollapsedVersion()
 	{
-		return null;
+		return collapsed[1];
 	}
 }

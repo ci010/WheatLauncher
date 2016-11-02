@@ -4,6 +4,8 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 
+import java.util.Objects;
+
 
 /**
  * @author ci010
@@ -74,6 +76,7 @@ public class SimpleStrictProperty<T> extends SimpleObjectProperty<T> implements 
 	@Override
 	public void setValue(T value)
 	{
+		Objects.requireNonNull(value);
 //		Logger.trace("try set value " + value + " with validator " + validator());
 		cache = value;
 		Validator<T> tValidator = validate.get();

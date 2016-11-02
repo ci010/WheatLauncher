@@ -61,6 +61,11 @@ public class NBTPrimitive extends NBT
 
 	public boolean asBool() {return asByte() != 0;}
 
+	public Object asRaw()
+	{
+		return v;
+	}
+
 	@Override
 	public String toString()
 	{

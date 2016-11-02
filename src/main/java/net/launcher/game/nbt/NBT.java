@@ -1,6 +1,12 @@
 package net.launcher.game.nbt;
 
 import java.io.*;
+import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 /**
  * @author ci010
@@ -78,6 +84,8 @@ public abstract class NBT implements Cloneable
 
 	public abstract NBT clone();
 
+	public Object asRaw() {throw new UnsupportedOperationException();}
+
 	public static NBTPrimitive number(Number number)
 	{
 		try
@@ -129,14 +137,53 @@ public abstract class NBT implements Cloneable
 		return read(new FileInputStream(file), isCompressed);
 	}
 
+	public static NBT read(Path file, boolean isCompressed) throws IOException
+	{
+		if (!Files.exists(file)) throw new FileNotFoundException();
+		try (FileChannel open = FileChannel.open(file))
+		{
+			long size = Files.size(file);
+			MappedByteBuffer map = open.map(FileChannel.MapMode.READ_ONLY, 0, size);
+			byte[] bytes = new byte[(int) size];
+			map.get(bytes);
+			return read(new ByteArrayInputStream(bytes), isCompressed);
+		}
+	}
+
 	public static void write(File file, NBTCompound compound, boolean isCompressed) throws IOException
 	{
 		write(new FileOutputStream(file), compound, isCompressed);
 	}
 
+	public static void write(Path file, NBTCompound compound, boolean isCompressed) throws IOException
+	{
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		write(stream, compound, isCompressed);
+		byte[] bytes = stream.toByteArray();
+		try (FileChannel channel = FileChannel.open(file, StandardOpenOption.WRITE))
+		{
+			channel.map(FileChannel.MapMode.READ_WRITE, 0, bytes.length).put(bytes);
+		}
+	}
+
 	public static void write(OutputStream stream, NBTCompound compound, boolean isCompressed) throws IOException
 	{
 		NBTType.writeTag(stream, compound, isCompressed);
+	}
+
+	public static void overwrite(Path file, NBTCompound compound, boolean isCompressed) throws IOException
+	{
+		Path parent = file.getParent();
+		Path cache = parent.resolve(file.getFileName() + ".cache");
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		write(stream, compound, isCompressed);
+		byte[] bytes = stream.toByteArray();
+		try (FileChannel open = FileChannel.open(cache, StandardOpenOption.WRITE))
+		{
+			open.write(ByteBuffer.wrap(bytes));
+		}
+		if (Files.exists(file)) Files.delete(file);
+		Files.move(cache, file);
 	}
 
 	public static void overwrite(File file, NBTCompound compound, boolean isCompressed) throws IOException
@@ -146,6 +193,26 @@ public abstract class NBT implements Cloneable
 		write(new FileOutputStream(cache), compound, isCompressed);
 		if (file.exists()) file.delete();
 		cache.renameTo(file);
+	}
+
+	public static void overwriteAndBackup(Path file, Path backup, NBTCompound compound, boolean isCompressed) throws
+			IOException
+	{
+		Path parent = file.getParent();
+		Path cache = parent.resolve(file.getFileName() + ".cache");
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		write(stream, compound, isCompressed);
+		byte[] bytes = stream.toByteArray();
+		try (FileChannel channel = FileChannel.open(cache, StandardOpenOption.READ, StandardOpenOption.WRITE))
+		{
+			channel.write(ByteBuffer.wrap(bytes));
+		}
+		if (Files.exists(file))
+		{
+			if (Files.exists(backup)) Files.delete(backup);
+			Files.move(file, backup);
+		}
+		Files.move(cache, file);
 	}
 
 	public static void overwriteAndBackup(File file, File backup, NBTCompound compound, boolean isCompressed) throws

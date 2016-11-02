@@ -64,4 +64,10 @@ class LaunchProfileMangerImpl implements LaunchProfileManager
 		profiles.add(profile);
 		return profile;
 	}
+
+	@Override
+	public LaunchProfile getSelectedProfile()
+	{
+		return selectingProfile.get();
+	}
 }

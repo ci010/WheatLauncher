@@ -1,5 +1,7 @@
 package net.launcher.utils.resource;
 
+import net.launcher.utils.CallbacksOption;
+import net.launcher.utils.ProgressCallback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 
 import java.io.FileNotFoundException;
@@ -9,22 +11,29 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashSet;
+import java.nio.file.attribute.FileTime;
+import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * @author ci010
  */
-public class BackupRepository implements Repository.LocalRepository<Void>
+class BackupRepository implements Repository<Void>
 {
 	private Path repoRoot;
-	private Set<String> pathCache = new HashSet<>();
+	private ExecutorService service;
+	private Set<String> pathCache = new TreeSet<>();
 
-	public BackupRepository(Path root)
+	BackupRepository(Path repoRoot, ExecutorService service)
 	{
-		this.repoRoot = root;
+		this.repoRoot = repoRoot;
+		this.service = service;
 		try {Files.createDirectories(repoRoot);}
 		catch (IOException ignored) {}
 	}
@@ -32,15 +41,9 @@ public class BackupRepository implements Repository.LocalRepository<Void>
 	@Override
 	public Future<Boolean> containResource(String path, Callback<Boolean> callback)
 	{
-		try
-		{
-			callback.done(Files.exists(repoRoot.resolve(path)));
-			pathCache.add(path);
-		}
-		catch (Throwable e)
-		{
-			callback.failed(e);
-		}
+		Objects.requireNonNull(path);
+
+		return service.submit(() -> Files.exists(repoRoot.resolve(path)));
 	}
 
 	@Override
@@ -52,100 +55,95 @@ public class BackupRepository implements Repository.LocalRepository<Void>
 	@Override
 	public void check(Path directory, Consumer<Throwable> handler)
 	{
-		if (!Files.exists(directory)) handler.accept(new FileNotFoundException());
+		Objects.requireNonNull(directory);
+		if (!Files.exists(directory)) if (handler != null) handler.accept(new FileNotFoundException());
 		else
-			try
+			service.submit(() ->
 			{
-				Files.walkFileTree(directory, new SimpleFileVisitor<Path>()
+				try
 				{
-					@Override
-					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+					Files.walkFileTree(directory, new SimpleFileVisitor<Path>()
 					{
-						FileVisitResult fileVisitResult = super.visitFile(file, attrs);
-						if (fileVisitResult == FileVisitResult.CONTINUE)
+						@Override
+						public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
 						{
-							Path relativized = directory.relativize(file);
-							Path target = repoRoot.resolve(relativized);
-							if (!Files.exists(target))
+							FileVisitResult fileVisitResult = super.visitFile(file, attrs);
+							if (fileVisitResult == FileVisitResult.CONTINUE)
 							{
-								Files.createDirectories(target.getParent());
-								Files.copy(file, target);
-								pathCache.add(relativized.toString());
+								Path relative = directory.relativize(file);
+								Path target = repoRoot.resolve(relative);
+								if (!Files.exists(target))
+								{
+									Files.createDirectories(target.getParent());
+									Files.copy(file, target);
+									pathCache.add(relative.toString());
+								}
+								else
+								{
+									FileTime lastModifiedTime = Files.getLastModifiedTime(file);
+									FileTime fileTime = Files.getLastModifiedTime(target);
+									if (lastModifiedTime.compareTo(fileTime) > 0)
+										Files.copy(file, target);
+								}
 							}
+							return fileVisitResult;
 						}
-						return fileVisitResult;
-					}
-				});
-			}
-			catch (IOException e)
-			{
-				if (handler != null)
-					handler.accept(e);
-			}
+					});
+				}
+				catch (IOException e)
+				{
+					if (handler != null)
+						handler.accept(e);
+				}
+			});
 	}
 
 	@Override
-	public Delivery fetchResource(Path directory, String path, Callback<Void> callback, FetchOption option)
+	public Delivery<Void> fetchResource(Path directory, String path, ProgressCallback<Void> callback, FetchOption option)
 	{
+		Objects.requireNonNull(directory);
+		Objects.requireNonNull(path);
+
 		Path target = directory.resolve(path);
-		Path src = repoRoot.resolve(path);
-		if (!Files.exists(src))
-			callback.failed(new FileNotFoundException("cannot find file " + path + " in this repository."));
-		else
-			try
-			{
-				pathCache.add(path);
-				FetchUtils.fetch(src, target, option);
-				callback.done(null);
-			}
-			catch (IOException e)
-			{
-				callback.failed(e);
-			}
-		return null;
+		return new DeliveryImpl<>(service.submit(CallbacksOption.wrap(() ->
+		{
+			Path src = repoRoot.resolve(path);
+			FetchUtils.fetch(src, target, option);
+			pathCache.add(path);
+			return null;
+		}, callback)), Collections.singleton(target), service);
 	}
 
 	@Override
-	public Delivery fetchAllResources(Path directory, Callback<Void> callback, FetchOption option)
+	public Delivery<Void> fetchAllResources(Path directory, ProgressCallback<Void> callback, FetchOption option)
 	{
-		try
+		Objects.requireNonNull(directory);
+
+		Set<Path> collect = pathCache.stream().map(s -> repoRoot.resolve(s)).collect(Collectors.toSet());
+		return new DeliveryImpl<>(service.submit(() ->
+		{
+			for (Path path : collect)
+				FetchUtils.fetch(path, directory.resolve(repoRoot.relativize(path)), option);
+			return null;
+		}), collect, service);
+	}
+
+	@Override
+	public Future<Void> update()
+	{
+		return service.submit(() ->
 		{
 			Files.walkFileTree(this.repoRoot, new SimpleFileVisitor<Path>()
 			{
 				@Override
 				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
 				{
-					FileVisitResult fileVisitResult = super.visitFile(file, attrs);
-					if (fileVisitResult == FileVisitResult.CONTINUE)
-					{
-						Path relativize = repoRoot.relativize(file);
-						FetchUtils.fetch(file, directory.resolve(relativize), option);
-						pathCache.add(relativize.toString());
-					}
-					return fileVisitResult;
+					FileVisitResult result = super.visitFile(file, attrs);
+					if (result == FileVisitResult.CONTINUE) pathCache.add(repoRoot.relativize(file).toString());
+					return result;
 				}
 			});
-		}
-		catch (IOException e)
-		{
-			callback.failed(e);
-		}
-		callback.done(null);
-		return null;
-	}
-
-	@Override
-	public Future<Void> update()
-	{
-		Files.walkFileTree(this.repoRoot, new SimpleFileVisitor<Path>()
-		{
-			@Override
-			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
-			{
-				FileVisitResult result = super.visitFile(file, attrs);
-				if (result == FileVisitResult.CONTINUE) pathCache.add(repoRoot.relativize(file).toString());
-				return result;
-			}
+			return null;
 		});
 	}
 }

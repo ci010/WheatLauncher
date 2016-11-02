@@ -14,6 +14,8 @@ public interface LaunchProfileManager
 
 	LaunchProfile newProfile(String name);
 
+	LaunchProfile getSelectedProfile();
+
 	Optional<LaunchProfile> getProfile(String name);
 
 	void select(String profileName);

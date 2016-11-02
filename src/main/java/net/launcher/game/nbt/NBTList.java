@@ -3,6 +3,7 @@ package net.launcher.game.nbt;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author ci010
@@ -87,6 +88,12 @@ public class NBTList extends NBT implements Iterable<NBT>
 		for (NBT nbt : this)
 			copy.add(nbt.clone());
 		return copy;
+	}
+
+	@Override
+	public Object asRaw()
+	{
+		return this.lst.stream().map(NBT::asRaw).collect(Collectors.toList());
 	}
 
 	@Override

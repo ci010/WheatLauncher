@@ -1,25 +1,22 @@
 package net.launcher.game.mod;
 
-import net.launcher.game.Mod;
 import net.launcher.utils.StringUtils;
-import net.minecraftforge.fml.common.versioning.InvalidVersionSpecificationException;
-import net.minecraftforge.fml.common.versioning.VersionParser;
-import net.minecraftforge.fml.common.versioning.VersionRange;
+import net.minecraftforge.fml.common.versioning.*;
 
 /**
  * @author ci010
  */
-public class ReleaseImpl implements Mod.Release
+class ReleaseImpl implements Mod
 {
-	private String nickName;
 	private ModMetaData metaData;
 	private VersionRange range;
+	private ArtifactVersion version;
 
-	public ReleaseImpl(ModMetaData metaData)
+	ReleaseImpl(ModMetaData metaData)
 	{
-		this.nickName = "";
 		this.metaData = metaData;
 		this.range = parseMCVersionRange(metaData.getAcceptMinecraftVersion());
+		this.version = new DefaultArtifactVersion(metaData.getModId(), metaData.getVersion());
 	}
 
 	@Override
@@ -29,28 +26,17 @@ public class ReleaseImpl implements Mod.Release
 	}
 
 	@Override
-	public String getVersion()
+	public ArtifactVersion getVersion()
 	{
-		return metaData.getVersion();
+		return version;
 	}
 
 	@Override
-	public String getNickName()
-	{
-		return nickName;
-	}
-
-	@Override
-	public VersionRange getAcceptVersionRange()
+	public VersionRange getMinecraftVersionRange()
 	{
 		return range;
 	}
 
-	@Override
-	public void setNickName(String nickName)
-	{
-		this.nickName = nickName;
-	}
 
 	@Override
 	public ModMetaData getMetaData()
@@ -61,9 +47,8 @@ public class ReleaseImpl implements Mod.Release
 	@Override
 	public String toString()
 	{
-		return "ReleaseImpl{" +
+		return "ModRelease{" +
 				"modId='" + getModId() + '\'' +
-				", nickName='" + nickName + '\'' +
 				", version='" + getVersion() + '\'' +
 				",\n metaData=" + metaData +
 				'}';

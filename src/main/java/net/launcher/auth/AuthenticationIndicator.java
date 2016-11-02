@@ -11,6 +11,7 @@ import net.launcher.utils.Logger;
 import net.launcher.utils.State;
 import net.launcher.utils.StrictProperty;
 import org.to2mbn.jmccc.auth.AuthInfo;
+import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -78,6 +79,8 @@ public abstract class AuthenticationIndicator
 		return state;
 	}
 
+	public abstract ProfileService createProfileService();
+
 	public abstract String id();
 
 	protected abstract StrictProperty.Validator<String> accountValid();
@@ -87,4 +90,8 @@ public abstract class AuthenticationIndicator
 	protected abstract void auth(String validAccount, String validPassword, WritableValue<State> writableValue,
 								 WritableValue<AuthInfo> out);
 
+	public static boolean isPasswordEnable(AuthenticationIndicator indicator)
+	{
+		return indicator.passwordValid() != null;
+	}
 }

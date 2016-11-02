@@ -12,7 +12,7 @@ import java.util.concurrent.Future;
  */
 public interface SkinQueryService extends Shutdownable
 {
-	Future<Session> session(String keyword, Callback<Session> sessionCallback);
+	Future<Session> session(String keyword, Callback<Session> sessionCallback, TextureType textureType);
 
 	interface Session
 	{

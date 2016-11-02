@@ -6,6 +6,7 @@ import java.util.Map;
 /**
  * @author ci010
  */
+@FunctionalInterface
 public interface Serializer<T, S>
 {
 	S serialize(T data, Map<Object, Object> context);

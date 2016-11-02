@@ -8,6 +8,8 @@ import java.nio.charset.Charset;
 import java.util.Hashtable;
 
 /**
+ * Port from Minecraft.
+ *
  * @author ci010
  */
 public class MessageUtils

@@ -1,6 +1,7 @@
 package net.launcher.game.nbt;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author ci010
@@ -127,6 +128,13 @@ public class NBTCompound extends NBT
 	public Set<String> keySet()
 	{
 		return map.keySet();
+	}
+
+	@Override
+	public Object asRaw()
+	{
+		return map.entrySet().stream().map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), e.getValue().asRaw()
+		)).collect(Collectors.toMap(AbstractMap.SimpleImmutableEntry::getKey, AbstractMap.SimpleImmutableEntry::getValue));
 	}
 
 	@Override

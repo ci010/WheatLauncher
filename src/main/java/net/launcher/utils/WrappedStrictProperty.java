@@ -7,6 +7,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 
+import java.util.Objects;
+
 /**
  * @author ci010
  */
@@ -73,6 +75,7 @@ public class WrappedStrictProperty<T> implements StrictProperty<T>
 	@Override
 	public void setValue(T value)
 	{
+		Objects.requireNonNull(value);
 		cache = value;
 		Validator<T> tValidator = validate.get();
 		if (tValidator != null)

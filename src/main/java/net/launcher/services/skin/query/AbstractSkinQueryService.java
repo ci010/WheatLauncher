@@ -55,7 +55,7 @@ public abstract class AbstractSkinQueryService implements SkinQueryService
 	protected abstract int parseSize(Document document);
 
 	@Override
-	public Future<Session> session(final String keyword, Callback<Session> sessionCallback)
+	public Future<Session> session(final String keyword, Callback<Session> sessionCallback, TextureType textureType)
 	{
 		return service.submit(CallbacksOption.wrap(() ->
 		{
@@ -106,7 +106,7 @@ public abstract class AbstractSkinQueryService implements SkinQueryService
 				callback.done(cache);
 				return;
 			}
-			service.submit(CallbacksOption.createTask(() -> parseList(Jsoup.parse(AbstractSkinQueryService.this.queryPage
+			service.submit(CallbacksOption.wrap(() -> parseList(Jsoup.parse(AbstractSkinQueryService.this.queryPage
 					(keyword, index))), Callbacks.group(callback, new CallbackAdapter<List<Skin>>()
 			{
 				@Override

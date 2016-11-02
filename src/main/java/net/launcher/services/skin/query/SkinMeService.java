@@ -1,6 +1,7 @@
 package net.launcher.services.skin.query;
 
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
+import org.to2mbn.jmccc.auth.yggdrasil.core.texture.TextureType;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 
 import java.util.concurrent.ExecutorService;
@@ -22,7 +23,7 @@ public class SkinMeService implements SkinQueryService
 	}
 
 	@Override
-	public Future<Session> session(String keyword, Callback<Session> sessionCallback)
+	public Future<Session> session(String keyword, Callback<Session> sessionCallback, TextureType textureType)
 	{
 		FutureTask<Session> future = SkinMeSession.create(keyword, (byte) 1, service, requester, sessionCallback);
 		service.submit(future);

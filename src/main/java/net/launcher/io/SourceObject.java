@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 /**
  * @author ci010
  */
-public final class SourceObject
+public final class SourceObject implements Comparable<SourceObject>
 {
 	private String path;
 	private Prototype prototype;
@@ -51,6 +51,12 @@ public final class SourceObject
 		return path != null ? path.hashCode() : 0;
 	}
 
+	@Override
+	public int compareTo(SourceObject o)
+	{
+		return path.compareTo(o.path);
+	}
+
 	public static class Prototype
 	{
 		private String fileName;
@@ -60,6 +66,11 @@ public final class SourceObject
 		{
 			this.fileName = filename;
 			this.type = type;
+		}
+
+		public String getFileName()
+		{
+			return fileName;
 		}
 
 		public SourceObject create(String... path)

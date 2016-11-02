@@ -6,8 +6,9 @@ import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.Callable;
+import java.util.concurrent.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author ci010
@@ -55,6 +56,104 @@ public class CallbacksOption
 		{
 			return Optional.empty();
 		}
+	}
+
+	public static <T, V> Future<T> mapFuture(Future<V> future, Function<V, T> function)
+	{
+		Objects.requireNonNull(function);
+		Objects.requireNonNull(future);
+		return new Future<T>()
+		{
+			@Override
+			public boolean cancel(boolean mayInterruptIfRunning)
+			{
+				return future.cancel(mayInterruptIfRunning);
+			}
+
+			@Override
+			public boolean isCancelled()
+			{
+				return future.isCancelled();
+			}
+
+			@Override
+			public boolean isDone()
+			{
+				return future.isDone();
+			}
+
+			@Override
+			public T get() throws InterruptedException, ExecutionException
+			{
+				V v = future.get();
+				return function.apply(v);
+			}
+
+			@Override
+			public T get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException
+			{
+				V v = future.get(timeout, unit);
+				return function.apply(v);
+			}
+		};
+	}
+
+	public static <T, V> ProgressCallback<T> map(ProgressCallback<V> callback, Function<T, V> function)
+	{
+		Objects.requireNonNull(callback);
+		Objects.requireNonNull(function);
+		return new ProgressCallback<T>()
+		{
+			@Override
+			public void updateProgress(long done, long total, String message)
+			{
+				callback.updateProgress(done, total, message);
+			}
+
+			@Override
+			public void done(T result)
+			{
+				callback.done(function.apply(result));
+			}
+
+			@Override
+			public void failed(Throwable e)
+			{
+				callback.failed(e);
+			}
+
+			@Override
+			public void cancelled()
+			{
+				callback.cancelled();
+			}
+		};
+	}
+
+	public static <T, V> Callback<T> map(Callback<V> callback, Function<T, V> function)
+	{
+		Objects.requireNonNull(function);
+		Callback<V> call = callback == null ? empty() : callback;
+		return new Callback<T>()
+		{
+			@Override
+			public void done(T result)
+			{
+				call.done(function.apply(result));
+			}
+
+			@Override
+			public void failed(Throwable e)
+			{
+				call.failed(e);
+			}
+
+			@Override
+			public void cancelled()
+			{
+				call.cancelled();
+			}
+		};
 	}
 
 	public static <V> Callback<V> accpet(Consumer<V> consumer)

@@ -9,7 +9,7 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.AuthenticationService;
 /**
  * @author ci010
  */
-public class CustomYggdrasilAuth extends OnlineAuth
+public abstract class CustomYggdrasilAuth extends OnlineAuth
 {
 	private String id;
 	private StrictProperty.Validator<String> accountValid, pswValid;
@@ -31,13 +31,13 @@ public class CustomYggdrasilAuth extends OnlineAuth
 	}
 
 	@Override
-	protected StrictProperty.Validator<String> accountValid()
+	public StrictProperty.Validator<String> accountValid()
 	{
 		return accountValid;
 	}
 
 	@Override
-	protected StrictProperty.Validator<String> passwordValid()
+	public StrictProperty.Validator<String> passwordValid()
 	{
 		return pswValid;
 	}

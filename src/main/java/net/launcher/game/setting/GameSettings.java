@@ -1,12 +1,12 @@
-package net.launcher.game;
+package net.launcher.game.setting;
 
-import net.launcher.game.setting.*;
 import net.launcher.io.MappedStorageType;
 import net.launcher.io.SourceObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -15,16 +15,16 @@ import java.util.stream.Collectors;
  */
 public class GameSettings
 {
-	private static SourceObject.Prototype
+	public static final SourceObject.Prototype
 			MC_OPTION = new SourceObject.Prototype("option.txt", MappedStorageType.MC),
-			FORGE_MODS = new SourceObject.Prototype("mods.json", MappedStorageType.JSON),
+			MC_MODS = new SourceObject.Prototype("mods.json", MappedStorageType.JSON),
 			OPTIFINE = new SourceObject.Prototype("optionsof.txt", MappedStorageType.MC),
 			SHADER = new SourceObject.Prototype("optionsshaders.txt", MappedStorageType.PROPERTIES);
 
 	static
 	{
 		registerNewSource(MC_OPTION);
-		registerNewSource(FORGE_MODS);
+		registerNewSource(MC_MODS);
 		registerNewSource(OPTIFINE);
 		registerNewSource(SHADER);
 	}
@@ -32,17 +32,23 @@ public class GameSettings
 	private static List<SourceObject.Prototype> others = new ArrayList<>();
 	private static List<SourceObject.Prototype> view = Collections.unmodifiableList(others);
 
-	public static Class<GameSettings> registerNewSource(SourceObject.Prototype prototype)
+	public static void registerNewSource(SourceObject.Prototype prototype)
 	{
 		if (!others.contains(prototype))
 			others.add(prototype);
 		else throw new IllegalArgumentException();
-		return GameSettings.class;
 	}
 
 	public static List<SourceObject.Prototype> getSourcesView()
 	{
 		return view;
+	}
+
+	public static Optional<SourceObject.Prototype> findPrototype(String fileName)
+	{
+		for (SourceObject.Prototype prototype : view)
+			if (prototype.getFileName().equals(fileName)) return Optional.of(prototype);
+		return Optional.empty();
 	}
 
 	private static List<Option<?>> ALL = new ArrayList<>();
@@ -66,8 +72,9 @@ public class GameSettings
 			ENTITY_SHADOWS = new BooleanOption(MC_OPTION, "entityShadows", true);
 
 	public static final Option<String> LANGUAGE = new StringOption(MC_OPTION, "lang", "en_US");
-	public static final Option<String[]> RESOURCE_PACE = new StringArrayOption(MC_OPTION, "resourcePacks", new
-			String[0]);
+	public static final Option<String[]> RESOURCE_PACE = new StringArrayOption(MC_OPTION, "resourcePacks",
+			new String[0]);
+	public static final Option<String[]> MODS = new StringArrayOption(MC_MODS, "forge_mods", new String[0]);
 
 	public static void registerOption(Option<?> option)
 	{
@@ -80,10 +87,9 @@ public class GameSettings
 		return ALL.stream().filter(option -> option.getSourceType().isTypeOf(sourceObject)).collect(Collectors.toList());
 	}
 
-
 	public static List<Option<?>> getAllOptions()
 	{
-		return null;
+		return ALL;
 	}
 
 	static
