@@ -11,5 +11,4 @@ import java.io.IOException;
 public interface ResourcePackManager extends LaunchElementManager<ResourcePack>
 {
 	Image getIcon(ResourcePack resourcePack) throws IOException;
-
 }

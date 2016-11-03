@@ -75,7 +75,8 @@ public class ResourcePackMangerBuilder implements Builder<LaunchElementManager<R
 						(serialized, context) -> new ResourcePack(serialized.get("name").asString(), serialized.get("description").asString(), serialized.get("format").asInt())),
 				(file, context) ->
 				{
-					String name = context.get("fileName").toString().split(".")[0], descriptor = "";
+					String raw = context.get("fileName").toString();
+					String name = raw.substring(0, raw.lastIndexOf('.')), descriptor = "";
 					int format = -1;
 					Path resolve = file.resolve("pack.mcmeta");
 					try (SeekableByteChannel channel = Files.newByteChannel(resolve))

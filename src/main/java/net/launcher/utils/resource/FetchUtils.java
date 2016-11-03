@@ -11,6 +11,8 @@ class FetchUtils
 {
 	static void fetch(Path from, Path to, Repository.FetchOption option) throws IOException
 	{
+		if (option == null)
+			option = Repository.FetchOption.SYMBOL_LINK;
 		switch (option)
 		{
 			case COPY:

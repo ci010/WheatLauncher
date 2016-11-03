@@ -20,10 +20,12 @@ import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.FileDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.MemoryDownloadTask;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.Proxy;
 import java.net.URL;
-import java.nio.file.FileSystem;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
@@ -46,9 +48,10 @@ class ArchiveRepositoryBase<T>
 	private ExecutorService service;
 
 	private ObservableMap<String, Resource<T>> archesMap = FXCollections.synchronizedObservableMap(FXCollections.observableHashMap());
-	private EmbeddedRemoteArchiveRepository[] remoteRepository;
+	private ArrayList<EmbeddedRemoteArchiveRepository> remoteRepository;
 	private Deserializer<T, Path> parser;
 	private BiSerializer<T, NBTCompound> archiveSerializer;
+	private boolean ready;
 
 	public Path getRoot()
 	{
@@ -67,12 +70,11 @@ class ArchiveRepositoryBase<T>
 	{
 		this.root = root;
 		this.service = service;
-		this.remoteRepository = (EmbeddedRemoteArchiveRepository[]) new Object[remote.length];
+		this.remoteRepository = new ArrayList<>();
 		for (int i = 0; i < remote.length; i++)
-			this.remoteRepository[i] = new EmbeddedRemoteArchiveRepository(remote[i]);
+			this.remoteRepository.add(new EmbeddedRemoteArchiveRepository(remote[i]));
 		this.parser = parser;
 		this.archiveSerializer = archiveSerializer;
-		this.update();
 	}
 
 	@Override
@@ -94,17 +96,19 @@ class ArchiveRepositoryBase<T>
 		{
 			for (EmbeddedRemoteArchiveRepository tRemoteRepository : remoteRepository)
 				tRemoteRepository.update();
-			Files.walkFileTree(root, new SimpleFileVisitor<Path>()
-			{
-				@Override
-				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+			if (Files.exists(root))
+				Files.walkFileTree(root, new SimpleFileVisitor<Path>()
 				{
-					FileVisitResult result = super.visitFile(file, attrs);
-					if (result == FileVisitResult.CONTINUE)
-						if (file.endsWith(".dat")) loadResource(file);
-					return result;
-				}
-			});
+					@Override
+					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+					{
+						FileVisitResult result = super.visitFile(file, attrs);
+						if (result == FileVisitResult.CONTINUE)
+							if (file.getFileName().toString().endsWith(".dat")) loadResource(file);
+						return result;
+					}
+				});
+			else Files.createDirectories(root);
 			return null;
 		});
 	}
@@ -113,6 +117,7 @@ class ArchiveRepositoryBase<T>
 	{
 		NBTCompound read = NBT.read(indexFile, true).asCompound();
 		Resource<T> tResource = readNBT(read, this);
+		this.archesMap.put(tResource.getHash(), tResource);
 		return tResource;
 	}
 
@@ -235,6 +240,7 @@ class ArchiveRepositoryBase<T>
 	private Resource<T> fetchLocal(Path dir, String path, FetchOption option) throws IOException
 	{
 		Resource<T> resource = archesMap.get(path);
+		Files.createDirectories(dir);
 		Path resolve = root.resolve(resource.getHash() + resource.getType().getSuffix());
 		Path target = dir.resolve(resource.getName() + resource.getType().getSuffix());
 		FetchUtils.fetch(resolve, target, option);
@@ -273,8 +279,11 @@ class ArchiveRepositoryBase<T>
 						system = FileSystems.newFileSystem(file, ArchiveRepositoryBase.class.getClassLoader());
 					}
 					catch (IOException ignored) {}
+
+
 					if (system != null)
-						target = system.getPath("");
+						target = system.getPath("/");
+
 					T deserialize = parser.deserializeWithException(target, call::failed);
 					if (deserialize == null) throw new IOException();
 					Resource<T> resource = new Resource<>(resourceType, md5,
@@ -284,11 +293,15 @@ class ArchiveRepositoryBase<T>
 					call.updateProgress(2, 3, "saving");
 
 					this.saveResource(resource);
+
 					return resource;
 				}
 				else
 				{
 					call.updateProgress(2, 3, "exist");
+					if (!archesMap.containsKey(md5))
+					{
+					}
 					return archesMap.get(md5);
 				}
 			}
@@ -310,7 +323,18 @@ class ArchiveRepositoryBase<T>
 		Objects.requireNonNull(path);
 
 		if (resource.getSignature() == this && containLocal(resource.getHash()))
-			return new FileInputStream(root.resolve(resource.getHash() + resource.getType().getSuffix()).toFile());
+		{
+			Path file = root.resolve(resource.getHash() + resource.getType().getSuffix());
+			FileSystem system = null;
+			try
+			{
+				system = FileSystems.newFileSystem(file, ArchiveRepositoryBase.class.getClassLoader());
+			}
+			catch (IOException ignored) {}
+			if (system != null)
+				file = system.getPath("/");
+			return Files.newInputStream(file);
+		}
 		else
 			for (EmbeddedRemoteArchiveRepository repository : remoteRepository)
 				if (resource.getSignature() == repository)

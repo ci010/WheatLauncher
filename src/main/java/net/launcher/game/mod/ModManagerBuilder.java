@@ -63,7 +63,7 @@ public class ModManagerBuilder implements Builder<LaunchElementManager<Mod>>
 			Deserializer<Mod[], Path> parser = (path, context) ->
 			{
 				List<Mod> releases = new ArrayList<>();
-				Path modInf = path.resolve("mcmod.info");
+				Path modInf = path.resolve("/mcmod.info");
 				Map<String, JSONObject> cacheInfoMap = new HashMap<>();
 				final Map<String, Map<String, Object>> annotationMap = new HashMap<>();
 				try
@@ -79,11 +79,12 @@ public class ModManagerBuilder implements Builder<LaunchElementManager<Mod>>
 					}
 
 					Set<Map<String, Object>> set = new HashSet<>();
-					for (Path p : Files.walk(path).filter(pa -> Patterns.CLASS_FILE.matcher(pa.getFileName().toString())
-							.matches()).collect(Collectors.toList()))
+					for (Path p : Files.walk(path).filter(pa ->
+							pa.getFileName() != null && Patterns.CLASS_FILE.matcher(pa.getFileName().toString()).matches())
+							.collect(Collectors.toList()))
 					{
 						set.clear();
-						ClassReader reader = new ClassReader(NIOUtils.mapToBytes(p));
+						ClassReader reader = new ClassReader(NIOUtils.readToBytes(p));
 						reader.accept(new ModAnnotationVisitor(set), 0);
 						if (!set.isEmpty())
 							for (Map<String, Object> stringObjectMap : set)

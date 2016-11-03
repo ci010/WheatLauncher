@@ -17,6 +17,7 @@ import java.nio.file.StandardOpenOption;
  */
 public class NIOUtils
 {
+
 	public static String readToString(Path path) throws IOException
 	{
 		return toUTF8(readToBuffer(path));

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Proxy;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.Future;
@@ -107,6 +108,8 @@ public interface ArchiveRepository<T> extends Repository<ArchiveRepository.Resou
 			this.hash = hash;
 			this.containData = containData;
 			this.signature = signiture;
+			this.tags = new String[16];
+			this.tags[0] = hash;
 		}
 
 		public Resource<T> setName(String name)
@@ -155,6 +158,18 @@ public interface ArchiveRepository<T> extends Repository<ArchiveRepository.Resou
 			Resource<?> that = (Resource<?>) o;
 
 			return hash.equals(that.hash);
+		}
+
+		@Override
+		public String toString()
+		{
+			return "Resource{" +
+					"type=" + type +
+					", hash='" + hash + '\'' +
+					", containData=" + containData +
+					", signature=" + signature +
+					", tags=" + Arrays.toString(tags) +
+					'}';
 		}
 
 		@Override

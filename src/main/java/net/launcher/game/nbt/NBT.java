@@ -160,7 +160,8 @@ public abstract class NBT implements Cloneable
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		write(stream, compound, isCompressed);
 		byte[] bytes = stream.toByteArray();
-		try (FileChannel channel = FileChannel.open(file, StandardOpenOption.WRITE))
+		try (FileChannel channel = FileChannel.open(file, StandardOpenOption.CREATE, StandardOpenOption.READ,
+				StandardOpenOption.WRITE))
 		{
 			channel.map(FileChannel.MapMode.READ_WRITE, 0, bytes.length).put(bytes);
 		}
