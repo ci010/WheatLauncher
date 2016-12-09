@@ -1,8 +1,8 @@
 package net.launcher;
 
-import net.launcher.utils.ProgressCallback;
+import net.launcher.profile.LaunchProfile;
+import org.to2mbn.jmccc.option.LaunchOption;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -10,15 +10,15 @@ import java.util.function.Consumer;
 /**
  * @author ci010
  */
-public interface LaunchElementManager<T extends LaunchElement>
+public interface LaunchElementManager<T> extends LaunchManager
 {
 	Set<T> getAllElement();
 
-	Set<T> getAllIncludedElement(LaunchProfile profile);
+	List<T> getAllIncludedElement(LaunchProfile profile);
 
 	void manipulateIncludeElement(LaunchProfile profile, Consumer<List<T>> manipulator);
 
-	void onImplementVirtualPath(Path path, LaunchProfile profile, ProgressCallback<Void> callback);
+	void onLaunch(LaunchOption option, LaunchProfile profile);
 
-	void onClose(LaunchProfile profile);
+	void onClose(LaunchOption option, LaunchProfile profile);
 }

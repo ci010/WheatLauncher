@@ -2,9 +2,9 @@
 <?import de.jensd.fx.fontawesome.Icon?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
-<?import net.wheatlauncher.gui.ColorTransitionButton?>
+<?import net.wheatlauncher.control.ColorTransitionButton?>
 <VBox fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
-      xmlns="http://javafx.com/javafx/2.2" fx:controller="net.wheatlauncher.gui.setting.ControllerCommonSetting"
+      xmlns="http://javafx.com/javafx/2.2" fx:controller="net.wheatlauncher.control.setting.ControllerCommonSetting"
       style="-fx-background-color:WHITE; -fx-padding:10;">
     <HBox alignment="CENTER">
         <Label fx:id="minecraftLocation"/>

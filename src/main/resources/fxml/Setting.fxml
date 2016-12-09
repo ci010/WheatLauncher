@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <JFXDialog fx:id="rootDialog" xmlns:fx="http://javafx.com/fxml/1"
            xmlns="http://javafx.com/javafx/2.2"
-           fx:controller="net.wheatlauncher.gui.setting.ControllerSetting">
+           fx:controller="net.wheatlauncher.control.ControllerPreview">
     <FlowPane fx:id="root" minWidth="400" styleClass="transparent"
               hgap="30" vgap="30" alignment="CENTER">
         <VBox spacing="5" alignment="CENTER"

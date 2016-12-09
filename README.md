@@ -9,7 +9,7 @@ gradlew setup
 Recommend to work with IDEA.
 
 #Module(WIP)
-The model that is raised up to solve the launch and Minecraft problems.
+The models raised up to solve the launch and Minecraft problems.
 ###Launcher Base(net.launcher)
 > The basic model for Launching, `LaunchProfile`, and profile managing, `LaunchProfileManager`.
 

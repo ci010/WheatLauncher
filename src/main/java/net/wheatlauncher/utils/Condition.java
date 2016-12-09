@@ -3,8 +3,6 @@ package net.wheatlauncher.utils;
 import javafx.beans.InvalidationListener;
 import javafx.beans.value.ObservableValue;
 import javafx.beans.value.ObservableValueBase;
-import net.launcher.utils.State;
-import net.launcher.utils.StrictProperty;
 
 import java.util.ArrayList;
 import java.util.Collections;

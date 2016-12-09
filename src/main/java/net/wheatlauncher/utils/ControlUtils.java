@@ -5,7 +5,7 @@ import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.StackPane;
-import net.wheatlauncher.gui.FXMLInnerController;
+import net.wheatlauncher.control.FXMLInnerController;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Field;

@@ -2,7 +2,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <JFXPopup fx:id="profilePopup" xmlns:fx="http://javafx.com/fxml/1"
-          xmlns="http://javafx.com/javafx/2.2" fx:controller="net.wheatlauncher.gui.setting.ControllerSettingProfile">
+          xmlns="http://javafx.com/javafx/2.2"
+          fx:controller="net.wheatlauncher.control.setting.ControllerSettingProfile">
     <StackPane fx:id="dialogHolder">
         <JFXDialog fx:id="newProfileDialog">
             <JFXDialogLayout>

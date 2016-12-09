@@ -1,16 +1,28 @@
-group 'net.simplelib'
-version '1.0-SNAPSHOT'
-
-apply plugin: 'java'
-apply plugin: 'idea'
 
 repositories {
     mavenCentral()
     mavenLocal()
-	flatDir { dir rootProject.file('libs') }
+    flatDir { dir rootProject.file('libs') }
 }
 
+allprojects {
+    group 'net.cijhn'
+    version '1.0-SNAPSHOT'
+    apply plugin: 'java'
+    apply plugin: "idea"
+}
+
+subprojects{
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+    apply plugin: 'java'
+    apply plugin: "idea"
+}
 dependencies {
+    compile project('minecraft')
     compile 'org.jsoup:jsoup:1.9.2'
     compile ':datafx:8.0b8'
     compile ':core:8.0b8'

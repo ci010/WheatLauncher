@@ -1,9 +1,9 @@
 <?import de.jensd.fx.fontawesome.Icon?>
 <?import javafx.scene.layout.StackPane?>
-<?import net.wheatlauncher.gui.ColorTransitionButton?>
+<?import net.wheatlauncher.control.ColorTransitionButton?>
 <StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
            xmlns="http://javafx.com/javafx/2.2"
-           onMouseClicked="#onClick" alignment="TOP_RIGHT"
+           alignment="TOP_RIGHT"
            style="-fx-padding:0,0,10,10; -fx-background-color:WHITESMOKE; -fx-border-color:TOMATO;">
     <!--<HBox fx:id="top" alignment="TOP_RIGHT" style="-fx-padding:0,0,40,0; -fx-background-color:WHITESMOKE;"-->
     <!--maxHeight="40" maxWidth="40">-->
