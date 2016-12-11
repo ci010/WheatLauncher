@@ -1,4 +1,4 @@
-package net.wheatlauncher.control;
+package net.wheatlauncher.control.profiles;
 
 import com.jfoenix.controls.*;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
@@ -35,13 +35,13 @@ public class ControllerModView
 	@PostConstruct
 	public void init()
 	{
-//		modId.setCellValueFactory(features -> features.getValue().getValue().modid);
-		name.setCellValueFactory(feature -> feature.getValue().getValue().name);
-		version.setCellValueFactory(feature -> feature.getValue().getValue().version);
-		enabled.setCellValueFactory(feature-> feature.getValue().getValue().enabled);
-//		description.setCellValueFactory(feature -> feature.getValue().getValue().description);
-		minecraftVersion.setCellValueFactory(feature -> feature.getValue().getValue().mcVersion);
 
+
+	}
+
+	public void reload()
+	{
+		//		modId.setCellValueFactory(features -> features.getValue().getValue().modid);
 		ObservableList<ModCol> modCols = FXCollections.observableArrayList();
 
 //		modCols.addAll(Core.INSTANCE.().getAllElement().stream().map(ModCol::new).collect(Collectors.toList()));
@@ -56,6 +56,12 @@ public class ControllerModView
 						modCol.getValue().version.get().contains(newVal) ||
 						modCol.getValue().mcVersion.get().contains(newVal) ||
 						modCol.getValue().description.get().contains(newVal)));
+		name.setCellValueFactory(feature -> feature.getValue().getValue().name);
+		version.setCellValueFactory(feature -> feature.getValue().getValue().version);
+		enabled.setCellValueFactory(feature-> feature.getValue().getValue().enabled);
+//		description.setCellValueFactory(feature -> feature.getValue().getValue().description);
+		minecraftVersion.setCellValueFactory(feature -> feature.getValue().getValue().mcVersion);
+
 	}
 
 	private enum ModType

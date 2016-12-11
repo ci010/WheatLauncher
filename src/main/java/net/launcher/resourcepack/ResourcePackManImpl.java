@@ -1,6 +1,7 @@
 package net.launcher.resourcepack;
 
 import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableSet;
 import javafx.scene.image.Image;
 import net.launcher.OptionLaunchElementManager;
 import net.launcher.game.ResourcePack;
@@ -34,21 +35,17 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	{
 		this.archiveRepository = archiveRepository;
 		archiveRepository.getResourceMap().forEach((k, v) -> record.put(v.getName(), v));
-		archiveRepository.getResourceMap().addListener(new MapChangeListener<String, ArchiveRepository.Resource<ResourcePack>>()
+		archiveRepository.getResourceMap().addListener((MapChangeListener<String, ArchiveRepository.Resource<ResourcePack>>) change ->
 		{
-			@Override
-			public void onChanged(Change<? extends String, ? extends ArchiveRepository.Resource<ResourcePack>> change)
+			if (change.wasAdded())
 			{
-				if (change.wasAdded())
-				{
-					ArchiveRepository.Resource<ResourcePack> valueAdded = change.getValueAdded();
-					record.put(valueAdded.getName(), valueAdded);
-				}
-				if (change.wasRemoved())
-				{
-					ArchiveRepository.Resource<ResourcePack> valueRemoved = change.getValueRemoved();
-					record.remove(valueRemoved.getName());
-				}
+				ArchiveRepository.Resource<ResourcePack> valueAdded = change.getValueAdded();
+				record.put(valueAdded.getName(), valueAdded);
+			}
+			if (change.wasRemoved())
+			{
+				ArchiveRepository.Resource<ResourcePack> valueRemoved = change.getValueRemoved();
+				record.remove(valueRemoved.getName());
 			}
 		});
 	}

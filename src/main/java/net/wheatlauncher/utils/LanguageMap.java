@@ -1,9 +1,7 @@
 package net.wheatlauncher.utils;
 
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.io.PrintStream;
+import java.util.*;
 
 /**
  * @author ci010
@@ -13,6 +11,8 @@ public class LanguageMap
 	public static final LanguageMap INSTANCE = new LanguageMap();
 
 	private Map<String, String> map = new HashMap<>();
+
+	private Set<String> lostKey = new TreeSet<>();
 
 	private LanguageMap()
 	{
@@ -28,13 +28,30 @@ public class LanguageMap
 
 	public String translate(String key)
 	{
+		if (key == null) return "";
 		String s = map.get(key);
-		return s == null ? key : s;
+		if (s == null)
+		{
+			lostKey.add(key);
+			return key;
+		}
+		return s;
 	}
 
 	public String translate(String key, String fallback)
 	{
+		if (key == null) return "";
 		String s = map.get(key);
-		return s == null ? fallback : s;
+		if (s == null)
+		{
+			lostKey.add(key);
+			return fallback;
+		}
+		return s;
+	}
+
+	public void logLostKey(PrintStream stream)
+	{
+		for (String s : lostKey) stream.println(s);
 	}
 }

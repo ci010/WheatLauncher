@@ -3,6 +3,7 @@ package net.launcher.profile;
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.collections.ObservableMap;
 import net.launcher.setting.GameSetting;
 import net.launcher.setting.GameSettingInstance;
 import org.to2mbn.jmccc.option.JavaEnvironment;
@@ -36,6 +37,8 @@ public interface LaunchProfile
 	JavaEnvironment getJavaEnvironment();
 
 	void setJavaEnvironment(JavaEnvironment javaEnvironment);
+
+	ObservableMap<String, GameSettingInstance> gameSettingsProperty();
 
 	Optional<GameSettingInstance> getGameSetting(GameSetting setting);
 

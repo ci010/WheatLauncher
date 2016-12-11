@@ -1,16 +1,15 @@
 <?import com.jfoenix.controls.*?>
 <?import com.jfoenix.validation.ValidationFacade?>
 <?import de.jensd.fx.fontawesome.Icon?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <JFXDialog fx:id="rootDialog" xmlns:fx="http://javafx.com/fxml/1"
            xmlns="http://javafx.com/javafx/2.2"
-           fx:controller="net.wheatlauncher.control.setting.ControllerSetting"
-            transitionType="CENTER">
-    <FlowPane fx:id="root" minWidth="400" prefWidth="500" prefHeight="300"
+           fx:controller="net.wheatlauncher.control.profiles.ControllerSetting"
+           transitionType="CENTER">
+    <FlowPane fx:id="root" minWidth="500" prefWidth="500" prefHeight="300"
               hgap="30" vgap="30" alignment="CENTER">
         <VBox spacing="5" alignment="CENTER"
               style="-fx-background-color:WHITE; -fx-background-insets:-2; -fx-background-radius:3">
@@ -18,8 +17,14 @@
                 <Label fx:id="profileLabel" contentDisplay="RIGHT">
                     Profile
                 </Label>
-                <JFXRippler fx:id="editProfileRegion" maxWidth="10" maxHeight="10" onMouseReleased="#requestProfilePopup">
-                    <Icon awesomeIcon="PENCIL_SQUARE" size="1.5em"/>
+                <JFXRippler fx:id="editProfileRegion" maxWidth="10" maxHeight="10"
+                            maskType="CIRCLE"
+                            onMouseReleased="#requestProfilePopup">
+                    <Icon awesomeIcon="PENCIL_SQUARE" size="1.7em">
+                        <tooltip>
+                            <Tooltip text="%profile.edit"/>
+                        </tooltip>
+                    </Icon>
                 </JFXRippler>
             </HBox>
             <ValidationFacade fx:id="validProfile">
@@ -40,15 +45,25 @@
             </ValidationFacade>
         </VBox>
 
-        <JFXTabPane fx:id="optionsTab" prefWidth="380">
-            <Tab text="Common">
+        <JFXTabPane fx:id="optionsTab" prefWidth="400">
+            <Tab text="%setting.common">
                 <fx:include fx:id="commonSetting" source="ProfileSettingCommon.fxml"/>
             </Tab>
-            <!--<Tab text="Minecraft">-->
-                <!--<fx:include fx:id="gameSetting" source="GameSettingsVanilla.fxml"/>-->
-            <!--</Tab>-->
+            <Tab text="%setting.minecraft" fx:id="mcTab">
+                <fx:include fx:id="gameSetting" source="ProfileSettingMinecraft.fxml"/>
+            </Tab>
+            <Tab text="%setting.resourcepacks">
+                <fx:include fx:id="resourcePackSetting" source="ProfileSettingResourcePacks.fxml"/>
+            </Tab>
+            <Tab text="%setting.languages">
+                <fx:include fx:id="languageSetting" source="ProfileSettingLanguages.fxml"/>
+            </Tab>
+            <Tab text="%setting.mods">
+                <fx:include fx:id="modSetting" source="ProfileSettingModView.fxml"/>
+            </Tab>
+
         </JFXTabPane>
 
     </FlowPane>
-    <fx:include fx:id="profilePopup" source="ProfileSettingPopup.fxml" />
+    <fx:include fx:id="profilePopup" source="ProfileSettingPopup.fxml"/>
 </JFXDialog>

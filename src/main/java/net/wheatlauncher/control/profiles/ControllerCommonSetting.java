@@ -1,4 +1,4 @@
-package net.wheatlauncher.control.setting;
+package net.wheatlauncher.control.profiles;
 
 import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.skins.JFXSliderSkin;

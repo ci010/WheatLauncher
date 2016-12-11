@@ -30,6 +30,12 @@ public class Logger
 		System.out.println(v + " " + s);
 	}
 
+
+	public static void trace()
+	{
+		System.out.println("[" + manager.getContext().getSimpleName() + "] ");
+	}
+
 	public static void trace(String log)
 	{
 		System.out.println("[" + manager.getContext().getSimpleName() + "] " + log);

@@ -1,6 +1,8 @@
 package net.launcher.profile;
 
 import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 import net.launcher.setting.GameSetting;
 import net.launcher.setting.GameSettingInstance;
 import net.launcher.utils.StringUtils;
@@ -21,7 +23,7 @@ class LaunchProfileImpl implements LaunchProfile
 	private ObjectProperty<MinecraftDirectory> minecraftLocation = new SimpleObjectProperty<>(new MinecraftDirectory());
 	private ObjectProperty<JavaEnvironment> javaEnvironment = new SimpleObjectProperty<>(JavaEnvironment.current());
 
-	private Map<String, GameSettingInstance> gameSettingInstanceMap = new TreeMap<>();
+	private ObservableMap<String, GameSettingInstance> gameSettingInstanceMap = FXCollections.observableHashMap();
 
 	LaunchProfileImpl() {}
 
@@ -111,6 +113,12 @@ class LaunchProfileImpl implements LaunchProfile
 		if (!javaEnvironment.getJavaPath().getName().equals("java.exe"))
 			throw new IllegalArgumentException("java.invalid");
 		this.javaEnvironment.set(javaEnvironment);
+	}
+
+	@Override
+	public ObservableMap<String, GameSettingInstance> gameSettingsProperty()
+	{
+		return gameSettingInstanceMap;
 	}
 
 	@Override

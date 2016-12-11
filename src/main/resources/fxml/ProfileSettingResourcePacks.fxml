@@ -1,0 +1,29 @@
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
+           xmlns="http://javafx.com/javafx/2.2"
+           fx:controller="net.wheatlauncher.control.profiles.ControllerResourcePackView">
+    <VBox>
+        <HBox spacing="10">
+            <JFXTreeTableView fx:id="availableView" maxHeight="250">
+                <columns>
+                    <JFXTreeTableColumn fx:id="available" text="%setting.resourcepacks.available" resizable="false"
+                                        editable="false" prefWidth="200"/>
+                </columns>
+            </JFXTreeTableView>
+            <JFXTreeTableView fx:id="selectedView" maxHeight="250">
+                <columns>
+                    <JFXTreeTableColumn fx:id="selected" text="%setting.resourcepacks.selecting" resizable="false"
+                                        editable="false" prefWidth="200"/>
+                </columns>
+            </JFXTreeTableView>
+
+        </HBox>
+        <HBox>
+            <JFXButton fx:id="manage"/>
+            <JFXButton  onAction="#refresh"/>
+        </HBox>
+    </VBox>
+</StackPane>

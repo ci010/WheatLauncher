@@ -1,14 +1,11 @@
-package net.wheatlauncher.control.setting;
+package net.wheatlauncher.control.profiles;
 
 import com.jfoenix.controls.*;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
-import javafx.util.Callback;
 import net.launcher.utils.Logger;
 import net.wheatlauncher.control.ReloadableController;
 

@@ -1,0 +1,21 @@
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
+           fx:controller="net.wheatlauncher.control.profiles.ControllerLanguages"
+           maxHeight="200">
+    <VBox maxHeight="200">
+        <JFXTreeTableView fx:id="languageTable">
+            <columns>
+                <JFXTreeTableColumn fx:id="id" text="%setting.languages.id" editable="false" resizable="false"/>
+                <JFXTreeTableColumn fx:id="name" text="%setting.languages.name" editable="false" resizable="false"/>
+                <JFXTreeTableColumn fx:id="region" text="%setting.languages.region" editable="false" resizable="false"/>
+                <JFXTreeTableColumn fx:id="bidi" text="%setting.languages.bidi" editable="false" resizable="false"/>
+            </columns>
+        </JFXTreeTableView>
+        <HBox alignment="CENTER">
+            <JFXToggleButton fx:id="useUnicode" text="%setting.languages.unicode"/>
+        </HBox>
+    </VBox>
+</StackPane>

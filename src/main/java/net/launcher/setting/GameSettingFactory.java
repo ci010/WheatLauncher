@@ -11,8 +11,6 @@ import java.util.Optional;
  */
 public class GameSettingFactory
 {
-	public static final GameSettingMinecraft MINECRAFT_DEFAULT;
-
 	private static Map<String, GameSetting> gameSettingMap = new HashMap<>();
 
 	public static Map<String, GameSetting> getAllSetting() {return Collections.unmodifiableMap(gameSettingMap);}
@@ -34,11 +32,5 @@ public class GameSettingFactory
 		{
 			throw new IllegalArgumentException(e);
 		}
-	}
-
-	static
-	{
-		register(GameSettingMinecraft.class);
-		MINECRAFT_DEFAULT = (GameSettingMinecraft) find("Minecraft").get();
 	}
 }

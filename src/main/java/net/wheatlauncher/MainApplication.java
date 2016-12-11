@@ -7,6 +7,7 @@ import net.launcher.Bootstrap;
 import net.launcher.utils.Logger;
 import net.wheatlauncher.control.ControllerMain;
 import net.wheatlauncher.control.WindowsManager;
+import net.wheatlauncher.utils.LanguageMap;
 
 /**
  * @author ci010
@@ -32,6 +33,7 @@ public class MainApplication extends Application
 	public void stop() throws Exception
 	{
 		Bootstrap.destroy();
+		LanguageMap.INSTANCE.logLostKey(System.out);
 		Logger.trace("stop");
 	}
 }

@@ -1,39 +1,47 @@
-package net.wheatlauncher.control.setting;
+package net.wheatlauncher.control.profiles;
 
 import com.jfoenix.controls.*;
 import com.jfoenix.validation.ValidationFacade;
 import io.datafx.controller.FXMLController;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
-import javafx.animation.Animation;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tab;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import net.launcher.Bootstrap;
 import net.launcher.LaunchCore;
+import net.launcher.game.Language;
+import net.launcher.profile.LaunchProfile;
 import net.launcher.utils.Logger;
 import net.wheatlauncher.control.FXMLInnerController;
 import net.wheatlauncher.control.ReloadableController;
+import net.wheatlauncher.control.WindowsManager;
+import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
+import org.to2mbn.jmccc.util.IOUtils;
+import org.to2mbn.jmccc.version.Asset;
+import org.to2mbn.jmccc.version.Version;
 import org.to2mbn.jmccc.version.parsing.Versions;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
+import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
 /**
@@ -42,6 +50,8 @@ import java.util.concurrent.TimeUnit;
 @FXMLController("/fxml/ProfileSetting.fxml")
 public class ControllerSetting implements ReloadableController
 {
+	public Tab mcTab;
+
 	@FXMLViewFlowContext
 	private ViewFlowContext flowContext;
 
@@ -67,9 +77,21 @@ public class ControllerSetting implements ReloadableController
 	public ControllerCommonSetting commonSettingController;
 	public VBox commonSetting;
 
-	//	@FXMLInnerController
-//	public ControllerGameSetting gameSettingController;
-	public VBox gameSetting;
+	@FXMLInnerController
+	public ControllerGameSetting gameSettingController;
+	public StackPane gameSetting;
+
+	@FXMLInnerController
+	public ControllerLanguages languageSettingController;
+	public StackPane languageSetting;
+
+	@FXMLInnerController
+	public ControllerResourcePackView resourcePackSettingController;
+	public StackPane resourcePackSetting;
+
+	@FXMLInnerController
+	public ControllerModView modSettingController;
+	public StackPane modSetting;
 
 	/*root*/
 	@FXML
@@ -101,6 +123,12 @@ public class ControllerSetting implements ReloadableController
 		versionList.addAll(Versions.getVersions(LaunchCore.getCurrentProfile(Bootstrap.getCore())
 				.getMinecraftLocation()));
 	}
+
+	private void initSettings()
+	{
+
+	}
+
 
 	private void initVersion()
 	{
@@ -138,39 +166,14 @@ public class ControllerSetting implements ReloadableController
 		rootDialog.getChildren().remove(profilePopup);
 		profilePopup.setPopupContainer(rootDialog);
 
-		try//fix the wrong close method call when pop up is showing.
-		{
-			Field f = JFXPopup.class.getDeclaredField("animation");
-			f.setAccessible(true);
-			Animation o = (Animation) f.get(profilePopup);
-			o.onFinishedProperty().addListener((observable, oldValue, newValue) ->
-			{
-				if (o.getRate() < 0 && newValue != eventHandler)
-					o.setOnFinished(eventHandler(newValue));
-			});
-		}
-		catch (NoSuchFieldException | IllegalAccessException e)
-		{
-			e.printStackTrace();
-		}
+		profilePopup.setOnClose(e -> rootDialog.setOverlayClose(true));
 		profilePopup.setSource(editProfileRegion);
 		editProfileRegion.setOnMouseClicked(event ->
 		{
-//			rootDialog.setOverlayClose(false);
-			profilePopup.show(JFXPopup.PopupVPosition.TOP, JFXPopup.PopupHPosition.LEFT, 50, 37);
+			rootDialog.setOverlayClose(false);
+			profilePopup.show(JFXPopup.PopupVPosition.TOP, JFXPopup.PopupHPosition.LEFT, 40, 37);
 		});
 
-	}
-
-	private EventHandler<ActionEvent> eventHandler;
-
-	private EventHandler<ActionEvent> eventHandler(EventHandler<ActionEvent> oldValue)
-	{
-		return eventHandler = event ->
-		{
-			oldValue.handle(event);
-//			rootDialog.setOverlayClose(true);
-		};
 	}
 
 	@Override
@@ -219,7 +222,6 @@ public class ControllerSetting implements ReloadableController
 
 	public void requestProfilePopup(MouseEvent event)
 	{
-		Logger.trace("request");
 		profilePopupController.reload();
 	}
 }

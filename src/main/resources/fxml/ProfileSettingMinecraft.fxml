@@ -1,0 +1,55 @@
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
+           xmlns="http://javafx.com/javafx/2.2"
+           fx:controller="net.wheatlauncher.control.profiles.ControllerGameSetting"
+           style="-fx-background-color:WHITE; -fx-padding:10;"
+           alignment="CENTER">
+    <VBox fx:id="container" alignment="CENTER" spacing="10" prefWidth="600">
+        <HBox spacing="10" alignment="CENTER">
+            <JFXButton fx:id="graphic" buttonType="RAISED"
+                       prefWidth="200" maxWidth="200"
+                       styleClass="option-button"/>
+            <JFXButton fx:id="ambientOcclusion" buttonType="RAISED"
+                       prefWidth="200" maxWidth="200"
+                       styleClass="option-button"/>
+        </HBox>
+        <HBox spacing="10" alignment="CENTER">
+            <JFXButton fx:id="mipmap" buttonType="RAISED"
+                       prefWidth="200" maxWidth="200"
+                       styleClass="option-button"/>
+            <JFXButton fx:id="particle" buttonType="RAISED"
+                       prefWidth="200" maxWidth="200"
+                       styleClass="option-button"/>
+        </HBox>
+        <HBox spacing="10" alignment="CENTER">
+            <JFXButton fx:id="renderCloud" prefWidth="200" maxWidth="200" styleClass="option-button">
+                render cloud
+            </JFXButton>
+            <JFXButton fx:id="entityShadow" prefWidth="200" maxWidth="200" styleClass="option-button"/>
+        </HBox>
+
+        <HBox spacing="10" alignment="CENTER">
+            <JFXButton fx:id="enableFBO" prefWidth="200" maxWidth="200" styleClass="option-button"/>
+            <JFXButton fx:id="enableVBO" prefWidth="200" maxWidth="200" styleClass="option-button"/>
+        </HBox>
+        <HBox>
+            <Label>MAX_FPS</Label>
+            <JFXSlider fx:id="maxFPS"/>
+        </HBox>
+
+        <HBox>
+            <Label>RENDER_DISTANCE</Label>
+            <JFXSlider fx:id="renderDistance"/>
+        </HBox>
+    </VBox>
+    <VBox fx:id="missingFileIndicator" alignment="CENTER" spacing="30">
+        <Label fx:id="missingFileIndicatorText" text="%minecraft.setting.notfound"
+               styleClass="option-button"
+               style="-fx-background-color:#00BCD4; -fx-background-insets:-10 -10; -fx-background-radius:5;
+                -fx-border-color:#FFFF8D; -fx-border-radius:5; -fx-border-width:1; -fx-border-insets:-11;"/>
+        <JFXButton text="%minecraft.setting.create" onAction="#createMinecraftGameSetting"
+                   styleClass="option-button"/>
+    </VBox>
+</StackPane>

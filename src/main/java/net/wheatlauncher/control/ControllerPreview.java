@@ -15,15 +15,14 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import moe.mickey.minecraft.skin.fx.SkinCanvas;
 import moe.mickey.minecraft.skin.fx.animation.SkinAniRunning;
 import net.launcher.AuthProfile;
 import net.launcher.Bootstrap;
 import net.launcher.utils.StringUtils;
-import net.wheatlauncher.control.setting.ControllerSetting;
+import net.wheatlauncher.control.profiles.ControllerSetting;
 import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
@@ -101,13 +100,8 @@ public class ControllerPreview implements ReloadableController
 	{
 		root.getChildren().remove(profileName);
 		profileSettingDialog.setDialogContainer(flowContext.getRegisteredObject(StackPane.class));
-//		settingDialog.setPrefSize(500,400);
-//		settingDialog.getContent().setPrefSize(500,400);
-//		settingDialog.setDialogContainer(flowContext.getRegisteredObject(StackPane.class));
-//		settingDialog.setOverlayClose(true);
-//		settingDialog.setOnDialogClosed(event -> settingDialogController.unload());
-//		ControlUtils.setDialogHolderBackground(settingDialog, new Background(new BackgroundFill(Color.TRANSPARENT, null,
-//				null)));
+		profileSettingDialog.setContentHolderBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null,
+				null)));
 	}
 
 	private void initSkin()
