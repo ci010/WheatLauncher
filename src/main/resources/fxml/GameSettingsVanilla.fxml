@@ -1,0 +1,58 @@
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<VBox fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
+      xmlns="http://javafx.com/javafx/2.2"
+      fx:controller="net.wheatlauncher.control.setting.ControllerGameSetting"
+      style="-fx-background-color:WHITE; -fx-padding:10;" alignment="CENTER" spacing="10">
+    <HBox spacing="10" alignment="CENTER">
+        <JFXButton fx:id="graphic" buttonType="RAISED"
+                   prefWidth="150" maxWidth="150"
+                   styleClass="option-button">
+            graphic: fancy
+        </JFXButton>
+        <JFXButton fx:id="ambientOcclusion" buttonType="RAISED"
+                   prefWidth="150" maxWidth="150"
+                   styleClass="option-button">
+            AMBIENT_OCCLUSION: fancy
+        </JFXButton>
+    </HBox>
+    <HBox spacing="10" alignment="CENTER">
+        <JFXButton fx:id="mipmap" buttonType="RAISED"
+                   prefWidth="150" maxWidth="150"
+                   styleClass="option-button">
+            mipmap: 4
+        </JFXButton>
+        <JFXButton fx:id="particle" buttonType="RAISED"
+                   prefWidth="150" maxWidth="150"
+                   styleClass="option-button">
+            particle: all
+        </JFXButton>
+    </HBox>
+    <HBox spacing="10" alignment="CENTER">
+        <JFXButton fx:id="renderCloud" prefWidth="150" maxWidth="150" styleClass="option-button">
+            render cloud
+        </JFXButton>
+        <JFXButton fx:id="entityShadow" prefWidth="150" maxWidth="150" styleClass="option-button">
+            entityShadows
+        </JFXButton>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER">
+        <JFXButton fx:id="enableFBO" prefWidth="150" maxWidth="150" styleClass="option-button">
+            FBO : enable
+        </JFXButton>
+        <JFXButton fx:id="enableVBO" prefWidth="150" maxWidth="150" styleClass="option-button">
+            VBO : enable
+        </JFXButton>
+    </HBox>
+    <HBox>
+        <Label>MAX_FPS</Label>
+        <JFXSlider fx:id="maxFPS"/>
+    </HBox>
+
+    <HBox>
+        <Label>RENDER_DISTANCE</Label>
+        <JFXSlider fx:id="renderDistance"/>
+    </HBox>
+</VBox>
