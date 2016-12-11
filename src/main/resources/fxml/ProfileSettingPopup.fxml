@@ -5,7 +5,7 @@
           xmlns="http://javafx.com/javafx/2.2"
           fx:controller="net.wheatlauncher.control.setting.ControllerSettingProfile">
     <StackPane fx:id="dialogHolder">
-        <JFXDialog fx:id="newProfileDialog">
+        <JFXDialog fx:id="newProfileDialog" transitionType="CENTER">
             <JFXDialogLayout>
                 <heading>
                     <Label StackPane.alignment="CENTER">New Profile</Label>
@@ -23,13 +23,13 @@
             </JFXDialogLayout>
         </JFXDialog>
 
-        <JFXDialog fx:id="renameProfileDialog">
-            <JFXDialogLayout>
+        <JFXDialog fx:id="renameProfileDialog" transitionType="CENTER">
+            <JFXDialogLayout maxWidth="210">
                 <heading>
                     <Label StackPane.alignment="CENTER">Rename Profile</Label>
                 </heading>
                 <body>
-                    <JFXTextField fx:id="renameProfileTextField" promptText="New Name" maxWidth="50"/>
+                    <JFXTextField fx:id="renameProfileTextField" promptText="New Name" maxWidth="210"/>
                 </body>
                 <actions>
                     <JFXButton fx:id="cancelRename" styleClass="dialog-accept">CANCEL
@@ -41,7 +41,7 @@
             </JFXDialogLayout>
         </JFXDialog>
 
-        <JFXDialog fx:id="deleteProfileDialog">
+        <JFXDialog fx:id="deleteProfileDialog" >
             <JFXDialogLayout>
                 <heading>
                     <Label StackPane.alignment="CENTER">Delete Profile</Label>
@@ -62,7 +62,7 @@
         </JFXDialog>
     </StackPane>
     <JFXListView fx:id="optionList" styleClass="option-list-view">
-        <Label fx:id="renameProfile">
+        <Label fx:id="renameProfile" onMouseReleased="#beforeRename">
             Rename
         </Label>
         <Label fx:id="newProfile">

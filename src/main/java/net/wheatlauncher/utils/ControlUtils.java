@@ -47,7 +47,7 @@ public class ControlUtils
 				{
 					Object cont = field.get(o);
 					if (cont != null) setupController(cont, context);
-					else throw new RuntimeException("The inner controller is null.");
+					else throw new RuntimeException("The inner controller is null. "+ o.getClass());
 				}
 				catch (IllegalAccessException e)
 				{

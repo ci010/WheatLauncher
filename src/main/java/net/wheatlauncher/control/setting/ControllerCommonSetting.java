@@ -78,33 +78,6 @@ public class ControllerCommonSetting
 		for (Map.Entry<Integer, WindowSize> entry : stageToResolution.entrySet())
 			if (profile.getResolution().equals(entry.getValue()))
 				value = entry.getKey();
-		resolution.valueProperty().set(value);
-		resolution.valueProperty().addListener((observable, oldValue, newValue) ->
-				LaunchCore.getCurrentProfile(Bootstrap.getCore()).setResolution(stageToResolution.getOrDefault(newValue, WindowSize.fullscreen())));
-
-		minecraftLocation.textProperty().bind(Bindings.createStringBinding(() -> LaunchCore.getCurrentProfile(Bootstrap.getCore())
-						.getMinecraftLocation().getRoot().getAbsolutePath(),
-				(Observable) LaunchCore.getCurrentProfile(Bootstrap.getCore())));
-		javaLocation.textProperty().bind(Bindings.createStringBinding(() -> LaunchCore.getCurrentProfile(Bootstrap.getCore()).
-				getJavaEnvironment().getJavaPath().getAbsolutePath(), (Observable) LaunchCore.getCurrentProfile(Bootstrap.getCore())));
-
-		Bootstrap.getCore().selectedProperty().addListener(o ->
-		{
-			LaunchProfile p = LaunchCore.getCurrentProfile(Bootstrap.getCore());
-
-			memory.valueProperty().set(LaunchCore.getCurrentProfile(Bootstrap.getCore()).getMemory());
-			int v = 0;
-			for (Map.Entry<Integer, WindowSize> entry : stageToResolution.entrySet())
-				if (p.getResolution().equals(entry.getValue()))
-					v = entry.getKey();
-			resolution.valueProperty().set(v);
-
-			minecraftLocation.textProperty().bind(Bindings.createStringBinding(() -> LaunchCore.getCurrentProfile(Bootstrap.getCore())
-							.getMinecraftLocation().getRoot().getAbsolutePath(),
-					(Observable) LaunchCore.getCurrentProfile(Bootstrap.getCore())));
-			javaLocation.textProperty().bind(Bindings.createStringBinding(() -> LaunchCore.getCurrentProfile(Bootstrap.getCore()).
-					getJavaEnvironment().getJavaPath().getAbsolutePath(), (Observable) LaunchCore.getCurrentProfile(Bootstrap.getCore())));
-		});
 
 		resolution.skinProperty().addListener(o ->
 		{
@@ -122,6 +95,34 @@ public class ControllerCommonSetting
 			{
 				e.printStackTrace();
 			}
+		});
+		resolution.valueProperty().set(value);
+		resolution.valueProperty().addListener((observable, oldValue, newValue) ->
+				LaunchCore.getCurrentProfile(Bootstrap.getCore()).setResolution(stageToResolution.getOrDefault(newValue, WindowSize.fullscreen())));
+
+		minecraftLocation.textProperty().bind(Bindings.createStringBinding(() -> LaunchCore.getCurrentProfile(Bootstrap.getCore())
+						.getMinecraftLocation().getRoot().getAbsolutePath(),
+				LaunchCore.getCurrentProfile(Bootstrap.getCore()).minecraftLocationProperty()));
+		javaLocation.textProperty().bind(Bindings.createStringBinding(() ->
+				LaunchCore.getCurrentProfile(Bootstrap.getCore()).getJavaEnvironment().getJavaPath().getAbsolutePath(),
+				LaunchCore.getCurrentProfile(Bootstrap.getCore()).javaEnvironmentProperty()));
+
+		Bootstrap.getCore().selectedProperty().addListener(o ->
+		{
+			LaunchProfile p = LaunchCore.getCurrentProfile(Bootstrap.getCore());
+
+			memory.valueProperty().set(LaunchCore.getCurrentProfile(Bootstrap.getCore()).getMemory());
+			int v = 0;
+			for (Map.Entry<Integer, WindowSize> entry : stageToResolution.entrySet())
+				if (p.getResolution().equals(entry.getValue()))
+					v = entry.getKey();
+			resolution.valueProperty().set(v);
+
+			minecraftLocation.textProperty().bind(Bindings.createStringBinding(() -> LaunchCore.getCurrentProfile(Bootstrap.getCore())
+							.getMinecraftLocation().getRoot().getAbsolutePath(),
+					(Observable) LaunchCore.getCurrentProfile(Bootstrap.getCore())));
+			javaLocation.textProperty().bind(Bindings.createStringBinding(() -> LaunchCore.getCurrentProfile(Bootstrap.getCore()).
+					getJavaEnvironment().getJavaPath().getAbsolutePath(), (Observable) LaunchCore.getCurrentProfile(Bootstrap.getCore())));
 		});
 
 

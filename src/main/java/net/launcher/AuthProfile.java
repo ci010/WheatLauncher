@@ -1,7 +1,10 @@
 package net.launcher;
 
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.collections.ObservableList;
 import net.launcher.auth.Authorize;
 import org.to2mbn.jmccc.auth.AuthInfo;
 
@@ -36,16 +39,11 @@ public interface AuthProfile
 
 	void setAccessToken(String accessToken);
 
-	ReadOnlyObjectProperty<State> stateProperty();
-
-	State getState();
+	ObservableList<String> getHistory();
 
 	void setCache(AuthInfo info);
 
-	AuthInfo getCache();
+	ObjectProperty<AuthInfo> cacheProperty();
 
-	enum State
-	{
-		Login, Logout, Pending
-	}
+	AuthInfo getCache();
 }

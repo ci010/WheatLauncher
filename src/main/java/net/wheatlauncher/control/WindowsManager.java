@@ -1,7 +1,6 @@
 package net.wheatlauncher.control;
 
-import com.jfoenix.controls.JFXDialog;
-import com.jfoenix.controls.JFXDialogLayout;
+import com.jfoenix.controls.JFXSnackbar;
 import io.datafx.controller.FxmlLoadException;
 import io.datafx.controller.ViewConfiguration;
 import io.datafx.controller.context.ViewContext;
@@ -9,13 +8,13 @@ import io.datafx.controller.flow.*;
 import io.datafx.controller.flow.container.DefaultFlowContainer;
 import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.utils.ControlUtils;
+import net.wheatlauncher.utils.LanguageMap;
 
 import java.util.Locale;
 import java.util.Map;
@@ -47,6 +46,7 @@ public class WindowsManager
 		private double xOffset = 0;
 		private double yOffset = 0;
 
+
 		public Page(Stage stage, FlowHandler rootHandler, StackPane parent)
 		{
 			this.stage = stage;
@@ -67,13 +67,13 @@ public class WindowsManager
 			});
 		}
 
+
 		public void register(Class<? extends ReloadableController> controller) throws FxmlLoadException
 		{
 			ViewContext<? extends ReloadableController> byController = ViewFactoryReload.getInstance().createByController
 					(controller, null, rootHandler.getViewConfiguration(), rootHandler.getFlowContext());
 			ControlUtils.setupInnerController(byController.getController(), rootHandler.getFlowContext());
-			byController.getController();
-			reg.put(controller.getName(), byController);
+			reg.put(controller.getSimpleName(), byController);
 		}
 
 		public Page createSubPage(Class<? extends ReloadableController> clz, FlowContainer<StackPane> flowContainer) throws
@@ -81,12 +81,14 @@ public class WindowsManager
 		{
 			Flow flow = new Flow(clz, rootHandler.getViewConfiguration());
 			ViewFlowContext viewFlowContext = new ViewFlowContext();
-			FlowHandler handler = flow.createHandler(viewFlowContext);
-			StackPane root = handler.start(flowContainer);
-			Page page = new Page(stage, handler, root);
-			viewFlowContext.register(page);
-			reg.put(clz.getName(), (ViewContext<? extends ReloadableController>) handler.getCurrentViewContext());
-			return page;
+			FlowHandler handler = new FlowHandler(flow, viewFlowContext, rootHandler.getViewConfiguration());
+			Page sub = new Page(stage, handler, flowContainer.getView());
+			viewFlowContext.register(flowContainer.getView());
+			viewFlowContext.register(sub);
+			handler.start(flowContainer);
+			sub.current = clz.getSimpleName();
+			sub.reg.put(clz.getSimpleName(), (ViewContext<? extends ReloadableController>) handler.getCurrentViewContext());
+			return sub;
 		}
 
 
@@ -122,23 +124,31 @@ public class WindowsManager
 
 		public void forceSwitch(Class<?> controller) throws FxmlLoadException, FlowException
 		{
-			ViewContext<?> load = load(controller);
-			rootHandler.setNewView(new FlowView<>(load), false);
+			ViewContext<? extends ReloadableController> viewContext = reg.get(controller.getSimpleName());
+			if (viewContext != null)
+			{
+				if (current != null)
+					reg.get(current).getController().unload();
+				viewContext.getController().reload();
+				rootHandler.setNewView(new FlowView<>(viewContext), false);
+				current = controller.getSimpleName();
+			}
+			else displayError(new IllegalArgumentException(""));
+		}
+
+		private JFXSnackbar bar;
+
+		private void _checkState() {if (bar == null) bar = new JFXSnackbar(this.root);}
+
+		public synchronized void displayError(String message)
+		{
+			_checkState();
+			bar.enqueue(new JFXSnackbar.SnackbarEvent(LanguageMap.INSTANCE.translate(message), null, 2500, null));
 		}
 
 		public void displayError(Throwable throwable)
 		{
-			JFXDialog dialog = new JFXDialog();
-			JFXDialogLayout layout = new JFXDialogLayout();
-			dialog.setContent(layout);
-			layout.setHeading(new Label("Error"));
-			layout.setBody(new Label(throwable.getMessage()));
-			dialog.requestFocus();
-			dialog.setOnKeyPressed((e) ->
-			{
-				System.out.println("pressed");
-			});
-			dialog.show(this.root);
+			displayError(throwable.getMessage());
 			throwable.printStackTrace();
 		}
 
@@ -161,10 +171,15 @@ public class WindowsManager
 		{
 			lang = ResourceBundle.getBundle("lang", Locale.ENGLISH);
 		}
+		if (lang == null)
+			throw new IllegalStateException();
+		else
+			System.out.println("the lang is not null " + lang);
 		globalConfig.setResources(lang);
 	}
 
-	public Page createPage(Stage stage, Class<?> clz, int xSize, int ySize) throws FlowException, FxmlLoadException
+	public Page createPage(Stage stage, Class<? extends ReloadableController> clz, int xSize, int ySize) throws FlowException,
+			FxmlLoadException
 	{
 		DefaultFlowContainer container = new DefaultFlowContainer();
 		Scene scene = new Scene(container.getView(), xSize, ySize);//old 512 380  542, 380
@@ -174,10 +189,14 @@ public class WindowsManager
 		Flow flow = new Flow(clz, globalConfig);
 		ViewFlowContext viewFlowContext = new ViewFlowContext();
 		FlowHandler handler = new FlowHandler(flow, viewFlowContext, globalConfig);
-		StackPane root = handler.start(container);
-		stage.setScene(scene);
-		Page page = new Page(stage, handler, root);
+		Page page = new Page(stage, handler, container.getView());
+		viewFlowContext.register(container.getView());
 		viewFlowContext.register(page);
+		handler.start(container);
+		page.current = clz.getSimpleName();
+		page.reg.put(page.current, (ViewContext<? extends ReloadableController>) handler.getCurrentViewContext());
+		stage.setScene(scene);
+
 		return page;
 	}
 

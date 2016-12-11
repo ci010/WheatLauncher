@@ -5,14 +5,11 @@
            xmlns="http://javafx.com/javafx/2.2"
            alignment="TOP_RIGHT"
            style="-fx-padding:0,0,10,10; -fx-background-color:WHITESMOKE; -fx-border-color:TOMATO;">
-    <!--<HBox fx:id="top" alignment="TOP_RIGHT" style="-fx-padding:0,0,40,0; -fx-background-color:WHITESMOKE;"-->
-    <!--maxHeight="40" maxWidth="40">-->
     <ColorTransitionButton fx:id="close" prefHeight="40" prefWidth="40"
-                           hoverColor="red" transitionDuration="200ms" style="-fx-background-radius:0">
+                           hoverColor="red" transitionDuration="200ms" style="-fx-background-radius:0"
+                           onAction="#onClose">
         <graphic>
             <Icon awesomeIcon="CLOSE" scaleX="1.3" scaleY="1.3" style="-fx-font-family:FontAwesome;"/>
         </graphic>
     </ColorTransitionButton>
-    <!--</HBox>-->
-    <!--<StackPane style="-fx-background-color:WHITESMOKE;" fx:id="content"/>-->
 </StackPane>

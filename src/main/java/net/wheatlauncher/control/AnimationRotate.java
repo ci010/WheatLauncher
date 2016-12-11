@@ -25,6 +25,5 @@ public class AnimationRotate extends Transition
 	protected void interpolate(double frac)
 	{
 		canvas.getYRotate().angleProperty().setValue(180 + 360 * frac);
-//		canvas.getYRotate().angleProperty().set(cache[(int) (frac * 8000)]);
 	}
 }

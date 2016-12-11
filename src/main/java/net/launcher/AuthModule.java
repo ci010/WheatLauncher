@@ -1,11 +1,14 @@
 package net.launcher;
 
 import javafx.beans.property.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import net.launcher.auth.Authorize;
 import net.launcher.auth.AuthorizeFactory;
 import net.launcher.utils.StringUtils;
 import org.to2mbn.jmccc.auth.AuthInfo;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 /**
@@ -19,8 +22,9 @@ public class AuthModule implements AuthProfile
 			clientToken = StringUtils.EMPTY,
 			accessToken = StringUtils.EMPTY;
 	private ObjectProperty<Authorize> authorize = new SimpleObjectProperty<>(AuthorizeFactory.ONLINE);
-	private ObjectProperty<State> state = new SimpleObjectProperty<>(State.Logout);
-	private AuthInfo cache;
+	private ObjectProperty<AuthInfo> cache = new SimpleObjectProperty<>();
+
+	private ObservableList<String> history = FXCollections.observableArrayList();
 
 	@Override
 	public ReadOnlyObjectProperty<Authorize> authorizeProperty()
@@ -94,26 +98,27 @@ public class AuthModule implements AuthProfile
 	}
 
 	@Override
-	public ReadOnlyObjectProperty<State> stateProperty()
-	{
-		return state;
-	}
-
-	@Override
-	public State getState()
-	{
-		return state.get();
-	}
-
-	@Override
 	public void setCache(AuthInfo info)
 	{
-		this.cache = info;
+		history.add(account.getValue());
+		this.cache.set(info);
+	}
+
+	@Override
+	public ObservableList<String> getHistory()
+	{
+		return history;
+	}
+
+	@Override
+	public ObjectProperty<AuthInfo> cacheProperty()
+	{
+		return cache;
 	}
 
 	@Override
 	public AuthInfo getCache()
 	{
-		return cache;
+		return cache.get();
 	}
 }

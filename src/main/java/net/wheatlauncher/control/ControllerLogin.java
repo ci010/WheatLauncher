@@ -2,9 +2,6 @@ package net.wheatlauncher.control;
 
 import com.jfoenix.controls.*;
 import io.datafx.controller.FXMLController;
-import io.datafx.controller.FxmlLoadException;
-import io.datafx.controller.context.ApplicationContext;
-import io.datafx.controller.flow.FlowException;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.application.Platform;
@@ -26,9 +23,11 @@ import net.launcher.utils.CallbacksOption;
 import net.launcher.utils.Logger;
 import net.wheatlauncher.utils.LanguageMap;
 import org.to2mbn.jmccc.auth.AuthInfo;
+import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 
 import javax.annotation.PostConstruct;
+import java.net.UnknownHostException;
 
 /**
  * @author ci010
@@ -57,7 +56,6 @@ public class ControllerLogin
 	@FXML
 	private JFXSpinner spinner;
 
-	@FXML
 	public ValidatorDelegate accountValid, passwordValid;
 
 	/*Controls parents*/
@@ -102,8 +100,6 @@ public class ControllerLogin
 			if (password.validate()) Bootstrap.getCore().getAuthModule().setPassword(password.getText());
 		});
 
-		account.validate();
-		password.validate();
 		login.disableProperty().bind(Bindings.createBooleanBinding(() ->
 						accountValid.hasErrorsProperty().get() ||
 								(passwordValid.hasErrorsProperty().get() && !password.isDisable()),
@@ -121,11 +117,11 @@ public class ControllerLogin
 		onlineMode.selectedProperty().addListener((observable, o, n) ->
 		{
 			AuthProfile module = Bootstrap.getCore().getAuthModule();
-			module.setAuthorize(n ?
-					AuthorizeFactory.ONLINE :
-					AuthorizeFactory.OFFLINE);
+			module.setAuthorize(n ? AuthorizeFactory.ONLINE : AuthorizeFactory.OFFLINE);
 			account.setText("");
+			account.reset();
 			password.setText("");
+			password.reset();
 		}); //Common
 
 		password.disableProperty().bind(Bindings.createBooleanBinding(() ->
@@ -173,7 +169,16 @@ public class ControllerLogin
 			{
 				Platform.runLater(() ->
 				{
-					flowContext.getRegisteredObject(WindowsManager.Page.class).displayError(e);
+					Throwable ex = e.getCause() == null ? e : e.getCause();
+					if (ex instanceof RemoteAuthenticationException)
+						if (ex.getMessage().equals("ForbiddenOperationException: Invalid credentials. Invalid username or password."))
+							flowContext.getRegisteredObject(WindowsManager.Page.class).displayError("login.invalid.credentials");
+						else
+							flowContext.getRegisteredObject(WindowsManager.Page.class).displayError(e);
+					else if (ex.getCause() instanceof UnknownHostException)
+						flowContext.getRegisteredObject(WindowsManager.Page.class).displayError("login.network.error");
+					else
+						flowContext.getRegisteredObject(WindowsManager.Page.class).displayError(e);
 					btnPane.getChildren().remove(spinner);
 					btnPane.getChildren().add(login);
 				});
@@ -183,16 +188,7 @@ public class ControllerLogin
 
 	private void switchToPreview()
 	{
-		WindowsManager manager = ApplicationContext.getInstance().getRegisteredObject(WindowsManager.class);
-		WindowsManager.Page page = flowContext.getRegisteredObject(WindowsManager.Page.class);
-		try
-		{
-			manager.createPage(page.getStage(), ControllerPreview.class, 600, 400);
-		}
-		catch (FlowException | FxmlLoadException e)
-		{
-			e.printStackTrace();
-		}
+		flowContext.getRegisteredObject(WindowsManager.Page.class).switchPage(ControllerPreview.class);
 	}
 
 	@FXML
@@ -212,5 +208,16 @@ public class ControllerLogin
 	public void unload()
 	{
 
+	}
+
+	public void switchOnlineMode(KeyEvent event)
+	{
+		if (event.isShiftDown()&& event.isControlDown() && event.getCode() == KeyCode.TAB)
+			onlineMode.fire();
+	}
+
+	public void onGlobalKeyPressed(KeyEvent event)
+	{
+		switchOnlineMode(event);
 	}
 }

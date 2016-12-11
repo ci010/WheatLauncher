@@ -4,7 +4,11 @@ import com.jfoenix.controls.*;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
+import javafx.util.Callback;
 import net.launcher.utils.Logger;
 import net.wheatlauncher.control.ReloadableController;
 
@@ -35,7 +39,7 @@ public class ControllerSettingProfile implements ReloadableController
 
 	public JFXPopup profilePopup;
 	public StackPane dialogHolder;
-	public JFXListView optionList;
+	public JFXListView<Label> optionList;
 
 	@FXMLViewFlowContext
 	private ViewFlowContext context;
@@ -72,59 +76,24 @@ public class ControllerSettingProfile implements ReloadableController
 					deleteProfileDialog.show(context.getRegisteredObject(StackPane.class));
 				}
 		);
-
-//		ValidatorBase validatorBase = new ValidatorBase()
-//		{
-//			@Override
-//			protected void eval()
-//			{
-//				String text = ((JFXTextField) getSrcControl()).getText();
-//				if (text == null || text.equals(""))
-//				{
-//					this.message.set("The nameProperty cannot be empty!");
-//					this.hasErrors.set(true);
-//				}
-//				else if (!text.equals(Core.INSTANCE.getProfileManager().getSelectedProfile().nameProperty().getValue())
-//						&& Core.INSTANCE.getProfileManager().getProfile(text) != null)
-//				{
-//					this.message.set("Duplicated Name! There is already a profile named [" + text +
-//							"] now!");
-//					this.hasErrors.set(true);
-//				}
-//				else hasErrors.set(false);
-//			}
-//		};
-//		renameProfileTextField.setValidators(validatorBase);
-//		acceptRename.setOnMouseClicked(event ->
-//		{
-//			if (renameProfileTextField.validate())
-//			{
-//				renameProfileDialog.close();
-//				Core.INSTANCE.getProfileManager().getSelectedProfile().nameProperty().setValue(renameProfileTextField
-//						.getText());
-//			}
-//		});
-//
-//		newProfileTextField.setValidators(validatorBase);
-//		acceptNewProfile.setOnMouseClicked(event ->
-//		{
-//			if (newProfileTextField.validate())
-//			{
-//				newProfileDialog.close();
-//				Core.INSTANCE.getProfileManager().newProfileAndSelect(newProfileTextField.getText());
-//			}
-//		});
 	}
 
 	@Override
 	public void reload()
 	{
-
+		Logger.trace("reload");
 	}
 
 	@Override
 	public void unload()
 	{
 
+	}
+
+	public void beforeRename(MouseEvent mouseEvent) {
+		Logger.trace("");
+
+		renameProfileDialog.requestLayout();
+		renameProfileTextField.requestLayout();
 	}
 }

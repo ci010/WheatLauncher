@@ -2,9 +2,7 @@ package net.wheatlauncher.control;
 
 import com.jfoenix.controls.*;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
@@ -27,6 +25,7 @@ public class ControllerModView
 	public JFXTreeTableColumn<ModCol, String> name;
 	public JFXTreeTableColumn<ModCol, String> version;
 	public JFXTreeTableColumn<ModCol, String> minecraftVersion;
+	public JFXTreeTableColumn<ModCol, Boolean> enabled;
 
 	public JFXTextField searchField;
 	public Label description;
@@ -39,6 +38,7 @@ public class ControllerModView
 //		modId.setCellValueFactory(features -> features.getValue().getValue().modid);
 		name.setCellValueFactory(feature -> feature.getValue().getValue().name);
 		version.setCellValueFactory(feature -> feature.getValue().getValue().version);
+		enabled.setCellValueFactory(feature-> feature.getValue().getValue().enabled);
 //		description.setCellValueFactory(feature -> feature.getValue().getValue().description);
 		minecraftVersion.setCellValueFactory(feature -> feature.getValue().getValue().mcVersion);
 
@@ -68,6 +68,7 @@ public class ControllerModView
 		StringProperty name, version, description, mcVersion;
 		ObjectProperty<ModType> type;
 		Mod release;
+		BooleanProperty enabled;
 
 		ModCol(Mod release)
 		{
@@ -76,6 +77,7 @@ public class ControllerModView
 			version = new SimpleStringProperty(release.getMetaData().getVersion());
 			description = new SimpleStringProperty(release.getMetaData().getDescription());
 			mcVersion = new SimpleStringProperty(release.getMetaData().getAcceptMinecraftVersion());
+			enabled = new SimpleBooleanProperty(false);
 		}
 	}
 }

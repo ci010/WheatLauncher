@@ -14,6 +14,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.VBox;
 import net.launcher.Bootstrap;
@@ -38,7 +39,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author ci010
  */
-@FXMLController("/fxml/Setting.fxml")
+@FXMLController("/fxml/ProfileSetting.fxml")
 public class ControllerSetting implements ReloadableController
 {
 	@FXMLViewFlowContext
@@ -46,30 +47,28 @@ public class ControllerSetting implements ReloadableController
 
 	/*Profile*/
 	public Label profileLabel;
-
 	public ValidationFacade validProfile;
-	@FXMLInnerController(true)
-	public ControllerSettingProfile profilePopupController;
-	public JFXPopup profilePopup;
-	public JFXRippler editProfileRegion;
 
+	public JFXPopup profilePopup;
+	@FXMLInnerController
+	public ControllerSettingProfile profilePopupController;
+
+	public JFXRippler editProfileRegion;
 	public JFXComboBox<String> profile;
 
 	/*Version*/
 	public JFXComboBox<String> versions;
-
 	public ValidationFacade validVersion;
 
 	/*Sub-settings*/
-	public JFXListView<Label> options;
-	public JFXTabPane optionsTest;
+	public JFXTabPane optionsTab;
 
 	@FXMLInnerController
 	public ControllerCommonSetting commonSettingController;
 	public VBox commonSetting;
 
-	@FXMLInnerController
-	public ControllerGameSetting gameSettingController;
+	//	@FXMLInnerController
+//	public ControllerGameSetting gameSettingController;
 	public VBox gameSetting;
 
 	/*root*/
@@ -78,7 +77,6 @@ public class ControllerSetting implements ReloadableController
 
 	public JFXDialog rootDialog;
 
-
 	@PostConstruct
 	public void setup()
 	{
@@ -86,8 +84,6 @@ public class ControllerSetting implements ReloadableController
 		rootDialog.setOverlayClose(true);
 		initProfilePopupMenu();
 		initProfile();
-		System.out.println(commonSettingController);
-		System.out.println(gameSettingController);
 	}
 
 	@PreDestroy
@@ -96,36 +92,6 @@ public class ControllerSetting implements ReloadableController
 		Logger.trace("destroy");
 	}
 
-	private class SimpleFileWatcher implements Runnable
-	{
-		private FileTime last;
-		private Path sub;
-		private Runnable runnable;
-
-		public SimpleFileWatcher(Path sub, Runnable runnable)
-		{
-			this.sub = sub;
-			this.runnable = runnable;
-		}
-
-		@Override
-		public void run()
-		{
-			MinecraftDirectory minecraftLocation = LaunchCore.getCurrentProfile(Bootstrap.getCore()).getMinecraftLocation();
-
-			try
-			{
-				FileTime lastModifiedTime = Files.getLastModifiedTime(minecraftLocation.getRoot().toPath().resolve(sub));
-				if (last == null) last = lastModifiedTime;
-				else
-				{
-					if (last.compareTo(lastModifiedTime) < 0)
-						runnable.run();
-				}
-			}
-			catch (IOException e) {}
-		}
-	}
 
 	private ObservableList<String> versionList;
 
@@ -190,7 +156,7 @@ public class ControllerSetting implements ReloadableController
 		profilePopup.setSource(editProfileRegion);
 		editProfileRegion.setOnMouseClicked(event ->
 		{
-			rootDialog.setOverlayClose(false);
+//			rootDialog.setOverlayClose(false);
 			profilePopup.show(JFXPopup.PopupVPosition.TOP, JFXPopup.PopupHPosition.LEFT, 50, 37);
 		});
 
@@ -203,7 +169,7 @@ public class ControllerSetting implements ReloadableController
 		return eventHandler = event ->
 		{
 			oldValue.handle(event);
-			rootDialog.setOverlayClose(true);
+//			rootDialog.setOverlayClose(true);
 		};
 	}
 
@@ -211,21 +177,49 @@ public class ControllerSetting implements ReloadableController
 	public void reload()
 	{
 		Logger.trace("reload");
-		options.setExpanded(true);
 	}
 
 	@Override
 	public void unload()
 	{
-		Logger.trace("unload");
 		profilePopup.close();
-		options.setExpanded(false);
 	}
 
-	@Override
-	protected void finalize() throws Throwable
+
+	private class SimpleFileWatcher implements Runnable
 	{
-		System.out.println("finalize the setting");
-		super.finalize();
+		private FileTime last;
+		private Path sub;
+		private Runnable runnable;
+
+		public SimpleFileWatcher(Path sub, Runnable runnable)
+		{
+			this.sub = sub;
+			this.runnable = runnable;
+		}
+
+		@Override
+		public void run()
+		{
+			MinecraftDirectory minecraftLocation = LaunchCore.getCurrentProfile(Bootstrap.getCore()).getMinecraftLocation();
+
+			try
+			{
+				FileTime lastModifiedTime = Files.getLastModifiedTime(minecraftLocation.getRoot().toPath().resolve(sub));
+				if (last == null) last = lastModifiedTime;
+				else
+				{
+					if (last.compareTo(lastModifiedTime) < 0)
+						runnable.run();
+				}
+			}
+			catch (IOException e) {}
+		}
+	}
+
+	public void requestProfilePopup(MouseEvent event)
+	{
+		Logger.trace("request");
+		profilePopupController.reload();
 	}
 }

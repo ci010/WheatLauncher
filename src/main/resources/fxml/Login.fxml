@@ -9,30 +9,31 @@
 <?import net.wheatlauncher.control.ColorTransitionButton?>
 <?import net.wheatlauncher.control.ValidatorDelegate?>
 <StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
-           styleClass="jfx-container">
+           styleClass="jfx-container" onKeyPressed="#onGlobalKeyPressed">
     <VBox fx:id="box" maxWidth="400" maxHeight="400" spacing="15" alignment="CENTER"
-          style="-fx-background-color:WHITESMOKE; -fx-padding:10 0 0 0;"
+          style="-fx-padding:10 0 0 0;"
           onMouseClicked="#onClick">
         <HBox alignment="CENTER">
             <Label styleClass="title-label">LOGIN</Label>
         </HBox>
         <HBox spacing="10" style="-fx-padding: 0 0 10 50;">
-            <JFXTextField id="account" promptText="Email">
+            <JFXTextField id="account" promptText="Email" onKeyPressed="#switchOnlineMode">
                 <validators>
                     <ValidatorDelegate fx:id="accountValid"/>
                 </validators>
             </JFXTextField>
         </HBox>
         <HBox spacing="10" style="-fx-padding: 10 0 10 50;">
-            <JFXPasswordField id="password" promptText="Password" labelFloat="true">
+            <JFXPasswordField id="password" promptText="Password" labelFloat="true" onKeyPressed="#switchOnlineMode">
                 <validators>
                     <ValidatorDelegate fx:id="passwordValid"/>
                 </validators>
             </JFXPasswordField>
-            <JFXToggleNode fx:id="onlineMode" scaleY="0.8" scaleX="0.8" selectedColor="wheat">
+            <JFXToggleNode fx:id="onlineMode" scaleY="0.8" scaleX="0.8" selectedColor="wheat"
+                           onKeyPressed="#switchOnlineMode">
                 <Icon awesomeIcon="GLOBE" size="2em" styleClass="icon"/>
                 <tooltip>
-                    <Tooltip text="online.mode"/>
+                    <Tooltip text="%online.mode"/>
                 </tooltip>
             </JFXToggleNode>
         </HBox>
@@ -42,7 +43,7 @@
             <ColorTransitionButton fx:id="login" prefWidth="100" prefHeight="40" buttonType="RAISED"
                                    disable="true"
                                    onAction="#login"
-                                   text="LOGIN"/>
+                                   text="%login.button"/>
         </StackPane>
         <HBox prefHeight="5"/>
     </VBox>

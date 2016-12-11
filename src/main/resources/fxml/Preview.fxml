@@ -1,15 +1,14 @@
-<?import com.jfoenix.controls.JFXDialog?>
 <?import de.jensd.fx.fontawesome.Icon?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tooltip?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import moe.mickey.minecraft.skin.fx.SkinCanvas?>
-<?import net.wheatlauncher.control.*?>
-<StackPane fx:id="rroot" xmlns:fx="http://javafx.com/fxml/1"
-           onMouseClicked="#onClick" alignment="TOP_RIGHT"
-           style="-fx-padding:0,0,10,10; -fx-background-color:WHITESMOKE; -fx-border-color:TOMATO;"
-           xmlns="http://javafx.com/javafx/2.2">
-    <HBox fx:id="root" style="-fx-padding:5,5">
+<?import net.wheatlauncher.control.ColorTransitionButton?>
+<BorderPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
+            style="-fx-padding:5,5">
+    <left>
         <VBox fx:id="leftBox" prefWidth="200" maxWidth="400" spacing="10" alignment="CENTER"
               style="-fx-padding:15,5; -fx-background-color:BROWN">
             <Label fx:id="player" style="-fx-font-size: 16.0px;-fx-text-fill: rgba(0.0, 0.0, 0.0, 0.87);"/>
@@ -17,7 +16,7 @@
             <BorderPane>
                 <left>
                     <ColorTransitionButton fx:id="setting" maxHeight="10" buttonType="RAISED"
-                                           onAction="#popupSetting">
+                                           onAction="#popupProfileSetting">
                         <tooltip>
                             <Tooltip text="%tooltip.setting"/>
                         </tooltip>
@@ -27,7 +26,8 @@
                     </ColorTransitionButton>
                 </left>
                 <center>
-                    <ColorTransitionButton fx:id="profileName" buttonType="RAISED">
+                    <ColorTransitionButton fx:id="profileName" buttonType="RAISED"
+                    onAction="#popupSetting">
                         <tooltip>
                             <Tooltip text="%tooltip.switchprofile"/>
                         </tooltip>
@@ -35,7 +35,7 @@
                 </center>
                 <right>
                     <ColorTransitionButton fx:id="switchPlayer" maxHeight="10" buttonType="RAISED"
-                                           onAction="#popupLogin">
+                                           onAction="#onSwitchPlayer">
                         <tooltip>
                             <Tooltip text="%tooltip.switchaccount"/>
                         </tooltip>
@@ -46,22 +46,17 @@
                 </right>
             </BorderPane>
         </VBox>
-        <StackPane fx:id="rightBox" prefWidth="400" alignment="BOTTOM_RIGHT" style="-fx-padding:17,10">
+    </left>
+    <right>
+        <StackPane fx:id="rightBox" prefWidth="400" alignment="BOTTOM_RIGHT"
+                   style="-fx-padding:15,10;">
             <ColorTransitionButton fx:id="launch" buttonType="RAISED" text="LAUNCH" style="-fx-padding:0,100,0,100"
-                                   prefWidth="110"
-                                   prefHeight="50"/>
+                                   prefWidth="120"
+                                   prefHeight="60"/>
         </StackPane>
+    </right>
+    <fx:include fx:id="profileSettingDialog" source="ProfileSetting.fxml"/>
+    <!--<fx:include fx:id="loginDialog" source="Login.fxml"/>-->
 
-        <JFXDialog fx:id="settingDialog"/>
-        <JFXDialog fx:id="loginDialog"/>
-
-        <!--<fx:include fx:id="settingDialog" source="Setting.fxml"/>-->
-    </HBox>
-    <ColorTransitionButton fx:id="close" prefHeight="40" prefWidth="40"
-                           onMouseClicked="#onClose"
-                           hoverColor="red" transitionDuration="200ms" style="-fx-background-radius:0">
-        <graphic>
-            <Icon awesomeIcon="CLOSE" scaleX="1.3" scaleY="1.3" style="-fx-font-family:FontAwesome;"/>
-        </graphic>
-    </ColorTransitionButton>
-</StackPane>
+    <!--<fx:include fx:id="settingDialog" source="ProfileSetting.fxml"/>-->
+</BorderPane>

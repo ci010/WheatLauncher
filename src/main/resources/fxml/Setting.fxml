@@ -1,52 +1,12 @@
-<?import com.jfoenix.controls.*?>
-<?import com.jfoenix.validation.ValidationFacade?>
-<?import de.jensd.fx.fontawesome.Icon?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Tab?>
-<?import javafx.scene.layout.FlowPane?>
+<?import com.jfoenix.controls.JFXListView?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
-<JFXDialog fx:id="rootDialog" xmlns:fx="http://javafx.com/fxml/1"
-           xmlns="http://javafx.com/javafx/2.2"
-           fx:controller="net.wheatlauncher.control.ControllerPreview">
-    <FlowPane fx:id="root" minWidth="400" styleClass="transparent"
-              hgap="30" vgap="30" alignment="CENTER">
-        <VBox spacing="5" alignment="CENTER"
-              style="-fx-background-color:WHITE; -fx-background-insets:-2; -fx-background-radius:3">
-            <HBox alignment="CENTER" spacing="5">
-                <Label fx:id="profileLabel" contentDisplay="RIGHT">
-                    Profile
-                </Label>
-                <JFXRippler fx:id="editProfileRegion" maxWidth="10" maxHeight="10">
-                    <Icon awesomeIcon="PENCIL_SQUARE" size="1.5em"/>
-                </JFXRippler>
-            </HBox>
-            <ValidationFacade fx:id="validProfile">
-                <!-- style="-fx-background-color:BROWN; -fx-background-insets:-10; -fx-background-radius:5;"-->
-                <control>
-                    <JFXComboBox fx:id="profile"
-                                 promptText="profile" maxWidth="100"/>
-                </control>
-            </ValidationFacade>
-        </VBox>
-        <VBox alignment="CENTER" spacing="8"
-              style="-fx-background-color:WHITE; -fx-background-insets:-2; -fx-background-radius:3">
-            <Label>Version</Label>
-            <ValidationFacade fx:id="validVersion">
-                <control>
-                    <JFXComboBox fx:id="versions" promptText="Version" prefWidth="250"/>
-                </control>
-            </ValidationFacade>
-        </VBox>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.control.Label?>
+<StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2">
+    <HBox>
+        <JFXListView fx:id="options">
+            <Label>
 
-        <JFXTabPane fx:id="optionsTest" prefWidth="380">
-            <Tab text="Common">
-                <fx:include fx:id="commonSetting" source="CommonSetting.fxml"/>
-            </Tab>
-            <Tab text="Minecraft">
-                <fx:include fx:id="gameSetting" source="GameSettingsVanilla.fxml"/>
-            </Tab>
-        </JFXTabPane>
-    </FlowPane>
-    <fx:include fx:id="profilePopup" source="Setting_Profile.fxml"/>
-</JFXDialog>
+        </JFXListView>
+    </HBox>
+</StackPane>

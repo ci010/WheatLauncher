@@ -110,6 +110,7 @@ public class ViewFactoryReload
 			{
 				try
 				{
+					System.out.println("instantate " + c.getSimpleName());
 					return c.newInstance();
 				}
 				catch (InstantiationException | IllegalAccessException e)
