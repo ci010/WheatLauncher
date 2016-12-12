@@ -25,4 +25,14 @@ public class CurseForgeCategory
 	{
 		return imgUrl;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "CurseForgeCategory{" +
+				"path='" + path + '\'' +
+				", imgUrl='" + imgUrl + '\'' +
+				", name='" + name + '\'' +
+				'}';
+	}
 }

@@ -1,9 +1,5 @@
-package net.launcher.services.curseforge.requester;
+package net.launcher.services.curseforge;
 
-import net.launcher.services.curseforge.CurseForgeCategory;
-import net.launcher.services.curseforge.CurseForgeProject;
-import net.launcher.services.curseforge.CurseForgeProjectArtifact;
-import net.launcher.services.curseforge.CurseForgeProjectType;
 import net.launcher.utils.DataSizeUnit;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -44,11 +40,17 @@ class CurseForgeRequesterImpl implements CurseForgeService
 		{
 			Element filter = document.getElementById("filter-sort");
 			filterTypesCache = filter.children().stream().map(e -> e.attr("value")).collect(Collectors.toList());
-			gameVersionsCache = document.getElementById("filter-game-version").children().stream().
-					collect(Collectors.toMap(Element::val, v -> v.attr("value")));
-			categoryCache = document.getElementsByClass("level-categories-nav  ").stream().map(e -> e.child(0)).map(e ->
-					new CurseForgeCategory(e.attr("href"), e.child(1).val(), e.child(0).attr("src"))).collect(
-					Collectors.toMap(CurseForgeCategory::getPath, Function.identity()));
+
+			gameVersionsCache = document.getElementById("filter-game-version").children().stream().collect
+					(Collectors.toMap(Element::val, Element::text));
+			categoryCache = document.getElementsByClass("level-categories-nav").stream()
+					.map(e -> e.child(0))
+					.map(e ->
+					{
+						try {return new CurseForgeCategory(e.attr("href"), e.child(1).text(), e.child(0).attr("src"));}
+						catch (Exception ex) {return null;}
+					})
+					.filter(Objects::nonNull).collect(Collectors.toMap(CurseForgeCategory::getPath, Function.identity()));
 			categoriesCacheList = new ArrayList<>(categoryCache.values());
 		}
 	}
@@ -62,13 +64,15 @@ class CurseForgeRequesterImpl implements CurseForgeService
 	@Override
 	public ViewSession viewSession() throws IOException
 	{
-		Document document = Jsoup.parse(requester.request("GET", requestingType.getPath()));
+		Document document = Jsoup.parse(requester.request("GET",
+				root + requestingType.getPath()));
 
 		checkCache(document);
 
 		Element pages = document.getElementsByClass("paging-list").get(0);
 		int page = 1;
-		int maxPage = Integer.valueOf(pages.child(pages.children().size() - 2).val());
+		String val = pages.child(pages.children().size() - 1).child(0).attr("href");
+		int maxPage = Integer.valueOf(val.substring(val.lastIndexOf("page=") + 5));
 
 		return new CurseForgeProjectsViewSessionImpl(parseProjects(document), filterTypesCache, "", gameVersionsCache, "", page,
 				maxPage, categoriesCacheList, null);
@@ -77,7 +81,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 	private String buildURL(ViewSession session)
 	{
 		Map<String, Object> argumenst = new TreeMap<>();
-		String url = root + requestingType.getPath() + session.getCategory().getPath();
+		String url = root + requestingType.getPath();
 		argumenst.put("filter-game-version", session.getGameVersionConstrain());
 		argumenst.put("filter-sort", session.getSortOption());
 		argumenst.put("page", session.getPage());
@@ -95,13 +99,14 @@ class CurseForgeRequesterImpl implements CurseForgeService
 			Element infoStat = detail.child(1);
 			Element nameElement = infoName.child(0).child(0);
 			projects.add(new CurseForgeProject(
-					nameElement.val(),
-					detail.child(3).child(0).val(),
+					nameElement.text(),
+					detail.child(3).child(0).text(),
 					nameElement.attr("href"),
-					item.child(0).child(0).child(0).attr("src"),
+					item.getElementsByTag("img").get(0).attr("src"),
 					detail.child(2).child(0).children().stream().map(e -> e.child(0).attr("href")).map(categoryCache::get).collect(Collectors.toList()),
-					infoName.child(1).child(0).val(), infoStat.child(0).val(),
-					new Date(Long.parseLong(infoStat.child(1).attr("data-epoch"))), requestingType));
+					infoName.child(1).child(0).text(),
+					infoStat.child(0).text(),
+					new Date(Long.parseLong(infoStat.child(1).child(0).attr("data-epoch"))), requestingType));
 		}
 		return projects;
 	}
@@ -109,7 +114,9 @@ class CurseForgeRequesterImpl implements CurseForgeService
 	@Override
 	public ViewSession refresh(ViewSession session) throws IOException
 	{
-		((CurseForgeProjectsViewSessionImpl) session).projects.addAll(parseProjects(Jsoup.parse(requester.request("GET", buildURL(session)))));
+		String url = buildURL(session);
+		Document document = Jsoup.parse(requester.request("GET", url));
+		((CurseForgeProjectsViewSessionImpl) session).projects.addAll(parseProjects(document));
 		return session;
 	}
 
@@ -208,10 +215,10 @@ class CurseForgeRequesterImpl implements CurseForgeService
 		return new CurseForgeProjectArtifact(downloadURL, fileName, mcVersion, releaseType, fileSize, date);
 	}
 
-	private String replace(String url)
-	{
-		return url.replaceAll(":", "%3A");
-	}
+//	private String replace(String url)
+//	{
+//		return url.replaceAll(":", "%3A");
+//	}
 
 
 	//	public CurseForgeProject requestProject(String projectPath) throws IOException

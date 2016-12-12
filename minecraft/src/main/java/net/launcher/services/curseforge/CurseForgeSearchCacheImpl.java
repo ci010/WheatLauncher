@@ -1,6 +1,4 @@
-package net.launcher.services.curseforge.requester;
-
-import net.launcher.services.curseforge.CurseForgeProject;
+package net.launcher.services.curseforge;
 
 import java.util.Collections;
 import java.util.List;

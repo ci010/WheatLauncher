@@ -1,8 +1,4 @@
-package net.launcher.services.curseforge.requester;
-
-import net.launcher.services.curseforge.CurseForgeCategory;
-import net.launcher.services.curseforge.CurseForgeProject;
-import net.launcher.services.curseforge.CurseForgeProjectArtifact;
+package net.launcher.services.curseforge;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -176,5 +172,33 @@ class CurseForgeProjectsViewSessionImpl implements CurseForgeService.ViewSession
 		{
 			return getFromMinecraftVersion(minecraftVersion).get(0);
 		}
+
+		@Override
+		public String toString()
+		{
+			return "ArtifactCache{" +
+					"artifacts=" + artifacts +
+					", page=" + page +
+					", max=" + max +
+					", requestingURL='" + requestingURL + '\'' +
+					'}';
+		}
+	}
+
+	@Override
+	public String toString()
+	{
+		return "CurseForgeProjectsViewSessionImpl{" +
+				"view=" + view +
+				", projects=" + projects +
+				", sortedOptions=" + sortedOptions +
+				", sortOption='" + sortOption + '\'' +
+				", gameVersions=" + gameVersions +
+				", gameVersionConstrain='" + gameVersionConstrain + '\'' +
+				", page=" + page +
+				", maxPages=" + maxPages +
+				", categories=" + categories +
+				", category=" + category +
+				'}';
 	}
 }

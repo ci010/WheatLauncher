@@ -1,9 +1,4 @@
-package net.launcher.services.curseforge.requester;
-
-import net.launcher.services.curseforge.CurseForgeCategory;
-import net.launcher.services.curseforge.CurseForgeProject;
-import net.launcher.services.curseforge.CurseForgeProjectArtifact;
-import net.launcher.services.curseforge.CurseForgeProjectType;
+package net.launcher.services.curseforge;
 
 import java.io.IOException;
 import java.util.List;

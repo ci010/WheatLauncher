@@ -5,12 +5,12 @@ package net.launcher.services.curseforge;
  */
 public enum CurseForgeProjectType
 {
-	Modpacks("modpacks"),
-	Customization("customization"),
-	Addons("mc-addons"),
-	Mods("mc-mods"),
-	TexturePacks("texture-packs"),
-	Worlds("worlds");
+	Modpacks("/modpacks"),
+	Customization("/customization"),
+	Addons("/mc-addons"),
+	Mods("/mc-mods"),
+	TexturePacks("/texture-packs"),
+	Worlds("/worlds");
 
 	private String path;
 

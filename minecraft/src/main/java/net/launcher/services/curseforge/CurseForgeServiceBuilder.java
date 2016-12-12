@@ -1,6 +1,5 @@
-package net.launcher.services.curseforge.requester;
+package net.launcher.services.curseforge;
 
-import net.launcher.services.curseforge.CurseForgeProjectType;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
 import org.to2mbn.jmccc.util.Builder;
 
@@ -9,17 +8,17 @@ import java.util.Objects;
 /**
  * @author ci010
  */
-public class CurseForgeBuilder implements Builder<CurseForgeService>
+public class CurseForgeServiceBuilder implements Builder<CurseForgeService>
 {
 	private CurseForgeProjectType projectType;
 	private HttpRequester requester;
 
-	public static CurseForgeBuilder create(CurseForgeProjectType projectType)
+	public static CurseForgeServiceBuilder create(CurseForgeProjectType projectType)
 	{
-		return new CurseForgeBuilder(projectType);
+		return new CurseForgeServiceBuilder(projectType);
 	}
 
-	public CurseForgeBuilder setRequester(HttpRequester requester)
+	public CurseForgeServiceBuilder setRequester(HttpRequester requester)
 	{
 		Objects.requireNonNull(requester);
 		this.requester = requester;
@@ -33,5 +32,5 @@ public class CurseForgeBuilder implements Builder<CurseForgeService>
 	}
 
 
-	private CurseForgeBuilder(CurseForgeProjectType projectType) {this.projectType = projectType;}
+	private CurseForgeServiceBuilder(CurseForgeProjectType projectType) {this.projectType = projectType;}
 }

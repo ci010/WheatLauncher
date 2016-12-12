@@ -76,4 +76,20 @@ public class CurseForgeProject
 	{
 		return lastTime;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "CurseForgeProject{" +
+				"name='" + name + '\'' +
+				", description='" + description + '\'' +
+				", projectPath='" + projectPath + '\'' +
+				", imageUrl='" + imageUrl + '\'' +
+				", categories=" + categories +
+				", authors='" + authors + '\'' +
+				", downloadCount='" + downloadCount + '\'' +
+				", lastTime=" + lastTime +
+				", projectType=" + projectType +
+				'}';
+	}
 }
