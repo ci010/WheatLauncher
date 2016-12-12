@@ -5,7 +5,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import moe.mickey.minecraft.skin.fx.SkinCanvas?>
-<?import net.wheatlauncher.control.ColorTransitionButton?>
+<?import net.wheatlauncher.control.utils.ColorTransitionButton?>
 <BorderPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
             style="-fx-padding:5,5">
     <left>
@@ -13,10 +13,10 @@
               style="-fx-padding:15,5; -fx-background-color:BROWN">
             <Label fx:id="player" style="-fx-font-size: 16.0px;-fx-text-fill: rgba(0.0, 0.0, 0.0, 0.87);"/>
             <SkinCanvas fx:id="canvas" width="150" height="250" depth="4"/>
-            <BorderPane>
+            <BorderPane style="-fx-padding:10,10">
                 <left>
                     <ColorTransitionButton fx:id="setting" maxHeight="10" buttonType="RAISED"
-                                           onAction="#popupProfileSetting">
+                                           onAction="#popupSetting">
                         <tooltip>
                             <Tooltip text="%tooltip.setting"/>
                         </tooltip>
@@ -27,7 +27,7 @@
                 </left>
                 <center>
                     <ColorTransitionButton fx:id="profileName" buttonType="RAISED"
-                    onAction="#popupSetting">
+                                           onAction="#popupProfileSetting">
                         <tooltip>
                             <Tooltip text="%tooltip.switchprofile"/>
                         </tooltip>
@@ -55,7 +55,8 @@
                                    prefHeight="60"/>
         </StackPane>
     </right>
-    <fx:include fx:id="profileSettingDialog" source="ProfileSetting.fxml"/>
+    <fx:include fx:id="settingDialog" source="settings/Setting.fxml"/>
+    <fx:include fx:id="profileSettingDialog" source="profiles/ProfileSetting.fxml"/>
     <!--<fx:include fx:id="loginDialog" source="Login.fxml"/>-->
 
     <!--<fx:include fx:id="settingDialog" source="ProfileSetting.fxml"/>-->

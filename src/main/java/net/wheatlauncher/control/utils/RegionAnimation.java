@@ -1,4 +1,4 @@
-package net.wheatlauncher.control;
+package net.wheatlauncher.control.utils;
 
 import javafx.animation.*;
 import javafx.beans.value.WritableValue;

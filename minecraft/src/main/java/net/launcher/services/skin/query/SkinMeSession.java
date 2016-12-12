@@ -87,7 +87,7 @@ class SkinMeSession implements SkinQueryService.Session
 	@Override
 	public void query(int index, Callback<List<Skin>> callback)
 	{
-		if (service.isTerminated()) throw new IllegalStateException("The session service is already closed!");
+		if (service.isTerminated()) throw new IllegalStateException("The viewSession service is already closed!");
 		if (index >= capacity || index <= 0)
 		{
 			if (callback != null)

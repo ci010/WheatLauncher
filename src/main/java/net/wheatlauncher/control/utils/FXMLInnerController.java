@@ -1,4 +1,4 @@
-package net.wheatlauncher.control;
+package net.wheatlauncher.control.utils;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

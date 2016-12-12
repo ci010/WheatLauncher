@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.VBox?>
 <JFXDialog fx:id="rootDialog" xmlns:fx="http://javafx.com/fxml/1"
            xmlns="http://javafx.com/javafx/2.2"
-           fx:controller="net.wheatlauncher.control.profiles.ControllerSetting"
+           fx:controller="net.wheatlauncher.control.profiles.ControllerProfileSetting"
            transitionType="CENTER">
     <FlowPane fx:id="root" minWidth="500" prefWidth="500" prefHeight="300"
               hgap="30" vgap="30" alignment="CENTER">

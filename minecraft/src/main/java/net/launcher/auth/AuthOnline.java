@@ -38,10 +38,10 @@ public class AuthOnline implements Authorize
 	{
 		YggdrasilAuthenticator auth;
 		auth = YggdrasilAuthenticator.password(account, password);
-//		Session session = auth.session();
-//		profile.setAccessToken(session.getAccessToken());
+//		ViewSession viewSession = auth.viewSession();
+//		profile.setAccessToken(viewSession.getAccessToken());
 //		if (profile.getClientToken() != null)
-//			profile.setClientToken(session.getClientToken());
+//			profile.setClientToken(viewSession.getClientToken());
 		return auth.auth();
 	}
 

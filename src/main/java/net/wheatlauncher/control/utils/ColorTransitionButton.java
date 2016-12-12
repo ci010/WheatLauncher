@@ -1,4 +1,4 @@
-package net.wheatlauncher.control;
+package net.wheatlauncher.control.utils;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.skins.JFXButtonSkin;

@@ -7,7 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import net.launcher.utils.Logger;
-import net.wheatlauncher.control.ReloadableController;
+import net.wheatlauncher.control.utils.ReloadableController;
 
 import javax.annotation.PostConstruct;
 

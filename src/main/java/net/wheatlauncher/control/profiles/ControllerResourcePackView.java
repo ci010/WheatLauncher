@@ -26,7 +26,7 @@ import net.launcher.game.ResourcePack;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.resourcepack.ResourcePackManager;
 import net.launcher.utils.Logger;
-import net.wheatlauncher.control.ReloadableController;
+import net.wheatlauncher.control.utils.ReloadableController;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;

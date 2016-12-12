@@ -1,4 +1,4 @@
-package net.wheatlauncher.control;
+package net.wheatlauncher.control.utils;
 
 import io.datafx.controller.FXMLController;
 import io.datafx.controller.FxmlLoadException;

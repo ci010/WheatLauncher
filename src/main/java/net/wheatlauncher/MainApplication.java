@@ -6,7 +6,7 @@ import javafx.stage.Stage;
 import net.launcher.Bootstrap;
 import net.launcher.utils.Logger;
 import net.wheatlauncher.control.ControllerMain;
-import net.wheatlauncher.control.WindowsManager;
+import net.wheatlauncher.control.utils.WindowsManager;
 import net.wheatlauncher.utils.LanguageMap;
 
 /**
@@ -25,7 +25,7 @@ public class MainApplication extends Application
 		Bootstrap.boost(Core.class);
 		WindowsManager windowsManager = new WindowsManager();
 		ApplicationContext.getInstance().register(windowsManager);
-		windowsManager.createPage(stage, ControllerMain.class, 650, 450);
+		windowsManager.createPage(stage, ControllerMain.class, 800, 550);
 		stage.show();
 	}
 

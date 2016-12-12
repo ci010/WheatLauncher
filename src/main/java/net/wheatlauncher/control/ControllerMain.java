@@ -10,9 +10,9 @@ import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import net.launcher.utils.Logger;
+import net.wheatlauncher.control.utils.ReloadableController;
+import net.wheatlauncher.control.utils.WindowsManager;
 
 import javax.annotation.PostConstruct;
 

@@ -26,6 +26,7 @@
 .jfx-text-field, .jfx-password-field{
 	-fx-background-color: WHITE;
     -fx-font-weight: BOLD;
+    -fx-font-color: GREY;
     -fx-prompt-text-fill: #808080;
     -fx-alignment: top-left ;
     -fx-focus-color: #4059A9;

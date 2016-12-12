@@ -1,0 +1,18 @@
+<?import com.jfoenix.controls.JFXMasonryPane?>
+<?import com.jfoenix.controls.JFXToolbar?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
+           fx:controller="net.wheatlauncher.control.settings.ControllerCurseModViewer">
+    <BorderPane>
+        <top>
+            <JFXToolbar/>
+        </top>
+        <center>
+            <ScrollPane fitToHeight="true" fitToWidth="true" fx:id="scrollPane" hbarPolicy="NEVER">
+                <JFXMasonryPane fx:id="masonryPane"/>
+            </ScrollPane>
+        </center>
+    </BorderPane>
+</StackPane>

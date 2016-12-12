@@ -6,8 +6,8 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.*?>
-<?import net.wheatlauncher.control.ColorTransitionButton?>
-<?import net.wheatlauncher.control.ValidatorDelegate?>
+<?import net.wheatlauncher.control.utils.ColorTransitionButton?>
+<?import net.wheatlauncher.control.utils.ValidatorDelegate?>
 <StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
            styleClass="jfx-container" onKeyPressed="#onGlobalKeyPressed">
     <VBox fx:id="box" maxWidth="400" maxHeight="400" spacing="15" alignment="CENTER"

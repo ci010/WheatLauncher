@@ -5,15 +5,16 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import net.wheatlauncher.control.ColorTransitionButton?>
+<?import net.wheatlauncher.control.utils.ColorTransitionButton?>
+<?import com.jfoenix.controls.JFXTextField?>
 <VBox fx:id="root" alignment="CENTER" spacing="15" style="-fx-background-color:WHITE; -fx-padding:10;"
       xmlns="http://javafx.com/javafx/8.0.71" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="net.wheatlauncher.control.profiles.ControllerCommonSetting">
-    <GridPane hgap="10" vgap="20">
+    <GridPane hgap="5" vgap="20">
         <columnConstraints>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="30" halignment="LEFT"/>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="50" halignment="CENTER"/>
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="20" halignment="RIGHT"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="25" halignment="LEFT"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="65" halignment="CENTER"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="10" halignment="RIGHT"/>
         </columnConstraints>
         <rowConstraints>
             <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES"/>
@@ -22,8 +23,8 @@
             <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES"/>
         </rowConstraints>
 
-        <Label text="%setting.minecraftLocation" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
-        <Label fx:id="minecraftLocation" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+        <Label text="%setting.minecraftLocation" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+        <JFXTextField fx:id="minecraftLocation" GridPane.columnIndex="1" GridPane.rowIndex="0" editable="false"/>
         <ColorTransitionButton fx:id="browsMinecraft" style="-fx-padding:3,3,3,3; -fx-background-color:TRANSPARENT;"
                                GridPane.columnIndex="2" GridPane.rowIndex="0">
             <graphic>
@@ -32,7 +33,7 @@
         </ColorTransitionButton>
 
         <Label text="%setting.javaLocation" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
-        <Label fx:id="javaLocation" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <JFXTextField fx:id="javaLocation" GridPane.columnIndex="1" GridPane.rowIndex="1" editable="false"/>
         <ColorTransitionButton fx:id="browsJava" style="-fx-padding:3,3,3,3; -fx-background-color:TRANSPARENT;"
                                GridPane.columnIndex="2" GridPane.rowIndex="1">
             <graphic>

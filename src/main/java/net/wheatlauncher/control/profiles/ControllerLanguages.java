@@ -18,7 +18,7 @@ import net.launcher.LaunchCore;
 import net.launcher.game.Language;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.utils.Logger;
-import net.wheatlauncher.control.WindowsManager;
+import net.wheatlauncher.control.utils.WindowsManager;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.util.IOUtils;
 import org.to2mbn.jmccc.version.Asset;

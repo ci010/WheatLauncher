@@ -1,12 +1,12 @@
 package net.wheatlauncher.control.profiles;
 
 import com.jfoenix.controls.JFXSlider;
+import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.skins.JFXSliderSkin;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
-import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -17,7 +17,7 @@ import net.launcher.Bootstrap;
 import net.launcher.LaunchCore;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.utils.Logger;
-import net.wheatlauncher.control.ColorTransitionButton;
+import net.wheatlauncher.control.utils.ColorTransitionButton;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.option.WindowSize;
@@ -52,9 +52,9 @@ public class ControllerCommonSetting
 	}
 
 
-	public Label minecraftLocation;
+	public JFXTextField minecraftLocation;
 	public ColorTransitionButton browsMinecraft;
-	public Label javaLocation;
+	public JFXTextField javaLocation;
 	public ColorTransitionButton browsJava;
 
 	public JFXSlider memory;

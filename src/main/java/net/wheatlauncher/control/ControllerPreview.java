@@ -22,7 +22,9 @@ import moe.mickey.minecraft.skin.fx.animation.SkinAniRunning;
 import net.launcher.AuthProfile;
 import net.launcher.Bootstrap;
 import net.launcher.utils.StringUtils;
-import net.wheatlauncher.control.profiles.ControllerSetting;
+import net.wheatlauncher.control.profiles.ControllerProfileSetting;
+import net.wheatlauncher.control.settings.ControllerSetting;
+import net.wheatlauncher.control.utils.*;
 import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
@@ -68,8 +70,11 @@ public class ControllerPreview implements ReloadableController
 	/*dialog*/
 	public JFXDialog profileSettingDialog;
 	@FXMLInnerController
-	public ControllerSetting profileSettingDialogController;
+	public ControllerProfileSetting profileSettingDialogController;
 
+	public JFXDialog settingDialog;
+	@FXMLInnerController
+	public ControllerSetting settingDialogController;
 
 	@PostConstruct
 	public void init() throws FlowException
@@ -98,7 +103,8 @@ public class ControllerPreview implements ReloadableController
 
 	private void initDialog()
 	{
-		root.getChildren().remove(profileName);
+		root.getChildren().remove(profileSettingDialog);
+		root.getChildren().remove(settingDialog);
 		profileSettingDialog.setDialogContainer(flowContext.getRegisteredObject(StackPane.class));
 		profileSettingDialog.setContentHolderBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null,
 				null)));
@@ -157,7 +163,7 @@ public class ControllerPreview implements ReloadableController
 
 	public void popupSetting(ActionEvent event)
 	{
-
+		settingDialog.show(flowContext.getRegisteredObject(StackPane.class));
 	}
 
 	@FXML

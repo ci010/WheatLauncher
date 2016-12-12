@@ -1,4 +1,4 @@
-package net.wheatlauncher.control;
+package net.wheatlauncher.control.utils;
 
 import com.jfoenix.validation.base.ValidatorBase;
 import javafx.beans.property.ObjectProperty;
@@ -55,7 +55,7 @@ public class ValidatorDelegate extends ValidatorBase
 		}
 	}
 
-	interface Delegate
+	public interface Delegate
 	{
 		void accept(String s) throws Exception;
 	}

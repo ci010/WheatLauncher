@@ -18,37 +18,27 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import net.launcher.Bootstrap;
 import net.launcher.LaunchCore;
-import net.launcher.game.Language;
-import net.launcher.profile.LaunchProfile;
 import net.launcher.utils.Logger;
-import net.wheatlauncher.control.FXMLInnerController;
-import net.wheatlauncher.control.ReloadableController;
-import net.wheatlauncher.control.WindowsManager;
-import org.to2mbn.jmccc.internal.org.json.JSONObject;
+import net.wheatlauncher.control.utils.FXMLInnerController;
+import net.wheatlauncher.control.utils.ReloadableController;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
-import org.to2mbn.jmccc.util.IOUtils;
-import org.to2mbn.jmccc.version.Asset;
-import org.to2mbn.jmccc.version.Version;
 import org.to2mbn.jmccc.version.parsing.Versions;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
-import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 
 /**
  * @author ci010
  */
-@FXMLController("/fxml/ProfileSetting.fxml")
-public class ControllerSetting implements ReloadableController
+@FXMLController("/fxml/profiles/ProfileSetting.fxml")
+public class ControllerProfileSetting implements ReloadableController
 {
 	public Tab mcTab;
 
@@ -133,7 +123,7 @@ public class ControllerSetting implements ReloadableController
 	private void initVersion()
 	{
 		Bootstrap.getCore().getService().scheduleAtFixedRate(new SimpleFileWatcher(Paths.get("versions"),
-						() -> Platform.runLater(ControllerSetting.this::updateVersionList)), 5, 5,
+						() -> Platform.runLater(ControllerProfileSetting.this::updateVersionList)), 5, 5,
 				TimeUnit.SECONDS);
 		versionList = FXCollections.observableArrayList(Versions.getVersions(LaunchCore.getCurrentProfile(Bootstrap.getCore())
 				.getMinecraftLocation()));

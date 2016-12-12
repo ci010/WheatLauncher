@@ -1,4 +1,4 @@
-package net.wheatlauncher.control;
+package net.wheatlauncher.control.utils;
 
 import com.jfoenix.controls.JFXSnackbar;
 import io.datafx.controller.FxmlLoadException;
