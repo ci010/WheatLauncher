@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author ci010
@@ -88,96 +87,6 @@ public interface CurseForgeService
 			return "Cache{" +
 					"cache=" + cache +
 					", context=" + context +
-					'}';
-		}
-	}
-
-	class ProjectCache
-	{
-		protected List<CurseForgeProject> projects;
-		protected Map<String, Object> context;
-
-		public ProjectCache(List<CurseForgeProject> projects, Map<String, Object> contest)
-		{
-			this.projects = projects;
-			this.context = contest;
-		}
-
-		public ProjectCache()
-		{
-			projects = Collections.emptyList();
-			context = Collections.emptyMap();
-		}
-
-		public List<CurseForgeProject> getProjects() {return Collections.unmodifiableList(projects);}
-
-		public Map<String, Object> getContext() {return Collections.unmodifiableMap(context);}
-
-		@Override
-		public String toString()
-		{
-			return "ProjectCache{" +
-					"projects=" + projects +
-					", context=" + context +
-					'}';
-		}
-	}
-
-	class ArtifactCache
-	{
-		private List<CurseForgeProjectArtifact> artifacts;
-		private Map<String, Object> context;
-		private int page, max;
-		private String requestingURL;
-
-		ArtifactCache(List<CurseForgeProjectArtifact> artifacts, int max, String requestingURL)
-		{
-			this.artifacts = artifacts;
-			this.max = max;
-			this.page = 1;
-			this.requestingURL = requestingURL;
-		}
-
-		String getRequestingURL() {return requestingURL;}
-
-		public int getCachedSegment()
-		{
-			return page;
-		}
-
-		public int getTotalSegment()
-		{
-			return max;
-		}
-
-		public List<CurseForgeProjectArtifact> getCachedArtifact()
-		{
-			return artifacts;
-		}
-
-		public CurseForgeProjectArtifact getLatestArtifact()
-		{
-			return artifacts.get(0);
-		}
-
-		public List<CurseForgeProjectArtifact> getFromMinecraftVersion(String minecraftVersion)
-		{
-			return artifacts.stream().filter(modInfo -> modInfo.getGameVersion().equals(minecraftVersion))
-					.collect(Collectors.toList());
-		}
-
-		public CurseForgeProjectArtifact getLatestFromMinecraftVersion(String minecraftVersion)
-		{
-			return getFromMinecraftVersion(minecraftVersion).get(0);
-		}
-
-		public String toString()
-		{
-			return "ArtifactCache{" +
-					"artifacts=" + artifacts +
-					", page=" + page +
-					", max=" + max +
-					", requestingURL='" + requestingURL + '\'' +
 					'}';
 		}
 	}
