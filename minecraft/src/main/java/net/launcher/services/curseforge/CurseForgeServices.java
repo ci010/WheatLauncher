@@ -12,7 +12,7 @@ public class CurseForgeServices
 	public static CurseForgeService newService(CurseForgeProjectType projectType, HttpRequester requester) throws IOException
 	{
 		CurseForgeRequesterImpl curseForgeRequester = new CurseForgeRequesterImpl(requester, projectType);
-		curseForgeRequester.filter(null);//init
+		curseForgeRequester.init();//init
 		return curseForgeRequester;
 	}
 

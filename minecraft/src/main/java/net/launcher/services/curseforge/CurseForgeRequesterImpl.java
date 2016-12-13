@@ -35,6 +35,11 @@ class CurseForgeRequesterImpl implements CurseForgeService
 		this.requestingType = requestingType;
 	}
 
+	void init() throws IOException
+	{
+		checkCache(Jsoup.parse(requester.request("GET", buildURL(Option.create(), 1))));
+	}
+
 	private synchronized void checkCache(Document document)
 	{
 		if (filterTypesCache == null && gameVersionsCache == null && categoryCache == null)
