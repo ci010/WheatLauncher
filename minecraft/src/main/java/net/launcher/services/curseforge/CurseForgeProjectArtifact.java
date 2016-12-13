@@ -15,7 +15,7 @@ public class CurseForgeProjectArtifact
 	private long fileSize;
 	private Date date;
 
-	public CurseForgeProjectArtifact(String downloadURL, String fileName, String mcVersion, String releaseType, long fileSize, Date date)
+	CurseForgeProjectArtifact(String downloadURL, String fileName, String mcVersion, String releaseType, long fileSize, Date date)
 	{
 		this.downloadURL = downloadURL;
 		this.fileName = fileName;

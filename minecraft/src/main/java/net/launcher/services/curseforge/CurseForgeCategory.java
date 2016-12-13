@@ -7,7 +7,7 @@ public class CurseForgeCategory
 {
 	private String path, imgUrl, name;
 
-	public CurseForgeCategory(String path, String name, String imgUrl)
+	CurseForgeCategory(String path, String name, String imgUrl)
 	{
 		this.path = path;
 		this.imgUrl = imgUrl;
