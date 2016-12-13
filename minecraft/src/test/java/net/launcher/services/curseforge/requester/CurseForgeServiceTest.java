@@ -1,8 +1,9 @@
 package net.launcher.services.curseforge.requester;
 
+import net.launcher.services.curseforge.CurseForgeProject;
 import net.launcher.services.curseforge.CurseForgeProjectType;
 import net.launcher.services.curseforge.CurseForgeService;
-import net.launcher.services.curseforge.CurseForgeServiceBuilder;
+import net.launcher.services.curseforge.CurseForgeServices;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -13,37 +14,63 @@ import java.io.IOException;
 public class CurseForgeServiceTest
 {
 	@Test
-	public void testBuild()
+	public void testBuild() throws IOException
 	{
-		CurseForgeService service = CurseForgeServiceBuilder.create(CurseForgeProjectType.Mods).build();
+		CurseForgeService service = CurseForgeServices.newService(CurseForgeProjectType.Mods);
 		assert service != null;
 	}
 
 	@Test
 	public void testViewSession() throws IOException
 	{
-		CurseForgeService service = CurseForgeServiceBuilder.create(CurseForgeProjectType.Mods).build();
-		CurseForgeService.ViewSession session = service.viewSession();
+		CurseForgeService service = CurseForgeServices.newService(CurseForgeProjectType.Mods);
+		CurseForgeService.Cache<CurseForgeProject> cache = service.filter(null);
 		assert service != null;
-		String s = session.getProjects().toString();
+		String s = cache.getCache().toString();
 
-		session.setCategory(session.getCategories().get(0));
-		service.refresh(session);
+		System.out.println(s);
+		System.out.println("---------------------------------------");
 
-		String n = session.getProjects().toString();
+		service.growCache(cache);
 
+		String second = cache.getCache().toString();
+
+		System.out.println(second);
+		System.out.println("---------------------------------------");
+
+		assert !s.equals(second);
+
+		CurseForgeService.Cache<CurseForgeProject> anotherCache
+				= service.filter(CurseForgeService.Option.create().setCategory(service.getCategories().get(1)));
+
+		String n = anotherCache.getCache().toString();
+		System.out.println(s);
 		assert !s.equals(n);
-
 	}
 
+	@Test
+	public void testSearch() throws IOException
+	{
+		CurseForgeService service = CurseForgeServices.newService(CurseForgeProjectType.Mods);
+		CurseForgeService.Cache<CurseForgeProject> cache = service.search("tinker");
+		assert cache.getCache().size() != 0;
+
+		CurseForgeService.Cache<CurseForgeProject> cache1 = service.search("asddd");
+		assert cache1.getCache().size() == 0;
+	}
+
+	@Test
 	public void testArtifact() throws IOException
 	{
-		CurseForgeService service = CurseForgeServiceBuilder.create(CurseForgeProjectType.Mods).build();
-		CurseForgeService.ViewSession session = service.viewSession();
-		CurseForgeService.ArtifactCache artifactCache = service.cacheArtifact(session.getProjects().get(0));
-		assert artifactCache != null;
-		System.out.println(artifactCache);
-
+//		CurseForgeService service = CurseForgeServices.newService(CurseForgeProjectType.Mods).build();
+//		CurseForgeService.FilterProjectCache session = service.viewSession();
+//		CurseForgeService.ArtifactCache artifactCache = service.cacheArtifact(session.getProjects().get(0));
+//		assert artifactCache != null;
+//		String prev = artifactCache.toString();
+//		System.out.println(prev);
+//
+//		session.setPage(2);
+//
+//		service.growArtifactCache()
 	}
-
 }

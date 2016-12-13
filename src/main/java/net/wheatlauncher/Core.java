@@ -161,7 +161,7 @@ public class Core extends LaunchCore
 		this.managers.put(ResourcePack.class, ResourcePackMangerBuilder.create(this.getArchivesRoot().resolve
 				("resourcepacks"), this.executorService).build());
 
-//		io = ProfileMangerIO.create(root.toFile(), profileManager);
+//		io = ProfileMangerIO.newService(root.toFile(), profileManager);
 //		io.loadAll();
 //		io.saveAll();
 		Logger.trace("Start init");

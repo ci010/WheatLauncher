@@ -86,11 +86,11 @@ public interface Repository<T>
 		 */
 		COPY,
 		/**
-		 * This will create symbolic link to the target directory. It could be used in some temporary situation.
+		 * This will newService symbolic link to the target directory. It could be used in some temporary situation.
 		 */
 		SYMBOL_LINK,
 		/**
-		 * This will create hard link to the target directory. Notice that this cannot be created cross hard disk.
+		 * This will newService hard link to the target directory. Notice that this cannot be created cross hard disk.
 		 */
 		HARD_LINK
 	}

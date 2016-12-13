@@ -42,7 +42,7 @@ public class ControllerCurseModViewer implements ReloadableController
 
 		int index = 0;
 		StackPane stackPane = buildContainer();
-		// create content
+		// newService content
 		VBox content = new VBox();
 		StackPane header = new StackPane();
 		String headerColor = getDefaultColor(index % 12);
