@@ -98,19 +98,19 @@ class HandshakeTask implements Callable<ServerStatus>
 			throw new IOException("Cannot channel channel to " + info.getHostName());
 
 		ByteBuffer buffer = ByteBuffer.allocate(256); //handshake
-		buffer.put((byte) 0x00);
-		writeVarInt(buffer, 210);
-		writeString(buffer, address.getHostName());
-		buffer.putShort((short) (address.getPort() & 0xffff));
-		writeVarInt(buffer, 1);
+		buffer.put((byte) 0x00);//handshake packet 0x00
+		writeVarInt(buffer, 210);//write protocol version
+		writeString(buffer, address.getHostName());//write host name
+		buffer.putShort((short) (address.getPort() & 0xffff));//write port
+		writeVarInt(buffer, 1);//write next state(1 ping 2 login)
 		buffer.flip();
 
-		ByteBuffer handshake = ByteBuffer.allocate(buffer.limit() + 8); //wrap handleshake with it size
-		writeVarInt(handshake, buffer.limit());
+		ByteBuffer handshake = ByteBuffer.allocate(buffer.limit() + 8); //wrap handshake with it size
+		writeVarInt(handshake, buffer.limit());//write packet size
 		handshake.put(buffer);
 		handshake.flip();
 
-		ByteBuffer serverStatus = ByteBuffer.wrap(new byte[]{1, 0x00}); //server info query
+		ByteBuffer serverStatus = ByteBuffer.wrap(new byte[]{1, 0x00}); //server info query {length, id}
 
 		channel.write(handshake);
 		channel.write(serverStatus);

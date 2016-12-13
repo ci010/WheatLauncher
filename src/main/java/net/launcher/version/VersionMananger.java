@@ -19,6 +19,11 @@ public class VersionMananger implements LaunchElementManager<Version>, LaunchOpt
 {
 	private ArchiveRepository<Version> versionArchiveRepository;
 
+	public VersionMananger(ArchiveRepository<Version> versionArchiveRepository)
+	{
+		this.versionArchiveRepository = versionArchiveRepository;
+	}
+
 	@Override
 	public Set<Version> getAllElement()
 	{

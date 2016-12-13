@@ -3,13 +3,13 @@ package net.launcher;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import net.launcher.auth.Authorize;
 import net.launcher.auth.AuthorizeFactory;
 import net.launcher.utils.StringUtils;
 import org.to2mbn.jmccc.auth.AuthInfo;
 
-import java.util.ArrayList;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author ci010
@@ -24,7 +24,21 @@ public class AuthModule implements AuthProfile
 	private ObjectProperty<Authorize> authorize = new SimpleObjectProperty<>(AuthorizeFactory.ONLINE);
 	private ObjectProperty<AuthInfo> cache = new SimpleObjectProperty<>();
 
-	private ObservableList<String> history = FXCollections.observableArrayList();
+	private ObservableMap<String, ObservableList<String>> historyMap = FXCollections.observableMap(new TreeMap<>());
+
+	public AuthModule() {}
+
+	public AuthModule(String account, Authorize authorize, Map<String, List<String>> history)
+	{
+		this.account.set(account);
+		this.authorize.set(authorize);
+		history.forEach((s, l) ->
+		{
+			List<String> limitList = createLimitList(10);
+			limitList.addAll(l);
+			historyMap.put(s, FXCollections.observableList(limitList));
+		});
+	}
 
 	@Override
 	public ReadOnlyObjectProperty<Authorize> authorizeProperty()
@@ -88,6 +102,12 @@ public class AuthModule implements AuthProfile
 	}
 
 	@Override
+	public ObservableMap<String, ObservableList<String>> getHistoryMap()
+	{
+		return historyMap;
+	}
+
+	@Override
 	public Authorize getAuthorize() {return authorize.get();}
 
 	@Override
@@ -100,14 +120,31 @@ public class AuthModule implements AuthProfile
 	@Override
 	public void setCache(AuthInfo info)
 	{
-		history.add(account.getValue());
+		addToHistory(info.getUsername());
 		this.cache.set(info);
 	}
 
-	@Override
-	public ObservableList<String> getHistory()
+	private void addToHistory(String account)
 	{
-		return history;
+		String id = Authorize.getID(getAuthorize());
+		if (!historyMap.containsKey(id))
+			historyMap.put(id, FXCollections.observableList(createLimitList(10)));
+		historyMap.get(id).add(account);
+	}
+
+	private List<String> createLimitList(final int max)
+	{
+		return new LinkedList<String>()
+		{
+			@Override
+			public boolean add(String o)
+			{
+				if (this.size() > max)
+					this.removeLast();
+				super.addFirst(o);
+				return true;
+			}
+		};
 	}
 
 	@Override

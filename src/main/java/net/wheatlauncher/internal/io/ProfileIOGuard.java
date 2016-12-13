@@ -21,43 +21,28 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 /**
  * @author ci010
  */
-public class ProfileIOGuard
+public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 {
 	private static final String PROFILE_NAME = "profile.json";
-	private Path root;
-	private WeakReference<LaunchProfileManager> reference;
-	private ExecutorService ioQueue = Executors.newSingleThreadExecutor();
 
-	public ProfileIOGuard(Path root)
-	{
-		this.root = root;
-	}
-
-	public boolean isClosed()
-	{
-		return reference.get() == null;
-	}
+	public ProfileIOGuard(Path root) {super(root, Executors.newCachedThreadPool());}
 
 	private Path getProfileRoot(String name)
 	{
-		return root.resolve(name);
+		return getRoot().resolve(name);
 	}
 
-	private Path getProfileSetting(String name)
-	{
-		return root.resolve(name).resolve(PROFILE_NAME);
-	}
+	private Path getProfileSetting(String name) {return getRoot().resolve(name).resolve(PROFILE_NAME);}
 
 	public void saveProfileSetting(String profileName, GameSettingInstance instance)
 	{
-		ioQueue.submit(() ->
+		getService().submit(() ->
 		{
 			LaunchProfileManager manager = reference.get();
 			if (manager == null) throw new IllegalStateException();
@@ -73,7 +58,7 @@ public class ProfileIOGuard
 
 	public void saveProfile(String name)
 	{
-		ioQueue.submit(() ->
+		getService().submit(() ->
 		{
 			LaunchProfileManager manager = reference.get();
 			if (manager == null) throw new IllegalStateException();
@@ -82,7 +67,7 @@ public class ProfileIOGuard
 			if (!optional.isPresent()) throw new IllegalArgumentException();
 
 			LaunchProfile profile = optional.get();
-			Path profileDir = root.resolve(name);
+			Path profileDir = getRoot().resolve(name);
 			if (!Files.exists(profileDir))
 				Files.createDirectories(profileDir);
 			Path profileJSON = profileDir.resolve(PROFILE_NAME);
@@ -101,9 +86,9 @@ public class ProfileIOGuard
 
 	private void onDeleteProfile(String profile)
 	{
-		ioQueue.submit(() ->
+		getService().submit(() ->
 		{
-			Path profileDir = root.resolve(profile);
+			Path profileDir = getRoot().resolve(profile);
 			if (!Files.exists(profileDir))
 				return profileDir;
 			Path profileJSON = profileDir.resolve(PROFILE_NAME);
@@ -114,12 +99,12 @@ public class ProfileIOGuard
 
 	private void onRenameProfile(String name, String newName)
 	{
-		Path profileRoot = root.resolve(name);
+		Path profileRoot = getRoot().resolve(name);
 		if (!Files.exists(profileRoot))
 			throw new IllegalArgumentException();
 		try
 		{
-			Files.move(profileRoot, root.resolve(newName));
+			Files.move(profileRoot, getRoot().resolve(newName));
 		}
 		catch (IOException e)
 		{
@@ -141,7 +126,8 @@ public class ProfileIOGuard
 		return name;
 	}
 
-	public LaunchProfileManager load() throws IOException
+	@Override
+	public LaunchProfileManager loadInstance() throws IOException
 	{
 		LaunchProfileManager manager = LaunchProfileManagerBuilder.create()
 				.setProfileFactory(LaunchProfileManagerBuilder.defaultProfileFactory().compose(this::onNewProfile))
@@ -149,7 +135,7 @@ public class ProfileIOGuard
 				.setRenameGuard(this::onRenameProfile)
 				.build();
 
-		List<Path> walk = Files.walk(root, 1).filter(path -> Files.isDirectory(path)).collect(Collectors.toList());
+		List<Path> walk = Files.walk(getRoot(), 1).filter(path -> Files.isDirectory(path)).collect(Collectors.toList());
 		for (Path path : walk)
 		{
 			String rootName = path.getFileName().toString();

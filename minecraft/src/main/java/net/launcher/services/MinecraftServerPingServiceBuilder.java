@@ -18,7 +18,7 @@ public class MinecraftServerPingServiceBuilder implements Builder<MinecraftServe
 	@Override
 	public MinecraftServerPingService build()
 	{
-		return new MinecraftServerPingServiceImpl(service == null ? Executors.newFixedThreadPool(5) : service);
+		return new MinecraftServerPingServiceImpl(service == null ? Executors.newFixedThreadPool(2) : service);
 	}
 
 	private ExecutorService service;

@@ -1,10 +1,10 @@
 package net.launcher;
 
-import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import net.launcher.auth.Authorize;
 import org.to2mbn.jmccc.auth.AuthInfo;
 
@@ -39,7 +39,7 @@ public interface AuthProfile
 
 	void setAccessToken(String accessToken);
 
-	ObservableList<String> getHistory();
+	ObservableMap<String, ObservableList<String>> getHistoryMap();
 
 	void setCache(AuthInfo info);
 
