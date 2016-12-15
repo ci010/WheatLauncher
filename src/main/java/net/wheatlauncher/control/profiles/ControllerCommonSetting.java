@@ -107,7 +107,7 @@ public class ControllerCommonSetting
 				LaunchCore.getCurrentProfile(Bootstrap.getCore()).getJavaEnvironment().getJavaPath().getAbsolutePath(),
 				LaunchCore.getCurrentProfile(Bootstrap.getCore()).javaEnvironmentProperty()));
 
-		Bootstrap.getCore().selectedProperty().addListener(o ->
+		Bootstrap.getCore().getProfileManager().selectedProfileProperty().addListener(o ->
 		{
 			LaunchProfile p = LaunchCore.getCurrentProfile(Bootstrap.getCore());
 

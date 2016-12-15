@@ -132,23 +132,25 @@ public class ControllerProfileSetting implements ReloadableController
 					updateVersionList();
 					return versionList;
 				},
-				Bootstrap.getCore().selectedProperty()));
+				Bootstrap.getCore().getProfileManager().selectedProfileProperty()));
 		versions.valueProperty().bind(Bindings.createStringBinding(() ->
-				LaunchCore.getCurrentProfile(Bootstrap.getCore()).getVersion(), Bootstrap.getCore().selectedProperty()));
+						LaunchCore.getCurrentProfile(Bootstrap.getCore()).getVersion(),
+				Bootstrap.getCore().getProfileManager().selectedProfileProperty()));
 		versions.getJFXEditor().textProperty().bind(
 				Bindings.createStringBinding(() -> LaunchCore.getCurrentProfile(Bootstrap.getCore()).getVersion(), Bootstrap.getCore()
-						.selectedProperty()));
+						.getProfileManager().selectedProfileProperty()));
 	}
 
 	private void initProfile()
 	{
 		profile.valueProperty().bind(Bindings.createObjectBinding(() ->
-				Bootstrap.getCore().getSelected(), Bootstrap.getCore().selectedProperty()));
+						Bootstrap.getCore().getProfileManager().getSelectedProfile(),
+				Bootstrap.getCore().getProfileManager().selectedProfileProperty()));
 		profile.itemsProperty().bind(Bindings.createObjectBinding(() ->
 						FXCollections.observableArrayList(Bootstrap.getCore().getProfileManager().getAllProfiles().keySet()),
 				Bootstrap.getCore().getProfileManager().getAllProfiles()));
 		profile.selectionModelProperty().get().selectedItemProperty().addListener(
-				(observable, oldValue, newValue) -> Bootstrap.getCore().setSelected(newValue));
+				(observable, oldValue, newValue) -> Bootstrap.getCore().getProfileManager().setSelectedProfile(newValue));
 	}
 
 	private void initProfilePopupMenu()

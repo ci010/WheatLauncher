@@ -1,5 +1,7 @@
 package net.wheatlauncher.internal.io;
 
+import javafx.beans.Observable;
+import javafx.collections.MapChangeListener;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.profile.LaunchProfileManager;
 import net.launcher.profile.LaunchProfileManagerBuilder;
@@ -15,13 +17,13 @@ import org.to2mbn.jmccc.option.WindowSize;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.Executors;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 /**
@@ -30,8 +32,6 @@ import java.util.stream.Collectors;
 public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 {
 	private static final String PROFILE_NAME = "profile.json";
-
-	public ProfileIOGuard(Path root) {super(root, Executors.newCachedThreadPool());}
 
 	private Path getProfileRoot(String name)
 	{
@@ -42,9 +42,9 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 
 	public void saveProfileSetting(String profileName, GameSettingInstance instance)
 	{
-		getService().submit(() ->
+		getQueue().enqueue(() ->
 		{
-			LaunchProfileManager manager = reference.get();
+			LaunchProfileManager manager = getInstance();
 			if (manager == null) throw new IllegalStateException();
 
 			Optional<LaunchProfile> optional = manager.getProfile(profileName);
@@ -52,53 +52,45 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 
 			Path profileRoot = getProfileRoot(profileName);
 			instance.getGameSettingType().save(new MinecraftDirectory(profileRoot.toFile()), instance);
-			return profileRoot;
+			return null;
 		});
 	}
 
-	public void saveProfile(String name)
+	public void saveProfile(String name) throws IOException
 	{
-		getService().submit(() ->
-		{
-			LaunchProfileManager manager = reference.get();
-			if (manager == null) throw new IllegalStateException();
+		LaunchProfileManager manager = getInstance();
+		if (manager == null) throw new IllegalStateException();
 
-			Optional<LaunchProfile> optional = manager.getProfile(name);
-			if (!optional.isPresent()) throw new IllegalArgumentException();
+		Optional<LaunchProfile> optional = manager.getProfile(name);
+		if (!optional.isPresent()) throw new IllegalArgumentException();
 
-			LaunchProfile profile = optional.get();
-			Path profileDir = getRoot().resolve(name);
-			if (!Files.exists(profileDir))
-				Files.createDirectories(profileDir);
-			Path profileJSON = profileDir.resolve(PROFILE_NAME);
+		LaunchProfile profile = optional.get();
+		Path profileDir = getRoot().resolve(name);
+		if (!Files.exists(profileDir))
+			Files.createDirectories(profileDir);
+		Path profileJSON = profileDir.resolve(PROFILE_NAME);
 
-			JSONObject object = new JSONObject();
-			object.put("version", profile.getVersion());
-			object.put("resolution", profile.getResolution().toString());
-			object.put("memory", profile.getMemory());
-			object.put("minecraft", profile.getMinecraftLocation().getAbsolutePath());
-			object.put("java", profile.getJavaEnvironment().getJavaPath());
+		JSONObject object = new JSONObject();
+		object.put("version", profile.getVersion());
+		object.put("resolution", profile.getResolution().toString());
+		object.put("memory", profile.getMemory());
+		object.put("minecraft", profile.getMinecraftLocation().getAbsolutePath());
+		object.put("java", profile.getJavaEnvironment().getJavaPath());
 
-			NIOUtils.writeString(profileJSON, object.toString(4));
-			return object;
-		});
+		NIOUtils.writeString(profileJSON, object.toString(4));
 	}
 
 	private void onDeleteProfile(String profile)
 	{
-		getService().submit(() ->
-		{
-			Path profileDir = getRoot().resolve(profile);
-			if (!Files.exists(profileDir))
-				return profileDir;
-			Path profileJSON = profileDir.resolve(PROFILE_NAME);
-			Files.delete(profileJSON);
-			return profileDir;
-		});
+		Path profileDir = getRoot().resolve(profile);
+		if (!Files.exists(profileDir)) return;
+//		Path profileJSON = profileDir.resolve(PROFILE_NAME);
+//		Files.delete(profileJSON);
 	}
 
 	private void onRenameProfile(String name, String newName)
 	{
+
 		Path profileRoot = getRoot().resolve(name);
 		if (!Files.exists(profileRoot))
 			throw new IllegalArgumentException();
@@ -124,6 +116,13 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 			throw new IllegalArgumentException(e);
 		}
 		return name;
+	}
+
+	@Override
+	public void forceSave(Path path) throws IOException
+	{
+		for (String s : getInstance().getAllProfiles().keySet())
+			saveProfile(s);
 	}
 
 	@Override
@@ -162,6 +161,7 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 			}).isPresent())
 				profile.setResolution(new WindowSize(856, 482));
 
+			IOException exception = null;
 			for (Map.Entry<String, GameSetting> entry : GameSettingFactory.getAllSetting().entrySet())
 				try
 				{
@@ -178,12 +178,80 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 				}
 				catch (IOException e)
 				{
+					if (exception == null) exception = e;
+					else exception.addSuppressed(e);
 					//report
 				}
 		}
-
-		reference = new WeakReference<>(manager);
 		return manager;
+	}
+
+	@Override
+	protected void deploy(BiConsumer<Observable[], IOGuardManger.IOTask> register)
+	{
+		LaunchProfileManager instance = getInstance();
+		instance.getAllProfiles().addListener((MapChangeListener<String, LaunchProfile>) change ->
+		{
+			if (change.wasAdded())
+			{
+				register.accept(grab(change.getValueAdded()), new ProfileSaveTask(change.getKey()));
+			}
+			else if (change.wasRemoved())
+			{
+			}
+		});
+	}
+
+	private class ProfileSaveTask implements IOGuardManger.IOTask
+	{
+		private String profile;
+
+		public ProfileSaveTask(String profile)
+		{
+			this.profile = profile;
+		}
+
+		@Override
+		public void performance(Path root) throws IOException
+		{
+			LaunchProfileManager manager = getInstance();
+			if (manager == null) throw new IllegalStateException();
+
+			Optional<LaunchProfile> optional = manager.getProfile(this.profile);
+			if (!optional.isPresent()) throw new IllegalArgumentException();
+
+			LaunchProfile profile = optional.get();
+			Path profileDir = getRoot().resolve(this.profile);
+			if (!Files.exists(profileDir))
+				Files.createDirectories(profileDir);
+			Path profileJSON = profileDir.resolve(PROFILE_NAME);
+
+			JSONObject object = new JSONObject();
+			object.put("version", profile.getVersion());
+			object.put("resolution", profile.getResolution().toString());
+			object.put("memory", profile.getMemory());
+			object.put("minecraft", profile.getMinecraftLocation().getAbsolutePath());
+			object.put("java", profile.getJavaEnvironment().getJavaPath());
+
+			NIOUtils.writeString(profileJSON, object.toString(4));
+		}
+
+		@Override
+		public boolean canMerge(IOGuardManger.IOTask task)
+		{
+			if (task instanceof ProfileSaveTask)
+				if (Objects.equals(((ProfileSaveTask) task).profile, this.profile)) return true;
+			return false;
+		}
+	}
+
+	private Observable[] grab(LaunchProfile profile)
+	{
+		return new Observable[]{profile.javaEnvironmentProperty(),
+								profile.versionProperty(),
+								profile.memoryProperty(),
+								profile.minecraftLocationProperty(),
+								profile.resolutionProperty()};
 	}
 
 }

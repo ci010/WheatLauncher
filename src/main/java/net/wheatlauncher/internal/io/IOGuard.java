@@ -1,40 +1,38 @@
 package net.wheatlauncher.internal.io;
 
+import javafx.beans.Observable;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.nio.file.Path;
-import java.util.concurrent.ExecutorService;
+import java.util.function.BiConsumer;
 
 /**
  * @author ci010
  */
 public abstract class IOGuard<T>
 {
-	private Path root;
-	protected WeakReference<T> reference;
-	protected ExecutorService service;
+	private WeakReference<T> reference;
+	private Path path;
 
-	public IOGuard(Path root, ExecutorService service)
-	{
-		this.root = root;
-		this.service = service;
-	}
+	protected Path getRoot() {return path;}
+
+	public abstract void forceSave(Path path) throws IOException;
 
 	public abstract T loadInstance() throws IOException;
 
-	protected T getInstance() {return reference.get();}
+	protected T getInstance() {return reference != null ? reference.get() : null;}
 
-	protected ExecutorService getService() {return service;}
-
-	public Path getRoot() {return root;}
-
-	public T load() throws IOException
+	public final T load(IOGuardManger manger) throws IOException
 	{
+		path = manger.getRoot();
 		T load = loadInstance();
-		reference = new WeakReference<T>(load);
+		reference = new WeakReference<>(load);
+		deploy(manger::registerSaveTask);
 		return load;
 	}
 
-	public boolean isClosed() {return reference.get() != null;}
+	protected abstract void deploy(BiConsumer<Observable[], IOGuardManger.IOTask> register);
 
+	public boolean isActive() {return reference.get() != null;}
 }

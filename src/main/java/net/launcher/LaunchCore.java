@@ -50,11 +50,6 @@ public abstract class LaunchCore
 		return selected.get();
 	}
 
-	public ReadOnlyObjectProperty<String> selectedProperty()
-	{
-		return selected;
-	}
-
 	public void setSelected(String selected)
 	{
 		Objects.requireNonNull(selected);
@@ -63,7 +58,7 @@ public abstract class LaunchCore
 
 	public void launch() throws Exception
 	{
-		final LaunchProfile selected = getProfileManager().getProfile(getSelected()).orElse(null);
+		final LaunchProfile selected = getProfileManager().getSelectedProfileInstance();
 		LaunchOption option = buildOption();
 		for (LaunchElementManager manager : getAllElementsManagers())
 			manager.onLaunch(option, selected);

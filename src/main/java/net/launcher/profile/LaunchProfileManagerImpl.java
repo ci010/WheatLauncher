@@ -1,5 +1,7 @@
 package net.launcher.profile;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 
@@ -20,11 +22,33 @@ class LaunchProfileManagerImpl implements LaunchProfileManager
 	private BiConsumer<String, String> renameConsumer;
 	private Consumer<String> deleteConsumer;
 
+	private StringProperty selectedProfile = new SimpleStringProperty();
+
 	LaunchProfileManagerImpl(Function<String, LaunchProfile> factory, BiConsumer<String, String> renameConsumer, Consumer<String> deleteConsumer)
 	{
 		this.factory = factory;
 		this.renameConsumer = renameConsumer;
 		this.deleteConsumer = deleteConsumer;
+	}
+
+	@Override
+	public String getSelectedProfile()
+	{
+		return selectedProfile.get();
+	}
+
+	@Override
+	public StringProperty selectedProfileProperty()
+	{
+		return selectedProfile;
+	}
+
+	@Override
+	public void setSelectedProfile(String selectedProperty)
+	{
+		Objects.requireNonNull(selectedProperty);
+		if (!map.containsKey(selectedProperty)) throw new IllegalArgumentException("profile.select.exist");
+		this.selectedProfile.set(selectedProperty);
 	}
 
 	@Override

@@ -55,7 +55,7 @@ public class ControllerGameSetting
 					return !profile.getGameSetting(GameSettingMinecraft.INSTANCE).isPresent();
 				}
 				, Bindings.createObjectBinding(() -> LaunchCore.getCurrentProfile(Bootstrap.getCore()).versionProperty(),
-						Bootstrap.getCore().selectedProperty())));
+						Bootstrap.getCore().getProfileManager().selectedProfileProperty())));
 
 //		BooleanBinding missingBoolean = Bindings.createBooleanBinding(
 //				() -> LaunchCore.getCurrentProfile(Bootstrap.getCore()).getGameSetting(GameSettingMinecraft.INSTANCE).isPresent()

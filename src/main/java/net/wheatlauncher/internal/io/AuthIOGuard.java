@@ -12,20 +12,30 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutorService;
-import java.util.function.Consumer;
 
 /**
  * @author ci010
  */
 public class AuthIOGuard extends IOGuard<AuthProfile>
 {
-	public AuthIOGuard(Path root, ExecutorService service)
+	public AuthIOGuard(Path root, IOGuardManger.IOQueue queue)
 	{
-		super(root, service);
+		super(root, queue);
 	}
 
-	Consumer<Consumer<Path>> queue;
+	@Override
+	public void forceSave(Path path) throws IOException
+	{
+		AuthProfile authProfile = getInstance();
+		if (authProfile == null) throw new IllegalStateException();
+		NBTCompound history = NBT.compound();
+		authProfile.getHistoryMap().forEach((k, v) -> history.put(k, NBT.list(v)));
+		Path target = getRoot().resolve("auth.dat");
+		NBT.overwrite(target, NBT.compound()
+				.put("auth", Authorize.getID(authProfile.getAuthorize()))
+				.put("account", authProfile.getAccount())
+				.put("history", history), true);
+	}
 
 	@Override
 	public AuthProfile loadInstance() throws IOException
@@ -36,11 +46,12 @@ public class AuthIOGuard extends IOGuard<AuthProfile>
 		Optional<Authorize> authorizeOptional = AuthorizeFactory.find(auth);
 		Authorize authorize = authorizeOptional.orElse(AuthorizeFactory.ONLINE);
 		AuthModule module = new AuthModule(account, authorize, (Map<String, List<String>>) compound.get("history").asCompound().asRaw());
-		watch(module);
+		deploy();
 		return module;
 	}
 
-	private void watch(AuthProfile profile)
+	@Override
+	protected void deploy()
 	{
 	}
 }

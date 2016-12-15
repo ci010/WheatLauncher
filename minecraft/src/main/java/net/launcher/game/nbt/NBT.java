@@ -4,9 +4,11 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.List;
 
 /**
  * @author ci010
@@ -126,6 +128,13 @@ public abstract class NBT implements Cloneable
 
 	public static NBTList list() {return new NBTList();}
 
+	public static NBTList list(List<String> list)
+	{
+		NBTList nbts = new NBTList();
+		for (String string : list) nbts.add(NBT.string(string));
+		return nbts;
+	}
+
 	public static NBTList list(String[] strings)
 	{
 		NBTList nbts = new NBTList();
@@ -190,9 +199,11 @@ public abstract class NBT implements Cloneable
 		ByteArrayOutputStream stream = new ByteArrayOutputStream();
 		write(stream, compound, isCompressed);
 		byte[] bytes = stream.toByteArray();
-		try (FileChannel open = FileChannel.open(cache, StandardOpenOption.WRITE))
+		try (FileChannel open = FileChannel.open(cache, StandardOpenOption.WRITE, StandardOpenOption.CREATE_NEW))
 		{
+			FileLock lock = open.tryLock();
 			open.write(ByteBuffer.wrap(bytes));
+			lock.release();
 		}
 		if (Files.exists(file)) Files.delete(file);
 		Files.move(cache, file);

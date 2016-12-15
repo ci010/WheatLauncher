@@ -11,6 +11,9 @@ import net.launcher.profile.LaunchProfileManager;
 import net.launcher.profile.LaunchProfileManagerBuilder;
 import net.launcher.resourcepack.ResourcePackMangerBuilder;
 import net.launcher.utils.Logger;
+import net.wheatlauncher.internal.io.AuthIOGuard;
+import net.wheatlauncher.internal.io.IOGuard;
+import net.wheatlauncher.internal.io.IOGuardManger;
 import net.wheatlauncher.internal.io.ProfileIOGuard;
 import org.to2mbn.jmccc.launch.Launcher;
 import org.to2mbn.jmccc.launch.LauncherBuilder;
@@ -53,6 +56,7 @@ public class Core extends LaunchCore
 	////////
 	private Path root;
 	private LaunchProfileManager profileManager;
+
 	private ProfileIOGuard profileIOGuard;
 	private WorldSaveMaintainer maintainer;
 
@@ -123,6 +127,9 @@ public class Core extends LaunchCore
 		};
 	}
 
+	private IOGuardManger ioGuardManger;
+	private IOGuard<AuthModule> authModuleIOGuard = new AuthIOGuard(this.getRoot(), new);
+
 	@Override
 	public void init() throws Exception
 	{
@@ -154,7 +161,7 @@ public class Core extends LaunchCore
 		this.profileManager = LaunchProfileManagerBuilder.buildDefault();
 		this.setAuthModule(new AuthModule());
 		profileManager.newProfile("default");
-		this.setSelected("default");
+		this.getProfileManager().setSelectedProfile("default");
 		this.managers = new HashMap<>();
 		this.managers.put(Mod.class, ModManagerBuilder.create(this.getArchivesRoot().resolve("mods"),
 				this.executorService).build());
