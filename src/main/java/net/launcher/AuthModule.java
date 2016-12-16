@@ -26,17 +26,22 @@ public class AuthModule implements AuthProfile
 
 	private ObservableMap<String, ObservableList<String>> historyMap = FXCollections.observableMap(new TreeMap<>());
 
-	public AuthModule() {}
+	public AuthModule()
+	{
+		AuthorizeFactory.getAuthorizeMap().forEach((k, v) ->
+				historyMap.put(k, FXCollections.observableList(createLimitList(10))));
+	}
 
 	public AuthModule(String account, Authorize authorize, Map<String, List<String>> history)
 	{
+		this();
 		this.account.set(account);
 		this.authorize.set(authorize);
 		history.forEach((s, l) ->
 		{
 			List<String> limitList = createLimitList(10);
 			limitList.addAll(l);
-			historyMap.put(s, FXCollections.observableList(limitList));
+			this.historyMap.put(s, FXCollections.observableList(limitList));
 		});
 	}
 
@@ -64,8 +69,8 @@ public class AuthModule implements AuthProfile
 	@Override
 	public void setAccount(String account)
 	{
-		Objects.requireNonNull(account);
-		authorize.get().validateUserName(account);
+		account = account == null ? "" : account;
+//		authorize.get().validateUserName(account);
 		this.account.set(account);
 	}
 
@@ -90,7 +95,6 @@ public class AuthModule implements AuthProfile
 		this.clientToken = clientToken;
 	}
 
-
 	@Override
 	public String getAccessToken() {return accessToken;}
 
@@ -114,6 +118,8 @@ public class AuthModule implements AuthProfile
 	public void setAuthorize(Authorize authorize)
 	{
 		Objects.requireNonNull(authorize);
+		String id = Authorize.getID(authorize);
+		this.historyMap.put(id, FXCollections.observableList(createLimitList(10)));
 		this.authorize.set(authorize);
 	}
 
@@ -129,7 +135,12 @@ public class AuthModule implements AuthProfile
 		String id = Authorize.getID(getAuthorize());
 		if (!historyMap.containsKey(id))
 			historyMap.put(id, FXCollections.observableList(createLimitList(10)));
-		historyMap.get(id).add(account);
+		ObservableList<String> strings = historyMap.get(id);
+		if (!strings.contains(account))
+		{
+			System.out.println("adding account " + account);
+			strings.add(account);
+		}
 	}
 
 	private List<String> createLimitList(final int max)

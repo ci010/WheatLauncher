@@ -1,6 +1,6 @@
 package net.wheatlauncher;
 
-import net.launcher.AuthModule;
+import net.launcher.AuthProfile;
 import net.launcher.Bootstrap;
 import net.launcher.LaunchCore;
 import net.launcher.LaunchElementManager;
@@ -8,12 +8,10 @@ import net.launcher.game.ResourcePack;
 import net.launcher.game.mod.Mod;
 import net.launcher.mod.ModManagerBuilder;
 import net.launcher.profile.LaunchProfileManager;
-import net.launcher.profile.LaunchProfileManagerBuilder;
 import net.launcher.resourcepack.ResourcePackMangerBuilder;
 import net.launcher.utils.Logger;
 import net.wheatlauncher.internal.io.AuthIOGuard;
-import net.wheatlauncher.internal.io.IOGuard;
-import net.wheatlauncher.internal.io.IOGuardManger;
+import net.wheatlauncher.internal.io.IOGuardContext;
 import net.wheatlauncher.internal.io.ProfileIOGuard;
 import org.to2mbn.jmccc.launch.Launcher;
 import org.to2mbn.jmccc.launch.LauncherBuilder;
@@ -56,11 +54,13 @@ public class Core extends LaunchCore
 	////////
 	private Path root;
 	private LaunchProfileManager profileManager;
+	private AuthProfile authProfile;
 
 	private ProfileIOGuard profileIOGuard;
 	private WorldSaveMaintainer maintainer;
 
 	private Map<Class, LaunchElementManager> managers;
+
 
 	public Path getRoot() {return root;}
 
@@ -87,6 +87,12 @@ public class Core extends LaunchCore
 	public LaunchProfileManager getProfileManager()
 	{
 		return this.profileManager;
+	}
+
+	@Override
+	public AuthProfile getAuthProfile()
+	{
+		return authProfile;
 	}
 
 	@Override
@@ -127,14 +133,48 @@ public class Core extends LaunchCore
 		};
 	}
 
-	private IOGuardManger ioGuardManger;
-	private IOGuard<AuthModule> authModuleIOGuard = new AuthIOGuard(this.getRoot(), new);
+	private IOGuardContext ioContext;
 
 	@Override
 	public void init() throws Exception
 	{
 		Logger.trace("Start to init");
 
+		this.initRoot();
+
+		this.maintainer = new WorldSaveMaintainer(root.resolve("saves"));
+
+		this.ioContext = IOGuardContext.Builder.create(this.root)
+				.register(LaunchProfileManager.class, new ProfileIOGuard())
+				.register(AuthProfile.class, new AuthIOGuard())
+				.setTaskExecutor(ioTask ->
+						executorService.submit(() ->
+						{
+							ioTask.performance(this.root);
+							return null;
+						})).build();
+		this.profileManager = ioContext.load(LaunchProfileManager.class);
+		this.authProfile = ioContext.load(AuthProfile.class);
+
+		Logger.trace("finish loading");
+
+		if (this.profileManager.getSelectedProfile() == null)
+		{
+			this.profileManager.newProfile("default");
+			this.getProfileManager().setSelectedProfile("default");
+		}
+
+		this.managers = new HashMap<>();
+		this.managers.put(Mod.class, ModManagerBuilder.create(this.getArchivesRoot().resolve("mods"),
+				this.executorService).build());
+		this.managers.put(ResourcePack.class, ResourcePackMangerBuilder.create(this.getArchivesRoot().resolve
+				("resourcepacks"), this.executorService).build());
+
+		Logger.trace("Complete init");
+	}
+
+	private void initRoot() throws IOException
+	{
 		Path root;
 		switch (Platform.CURRENT)
 		{
@@ -157,27 +197,13 @@ public class Core extends LaunchCore
 		Files.createDirectories(getArchivesRoot());
 		Files.createDirectories(getBackupRoot());
 		Files.createDirectories(getProfilesRoot());
-		this.maintainer = new WorldSaveMaintainer(root.resolve("saves"));
-		this.profileManager = LaunchProfileManagerBuilder.buildDefault();
-		this.setAuthModule(new AuthModule());
-		profileManager.newProfile("default");
-		this.getProfileManager().setSelectedProfile("default");
-		this.managers = new HashMap<>();
-		this.managers.put(Mod.class, ModManagerBuilder.create(this.getArchivesRoot().resolve("mods"),
-				this.executorService).build());
-		this.managers.put(ResourcePack.class, ResourcePackMangerBuilder.create(this.getArchivesRoot().resolve
-				("resourcepacks"), this.executorService).build());
-
-//		io = ProfileMangerIO.newService(root.toFile(), profileManager);
-//		io.loadAll();
-//		io.saveAll();
-		Logger.trace("Start init");
 	}
 
 	@Override
 	public void destroy() throws IOException
 	{
 		executorService.shutdown();
+		ioContext.saveAll();
 		timer.cancel();
 		timer.purge();
 		Logger.trace("Shutdown");

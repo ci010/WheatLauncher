@@ -10,13 +10,13 @@ import java.util.stream.Collectors;
  */
 public class NBTList extends NBT implements Iterable<NBT>
 {
-	private NBTType type;
-	private List<NBT> lst = new ArrayList<>();
+	private NBTType type = NBTType.NULL;
+	private List<NBT> list = new ArrayList<>();
 
 	NBTList(List<NBT> list)
 	{
 		this();
-		this.lst = list;
+		this.list = list;
 	}
 
 	NBTList()
@@ -26,35 +26,35 @@ public class NBTList extends NBT implements Iterable<NBT>
 
 	public int size()
 	{
-		return lst.size();
+		return list.size();
 	}
 
 	public boolean add(NBT base)
 	{
 		if (base.getType() == NBTType.NULL) return false;
-		return validate(base) && lst.add(base);
+		return validate(base) && list.add(base);
 	}
 
 	public NBT get(int i)
 	{
-		return lst.get(i);
+		return list.get(i);
 	}
 
 	public NBT remove(int i)
 	{
-		return lst.remove(i);
+		return list.remove(i);
 	}
 
 	public boolean isEmpty()
 	{
-		return lst.isEmpty();
+		return list.isEmpty();
 	}
 
 	public NBT set(int i, NBT base)
 	{
 		if (base.getType() == NBTType.NULL) return null;
 		if (validate(base))
-			return lst.set(i, base);
+			return list.set(i, base);
 		return null;
 	}
 
@@ -72,7 +72,7 @@ public class NBTList extends NBT implements Iterable<NBT>
 	@Override
 	public Iterator<NBT> iterator()
 	{
-		return lst.iterator();
+		return list.iterator();
 	}
 
 	@Override
@@ -92,18 +92,27 @@ public class NBTList extends NBT implements Iterable<NBT>
 
 	public Object[] toArray()
 	{
-		return lst.toArray();
+		return list.toArray();
 	}
 
 	@Override
 	public Object asRaw()
 	{
-		return this.lst.stream().map(NBT::asRaw).collect(Collectors.toList());
+		return this.list.stream().map(NBT::asRaw).collect(Collectors.toList());
 	}
 
 	@Override
 	public boolean isList()
 	{
 		return true;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "NBTList{" +
+				"type=" + type +
+				", list=" + list +
+				'}';
 	}
 }

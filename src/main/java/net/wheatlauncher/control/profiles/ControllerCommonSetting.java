@@ -14,7 +14,6 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import net.launcher.Bootstrap;
-import net.launcher.LaunchCore;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.utils.Logger;
 import net.wheatlauncher.control.utils.ColorTransitionButton;
@@ -70,10 +69,10 @@ public class ControllerCommonSetting
 	{
 		Logger.trace("init");
 
-		LaunchProfile profile = LaunchCore.getCurrentProfile(Bootstrap.getCore());
+		LaunchProfile profile = Bootstrap.getCore().getProfileManager().selecting();
 		memory.valueProperty().set(profile.getMemory());
 		memory.valueProperty().addListener((observable, oldValue, newValue) ->
-				LaunchCore.getCurrentProfile(Bootstrap.getCore()).setMemory(newValue.intValue()));
+				Bootstrap.getCore().getProfileManager().selecting().setMemory(newValue.intValue()));
 		int value = 0;
 		for (Map.Entry<Integer, WindowSize> entry : stageToResolution.entrySet())
 			if (profile.getResolution().equals(entry.getValue()))
@@ -98,31 +97,31 @@ public class ControllerCommonSetting
 		});
 		resolution.valueProperty().set(value);
 		resolution.valueProperty().addListener((observable, oldValue, newValue) ->
-				LaunchCore.getCurrentProfile(Bootstrap.getCore()).setResolution(stageToResolution.getOrDefault(newValue, WindowSize.fullscreen())));
+				Bootstrap.getCore().getProfileManager().selecting().setResolution(stageToResolution.getOrDefault(newValue, WindowSize.fullscreen())));
 
-		minecraftLocation.textProperty().bind(Bindings.createStringBinding(() -> LaunchCore.getCurrentProfile(Bootstrap.getCore())
+		minecraftLocation.textProperty().bind(Bindings.createStringBinding(() -> Bootstrap.getCore().getProfileManager().selecting()
 						.getMinecraftLocation().getRoot().getAbsolutePath(),
-				LaunchCore.getCurrentProfile(Bootstrap.getCore()).minecraftLocationProperty()));
+				Bootstrap.getCore().getProfileManager().selecting().minecraftLocationProperty()));
 		javaLocation.textProperty().bind(Bindings.createStringBinding(() ->
-				LaunchCore.getCurrentProfile(Bootstrap.getCore()).getJavaEnvironment().getJavaPath().getAbsolutePath(),
-				LaunchCore.getCurrentProfile(Bootstrap.getCore()).javaEnvironmentProperty()));
+						Bootstrap.getCore().getProfileManager().selecting().getJavaEnvironment().getJavaPath().getAbsolutePath(),
+				Bootstrap.getCore().getProfileManager().selecting().javaEnvironmentProperty()));
 
 		Bootstrap.getCore().getProfileManager().selectedProfileProperty().addListener(o ->
 		{
-			LaunchProfile p = LaunchCore.getCurrentProfile(Bootstrap.getCore());
+			LaunchProfile p = Bootstrap.getCore().getProfileManager().selecting();
 
-			memory.valueProperty().set(LaunchCore.getCurrentProfile(Bootstrap.getCore()).getMemory());
+			memory.valueProperty().set(Bootstrap.getCore().getProfileManager().selecting().getMemory());
 			int v = 0;
 			for (Map.Entry<Integer, WindowSize> entry : stageToResolution.entrySet())
 				if (p.getResolution().equals(entry.getValue()))
 					v = entry.getKey();
 			resolution.valueProperty().set(v);
 
-			minecraftLocation.textProperty().bind(Bindings.createStringBinding(() -> LaunchCore.getCurrentProfile(Bootstrap.getCore())
+			minecraftLocation.textProperty().bind(Bindings.createStringBinding(() -> Bootstrap.getCore().getProfileManager().selecting()
 							.getMinecraftLocation().getRoot().getAbsolutePath(),
-					(Observable) LaunchCore.getCurrentProfile(Bootstrap.getCore())));
-			javaLocation.textProperty().bind(Bindings.createStringBinding(() -> LaunchCore.getCurrentProfile(Bootstrap.getCore()).
-					getJavaEnvironment().getJavaPath().getAbsolutePath(), (Observable) LaunchCore.getCurrentProfile(Bootstrap.getCore())));
+					(Observable) Bootstrap.getCore().getProfileManager().selecting()));
+			javaLocation.textProperty().bind(Bindings.createStringBinding(() -> Bootstrap.getCore().getProfileManager().selecting().
+					getJavaEnvironment().getJavaPath().getAbsolutePath(), (Observable) Bootstrap.getCore().getProfileManager().selecting()));
 		});
 
 
@@ -138,7 +137,7 @@ public class ControllerCommonSetting
 			if (choose.isDirectory())
 			{
 				MinecraftDirectory directory = new MinecraftDirectory(choose);
-				LaunchCore.getCurrentProfile(Bootstrap.getCore()).setMinecraftLocation(directory);
+				Bootstrap.getCore().getProfileManager().selecting().setMinecraftLocation(directory);
 			}
 		});
 
@@ -158,7 +157,7 @@ public class ControllerCommonSetting
 			if (choose.isFile() && choose.getName().equals("java.exe"))
 			{
 				JavaEnvironment javaEnvironment = new JavaEnvironment(choose);
-				LaunchCore.getCurrentProfile(Bootstrap.getCore()).setJavaEnvironment(javaEnvironment);
+				Bootstrap.getCore().getProfileManager().selecting().setJavaEnvironment(javaEnvironment);
 			}
 		});
 	}

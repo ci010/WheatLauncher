@@ -17,7 +17,6 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import net.launcher.Bootstrap;
-import net.launcher.LaunchCore;
 import net.launcher.utils.Logger;
 import net.wheatlauncher.control.utils.FXMLInnerController;
 import net.wheatlauncher.control.utils.ReloadableController;
@@ -110,7 +109,7 @@ public class ControllerProfileSetting implements ReloadableController
 	private void updateVersionList()
 	{
 		versionList.clear();
-		versionList.addAll(Versions.getVersions(LaunchCore.getCurrentProfile(Bootstrap.getCore())
+		versionList.addAll(Versions.getVersions(Bootstrap.getCore().getProfileManager().selecting()
 				.getMinecraftLocation()));
 	}
 
@@ -125,7 +124,7 @@ public class ControllerProfileSetting implements ReloadableController
 		Bootstrap.getCore().getService().scheduleAtFixedRate(new SimpleFileWatcher(Paths.get("versions"),
 						() -> Platform.runLater(ControllerProfileSetting.this::updateVersionList)), 5, 5,
 				TimeUnit.SECONDS);
-		versionList = FXCollections.observableArrayList(Versions.getVersions(LaunchCore.getCurrentProfile(Bootstrap.getCore())
+		versionList = FXCollections.observableArrayList(Versions.getVersions(Bootstrap.getCore().getProfileManager().selecting()
 				.getMinecraftLocation()));
 		versions.itemsProperty().bind(Bindings.createObjectBinding(() ->
 				{
@@ -134,10 +133,10 @@ public class ControllerProfileSetting implements ReloadableController
 				},
 				Bootstrap.getCore().getProfileManager().selectedProfileProperty()));
 		versions.valueProperty().bind(Bindings.createStringBinding(() ->
-						LaunchCore.getCurrentProfile(Bootstrap.getCore()).getVersion(),
+						Bootstrap.getCore().getProfileManager().selecting().getVersion(),
 				Bootstrap.getCore().getProfileManager().selectedProfileProperty()));
 		versions.getJFXEditor().textProperty().bind(
-				Bindings.createStringBinding(() -> LaunchCore.getCurrentProfile(Bootstrap.getCore()).getVersion(), Bootstrap.getCore()
+				Bindings.createStringBinding(() -> Bootstrap.getCore().getProfileManager().selecting().getVersion(), Bootstrap.getCore()
 						.getProfileManager().selectedProfileProperty()));
 	}
 
@@ -196,7 +195,7 @@ public class ControllerProfileSetting implements ReloadableController
 		@Override
 		public void run()
 		{
-			MinecraftDirectory minecraftLocation = LaunchCore.getCurrentProfile(Bootstrap.getCore()).getMinecraftLocation();
+			MinecraftDirectory minecraftLocation = Bootstrap.getCore().getProfileManager().selecting().getMinecraftLocation();
 
 			try
 			{

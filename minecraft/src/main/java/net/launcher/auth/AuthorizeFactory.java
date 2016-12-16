@@ -1,6 +1,7 @@
 package net.launcher.auth;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -17,6 +18,8 @@ public class AuthorizeFactory
 	{
 		return Optional.ofNullable(authorizeList.get(id));
 	}
+
+	public static Map<String, Authorize> getAuthorizeMap() {return Collections.unmodifiableMap(authorizeList);}
 
 	public static void register(Class<? extends Authorize> authClass)
 	{

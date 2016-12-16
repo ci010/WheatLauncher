@@ -1,5 +1,6 @@
 package net.launcher;
 
+import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -36,6 +37,7 @@ public class Bootstrap
 
 	public static LaunchCore getCore()
 	{
+		Objects.requireNonNull(current);
 		return current;
 	}
 }

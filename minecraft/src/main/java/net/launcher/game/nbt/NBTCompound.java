@@ -141,7 +141,7 @@ public class NBTCompound extends NBT
 	public String toString()
 	{
 		return "NBTCompound{" +
-				"keys=" + map.keySet() +
+				"map=" + map +
 				'}';
 	}
 }

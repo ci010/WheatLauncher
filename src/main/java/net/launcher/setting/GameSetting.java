@@ -1,7 +1,5 @@
 package net.launcher.setting;
 
-import org.to2mbn.jmccc.option.MinecraftDirectory;
-
 import java.io.IOException;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -24,9 +22,9 @@ public abstract class GameSetting
 
 	public abstract List<Option<?>> getAllOption();
 
-	public abstract GameSettingInstance load(MinecraftDirectory directory) throws IOException;
+	public abstract GameSettingInstance load(Path directory) throws IOException;
 
-	public abstract void save(MinecraftDirectory directory, GameSettingInstance setting) throws IOException;
+	public abstract void save(Path directory, GameSettingInstance setting) throws IOException;
 
 	public abstract void saveTemplate(Path templateRoot, GameSettingInstance.Template instance) throws IOException;
 

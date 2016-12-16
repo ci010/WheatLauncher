@@ -20,7 +20,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import net.launcher.Bootstrap;
-import net.launcher.LaunchCore;
 import net.launcher.LaunchElementManager;
 import net.launcher.game.ResourcePack;
 import net.launcher.profile.LaunchProfile;
@@ -66,7 +65,7 @@ public class ControllerResourcePackView implements ReloadableController
 
 	public void refresh(ActionEvent event)
 	{
-		LaunchProfile selectedProfile = LaunchCore.getCurrentProfile(Bootstrap.getCore());
+		LaunchProfile selectedProfile = Bootstrap.getCore().getProfileManager().selecting();
 		List<ResourcePack> element = manager.getAllIncludedElement(selectedProfile);
 		Set<ResourcePack> ava = manager.getAllElement();
 		ava.removeAll(element);

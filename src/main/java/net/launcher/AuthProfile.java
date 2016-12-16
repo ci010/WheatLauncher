@@ -41,6 +41,8 @@ public interface AuthProfile
 
 	ObservableMap<String, ObservableList<String>> getHistoryMap();
 
+	default ObservableList<String> getHistoryList() {return getHistoryMap().get(Authorize.getID(getAuthorize()));}
+
 	void setCache(AuthInfo info);
 
 	ObjectProperty<AuthInfo> cacheProperty();

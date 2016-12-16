@@ -87,11 +87,11 @@ public class ControllerPreview implements ReloadableController
 				Bootstrap.getCore().getProfileManager().selectedProfileProperty()));
 		player.textProperty().bind(Bindings.createStringBinding(() ->
 				{
-					if (Bootstrap.getCore().getAuthModule().getCache() != null)
-						return Bootstrap.getCore().getAuthModule().getCache().getUsername();
+					if (Bootstrap.getCore().getAuthProfile().getCache() != null)
+						return Bootstrap.getCore().getAuthProfile().getCache().getUsername();
 					return StringUtils.EMPTY;
 				},
-				Bootstrap.getCore().getAuthModule().cacheProperty()));
+				Bootstrap.getCore().getAuthProfile().cacheProperty()));
 	}
 
 	@PreDestroy
@@ -114,7 +114,7 @@ public class ControllerPreview implements ReloadableController
 	{
 		try
 		{
-			AuthProfile module = Bootstrap.getCore().getAuthModule();
+			AuthProfile module = Bootstrap.getCore().getAuthProfile();
 			AuthInfo auth = module.getCache();
 			if (auth == null)
 				throw new IllegalStateException();

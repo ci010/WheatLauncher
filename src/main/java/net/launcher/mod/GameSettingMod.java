@@ -6,9 +6,7 @@ import net.launcher.setting.GameSetting;
 import net.launcher.setting.GameSettingFactory;
 import net.launcher.setting.GameSettingInstance;
 import net.launcher.setting.StringArrayOption;
-import org.to2mbn.jmccc.option.MinecraftDirectory;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -37,10 +35,10 @@ public class GameSettingMod extends GameSetting
 	}
 
 	@Override
-	public GameSettingInstance load(MinecraftDirectory directory) throws IOException
+	public GameSettingInstance load(Path directory) throws IOException
 	{
-		File file = new File(directory.getRoot(), "mods.dat");
-		NBT read = NBT.read(file, true);
+		Path path = directory.resolve("mods.dat");
+		NBT read = NBT.read(path, true);
 		if (read == null) return null;
 		NBTCompound nbt = read.asCompound();
 		String[] mods = (String[]) nbt.get("mods").asList().toArray();
@@ -50,9 +48,9 @@ public class GameSettingMod extends GameSetting
 	}
 
 	@Override
-	public void save(MinecraftDirectory directory, GameSettingInstance setting) throws IOException
+	public void save(Path directory, GameSettingInstance setting) throws IOException
 	{
-		Path path = directory.getRoot().toPath().resolve("mods.dat");
+		Path path = directory.resolve("mods.dat");
 		String[] option = setting.getOption(MODS);
 		if (option != null)
 			NBT.write(path, NBT.compound().put("mods", NBT.list(option)), true);

@@ -173,9 +173,12 @@ public class WindowsManager
 		}
 		if (lang == null)
 			throw new IllegalStateException();
-		else
-			System.out.println("the lang is not null " + lang);
 		globalConfig.setResources(lang);
+	}
+
+	public void addSupressedException(Exception ex)
+	{
+
 	}
 
 	public Page createPage(Stage stage, Class<? extends ReloadableController> clz, int xSize, int ySize) throws FlowException,

@@ -1,6 +1,7 @@
 package net.wheatlauncher.control;
 
 import com.jfoenix.controls.*;
+import com.jfoenix.validation.ValidationFacade;
 import io.datafx.controller.FXMLController;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
@@ -21,6 +22,7 @@ import net.launcher.auth.Authorize;
 import net.launcher.auth.AuthorizeFactory;
 import net.launcher.utils.CallbacksOption;
 import net.launcher.utils.Logger;
+import net.wheatlauncher.Core;
 import net.wheatlauncher.control.utils.ReloadableController;
 import net.wheatlauncher.control.utils.ValidatorDelegate;
 import net.wheatlauncher.control.utils.WindowsManager;
@@ -44,7 +46,7 @@ public class ControllerLogin
 
 	/*MainApplication controls*/
 	@FXML
-	private JFXTextField account;
+	private JFXComboBox<String> account;
 
 	@FXML
 	private JFXPasswordField password;
@@ -86,29 +88,33 @@ public class ControllerLogin
 		password.setOnKeyReleased(fireLogin);
 
 		accountValid.delegateProperty().bind(Bindings.createObjectBinding(() ->
-						Bootstrap.getCore().getAuthModule().getAuthorize()::validateUserName,
-				Bootstrap.getCore().getAuthModule().authorizeProperty()));
+						Bootstrap.getCore().getAuthProfile().getAuthorize()::validateUserName,
+				Bootstrap.getCore().getAuthProfile().authorizeProperty()));
 		passwordValid.delegateProperty().bind(Bindings.createObjectBinding(() ->
-						Bootstrap.getCore().getAuthModule().getAuthorize()::validatePassword,
-				Bootstrap.getCore().getAuthModule().authorizeProperty()));
+						Bootstrap.getCore().getAuthProfile().getAuthorize()::validatePassword,
+				Bootstrap.getCore().getAuthProfile().authorizeProperty()));
 
-		account.textProperty().addListener(observable ->
+		account.getJFXEditor().textProperty().addListener(observable ->
 		{
-			if (account.validate()) Bootstrap.getCore().getAuthModule().setAccount(account.getText());
+			if (ValidationFacade.validate(account))
+				Bootstrap.getCore().getAuthProfile().setAccount(account.getJFXEditor().getText());
 		});
+		account.itemsProperty().bind(Bindings.createObjectBinding(() ->
+						Core.getInstance().getAuthProfile().getHistoryList(),
+				Core.getInstance().getAuthProfile().getHistoryMap()));
 		password.textProperty().addListener(observable ->
 		{
 			if (password.isDisable())
 				return;
-			if (password.validate()) Bootstrap.getCore().getAuthModule().setPassword(password.getText());
+			if (password.validate()) Bootstrap.getCore().getAuthProfile().setPassword(password.getText());
 		});
 
 		login.disableProperty().bind(Bindings.createBooleanBinding(() ->
 						accountValid.hasErrorsProperty().get() ||
 								(passwordValid.hasErrorsProperty().get() && !password.isDisable()),
-				account.textProperty(), password.textProperty(), password.disableProperty()));
+				account.valueProperty(), password.textProperty(), password.disableProperty()));
 
-		AuthProfile authModule = Bootstrap.getCore().getAuthModule();
+		AuthProfile authModule = Bootstrap.getCore().getAuthProfile();
 		//set up online mod
 		Authorize selected = authModule.getAuthorize();
 		if (selected == AuthorizeFactory.ONLINE)
@@ -119,29 +125,29 @@ public class ControllerLogin
 
 		onlineMode.selectedProperty().addListener((observable, o, n) ->
 		{
-			AuthProfile module = Bootstrap.getCore().getAuthModule();
+			AuthProfile module = Bootstrap.getCore().getAuthProfile();
 			module.setAuthorize(n ? AuthorizeFactory.ONLINE : AuthorizeFactory.OFFLINE);
-			account.setText("");
-			account.reset();
+			account.setValue("");
+			ValidationFacade.reset(account);
 			password.setText("");
 			password.reset();
 		}); //Common
 
 		password.disableProperty().bind(Bindings.createBooleanBinding(() ->
-						Bootstrap.getCore().getAuthModule().getAuthorize() == AuthorizeFactory.OFFLINE,
-				Bootstrap.getCore().getAuthModule().authorizeProperty()));
+						Bootstrap.getCore().getAuthProfile().getAuthorize() == AuthorizeFactory.OFFLINE,
+				Bootstrap.getCore().getAuthProfile().authorizeProperty()));
 
 		account.promptTextProperty().bind(Bindings.createStringBinding(() ->
 		{
-			String id = Authorize.getID(Bootstrap.getCore().getAuthModule().getAuthorize());
+			String id = Authorize.getID(Bootstrap.getCore().getAuthProfile().getAuthorize());
 			return LanguageMap.INSTANCE.translate(id + ".account");
-		}, Bootstrap.getCore().getAuthModule().authorizeProperty()));
+		}, Bootstrap.getCore().getAuthProfile().authorizeProperty()));
 
 		password.promptTextProperty().bind(Bindings.createStringBinding(() ->
 		{
-			String id = Authorize.getID(Bootstrap.getCore().getAuthModule().getAuthorize());
+			String id = Authorize.getID(Bootstrap.getCore().getAuthProfile().getAuthorize());
 			return LanguageMap.INSTANCE.translate(id + ".password");
-		}, Bootstrap.getCore().getAuthModule().authorizeProperty()));
+		}, Bootstrap.getCore().getAuthProfile().authorizeProperty()));
 		Logger.trace("onWatch listener to core's launch profile");
 	}
 
@@ -151,7 +157,7 @@ public class ControllerLogin
 		btnPane.getChildren().add(spinner);
 		Bootstrap.getCore().getService().submit(CallbacksOption.wrap(() ->
 		{
-			AuthProfile module = Bootstrap.getCore().getAuthModule();
+			AuthProfile module = Bootstrap.getCore().getAuthProfile();
 			return module.getAuthorize().auth(module.getAccount(), module.getPassword());
 		}, new CallbackAdapter<AuthInfo>()
 		{
@@ -160,7 +166,7 @@ public class ControllerLogin
 			{
 				Platform.runLater(() ->
 				{
-					Bootstrap.getCore().getAuthModule().setCache(result);
+					Bootstrap.getCore().getAuthProfile().setCache(result);
 					btnPane.getChildren().remove(spinner);
 					btnPane.getChildren().add(login);
 					switchToPreview();
@@ -170,6 +176,7 @@ public class ControllerLogin
 			@Override
 			public void failed(Throwable e)
 			{
+				System.out.println("fail");
 				Platform.runLater(() ->
 				{
 					Throwable ex = e.getCause() == null ? e : e.getCause();
@@ -215,7 +222,7 @@ public class ControllerLogin
 
 	public void switchOnlineMode(KeyEvent event)
 	{
-		if (event.isShiftDown()&& event.isControlDown() && event.getCode() == KeyCode.TAB)
+		if (event.isShiftDown() && event.isControlDown() && event.getCode() == KeyCode.TAB)
 			onlineMode.fire();
 	}
 

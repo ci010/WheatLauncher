@@ -1,8 +1,5 @@
 package net.launcher;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.profile.LaunchProfileManager;
 import org.to2mbn.jmccc.launch.Launcher;
@@ -11,7 +8,6 @@ import org.to2mbn.jmccc.option.LaunchOption;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -26,39 +22,11 @@ public abstract class LaunchCore
 
 	public abstract LaunchProfileManager getProfileManager();
 
-	private ObjectProperty<AuthProfile> authModule = new SimpleObjectProperty<>();
-
-	public AuthProfile getAuthModule()
-	{
-		return authModule.get();
-	}
-
-	public ReadOnlyObjectProperty<AuthProfile> authModuleProperty()
-	{
-		return authModule;
-	}
-
-	public void setAuthModule(AuthProfile authModule)
-	{
-		this.authModule.set(authModule);
-	}
-
-	private ObjectProperty<String> selected = new SimpleObjectProperty<>("default");
-
-	public String getSelected()
-	{
-		return selected.get();
-	}
-
-	public void setSelected(String selected)
-	{
-		Objects.requireNonNull(selected);
-		this.selected.set(selected);
-	}
+	public abstract AuthProfile getAuthProfile();
 
 	public void launch() throws Exception
 	{
-		final LaunchProfile selected = getProfileManager().getSelectedProfileInstance();
+		final LaunchProfile selected = getProfileManager().selecting();
 		LaunchOption option = buildOption();
 		for (LaunchElementManager manager : getAllElementsManagers())
 			manager.onLaunch(option, selected);
@@ -101,8 +69,8 @@ public abstract class LaunchCore
 
 	public abstract ScheduledExecutorService getService(String id);
 
-	public static LaunchProfile getCurrentProfile(LaunchCore core)
-	{
-		return core.getProfileManager().getProfile(core.getSelected()).orElse(null);
-	}
+//	public static LaunchProfile getCurrentProfile(LaunchCore core)
+//	{
+//		return core.getProfileManager().getProfile(core.getSelected()).orElse(null);
+//	}
 }

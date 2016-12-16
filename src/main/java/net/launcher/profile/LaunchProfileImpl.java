@@ -5,19 +5,20 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import net.launcher.setting.GameSetting;
 import net.launcher.setting.GameSettingInstance;
-import net.launcher.utils.StringUtils;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.option.WindowSize;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author ci010
  */
 class LaunchProfileImpl implements LaunchProfile
 {
-	private StringProperty version = new SimpleStringProperty(StringUtils.EMPTY);
+	private StringProperty version = new SimpleStringProperty();
 	private ObjectProperty<WindowSize> resolution = new SimpleObjectProperty<>(WindowSize.window(856, 482));
 	private IntegerProperty memory = new SimpleIntegerProperty(512);
 	private ObjectProperty<MinecraftDirectory> minecraftLocation = new SimpleObjectProperty<>(new MinecraftDirectory());
@@ -34,9 +35,9 @@ class LaunchProfileImpl implements LaunchProfile
 	public void setVersion(String version)
 	{
 		Objects.requireNonNull(version);
-		if (minecraftLocation.get().getVersion(version).exists())
-			this.version.set(version);
-		else throw new IllegalArgumentException("invalid.version");
+//		if (minecraftLocation.get().getVersion(version.getVersion()).exists())
+		this.version.set(version);
+//		else throw new IllegalArgumentException("invalid.version");
 	}
 
 	@Override

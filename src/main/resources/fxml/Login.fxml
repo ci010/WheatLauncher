@@ -1,7 +1,8 @@
+<?import com.jfoenix.controls.JFXComboBox?>
 <?import com.jfoenix.controls.JFXPasswordField?>
 <?import com.jfoenix.controls.JFXSpinner?>
-<?import com.jfoenix.controls.JFXTextField?>
 <?import com.jfoenix.controls.JFXToggleNode?>
+<?import com.jfoenix.validation.ValidationFacade?>
 <?import de.jensd.fx.fontawesome.Icon?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tooltip?>
@@ -17,11 +18,14 @@
             <Label styleClass="title-label">LOGIN</Label>
         </HBox>
         <HBox spacing="10" style="-fx-padding: 0 0 10 50;">
-            <JFXTextField id="account" promptText="Email" onKeyPressed="#switchOnlineMode">
+            <ValidationFacade>
+                <control>
+                    <JFXComboBox fx:id="account" editable="true" onKeyPressed="#switchOnlineMode"/>
+                </control>
                 <validators>
                     <ValidatorDelegate fx:id="accountValid"/>
                 </validators>
-            </JFXTextField>
+            </ValidationFacade>
         </HBox>
         <HBox spacing="10" style="-fx-padding: 10 0 10 50;">
             <JFXPasswordField id="password" promptText="Password" labelFloat="true" onKeyPressed="#switchOnlineMode">

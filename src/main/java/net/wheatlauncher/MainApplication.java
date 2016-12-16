@@ -22,9 +22,12 @@ public class MainApplication extends Application
 	@Override
 	public void start(final Stage stage) throws Exception
 	{
-		Bootstrap.boost(Core.class);
 		WindowsManager windowsManager = new WindowsManager();
 		ApplicationContext.getInstance().register(windowsManager);
+		try {Bootstrap.boost(Core.class);}
+		catch (Exception e) {windowsManager.addSupressedException(e);}
+		Thread.currentThread().setUncaughtExceptionHandler((t, e) ->
+				windowsManager.addSupressedException((Exception) e));
 		windowsManager.createPage(stage, ControllerMain.class, 800, 550);
 		stage.show();
 	}

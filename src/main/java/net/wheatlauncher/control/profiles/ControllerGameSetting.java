@@ -10,7 +10,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.scene.layout.VBox;
 import net.launcher.Bootstrap;
-import net.launcher.LaunchCore;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.setting.GameSetting;
 import net.launcher.setting.GameSettingInstance;
@@ -51,15 +50,15 @@ public class ControllerGameSetting
 		container.disableProperty().bind(Bindings.createBooleanBinding(
 				() ->
 				{
-					LaunchProfile profile = LaunchCore.getCurrentProfile(Bootstrap.getCore());
+					LaunchProfile profile = Bootstrap.getCore().getProfileManager().selecting();
 					return !profile.getGameSetting(GameSettingMinecraft.INSTANCE).isPresent();
 				}
-				, Bindings.createObjectBinding(() -> LaunchCore.getCurrentProfile(Bootstrap.getCore()).versionProperty(),
+				, Bindings.createObjectBinding(() -> Bootstrap.getCore().getProfileManager().selecting().versionProperty(),
 						Bootstrap.getCore().getProfileManager().selectedProfileProperty())));
 
 //		BooleanBinding missingBoolean = Bindings.createBooleanBinding(
-//				() -> LaunchCore.getCurrentProfile(Bootstrap.getCore()).getGameSetting(GameSettingMinecraft.INSTANCE).isPresent()
-//				, Bindings.createObjectBinding(() -> LaunchCore.getCurrentProfile(Bootstrap.getCore()).gameSettingsProperty(),
+//				() -> Bootstrap.getCore().getProfileManager().selecting().getGameSetting(GameSettingMinecraft.INSTANCE).isPresent()
+//				, Bindings.createObjectBinding(() -> Bootstrap.getCore().getProfileManager().selecting().gameSettingsProperty(),
 //						Bootstrap.getCore().selectedProperty()));
 		missingFileIndicator.visibleProperty().bind(Bindings.createBooleanBinding(() -> container.isDisabled(),
 				container.disabledProperty()));
@@ -81,7 +80,7 @@ public class ControllerGameSetting
 	{
 		labeled.setText(getLocalizedText(option));
 		return event ->
-				LaunchCore.getCurrentProfile(Bootstrap.getCore()).getGameSetting(GameSettingMinecraft.INSTANCE).ifPresent(gameSettingInstance ->
+				Bootstrap.getCore().getProfileManager().selecting().getGameSetting(GameSettingMinecraft.INSTANCE).ifPresent(gameSettingInstance ->
 						labeled.setText(getLocalizedText(option, gameSettingInstance.getOption(option))));
 	}
 
@@ -101,7 +100,7 @@ public class ControllerGameSetting
 
 	public void createMinecraftGameSetting(ActionEvent event)
 	{
-		LaunchCore.getCurrentProfile(Bootstrap.getCore()).addGameSetting(new GameSettingInstance(GameSettingMinecraft
+		Bootstrap.getCore().getProfileManager().selecting().addGameSetting(new GameSettingInstance(GameSettingMinecraft
 				.INSTANCE));
 	}
 }

@@ -14,10 +14,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.layout.StackPane;
 import net.launcher.Bootstrap;
-import net.launcher.LaunchCore;
 import net.launcher.game.Language;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.utils.Logger;
+import net.wheatlauncher.control.utils.ReloadableController;
 import net.wheatlauncher.control.utils.WindowsManager;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.util.IOUtils;
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 /**
  * @author ci010
  */
-public class ControllerLanguages
+public class ControllerLanguages implements ReloadableController
 {
 	@FXMLViewFlowContext
 	public ViewFlowContext context;
@@ -46,6 +46,25 @@ public class ControllerLanguages
 	public JFXTreeTableColumn<LanguageCell, String> name;
 	public JFXTreeTableColumn<LanguageCell, String> region;
 	public JFXTreeTableColumn<LanguageCell, String> bidi;
+
+	@Override
+	public void reload()
+	{
+		try
+		{
+			updateLanguageList();
+		}
+		catch (IOException | NoSuchAlgorithmException e)
+		{
+			context.getRegisteredObject(WindowsManager.Page.class).displayError(e);
+		}
+	}
+
+	@Override
+	public void unload()
+	{
+
+	}
 
 	static class LanguageCell extends RecursiveTreeObject<LanguageCell>
 	{
@@ -69,14 +88,7 @@ public class ControllerLanguages
 		languageLists = FXCollections.observableArrayList();
 		RecursiveTreeItem<LanguageCell> recursiveTreeItem = new RecursiveTreeItem<>(languageLists,
 				RecursiveTreeObject::getChildren);
-		try
-		{
-			updateLanguageList();
-		}
-		catch (IOException | NoSuchAlgorithmException e)
-		{
-			context.getRegisteredObject(WindowsManager.Page.class).displayError(e);
-		}
+
 		Logger.trace("");
 		System.out.println(languageLists.isEmpty());
 		root.disableProperty().bind(Bindings.createBooleanBinding(() ->
@@ -87,7 +99,7 @@ public class ControllerLanguages
 	private void updateLanguageList() throws IOException, NoSuchAlgorithmException
 	{
 		languageLists.clear();
-		LaunchProfile p = LaunchCore.getCurrentProfile(Bootstrap.getCore());
+		LaunchProfile p = Bootstrap.getCore().getProfileManager().selecting();
 		Version version = Versions.resolveVersion(p.getMinecraftLocation(), p.getVersion());
 		if (version == null) return;
 		Asset languageIndex = Versions.resolveAssets(p.getMinecraftLocation(), version).stream().filter(a -> a

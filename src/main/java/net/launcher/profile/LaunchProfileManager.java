@@ -26,5 +26,5 @@ public interface LaunchProfileManager
 
 	ObservableMap<String, LaunchProfile> getAllProfiles();
 
-	default LaunchProfile getSelectedProfileInstance() {return getAllProfiles().get(getSelectedProfile());}
+	default LaunchProfile selecting() {return getAllProfiles().get(getSelectedProfile());}
 }

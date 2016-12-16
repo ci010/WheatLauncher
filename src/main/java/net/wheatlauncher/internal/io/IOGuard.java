@@ -1,11 +1,8 @@
 package net.wheatlauncher.internal.io;
 
-import javafx.beans.Observable;
-
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.nio.file.Path;
-import java.util.function.BiConsumer;
+import java.util.Objects;
 
 /**
  * @author ci010
@@ -13,26 +10,43 @@ import java.util.function.BiConsumer;
 public abstract class IOGuard<T>
 {
 	private WeakReference<T> reference;
-	private Path path;
+	private IOGuardContext context;
 
-	protected Path getRoot() {return path;}
+	protected IOGuardContext getContext() {return context;}
 
-	public abstract void forceSave(Path path) throws IOException;
+	public abstract void forceSave() throws IOException;
 
 	public abstract T loadInstance() throws IOException;
 
+	public abstract T defaultInstance();
+
 	protected T getInstance() {return reference != null ? reference.get() : null;}
 
-	public final T load(IOGuardManger manger) throws IOException
+	public final void init(IOGuardContext context)
 	{
-		path = manger.getRoot();
-		T load = loadInstance();
+		Objects.requireNonNull(context);
+		if (this.context != null)
+			throw new IllegalStateException();
+		this.context = context;
+	}
+
+	public final T load() throws IOException
+	{
+		T load;
+		try
+		{
+			load = loadInstance();
+		}
+		catch (Exception e)
+		{
+			load = defaultInstance();
+		}
 		reference = new WeakReference<>(load);
-		deploy(manger::registerSaveTask);
+		deploy();
 		return load;
 	}
 
-	protected abstract void deploy(BiConsumer<Observable[], IOGuardManger.IOTask> register);
+	protected abstract void deploy();
 
-	public boolean isActive() {return reference.get() != null;}
+	public boolean isActive() {return reference != null && reference.get() != null;}
 }

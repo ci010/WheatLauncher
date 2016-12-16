@@ -2,11 +2,10 @@ package net.launcher.setting;
 
 import net.launcher.io.MappedStorageType;
 import net.launcher.utils.NIOUtils;
-import org.to2mbn.jmccc.option.MinecraftDirectory;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -74,12 +73,12 @@ public class GameSettingMinecraft extends GameSetting
 	}
 
 	@Override
-	public GameSettingInstance load(MinecraftDirectory directory) throws IOException
+	public GameSettingInstance load(Path directory) throws IOException
 	{
-		File file = new File(directory.getRoot(), "options.txt");
-		if (!file.exists())
+		Path path = directory.resolve("options.txt");
+		if (!Files.exists(path))
 			throw new FileNotFoundException();
-		String string = NIOUtils.readToString(file.toPath());
+		String string = NIOUtils.readToString(path);
 		GameSettingInstance instance = new GameSettingInstance(this);
 		Map<String, ? extends Option<?>> collect = getAllOption().stream().collect(Collectors.toMap(Option::getName, v -> v));
 		Map<String, String> deserialize = MappedStorageType.MC.deserialize(string);
@@ -93,13 +92,13 @@ public class GameSettingMinecraft extends GameSetting
 	}
 
 	@Override
-	public void save(MinecraftDirectory directory, GameSettingInstance setting) throws IOException
+	public void save(Path directory, GameSettingInstance setting) throws IOException
 	{
 		List<Option<?>> allOption = getAllOption();
-		File file = new File(directory.getRoot(), "options.txt");
-		if (!file.exists())
+		Path path = directory.resolve("options.txt");
+		if (!Files.exists(path))
 		{
-			Map<String, String> deserialize = MappedStorageType.MC.deserialize(NIOUtils.readToString(file.toPath()));
+			Map<String, String> deserialize = MappedStorageType.MC.deserialize(NIOUtils.readToString(path));
 			for (Option<?> option : allOption)
 				deserialize.put(option.getName(), setting.getOption(option).toString());
 			MappedStorageType.MC.serialize(deserialize);
