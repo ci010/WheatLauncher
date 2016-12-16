@@ -112,7 +112,8 @@ public class ControllerLogin
 		login.disableProperty().bind(Bindings.createBooleanBinding(() ->
 						accountValid.hasErrorsProperty().get() ||
 								(passwordValid.hasErrorsProperty().get() && !password.isDisable()),
-				account.valueProperty(), password.textProperty(), password.disableProperty()));
+				account.valueProperty(), account.jfxEditorProperty().get().textProperty(),
+				password.textProperty(), password.disableProperty()));
 
 		AuthProfile authModule = Bootstrap.getCore().getAuthProfile();
 		//set up online mod

@@ -32,7 +32,8 @@ public class NBTList extends NBT implements Iterable<NBT>
 	public boolean add(NBT base)
 	{
 		if (base.getType() == NBTType.NULL) return false;
-		return validate(base) && list.add(base);
+		if (validate(base)) if (list.add(base)) return true;
+		return false;
 	}
 
 	public NBT get(int i)
@@ -60,7 +61,7 @@ public class NBTList extends NBT implements Iterable<NBT>
 
 	private boolean validate(NBT base)
 	{
-		if (this.type == null) type = base.getType();
+		if (this.type == NBTType.NULL) type = base.getType();
 		return this.type == base.getType();
 	}
 

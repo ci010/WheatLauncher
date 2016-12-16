@@ -22,7 +22,6 @@ public class AuthIOGuard extends IOGuard<AuthProfile>
 	@Override
 	public void forceSave() throws IOException
 	{
-		System.out.println("saving auth guard");
 		AuthProfile authProfile = getInstance();
 		if (authProfile == null) throw new IllegalStateException();
 		NBTCompound history = NBT.compound();
