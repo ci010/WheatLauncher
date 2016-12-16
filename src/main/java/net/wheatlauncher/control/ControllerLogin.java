@@ -101,7 +101,7 @@ public class ControllerLogin
 		});
 		account.itemsProperty().bind(Bindings.createObjectBinding(() ->
 						Core.getInstance().getAuthProfile().getHistoryList(),
-				Core.getInstance().getAuthProfile().getHistoryMap()));
+				Core.getInstance().getAuthProfile().authorizeProperty()));
 		password.textProperty().addListener(observable ->
 		{
 			if (password.isDisable())
@@ -156,6 +156,7 @@ public class ControllerLogin
 	{
 		btnPane.getChildren().remove(login);
 		btnPane.getChildren().add(spinner);
+		onlineMode.setDisable(true);
 		Bootstrap.getCore().getService().submit(CallbacksOption.wrap(() ->
 		{
 			AuthProfile module = Bootstrap.getCore().getAuthProfile();
@@ -171,13 +172,13 @@ public class ControllerLogin
 					btnPane.getChildren().remove(spinner);
 					btnPane.getChildren().add(login);
 					switchToPreview();
+					onlineMode.setDisable(false);
 				});
 			}
 
 			@Override
 			public void failed(Throwable e)
 			{
-				System.out.println("fail");
 				Platform.runLater(() ->
 				{
 					Throwable ex = e.getCause() == null ? e : e.getCause();
@@ -192,6 +193,7 @@ public class ControllerLogin
 						flowContext.getRegisteredObject(WindowsManager.Page.class).displayError(e);
 					btnPane.getChildren().remove(spinner);
 					btnPane.getChildren().add(login);
+					onlineMode.setDisable(false);
 				});
 			}
 		}));

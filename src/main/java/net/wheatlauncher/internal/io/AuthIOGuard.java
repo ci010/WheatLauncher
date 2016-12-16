@@ -39,7 +39,6 @@ public class AuthIOGuard extends IOGuard<AuthProfile>
 		Logger.trace("start to load auth instance");
 		Path path = getContext().getRoot().resolve("auth.dat");
 		NBTCompound compound = NBT.read(path, true).asCompound();
-		System.out.println(compound);
 		String account = compound.get("account").asString("");
 		String auth = compound.get("auth").asString("");
 		Optional<Authorize> authorizeOptional = AuthorizeFactory.find(auth);

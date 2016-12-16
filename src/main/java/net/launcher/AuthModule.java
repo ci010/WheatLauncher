@@ -9,7 +9,10 @@ import net.launcher.auth.AuthorizeFactory;
 import net.launcher.utils.StringUtils;
 import org.to2mbn.jmccc.auth.AuthInfo;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 
 /**
  * @author ci010
@@ -29,7 +32,7 @@ public class AuthModule implements AuthProfile
 	public AuthModule()
 	{
 		AuthorizeFactory.getAuthorizeMap().forEach((k, v) ->
-				historyMap.put(k, FXCollections.observableList(createLimitList(10))));
+				historyMap.put(k, FXCollections.observableArrayList()));
 	}
 
 	public AuthModule(String account, Authorize authorize, Map<String, List<String>> history)
@@ -39,9 +42,9 @@ public class AuthModule implements AuthProfile
 		this.authorize.set(authorize);
 		history.forEach((s, l) ->
 		{
-			List<String> limitList = createLimitList(10);
+			ObservableList<String> limitList = FXCollections.observableArrayList();
 			limitList.addAll(l);
-			this.historyMap.put(s, FXCollections.observableList(limitList));
+			this.historyMap.put(s, limitList);
 		});
 	}
 
@@ -118,8 +121,6 @@ public class AuthModule implements AuthProfile
 	public void setAuthorize(Authorize authorize)
 	{
 		Objects.requireNonNull(authorize);
-		String id = Authorize.getID(authorize);
-		this.historyMap.put(id, FXCollections.observableList(createLimitList(10)));
 		this.authorize.set(authorize);
 	}
 
@@ -134,29 +135,15 @@ public class AuthModule implements AuthProfile
 	{
 		String id = Authorize.getID(getAuthorize());
 		if (!historyMap.containsKey(id))
-			historyMap.put(id, FXCollections.observableList(createLimitList(10)));
+			historyMap.put(id, FXCollections.observableArrayList());
 		ObservableList<String> strings = historyMap.get(id);
 		if (!strings.contains(account))
 		{
-			System.out.println("adding account " + account);
-			strings.add(account);
+			if (strings.size() > 5) strings.remove(strings.size() - 1);
+			strings.add(0, account);
 		}
 	}
 
-	private List<String> createLimitList(final int max)
-	{
-		return new LinkedList<String>()
-		{
-			@Override
-			public boolean add(String o)
-			{
-				if (this.size() > max)
-					this.removeLast();
-				super.addFirst(o);
-				return true;
-			}
-		};
-	}
 
 	@Override
 	public ObjectProperty<AuthInfo> cacheProperty()
