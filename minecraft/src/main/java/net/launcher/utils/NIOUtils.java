@@ -11,6 +11,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.function.Consumer;
 
 /**
  * @author ci010
@@ -38,13 +39,14 @@ public class NIOUtils
 
 	public static ByteBuffer readToBuffer(Path path) throws IOException
 	{
-		try (SeekableByteChannel channel = Files.newByteChannel(path))
-		{
-			ByteBuffer buffer = ByteBuffer.allocate((int) Files.size(path));
-			channel.read(buffer);
-			buffer.flip();
-			return buffer;
-		}
+		ByteBuffer buffer = ByteBuffer.allocate((int) Files.size(path));
+		readToBuffer(path, buffer);
+		return buffer;
+	}
+
+	public static void readToBuffer(Path path, ByteBuffer buffer) throws IOException
+	{
+		try (SeekableByteChannel channel = Files.newByteChannel(path)) {channel.read(buffer);}
 	}
 
 	public static byte[] readToBytes(Path path) throws IOException
@@ -53,6 +55,14 @@ public class NIOUtils
 		byte[] bytes = new byte[buffer.capacity()];
 		buffer.get(bytes);
 		return bytes;
+	}
+
+	public static void mapToConsumer(Path path, Consumer<MappedByteBuffer> consumer) throws IOException
+	{
+		try (FileChannel open = FileChannel.open(path, StandardOpenOption.READ))
+		{
+			consumer.accept(open.map(FileChannel.MapMode.READ_ONLY, 0, Files.size(path)));
+		}
 	}
 
 	public static MappedByteBuffer mapToBuffer(Path path) throws IOException

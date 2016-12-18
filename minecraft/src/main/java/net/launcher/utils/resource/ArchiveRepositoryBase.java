@@ -254,7 +254,8 @@ class ArchiveRepositoryBase<T>
 			ResourceType resourceType = ResourceType.getType(file);
 			if (resourceType != null)
 			{
-				String md5 = MD5.toString(MD5.check(file));
+				MD5 digest = MD5.digest(file);
+				String md5 = digest.toString();
 				call.updateProgress(1, 3, "checking");
 
 				if (!this.containResource(md5, null).get())
