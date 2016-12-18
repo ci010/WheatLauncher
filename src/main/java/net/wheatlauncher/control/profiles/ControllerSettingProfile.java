@@ -3,9 +3,12 @@ package net.wheatlauncher.control.profiles;
 import com.jfoenix.controls.*;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
+import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
+import net.launcher.Bootstrap;
+import net.launcher.profile.LaunchProfileManager;
 import net.launcher.utils.Logger;
 import net.wheatlauncher.control.utils.ReloadableController;
 
@@ -87,10 +90,41 @@ public class ControllerSettingProfile implements ReloadableController
 
 	}
 
-	public void beforeRename(MouseEvent mouseEvent) {
+	public void beforeRename(MouseEvent mouseEvent)
+	{
 		Logger.trace("");
 
 		renameProfileDialog.requestLayout();
 		renameProfileTextField.requestLayout();
+	}
+
+	public void cancelRename(ActionEvent event)
+	{
+		renameProfileDialog.close();
+	}
+
+	public void acceptRename(ActionEvent event)
+	{
+		System.out.println("accept rename");
+		LaunchProfileManager manager = Bootstrap.getCore().getProfileManager();
+//		try
+//		{
+//			manager.renameProfile(manager.getSelectedProfile(), renameProfileTextField.getText());
+//		}
+//		catch (Exception e)
+//		{
+//			context.getRegisteredObject(WindowsManager.Page.class).displayError(e);
+//		}
+		renameProfileDialog.close();
+	}
+
+	public void acceptCreate(ActionEvent event)
+	{
+		LaunchProfileManager manager = Bootstrap.getCore().getProfileManager();
+	}
+
+	public void cancelCreate(ActionEvent event)
+	{
+
 	}
 }

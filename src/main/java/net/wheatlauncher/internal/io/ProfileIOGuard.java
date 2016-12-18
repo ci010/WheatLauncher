@@ -22,10 +22,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -73,6 +70,8 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 		object.put("memory", profile.getMemory());
 		object.put("minecraft", profile.getMinecraftLocation().getAbsolutePath());
 		object.put("java", profile.getJavaEnvironment().getJavaPath());
+		object.put("name", profile.getDisplayName());
+		object.put("id", profile.getId().toString());
 
 		NIOUtils.writeString(profileJSON, object.toString(4));
 	}
@@ -84,9 +83,10 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 			throw new IllegalArgumentException();
 		try
 		{
-			Files.move(profileRoot, getProfileSetting(newName));
+			Path path = getProfileSetting(newName);
+			profileRoot.toFile().renameTo(path.toFile());
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			throw new IllegalArgumentException(e);
 		}
@@ -115,11 +115,9 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 	@Override
 	public LaunchProfileManager loadInstance() throws IOException
 	{
-		LaunchProfileManager manager = LaunchProfileManagerBuilder.create()
-				.setProfileFactory(LaunchProfileManagerBuilder.defaultProfileFactory().compose(this::onNewProfile))
-//				.setDeleteGuard(this::onDeleteProfile)
-				.setRenameGuard(this::onRenameProfile)
-				.build();
+
+
+		Map<String, LaunchProfile> profileMap = new TreeMap<>();
 
 		List<Path> walk = Files.walk(getProfilesRoot(), 1)
 				.filter(path -> Files.isDirectory(path)).collect(Collectors.toList());
@@ -129,13 +127,12 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 			{
 				if (path.equals(getProfilesRoot())) continue;
 
-				String rootName = path.getFileName().toString();
-				LaunchProfile profile = manager.newProfile(rootName);
+				String idString = path.getFileName().toString();
+				LaunchProfile profile = new LaunchProfile(idString);
+				profileMap.put(idString, profile);
 
-				Path setting = getProfileSetting(rootName);
-
-//				NIOUtils.readToString(setting);
-				JSONObject object = new JSONObject(NIOUtils.readToString(setting));
+				Path profiling = getProfileSetting(idString);
+				JSONObject object = new JSONObject(NIOUtils.readToString(profiling));
 				profile.setVersion(object.optString("version"));
 				profile.setJavaEnvironment(new JavaEnvironment(new File(
 						object.optString("java", JavaEnvironment.getCurrentJavaPath().getAbsolutePath()))));
@@ -153,8 +150,7 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 						profile.setResolution(new WindowSize(Integer.valueOf(xes[0]), Integer.valueOf(xes[1])));
 					}
 					return winSize;
-				}).isPresent())
-					profile.setResolution(new WindowSize(856, 482));
+				}).isPresent()) profile.setResolution(new WindowSize(856, 482));
 
 				IOException exception = null;
 				for (Map.Entry<String, GameSetting> entry : GameSettingFactory.getAllSetting().entrySet())
@@ -167,7 +163,7 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 							profile.addGameSetting(whatever.get());
 						else
 						{
-							GameSettingInstance load = value.load(getProfileDir(rootName));
+							GameSettingInstance load = value.load(getProfileDir(idString));
 							if (load != null)
 								profile.addGameSetting(load);
 						}
@@ -184,6 +180,12 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 				continue;
 			}
 		}
+		LaunchProfileManager manager = LaunchProfileManagerBuilder.create()
+				.setProfileFactory(LaunchProfileManagerBuilder.defaultProfileFactory().compose(this::onNewProfile))
+				.setInitState(profileMap)
+//				.setDeleteGuard(this::onDeleteProfile)
+				.setRenameGuard(this::onRenameProfile)
+				.build();
 		try
 		{
 			NBTCompound read = NBT.read(getProfilesRoot().resolve("profiles.dat"), true).asCompound();

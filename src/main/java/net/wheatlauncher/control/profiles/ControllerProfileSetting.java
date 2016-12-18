@@ -103,7 +103,6 @@ public class ControllerProfileSetting implements ReloadableController
 		Logger.trace("destroy");
 	}
 
-
 	private ObservableList<String> versionList;
 
 	private void updateVersionList()
@@ -178,7 +177,6 @@ public class ControllerProfileSetting implements ReloadableController
 	{
 		profilePopup.close();
 	}
-
 
 	private class SimpleFileWatcher implements Runnable
 	{

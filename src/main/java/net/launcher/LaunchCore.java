@@ -68,9 +68,4 @@ public abstract class LaunchCore
 	public abstract ScheduledExecutorService getService();
 
 	public abstract ScheduledExecutorService getService(String id);
-
-//	public static LaunchProfile getCurrentProfile(LaunchCore core)
-//	{
-//		return core.getProfileManager().getProfile(core.getSelected()).orElse(null);
-//	}
 }

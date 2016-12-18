@@ -1,7 +1,6 @@
 package net.launcher.resourcepack;
 
 import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableSet;
 import javafx.scene.image.Image;
 import net.launcher.OptionLaunchElementManager;
 import net.launcher.game.ResourcePack;
@@ -22,8 +21,7 @@ import java.util.stream.Collectors;
 /**
  * @author ci010
  */
-class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, String[]> implements
-																					 ResourcePackManager
+class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, String[]> implements ResourcePackManager
 {
 	private static Image DEFAULT_IMG = new Image(ResourcePackManImpl.class.getResourceAsStream("/pack.png"));
 

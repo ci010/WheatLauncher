@@ -40,33 +40,22 @@ public class Core extends LaunchCore
 	private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(4);
 	private Timer timer = new Timer(true);
 
-	//////////
-	//Thread//
-	//////////
-
 	public Timer getTimer()
 	{
 		return timer;
 	}
 
-	////////
-	//File//
-	////////
 	private Path root;
 	private LaunchProfileManager profileManager;
 	private AuthProfile authProfile;
 
-	private ProfileIOGuard profileIOGuard;
+	private IOGuardContext ioContext;
+
 	private WorldSaveMaintainer maintainer;
 
 	private Map<Class, LaunchElementManager> managers;
 
-
 	public Path getRoot() {return root;}
-
-	public Path getArchivesRoot() {return root.resolve("archives");}
-
-	public Path getBackupRoot() {return root.resolve("backup");}
 
 	public Path getProfilesRoot() {return root.resolve("profiles");}
 
@@ -78,22 +67,13 @@ public class Core extends LaunchCore
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> Optional<LaunchElementManager<T>> getElementManager(Class<T> clz)
-	{
-		return Optional.ofNullable(managers.get(clz));
-	}
+	public <T> Optional<LaunchElementManager<T>> getElementManager(Class<T> clz) {return Optional.ofNullable(managers.get(clz));}
 
 	@Override
-	public LaunchProfileManager getProfileManager()
-	{
-		return this.profileManager;
-	}
+	public LaunchProfileManager getProfileManager() {return this.profileManager;}
 
 	@Override
-	public AuthProfile getAuthProfile()
-	{
-		return authProfile;
-	}
+	public AuthProfile getAuthProfile() {return authProfile;}
 
 	@Override
 	protected LaunchOption buildOption()
@@ -133,8 +113,6 @@ public class Core extends LaunchCore
 		};
 	}
 
-	private IOGuardContext ioContext;
-
 	@Override
 	public void init() throws Exception
 	{
@@ -144,6 +122,7 @@ public class Core extends LaunchCore
 
 		this.maintainer = new WorldSaveMaintainer(root.resolve("saves"));
 
+		//main module io start
 		this.ioContext = IOGuardContext.Builder.create(this.root)
 				.register(LaunchProfileManager.class, new ProfileIOGuard())
 				.register(AuthProfile.class, new AuthIOGuard())
@@ -156,19 +135,20 @@ public class Core extends LaunchCore
 		this.profileManager = ioContext.load(LaunchProfileManager.class);
 		this.authProfile = ioContext.load(AuthProfile.class);
 
-		Logger.trace("finish loading");
-
 		if (this.profileManager.getSelectedProfile() == null)
 		{
 			this.profileManager.newProfile("default");
-			this.getProfileManager().setSelectedProfile("default");
+			this.profileManager.setSelectedProfile("default");
 		}
+		//main module io end
 
 		this.managers = new HashMap<>();
-		this.managers.put(Mod.class, ModManagerBuilder.create(this.getArchivesRoot().resolve("mods"),
+		this.managers.put(Mod.class, ModManagerBuilder.create(
+				this.getRoot().resolve("mods"),
 				this.executorService).build());
-		this.managers.put(ResourcePack.class, ResourcePackMangerBuilder.create(this.getArchivesRoot().resolve
-				("resourcepacks"), this.executorService).build());
+		this.managers.put(ResourcePack.class, ResourcePackMangerBuilder.create(
+				this.getRoot().resolve("resourcepacks"),
+				this.executorService).build());
 
 		Logger.trace("Complete init");
 	}
@@ -194,8 +174,6 @@ public class Core extends LaunchCore
 		if (!Files.exists(root))
 			Files.createDirectories(root);
 		this.root = root;
-		Files.createDirectories(getArchivesRoot());
-		Files.createDirectories(getBackupRoot());
 		Files.createDirectories(getProfilesRoot());
 	}
 

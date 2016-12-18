@@ -105,6 +105,10 @@ public class ControllerPreview implements ReloadableController
 	{
 		root.getChildren().remove(profileSettingDialog);
 		root.getChildren().remove(settingDialog);
+
+		profileSettingDialog.setOnDialogOpened(e -> profileSettingDialogController.reload());
+		profileSettingDialog.setOnDialogClosed(e -> profileSettingDialogController.unload());
+
 		profileSettingDialog.setDialogContainer(flowContext.getRegisteredObject(StackPane.class));
 		profileSettingDialog.setContentHolderBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null,
 				null)));
@@ -121,8 +125,7 @@ public class ControllerPreview implements ReloadableController
 			ProfileService profileService = module.getAuthorize().createProfileService();
 			Map<TextureType, Texture> textures = profileService.getTextures(
 					profileService.getGameProfile(UUIDUtils.toUUID(auth.getUUID())));
-			if (textures.isEmpty())
-				defaultSkin();
+			if (textures.isEmpty()) defaultSkin();
 			else
 			{
 				Texture texture = textures.get(TextureType.SKIN);
@@ -138,10 +141,7 @@ public class ControllerPreview implements ReloadableController
 				});
 			}
 		}
-		catch (AuthenticationException e)
-		{
-			defaultSkin();
-		}
+		catch (AuthenticationException e) {defaultSkin();}
 
 		animation.play();
 	}
@@ -175,6 +175,10 @@ public class ControllerPreview implements ReloadableController
 	@Override
 	public void reload()
 	{
+		AuthProfile module = Bootstrap.getCore().getAuthProfile();
+		assert module.getCache() != null;
+		assert module.getAuthorize() != null;
+		assert module.getAccount() != null;
 		initSkin();
 		initDialog();
 	}

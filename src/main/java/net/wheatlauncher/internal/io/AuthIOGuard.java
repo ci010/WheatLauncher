@@ -1,6 +1,5 @@
 package net.wheatlauncher.internal.io;
 
-import net.launcher.AuthModule;
 import net.launcher.AuthProfile;
 import net.launcher.auth.Authorize;
 import net.launcher.auth.AuthorizeFactory;
@@ -44,11 +43,11 @@ public class AuthIOGuard extends IOGuard<AuthProfile>
 		Optional<Authorize> authorizeOptional = AuthorizeFactory.find(auth);
 		Authorize authorize = authorizeOptional.orElse(AuthorizeFactory.ONLINE);
 		Logger.trace("loaded auth instance");
-		return new AuthModule(account, authorize, (Map<String, List<String>>) compound.get("history").asCompound().asRaw());
+		return new AuthProfile(account, authorize, (Map<String, List<String>>) compound.get("history").asCompound().asRaw());
 	}
 
 	@Override
-	public AuthProfile defaultInstance() {return new AuthModule();}
+	public AuthProfile defaultInstance() {return new AuthProfile();}
 
 	@Override
 	protected void deploy()

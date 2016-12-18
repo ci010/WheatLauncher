@@ -2,6 +2,8 @@ package net.launcher.profile;
 
 import javafx.util.Builder;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -16,7 +18,7 @@ public class LaunchProfileManagerBuilder implements Builder<LaunchProfileManager
 
 	public static LaunchProfileManager buildDefault() {return create().build();}
 
-	public static Function<String, LaunchProfile> defaultProfileFactory() {return s -> new LaunchProfileImpl();}
+	public static Function<String, LaunchProfile> defaultProfileFactory() {return s -> new LaunchProfile();}
 
 	public static BiConsumer<String, String> defaultRenameGuard()
 	{
@@ -36,6 +38,12 @@ public class LaunchProfileManagerBuilder implements Builder<LaunchProfileManager
 	{
 		Objects.requireNonNull(factory);
 		this.factory = factory;
+		return this;
+	}
+
+	public LaunchProfileManagerBuilder setInitState(Map<String, LaunchProfile> profileMap)
+	{
+		this.loaded = profileMap;
 		return this;
 	}
 
@@ -67,6 +75,7 @@ public class LaunchProfileManagerBuilder implements Builder<LaunchProfileManager
 		return this;
 	}
 
+	private Map<String, LaunchProfile> loaded = Collections.emptyMap();
 	private BiConsumer<String, String> renameGuard = defaultRenameGuard();
 	private Consumer<String> deleteGuard = defaultDeleteGuard();
 	private Function<String, LaunchProfile> factory = defaultProfileFactory();
@@ -74,7 +83,7 @@ public class LaunchProfileManagerBuilder implements Builder<LaunchProfileManager
 	@Override
 	public LaunchProfileManager build()
 	{
-		return new LaunchProfileManagerImpl(factory, renameGuard, deleteGuard);
+		return new LaunchProfileManager(loaded, factory, renameGuard, deleteGuard);
 	}
 
 	private LaunchProfileManagerBuilder() {}
