@@ -8,7 +8,6 @@ import javafx.collections.ObservableMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -19,21 +18,16 @@ public class LaunchProfileManager
 {
 	private ObservableMap<String, LaunchProfile> map = FXCollections.observableHashMap(),
 			view = FXCollections.unmodifiableObservableMap(map);
-	//	private Map<String, String> nameToId = new TreeMap<>();
 	private Function<String, LaunchProfile> factory;
-	private BiConsumer<String, String> renameConsumer;
 	private Consumer<String> deleteConsumer;
 
 	private StringProperty selectedProfile = new SimpleStringProperty();
 
 	LaunchProfileManager(Map<String, LaunchProfile> profileMap, Function<String, LaunchProfile> factory,
-						 BiConsumer<String, String> renameConsumer,
 						 Consumer<String> deleteConsumer)
 	{
 		this.map.putAll(profileMap);
-//		this.map.forEach((k, v) -> nameToId.put(v.getDisplayName(), k));
 		this.factory = factory;
-		this.renameConsumer = renameConsumer;
 		this.deleteConsumer = deleteConsumer;
 	}
 
@@ -47,31 +41,51 @@ public class LaunchProfileManager
 		return selectedProfile;
 	}
 
-	public void setSelectedProfile(String selectedProperty)
-	{
-		Objects.requireNonNull(selectedProperty);
-		if (!map.containsKey(selectedProperty)) throw new IllegalArgumentException("profile.select.exist");
-		this.selectedProfile.set(selectedProperty);
-	}
-
-	public LaunchProfile newProfile(String id)
+	public void setSelectedProfile(String id)
 	{
 		Objects.requireNonNull(id);
-		if (map.containsKey(id))
+		if (!map.containsKey(id)) throw new IllegalArgumentException("profile.select.exist");
+		this.selectedProfile.set(id);
+	}
+
+	private boolean containsName(String name)
+	{
+		for (LaunchProfile profile : map.values())
+			if (profile.getDisplayName().equals(name))
+				return true;
+		return false;
+	}
+
+	public LaunchProfile newProfile(String name)
+	{
+		Objects.requireNonNull(name);
+		if (containsName(name))
 			throw new IllegalArgumentException("profile.duplicate");
-		LaunchProfile la = factory.apply(id);
-		map.put(la.getId(), la);
-//		nameToId.put(id, la.getId());
-		return la;
+		String id = String.valueOf(System.currentTimeMillis());
+		LaunchProfile profile = factory.apply(id);
+		profile.setDisplayName(name);
+		map.put(id, profile);
+		return profile;
 	}
 
 	public void deleteProfile(String id)
 	{
 		Objects.requireNonNull(id);
 		if (!map.containsKey(id)) throw new IllegalArgumentException("profile.delete.exist");
+		if (map.size() == 1) throw new IllegalArgumentException("profile.delete.one");
+		if (map.isEmpty()) throw new IllegalArgumentException("profile.delete.empty");
 		deleteConsumer.accept(id);
 		map.remove(id);
 	}
+
+	public Optional<LaunchProfile> getProfile(String id)
+	{
+		return Optional.ofNullable(map.get(id));
+	}
+
+	public ObservableMap<String, LaunchProfile> getAllProfiles() {return view;}
+
+	public LaunchProfile selecting() {return getAllProfiles().get(getSelectedProfile());}
 
 //	public void renameProfile(String profile, String newName)
 //	{
@@ -86,13 +100,4 @@ public class LaunchProfileManager
 //		Logger.trace("renaming the profile " + profile + " into " + newName);
 //		this.map.put(newName, this.map.remove(profile));
 //	}
-
-	public Optional<LaunchProfile> getProfile(String id)
-	{
-		return Optional.ofNullable(map.get(id));
-	}
-
-	public ObservableMap<String, LaunchProfile> getAllProfiles() {return view;}
-
-	public LaunchProfile selecting() {return getAllProfiles().get(getSelectedProfile());}
 }

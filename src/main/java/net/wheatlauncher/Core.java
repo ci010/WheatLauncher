@@ -122,26 +122,6 @@ public class Core extends LaunchCore
 
 		this.maintainer = new WorldSaveMaintainer(root.resolve("saves"));
 
-		//main module io start
-		this.ioContext = IOGuardContext.Builder.create(this.root)
-				.register(LaunchProfileManager.class, new ProfileIOGuard())
-				.register(AuthProfile.class, new AuthIOGuard())
-				.setTaskExecutor(ioTask ->
-						executorService.submit(() ->
-						{
-							ioTask.performance(this.root);
-							return null;
-						})).build();
-		this.profileManager = ioContext.load(LaunchProfileManager.class);
-		this.authProfile = ioContext.load(AuthProfile.class);
-
-		if (this.profileManager.getSelectedProfile() == null)
-		{
-			this.profileManager.newProfile("default");
-			this.profileManager.setSelectedProfile("default");
-		}
-		//main module io end
-
 		this.managers = new HashMap<>();
 		this.managers.put(Mod.class, ModManagerBuilder.create(
 				this.getRoot().resolve("mods"),
@@ -149,6 +129,26 @@ public class Core extends LaunchCore
 		this.managers.put(ResourcePack.class, ResourcePackMangerBuilder.create(
 				this.getRoot().resolve("resourcepacks"),
 				this.executorService).build());
+
+		//main module io start
+		this.ioContext = IOGuardContext.Builder.create(this.root)
+				.register(LaunchProfileManager.class, new ProfileIOGuard())
+				.register(AuthProfile.class, new AuthIOGuard())
+				.setTaskExecutor(t ->
+				{
+				}).build();
+//				.setTaskExecutor(ioTask ->
+//						executorService.submit(() ->
+//						{
+//							ioTask.performance(this.root);
+//							return null;
+//						})).build();
+		this.profileManager = ioContext.load(LaunchProfileManager.class);
+		this.authProfile = ioContext.load(AuthProfile.class);
+
+		//main module io end
+		assert profileManager.getSelectedProfile() != null;
+		assert profileManager.selecting() != null;
 
 		Logger.trace("Complete init");
 	}

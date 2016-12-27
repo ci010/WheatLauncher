@@ -71,39 +71,17 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 		object.put("minecraft", profile.getMinecraftLocation().getAbsolutePath());
 		object.put("java", profile.getJavaEnvironment().getJavaPath());
 		object.put("name", profile.getDisplayName());
-		object.put("id", profile.getId().toString());
+		object.put("id", profile.getId());
 
 		NIOUtils.writeString(profileJSON, object.toString(4));
 	}
 
-	private void onRenameProfile(String name, String newName)
+	private LaunchProfile onNewProfile(String id)
 	{
-		Path profileRoot = getProfileSetting(name);
-		if (!Files.exists(profileRoot))
-			throw new IllegalArgumentException();
-		try
-		{
-			Path path = getProfileSetting(newName);
-			profileRoot.toFile().renameTo(path.toFile());
-		}
-		catch (Exception e)
-		{
-			throw new IllegalArgumentException(e);
-		}
-	}
-
-	private String onNewProfile(String name)
-	{
-		Path profileRoot = getProfileDir(name);
-		try
-		{
-			Files.createDirectories(profileRoot);
-		}
-		catch (IOException e)
-		{
-			throw new IllegalArgumentException(e);
-		}
-		return name;
+		Path profileRoot = getProfileDir(id);
+		try {Files.createDirectories(profileRoot);}
+		catch (IOException e) {throw new IllegalArgumentException(e);}
+		return new LaunchProfile(id);
 	}
 
 	@Override
@@ -115,24 +93,28 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 	@Override
 	public LaunchProfileManager loadInstance() throws IOException
 	{
-
-
 		Map<String, LaunchProfile> profileMap = new TreeMap<>();
 
 		List<Path> walk = Files.walk(getProfilesRoot(), 1)
-				.filter(path -> Files.isDirectory(path)).collect(Collectors.toList());
+				.filter(path -> Files.isDirectory(path) && !path.equals(getProfilesRoot()))
+				.collect(Collectors.toList());
 		for (Path path : walk)
 		{
 			try
 			{
-				if (path.equals(getProfilesRoot())) continue;
+				String dirName = path.getFileName().toString();
+				Path profiling = getProfileSetting(dirName);
 
-				String idString = path.getFileName().toString();
-				LaunchProfile profile = new LaunchProfile(idString);
-				profileMap.put(idString, profile);
-
-				Path profiling = getProfileSetting(idString);
 				JSONObject object = new JSONObject(NIOUtils.readToString(profiling));
+				String id = object.getString("id");
+				if (!Objects.equals(dirName, id))
+				{
+					//todo handle this exception
+					continue;
+				}
+				LaunchProfile profile = new LaunchProfile(id);
+				profileMap.put(id, profile);
+				profile.setDisplayName(object.optString("name"));
 				profile.setVersion(object.optString("version"));
 				profile.setJavaEnvironment(new JavaEnvironment(new File(
 						object.optString("java", JavaEnvironment.getCurrentJavaPath().getAbsolutePath()))));
@@ -163,7 +145,7 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 							profile.addGameSetting(whatever.get());
 						else
 						{
-							GameSettingInstance load = value.load(getProfileDir(idString));
+							GameSettingInstance load = value.load(getProfileDir(dirName));
 							if (load != null)
 								profile.addGameSetting(load);
 						}
@@ -177,14 +159,13 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 			}
 			catch (Exception e)
 			{
-				continue;
+				e.printStackTrace();
 			}
 		}
 		LaunchProfileManager manager = LaunchProfileManagerBuilder.create()
-				.setProfileFactory(LaunchProfileManagerBuilder.defaultProfileFactory().compose(this::onNewProfile))
+				.setProfileFactory(this::onNewProfile)
 				.setInitState(profileMap)
 //				.setDeleteGuard(this::onDeleteProfile)
-				.setRenameGuard(this::onRenameProfile)
 				.build();
 		try
 		{
@@ -193,9 +174,12 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 		}
 		catch (Exception e)
 		{
-			if (!manager.getProfile("default").isPresent())
-				manager.newProfile("default");
-			manager.setSelectedProfile("default");
+			if (manager.getAllProfiles().isEmpty())
+			{
+				manager.setSelectedProfile(manager.newProfile("default").getId());
+			}
+			else
+				manager.setSelectedProfile(manager.getAllProfiles().keySet().iterator().next());
 		}
 		Logger.trace("returning the manager instance");
 		return manager;
@@ -256,7 +240,6 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 					Path profileJSON = getProfileSetting(key);
 					Files.delete(profileJSON);
 				});
-
 			}
 		});
 	}

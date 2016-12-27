@@ -22,7 +22,6 @@ import net.launcher.auth.Authorize;
 import net.launcher.auth.AuthorizeFactory;
 import net.launcher.utils.CallbacksOption;
 import net.launcher.utils.Logger;
-import net.wheatlauncher.Core;
 import net.wheatlauncher.control.utils.ReloadableController;
 import net.wheatlauncher.control.utils.ValidatorDelegate;
 import net.wheatlauncher.control.utils.WindowsManager;
@@ -73,6 +72,8 @@ public class ControllerLogin
 	@FXML
 	private StackPane root;
 
+	public ValidationFacade validFacade;
+
 	@PostConstruct
 	public void init()
 	{
@@ -100,8 +101,8 @@ public class ControllerLogin
 				Bootstrap.getCore().getAuthProfile().setAccount(account.getJFXEditor().getText());
 		});
 		account.itemsProperty().bind(Bindings.createObjectBinding(() ->
-						Core.getInstance().getAuthProfile().getHistoryList(),
-				Core.getInstance().getAuthProfile().authorizeProperty()));
+						Bootstrap.getCore().getAuthProfile().getHistoryList(),
+				Bootstrap.getCore().getAuthProfile().authorizeProperty()));
 		password.textProperty().addListener(observable ->
 		{
 			if (password.isDisable())
@@ -201,7 +202,7 @@ public class ControllerLogin
 
 	private void switchToPreview()
 	{
-		flowContext.getRegisteredObject(WindowsManager.Page.class).switchPage(ControllerPreview.class);
+		flowContext.getRegisteredObject(WindowsManager.Page.class).switchPage("ControllerPreview");
 	}
 
 	@FXML

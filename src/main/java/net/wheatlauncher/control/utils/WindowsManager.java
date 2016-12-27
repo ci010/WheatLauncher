@@ -67,7 +67,6 @@ public class WindowsManager
 			});
 		}
 
-
 		public void register(Class<? extends ReloadableController> controller) throws FxmlLoadException
 		{
 			ViewContext<? extends ReloadableController> byController = ViewFactoryReload.getInstance().createByController
@@ -91,7 +90,6 @@ public class WindowsManager
 			return sub;
 		}
 
-
 		public ViewContext<?> load(Class<?> clz) throws FxmlLoadException
 		{
 			ViewContext<?> context = ViewFactoryReload.getInstance().createByController(clz, null,
@@ -110,31 +108,30 @@ public class WindowsManager
 			return root;
 		}
 
-		public void switchPage(Class<?> controllerClass)
+		public void switchPage(String name)
 		{
-			try
-			{
-				forceSwitch(controllerClass);
-			}
-			catch (FxmlLoadException | FlowException e)
-			{
-				displayError(e);
-			}
+			try {forceSwitch(name);}
+			catch (FxmlLoadException | FlowException e) {displayError(e);}
 		}
 
-		public void forceSwitch(Class<?> controller) throws FxmlLoadException, FlowException
+		public void switchPage(Class<?> controllerClass) {switchPage(controllerClass.getSimpleName());}
+
+
+		public void forceSwitch(String target) throws FxmlLoadException, FlowException
 		{
-			ViewContext<? extends ReloadableController> viewContext = reg.get(controller.getSimpleName());
+			ViewContext<? extends ReloadableController> viewContext = reg.get(target);
 			if (viewContext != null)
 			{
 				if (current != null)
 					reg.get(current).getController().unload();
 				viewContext.getController().reload();
 				rootHandler.setNewView(new FlowView<>(viewContext), false);
-				current = controller.getSimpleName();
+				current = target;
 			}
 			else displayError(new IllegalArgumentException(""));
 		}
+
+		public void forceSwitch(Class<?> controller) throws FxmlLoadException, FlowException {forceSwitch(controller.getSimpleName());}
 
 		private JFXSnackbar bar;
 
@@ -178,7 +175,7 @@ public class WindowsManager
 
 	public void addSupressedException(Exception ex)
 	{
-
+		ex.printStackTrace();
 	}
 
 	public Page createPage(Stage stage, Class<? extends ReloadableController> clz, int xSize, int ySize) throws FlowException,

@@ -83,8 +83,10 @@ public class ControllerPreview implements ReloadableController
 		animation = new AnimationRotate(canvas);
 		canvas.getAnimationPlayer().addSkinAnimation(new SkinAniRunning(100, 100, 30, canvas));
 
-		profileName.textProperty().bind(Bindings.createStringBinding(() -> Bootstrap.getCore().getProfileManager().getSelectedProfile(),
-				Bootstrap.getCore().getProfileManager().selectedProfileProperty()));
+		profileName.textProperty().bind(Bindings.createStringBinding(() -> Bootstrap.getCore().getProfileManager().selecting().getDisplayName(),
+				Bindings.createObjectBinding(() -> Bootstrap.getCore().getProfileManager().selecting().displayNameProperty(),
+						Bootstrap.getCore().getProfileManager().selectedProfileProperty()
+				)));
 		player.textProperty().bind(Bindings.createStringBinding(() ->
 				{
 					if (Bootstrap.getCore().getAuthProfile().getCache() != null)

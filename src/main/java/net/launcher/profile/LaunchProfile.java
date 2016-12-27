@@ -32,7 +32,7 @@ public class LaunchProfile
 
 	public LaunchProfile(String id) {this.id = id;}
 
-	public LaunchProfile() {this.id = Long.toBinaryString(System.currentTimeMillis());}
+	public LaunchProfile() {this.id = Long.toString(System.currentTimeMillis());}
 
 	public String getId() {return id;}
 

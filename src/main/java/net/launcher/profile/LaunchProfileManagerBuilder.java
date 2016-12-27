@@ -52,20 +52,9 @@ public class LaunchProfileManagerBuilder implements Builder<LaunchProfileManager
 		return deleteGuard;
 	}
 
-	public BiConsumer<String, String> getRenameGuard()
-	{
-		return renameGuard;
-	}
-
 	public Function<String, LaunchProfile> getFactory()
 	{
 		return factory;
-	}
-
-	public LaunchProfileManagerBuilder setRenameGuard(BiConsumer<String, String> renameGuard)
-	{
-		this.renameGuard = renameGuard;
-		return this;
 	}
 
 	public LaunchProfileManagerBuilder setDeleteGuard(Consumer<String> deleteGuard)
@@ -76,14 +65,13 @@ public class LaunchProfileManagerBuilder implements Builder<LaunchProfileManager
 	}
 
 	private Map<String, LaunchProfile> loaded = Collections.emptyMap();
-	private BiConsumer<String, String> renameGuard = defaultRenameGuard();
 	private Consumer<String> deleteGuard = defaultDeleteGuard();
 	private Function<String, LaunchProfile> factory = defaultProfileFactory();
 
 	@Override
 	public LaunchProfileManager build()
 	{
-		return new LaunchProfileManager(loaded, factory, renameGuard, deleteGuard);
+		return new LaunchProfileManager(loaded, factory, deleteGuard);
 	}
 
 	private LaunchProfileManagerBuilder() {}

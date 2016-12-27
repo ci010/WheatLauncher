@@ -2,41 +2,36 @@
 <?import com.jfoenix.validation.ValidationFacade?>
 <?import de.jensd.fx.fontawesome.Icon?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.layout.FlowPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
 <JFXDialog fx:id="rootDialog" xmlns:fx="http://javafx.com/fxml/1"
            xmlns="http://javafx.com/javafx/2.2"
            fx:controller="net.wheatlauncher.control.profiles.ControllerProfileSetting"
            transitionType="CENTER">
     <FlowPane fx:id="root" minWidth="500" prefWidth="500" prefHeight="300"
               hgap="30" vgap="30" alignment="CENTER">
-        <VBox spacing="5" alignment="CENTER"
-              style="-fx-background-color:WHITE; -fx-background-insets:-2; -fx-background-radius:3">
-            <HBox alignment="CENTER" spacing="5">
-                <Label fx:id="profileLabel" contentDisplay="RIGHT">
-                    Profile
-                </Label>
-                <JFXRippler fx:id="editProfileRegion" maxWidth="10" maxHeight="10"
-                            maskType="CIRCLE"
-                            onMouseReleased="#requestProfilePopup">
-                    <Icon awesomeIcon="PENCIL_SQUARE" size="1.7em">
-                        <tooltip>
-                            <Tooltip text="%profile.edit"/>
-                        </tooltip>
-                    </Icon>
-                </JFXRippler>
-            </HBox>
-            <ValidationFacade fx:id="validProfile">
-                <!-- style="-fx-background-color:BROWN; -fx-background-insets:-10; -fx-background-radius:5;"-->
-                <control>
-                    <JFXComboBox fx:id="profile"
-                                 promptText="profile" maxWidth="100"/>
-                </control>
-            </ValidationFacade>
+        <VBox spacing="10" alignment="CENTER"
+              style="-fx-background-color:WHITE;">
+            <StackPane style="-fx-background-color:#00BCD4; -fx-padding: 10">
+                <HBox alignment="CENTER" spacing="5">
+                    <Label fx:id="profileLabel" contentDisplay="RIGHT" text="%profile"
+                           style="-fx-font-weight:BOLD; -fx-text-fill:WHITE; -fx-font-size:16"/>
+
+                    <JFXRippler fx:id="editProfileRegion" maxWidth="10" maxHeight="10"
+                                maskType="CIRCLE"
+                                onMouseReleased="#requestProfilePopup">
+                        <Icon awesomeIcon="PENCIL_SQUARE" size="1.7em">
+                            <tooltip>
+                                <Tooltip text="%profile.edit"/>
+                            </tooltip>
+                        </Icon>
+                    </JFXRippler>
+                </HBox>
+            </StackPane>
+            <JFXComboBox fx:id="profile"
+                         promptText="%profile" maxWidth="100"/>
         </VBox>
         <VBox alignment="CENTER" spacing="8"
-              style="-fx-background-color:WHITE; -fx-background-insets:-2; -fx-background-radius:3">
+              style="-fx-background-color:WHITE; -fx-background-insets:-10;">
             <Label>Version</Label>
             <ValidationFacade fx:id="validVersion">
                 <control>

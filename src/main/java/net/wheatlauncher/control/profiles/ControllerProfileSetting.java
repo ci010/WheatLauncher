@@ -6,7 +6,9 @@ import io.datafx.controller.FXMLController;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectBinding;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -17,6 +19,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import net.launcher.Bootstrap;
+import net.launcher.profile.LaunchProfile;
 import net.launcher.utils.Logger;
 import net.wheatlauncher.control.utils.FXMLInnerController;
 import net.wheatlauncher.control.utils.ReloadableController;
@@ -30,7 +33,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 
 /**
@@ -46,7 +51,7 @@ public class ControllerProfileSetting implements ReloadableController
 
 	/*Profile*/
 	public Label profileLabel;
-	public ValidationFacade validProfile;
+//	public ValidationFacade validProfile;
 
 	public JFXPopup profilePopup;
 	@FXMLInnerController
@@ -139,16 +144,39 @@ public class ControllerProfileSetting implements ReloadableController
 						.getProfileManager().selectedProfileProperty()));
 	}
 
+	private String findIdByName(String name)
+	{
+		for (Map.Entry<String, LaunchProfile> entry : Bootstrap.getCore().getProfileManager().getAllProfiles().entrySet())
+			if (entry.getValue().getDisplayName().equals(name)) return entry.getKey();
+		return null;
+	}
+
 	private void initProfile()
 	{
-		profile.valueProperty().bind(Bindings.createObjectBinding(() ->
-						Bootstrap.getCore().getProfileManager().getSelectedProfile(),
-				Bootstrap.getCore().getProfileManager().selectedProfileProperty()));
-		profile.itemsProperty().bind(Bindings.createObjectBinding(() ->
-						FXCollections.observableArrayList(Bootstrap.getCore().getProfileManager().getAllProfiles().keySet()),
-				Bootstrap.getCore().getProfileManager().getAllProfiles()));
+		ObjectBinding<ObservableList<String>> itemsBinding = Bindings.createObjectBinding(() ->
+						FXCollections.observableArrayList(Bootstrap.getCore().getProfileManager().getAllProfiles()
+								.values().stream().map(LaunchProfile::getDisplayName)
+								.collect(Collectors.toList())),
+				Bootstrap.getCore().getProfileManager().getAllProfiles());
+		profile.itemsProperty().bind(itemsBinding);
+		InvalidationListener listener = (observable) ->
+		{
+			profile.valueProperty().bind(Bindings.createStringBinding(() ->
+					{
+						Platform.runLater(itemsBinding::invalidate);
+						return Bootstrap.getCore().getProfileManager().selecting().getDisplayName();
+					},
+					Bootstrap.getCore().getProfileManager().selecting().displayNameProperty()));
+		};
+		Bootstrap.getCore().getProfileManager().selectedProfileProperty().addListener(listener);
+		listener.invalidated(null);
+
 		profile.selectionModelProperty().get().selectedItemProperty().addListener(
-				(observable, oldValue, newValue) -> Bootstrap.getCore().getProfileManager().setSelectedProfile(newValue));
+				(observable, oldValue, newValue) ->
+				{
+					String idByName = findIdByName(newValue);
+					if (idByName != null) Bootstrap.getCore().getProfileManager().setSelectedProfile(idByName);
+				});
 	}
 
 	private void initProfilePopupMenu()

@@ -28,6 +28,7 @@ public class CallbacksOption
 		return safeCallable;
 	}
 
+
 	public static <T> Optional<T> optional(Callable<T> callable, Consumer<Exception> exceptionConsumer)
 	{
 		Objects.requireNonNull(callable);
@@ -165,6 +166,30 @@ public class CallbacksOption
 			public void done(V result)
 			{
 				consumer.accept(result);
+			}
+		};
+	}
+
+	public static <T> Callback<T> whateverCallback(Runnable runnable)
+	{
+		return new CallbackAdapter<T>()
+		{
+			@Override
+			public void done(T result)
+			{
+				runnable.run();
+			}
+
+			@Override
+			public void failed(Throwable e)
+			{
+				runnable.run();
+			}
+
+			@Override
+			public void cancelled()
+			{
+				runnable.run();
 			}
 		};
 	}

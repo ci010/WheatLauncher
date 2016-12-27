@@ -41,6 +41,7 @@ public class NIOUtils
 	{
 		ByteBuffer buffer = ByteBuffer.allocate((int) Files.size(path));
 		readToBuffer(path, buffer);
+		buffer.flip();
 		return buffer;
 	}
 
