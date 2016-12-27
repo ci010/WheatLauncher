@@ -8,27 +8,21 @@ import com.jfoenix.effects.JFXDepthManager;
 import com.sun.javafx.scene.control.behavior.ComboBoxBaseBehavior;
 import com.sun.javafx.scene.control.skin.ComboBoxPopupControl;
 import de.jensd.fx.fontawesome.Icon;
-import javafx.beans.InvalidationListener;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
-import javafx.css.Styleable;
+import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.AccessibleAttribute;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.ComboBoxBase;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.stage.WindowEvent;
 import net.launcher.utils.CallbacksOption;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
  * @author ci010
@@ -85,6 +79,7 @@ public abstract class JFXVersionPicker<VersionData, VersionDataList> extends Com
 			this.picker = picker;
 
 			this.root = new StackPane();
+			this.root.setOnMouseClicked(Event::consume);
 			this.root.setAlignment(Pos.CENTER);
 			this.getChildren().add(root);
 
@@ -212,106 +207,16 @@ public abstract class JFXVersionPicker<VersionData, VersionDataList> extends Com
 		}
 
 		@Override
-		protected PopupControl getPopup()
-		{
-			if (popup == null)
-				createPopup();
-			return popup;
-		}
-
-		@Override
 		protected void handleControlPropertyChanged(String p)
 		{
 			if ("VALUE".equals(p))
 			{
 				updateDisplayNode();
 				if (content != null && this.popup.isShowing())
-				{
 					this.popup.hide();
-				}
 			}
 			else
 				super.handleControlPropertyChanged(p);
-		}
-
-		private Field field;
-		private Method method;
-
-		private void createPopup()
-		{
-			popup = new PopupControl()
-			{
-				@Override
-				public Styleable getStyleableParent()
-				{
-					return Skin.this.getSkinnable();
-				}
-
-				{
-					setSkin(new javafx.scene.control.Skin<Skinnable>()
-					{
-						@Override
-						public Skinnable getSkinnable() { return Skin.this.getSkinnable(); }
-
-						@Override
-						public Node getNode() { return getPopupContent(); }
-
-						@Override
-						public void dispose() { }
-					});
-				}
-
-			};
-			popup.getStyleClass().add(COMBO_BOX_STYLE_CLASS);
-			popup.setConsumeAutoHidingEvents(false);
-			popup.setAutoHide(true);
-			popup.setAutoFix(true);
-			popup.setHideOnEscape(true);
-			popup.setOnAutoHide(e ->
-			{
-				getBehavior().onAutoHide();
-			});
-//			popup.addEventHandler(MouseEvent.MOUSE_CLICKED, t ->
-//			{
-//				// RT-18529: We listen to mouse input that is received by the popup
-//				// but that is not consumed, and assume that this is due to the mouse
-//				// clicking outside of the node, but in areas such as the
-//				// dropshadow.
-//				getBehavior().onAutoHide();
-//			});
-			popup.addEventHandler(WindowEvent.WINDOW_HIDDEN, t ->
-			{
-				// Make sure the accessibility focus returns to the combo box
-				// after the window closes.
-				getSkinnable().notifyAccessibleAttributeChanged(AccessibleAttribute.FOCUS_NODE);
-			});
-
-			// Fix for RT-21207
-			InvalidationListener layoutPosListener = o ->
-			{
-				try
-				{
-					if (field == null) field = ComboBoxPopupControl.class.getField("popupNeedsReconfiguring");
-					field.set(this, true);
-					if (method == null) method = ComboBoxPopupControl.class.getMethod("reconfigurePopup");
-					method.invoke(this);
-				}
-				catch (IllegalAccessException | NoSuchFieldException | NoSuchMethodException | InvocationTargetException e)
-				{
-					e.printStackTrace();
-				}
-			};
-			getSkinnable().layoutXProperty().addListener(layoutPosListener);
-			getSkinnable().layoutYProperty().addListener(layoutPosListener);
-			getSkinnable().widthProperty().addListener(layoutPosListener);
-			getSkinnable().heightProperty().addListener(layoutPosListener);
-
-			// RT-36966 - if skinnable's scene becomes null, ensure popup is closed
-			getSkinnable().sceneProperty().addListener(o ->
-			{
-				if (((ObservableValue) o).getValue() == null) hide();
-			});
-
 		}
 
 		@Override
