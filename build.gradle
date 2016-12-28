@@ -1,6 +1,7 @@
 
 repositories {
     mavenCentral()
+    jcenter()
     mavenLocal()
     flatDir { dir rootProject.file('libs') }
 }
@@ -21,7 +22,9 @@ subprojects{
     apply plugin: 'java'
     apply plugin: 'idea'
 }
+
 dependencies {
+    testCompile 'junit:junit:4.12'
     compile project('minecraft')
     compile 'org.jsoup:jsoup:1.9.2'
     compile ':datafx:8.0b8'

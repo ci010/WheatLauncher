@@ -82,3 +82,8 @@
 	-fx-font-weight: BOLD;
 	-fx-padding: 0.7em 0.8em;
 }
+
+.search-field{
+	-fx-min-width: 50;
+    -fx-max-width: 100;
+}
