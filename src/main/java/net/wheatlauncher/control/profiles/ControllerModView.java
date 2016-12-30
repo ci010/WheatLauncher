@@ -9,7 +9,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TreeSortMode;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import net.launcher.game.mod.Mod;
+import net.launcher.game.forge.ForgeMod;
 
 import javax.annotation.PostConstruct;
 
@@ -73,10 +73,10 @@ public class ControllerModView
 	{
 		StringProperty name, version, description, mcVersion;
 		ObjectProperty<ModType> type;
-		Mod release;
+		ForgeMod release;
 		BooleanProperty enabled;
 
-		ModCol(Mod release)
+		ModCol(ForgeMod release)
 		{
 			this.release = release;
 			name = new SimpleStringProperty(release.getMetaData().getName());

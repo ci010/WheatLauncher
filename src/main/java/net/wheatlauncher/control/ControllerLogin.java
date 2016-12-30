@@ -117,7 +117,7 @@ public class ControllerLogin
 				password.textProperty(), password.disableProperty()));
 
 		AuthProfile authModule = Bootstrap.getCore().getAuthProfile();
-		//set up online mod
+		//set up online forge
 		Authorize selected = authModule.getAuthorize();
 		if (selected == AuthorizeFactory.ONLINE)
 			onlineMode.selectedProperty().setValue(true);

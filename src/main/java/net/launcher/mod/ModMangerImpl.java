@@ -3,7 +3,7 @@ package net.launcher.mod;
 import javafx.collections.MapChangeListener;
 import net.launcher.LaunchElementManager;
 import net.launcher.OptionLaunchElementManager;
-import net.launcher.game.mod.Mod;
+import net.launcher.game.forge.ForgeMod;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.setting.GameSetting;
 import net.launcher.setting.GameSettingInstance;
@@ -17,29 +17,29 @@ import java.util.*;
 /**
  * @author ci010
  */
-class ModMangerImpl extends OptionLaunchElementManager<Mod, String[]> implements LaunchElementManager<Mod>
+class ModMangerImpl extends OptionLaunchElementManager<ForgeMod, String[]> implements LaunchElementManager<ForgeMod>
 {
-	private ArchiveRepository<Mod[]> archiveResource;
+	private ArchiveRepository<ForgeMod[]> archiveResource;
 	private Map<String, String> modVersionToResource = new TreeMap<>();
-	private Map<String, Mod> toRelease = new TreeMap<>();
-	private Map<LaunchOption, Repository.Delivery<ArchiveRepository.Resource<Mod[]>>> deliveryCache = new HashMap<>();
+	private Map<String, ForgeMod> toRelease = new TreeMap<>();
+	private Map<LaunchOption, Repository.Delivery<ArchiveRepository.Resource<ForgeMod[]>>> deliveryCache = new HashMap<>();
 
-	ModMangerImpl(ArchiveRepository<Mod[]> archiveResource)
+	ModMangerImpl(ArchiveRepository<ForgeMod[]> archiveResource)
 	{
 		this.archiveResource = archiveResource;
 		archiveResource.getResourceMap().forEach((k, v) ->
 		{
-			for (Mod release : v.getContainData())
+			for (ForgeMod release : v.getContainData())
 				modVersionToResource.put(release.getModId() + ":" +
 						release.getVersion(), k);
 		});
-		archiveResource.getResourceMap().addListener(new MapChangeListener<String, ArchiveRepository.Resource<Mod[]>>()
+		archiveResource.getResourceMap().addListener(new MapChangeListener<String, ArchiveRepository.Resource<ForgeMod[]>>()
 		{
 			@Override
-			public void onChanged(Change<? extends String, ? extends ArchiveRepository.Resource<Mod[]>> change)
+			public void onChanged(Change<? extends String, ? extends ArchiveRepository.Resource<ForgeMod[]>> change)
 			{
 				if (change.wasAdded())
-					for (Mod modMeta : change.getValueAdded().getContainData())
+					for (ForgeMod modMeta : change.getValueAdded().getContainData())
 					{
 						String s = modMeta.getModId() + ":" + modMeta.getMetaData().getVersion();
 						modVersionToResource.put(s,
@@ -47,7 +47,7 @@ class ModMangerImpl extends OptionLaunchElementManager<Mod, String[]> implements
 						toRelease.put(s, modMeta);
 					}
 				if (change.wasRemoved())
-					for (Mod release : change.getValueRemoved().getContainData())
+					for (ForgeMod release : change.getValueRemoved().getContainData())
 					{
 						String s = release.getModId() + ":" +
 								release.getVersion();
@@ -59,11 +59,11 @@ class ModMangerImpl extends OptionLaunchElementManager<Mod, String[]> implements
 	}
 
 	@Override
-	public Set<Mod> getAllElement()
+	public Set<ForgeMod> getAllElement()
 	{
-		HashSet<Mod> releases = new HashSet<>();
-		Collection<ArchiveRepository.Resource<Mod[]>> values = archiveResource.getResourceMap().values();
-		for (ArchiveRepository.Resource<Mod[]> value : values)
+		HashSet<ForgeMod> releases = new HashSet<>();
+		Collection<ArchiveRepository.Resource<ForgeMod[]>> values = archiveResource.getResourceMap().values();
+		for (ArchiveRepository.Resource<ForgeMod[]> value : values)
 			Collections.addAll(releases, value.getContainData());
 		return releases;
 	}
@@ -87,27 +87,27 @@ class ModMangerImpl extends OptionLaunchElementManager<Mod, String[]> implements
 	@Override
 	public void onClose(LaunchOption option, LaunchProfile profile)
 	{
-		Repository.Delivery<ArchiveRepository.Resource<Mod[]>> delivery = deliveryCache.get(option);
+		Repository.Delivery<ArchiveRepository.Resource<ForgeMod[]>> delivery = deliveryCache.get(option);
 		if (delivery != null)
 			delivery.markRelease();
 	}
 
 	@Override
-	protected String[] to(List<Mod> lst)
+	protected String[] to(List<ForgeMod> lst)
 	{
 		String[] strings = new String[lst.size()];
 		for (int i = 0; i < lst.size(); i++)
 		{
-			Mod element = lst.get(i);
+			ForgeMod element = lst.get(i);
 			strings[i] = element.getModId() + ":" + element.getMetaData().getVersion();
 		}
 		return strings;
 	}
 
 	@Override
-	protected List<Mod> from(String[] value)
+	protected List<ForgeMod> from(String[] value)
 	{
-		List<Mod> lst = new ArrayList<>(value.length);
+		List<ForgeMod> lst = new ArrayList<>(value.length);
 		for (String s : value)
 			lst.add(toRelease.get(s));
 		return lst;

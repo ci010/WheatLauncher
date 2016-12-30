@@ -18,7 +18,7 @@ public class CurseForgeServices
 
 	public static CurseForgeService newService(CurseForgeProjectType projectType) throws IOException
 	{
-		return newService(projectType, null);
+		return newService(projectType, new HttpRequester());
 	}
 
 	private CurseForgeServices() {}

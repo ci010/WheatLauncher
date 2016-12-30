@@ -5,7 +5,7 @@ import net.launcher.Bootstrap;
 import net.launcher.LaunchCore;
 import net.launcher.LaunchElementManager;
 import net.launcher.game.ResourcePack;
-import net.launcher.game.mod.Mod;
+import net.launcher.game.forge.ForgeMod;
 import net.launcher.mod.ModManagerBuilder;
 import net.launcher.profile.LaunchProfileManager;
 import net.launcher.resourcepack.ResourcePackMangerBuilder;
@@ -123,7 +123,7 @@ public class Core extends LaunchCore
 		this.maintainer = new WorldSaveMaintainer(root.resolve("saves"));
 
 		this.managers = new HashMap<>();
-		this.managers.put(Mod.class, ModManagerBuilder.create(
+		this.managers.put(ForgeMod.class, ModManagerBuilder.create(
 				this.getRoot().resolve("mods"),
 				this.executorService).build());
 		this.managers.put(ResourcePack.class, ResourcePackMangerBuilder.create(

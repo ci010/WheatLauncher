@@ -87,3 +87,17 @@
 	-fx-min-width: 50;
     -fx-max-width: 100;
 }
+
+.header-major{
+	-fx-text-fill:WHITE;
+	-fx-font-weight:BOLD;
+	-fx-font-family:Roboto;
+	-fx-font-size:32;
+}
+
+.header-minor{
+	-fx-text-fill:rgb(255, 255, 255, 0.67);
+	-fx-font-weight:BOLD;
+	-fx-font-family:Roboto;
+	-fx-font-size:14;
+}

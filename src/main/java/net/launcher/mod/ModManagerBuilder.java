@@ -1,10 +1,10 @@
 package net.launcher.mod;
 
 import net.launcher.LaunchElementManager;
-import net.launcher.game.mod.Mod;
-import net.launcher.game.mod.ModMetaData;
-import net.launcher.game.mod.ModMetadataBuilder;
-import net.launcher.game.mod.ModParser;
+import net.launcher.game.forge.ForgeMod;
+import net.launcher.game.forge.ForgeModMetaData;
+import net.launcher.game.forge.ForgeModMetadataBuilder;
+import net.launcher.game.forge.ForgeModParser;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
 import net.launcher.utils.resource.ArchiveRepository;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 /**
  * @author ci010
  */
-public class ModManagerBuilder implements Builder<LaunchElementManager<Mod>>
+public class ModManagerBuilder implements Builder<LaunchElementManager<ForgeMod>>
 {
 	public static ModManagerBuilder create(Path root, ExecutorService service)
 	{
@@ -38,31 +38,31 @@ public class ModManagerBuilder implements Builder<LaunchElementManager<Mod>>
 
 	private Path root;
 	private ExecutorService service;
-	private ArchiveRepository<Mod[]> archiveRepository;
+	private ArchiveRepository<ForgeMod[]> archiveRepository;
 
-	public ModManagerBuilder setArchiveRepository(ArchiveRepository<Mod[]> archiveRepository)
+	public ModManagerBuilder setArchiveRepository(ArchiveRepository<ForgeMod[]> archiveRepository)
 	{
 		this.archiveRepository = archiveRepository;
 		return this;
 	}
 
 	@Override
-	public LaunchElementManager<Mod> build()
+	public LaunchElementManager<ForgeMod> build()
 	{
 		return new ModMangerImpl(archiveRepository == null ? getArchiveRepository() : archiveRepository);
 	}
 
-	public ArchiveRepository<Mod[]> getArchiveRepository()
+	public ArchiveRepository<ForgeMod[]> getArchiveRepository()
 	{
 		if (archiveRepository == null)
 		{
-			BiSerializer<Mod[], NBTCompound> combine = BiSerializer.combine((releases, context) ->
+			BiSerializer<ForgeMod[], NBTCompound> combine = BiSerializer.combine((releases, context) ->
 			{
 				NBTCompound compound = NBT.compound();
-				for (Mod release : releases)
+				for (ForgeMod release : releases)
 				{
 					NBTCompound meta = NBT.compound();
-					ModMetaData metaData = release.getMetaData();
+					ForgeModMetaData metaData = release.getMetaData();
 					meta.put("modid", metaData.getModId())
 							.put("version", metaData.getVersion())
 							.put("name", (metaData.getName()))
@@ -85,11 +85,11 @@ public class ModManagerBuilder implements Builder<LaunchElementManager<Mod>>
 			}, (nbt, context) ->
 			{
 				List<String> strings = nbt.keySet().stream().collect(Collectors.toList());
-				Mod[] mods = new Mod[strings.size()];
+				ForgeMod[] mods = new ForgeMod[strings.size()];
 				for (int i = 0; i < strings.size(); i++)
 				{
 					NBTCompound modObj = nbt.get(strings.get(i)).asCompound();
-					ModMetadataBuilder builder = ModMetadataBuilder.create();
+					ForgeModMetadataBuilder builder = ForgeModMetadataBuilder.create();
 					builder.setModId(modObj.get("modid").asString());
 					builder.setVersion(modObj.get("version").asString());
 					builder.setName(modObj.get("name").asString());
@@ -106,12 +106,12 @@ public class ModManagerBuilder implements Builder<LaunchElementManager<Mod>>
 					builder.setMcVersion(modObj.get("mcVersion").asString());
 					builder.setFingerprint(modObj.get("fingerprint").asString());
 					builder.setDependencies(modObj.get("dependencies").asString());
-					Mod release = new Mod(builder.build());
+					ForgeMod release = new ForgeMod(builder.build());
 					mods[i] = release;
 				}
 				return mods;
 			});
-			return archiveRepository = Repositories.newArchiveRepositoryBuilder(root, service, combine, ModParser.defaultModDeserializer())
+			return archiveRepository = Repositories.newArchiveRepositoryBuilder(root, service, combine, ForgeModParser.defaultModDeserializer())
 					.build();
 		}
 		return archiveRepository;

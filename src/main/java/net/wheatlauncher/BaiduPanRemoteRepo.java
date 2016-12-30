@@ -4,7 +4,7 @@ package net.wheatlauncher;
 /**
  * @author ci010
  */
-public class BaiduPanRemoteRepo //extends ArchiveRepositoryBase.EmbeddedRemoteArchiveRepository<Mod.Mod[]>
+public class BaiduPanRemoteRepo //extends ArchiveRepositoryBase.EmbeddedRemoteArchiveRepository<ForgeMod.ForgeMod[]>
 {
 	private String urlRoot = "http://bdbea3.duapp.com/pcs_download.php?id=3281&link=%2Fapps%2Fhgf_blog%2F";
 

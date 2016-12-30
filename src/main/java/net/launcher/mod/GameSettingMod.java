@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * @author ci010
  */
-@GameSetting.ID("mod")
+@GameSetting.ID("forge")
 public class GameSettingMod extends GameSetting
 {
 	public static final GameSettingMod INSTANCE;
@@ -23,7 +23,7 @@ public class GameSettingMod extends GameSetting
 	static
 	{
 		GameSettingFactory.register(GameSettingMod.class);
-		INSTANCE = (GameSettingMod) GameSettingFactory.find("mod").get();
+		INSTANCE = (GameSettingMod) GameSettingFactory.find("forge").get();
 	}
 
 	public final Option<String[]> MODS = new StringArrayOption(this, "mods");

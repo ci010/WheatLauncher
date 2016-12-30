@@ -1,11 +1,11 @@
 package net.launcher.mod;
 
-import net.launcher.game.mod.ModMetaData;
+import net.launcher.game.forge.ForgeModMetaData;
 
 /**
  * @author ci010
  */
-public class ModMetaDataImpl implements ModMetaData
+public class ModMetaDataImpl implements ForgeModMetaData
 {
 	@Override
 	public String getModId()
