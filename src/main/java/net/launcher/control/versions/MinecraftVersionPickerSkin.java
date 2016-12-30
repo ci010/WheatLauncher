@@ -6,12 +6,12 @@ import javafx.scene.Node;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
-import javafx.util.converter.DefaultStringConverter;
+import org.to2mbn.jmccc.mcdownloader.RemoteVersion;
 
 /**
  * @author ci010
  */
-public class MinecraftVersionPickerSkin extends ComboBoxPopupControl<String>
+public class MinecraftVersionPickerSkin extends ComboBoxPopupControl<RemoteVersion>
 {
 	protected MinecraftVersionPicker parent;
 
@@ -93,8 +93,21 @@ public class MinecraftVersionPickerSkin extends ComboBoxPopupControl<String>
 	}
 
 	@Override
-	protected StringConverter<String> getConverter()
+	protected StringConverter<RemoteVersion> getConverter()
 	{
-		return new DefaultStringConverter();
+		return new StringConverter<RemoteVersion>()
+		{
+			@Override
+			public String toString(RemoteVersion object)
+			{
+				return object.getVersion();
+			}
+
+			@Override
+			public RemoteVersion fromString(String string)
+			{
+				return parent.dataListProperty().get().getVersions().get(string);
+			}
+		};
 	}
 }

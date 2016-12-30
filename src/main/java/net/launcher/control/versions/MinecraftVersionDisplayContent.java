@@ -2,7 +2,6 @@ package net.launcher.control.versions;
 
 import com.jfoenix.controls.*;
 import com.jfoenix.effects.JFXDepthManager;
-import com.jfoenix.skins.JFXListViewSkin;
 import de.jensd.fx.fontawesome.Icon;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
@@ -10,11 +9,9 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
 import javafx.event.Event;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.*;
@@ -24,18 +21,11 @@ import javafx.scene.text.FontWeight;
 import net.launcher.utils.CallbacksOption;
 import net.minecraftforge.fml.common.versioning.ComparableVersion;
 import net.wheatlauncher.utils.LanguageMap;
-import org.to2mbn.jmccc.mcdownloader.MinecraftDownloader;
-import org.to2mbn.jmccc.mcdownloader.MinecraftDownloaderBuilder;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersion;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersionList;
-import org.to2mbn.jmccc.mcdownloader.provider.DownloadProviderChain;
-import org.to2mbn.jmccc.mcdownloader.provider.forge.ForgeDownloadProvider;
-import org.to2mbn.jmccc.mcdownloader.provider.forge.ForgeVersion;
-import org.to2mbn.jmccc.mcdownloader.provider.forge.ForgeVersionList;
 
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 /**
@@ -57,7 +47,6 @@ public class MinecraftVersionDisplayContent extends Region
 	private JFXSpinner spinner;
 
 	//contents
-	protected JFXTabPane tabPane;
 	protected JFXTableView<?> versionTable;
 	protected JFXRippler confirm, refresh;
 	protected JFXToggleNode showAlpha;
@@ -81,7 +70,6 @@ public class MinecraftVersionDisplayContent extends Region
 		this.header = new VBox();
 		this.content = new VBox();
 		this.content.setAlignment(Pos.CENTER);
-		this.tabPane = new JFXTabPane();
 
 		this.mainDisplayContainer.getChildren().add(header);
 		this.mainDisplayContainer.getChildren().add(content);
@@ -165,36 +153,36 @@ public class MinecraftVersionDisplayContent extends Region
 		btnContainer.setCenter(filter);
 		btnContainer.setRight(confirm);
 
-		setupTabs();
-		this.content.getChildren().setAll(this.tabPane, btnContainer);
+//		setupTabs();
+		this.content.getChildren().setAll(versionTable, btnContainer);
 	}
 
-	protected void setupTabs()
-	{
-		Tab mc = new Tab("Minecraft"), forge = new Tab("Forge"), liteLoader = new Tab("LiteLoader");
-		mc.setContent(versionTable);
-
-		JFXListView<ForgeVersion> forgeListView = new JFXListView<>();
-		JFXListViewSkin skin = (JFXListViewSkin) forgeListView.getSkin();
-		forgeListView.setVerticalGap(5D);
-		forge.setContent(forgeListView);
-		ForgeDownloadProvider forgeDownloadProvider = new ForgeDownloadProvider();
-		MinecraftDownloader build = MinecraftDownloaderBuilder.create().providerChain(DownloadProviderChain.create().addProvider(forgeDownloadProvider))
-				.build();
-		try
-		{
-			ForgeVersionList forgeVersionList = build.download(forgeDownloadProvider.forgeVersionList(), null).get();
-			forgeListView.setItems(
-					FXCollections.observableList(forgeVersionList.getRecommendeds().values().stream().collect(Collectors
-							.toList())));
-		}
-		catch (InterruptedException | ExecutionException e)
-		{
-			e.printStackTrace();
-		}
-		mc.setOnSelectionChanged(e -> forgeListView.setExpanded(true));
-		this.tabPane.getTabs().setAll(mc, forge, liteLoader);
-	}
+//	protected void setupTabs()
+//	{
+//		Tab mc = new Tab("Minecraft"), forge = new Tab("Forge"), liteLoader = new Tab("LiteLoader");
+//		mc.setContent(versionTable);
+//
+//		JFXListView<ForgeVersion> forgeListView = new JFXListView<>();
+//		JFXListViewSkin skin = (JFXListViewSkin) forgeListView.getSkin();
+//		forgeListView.setVerticalGap(5D);
+//		forge.setContent(forgeListView);
+//		ForgeDownloadProvider forgeDownloadProvider = new ForgeDownloadProvider();
+//		MinecraftDownloader build = MinecraftDownloaderBuilder.create().providerChain(DownloadProviderChain.create().addProvider(forgeDownloadProvider))
+//				.build();
+//		try
+//		{
+//			ForgeVersionList forgeVersionList = build.download(forgeDownloadProvider.forgeVersionList(), null).get();
+//			forgeListView.setItems(
+//					FXCollections.observableList(forgeVersionList.getRecommendeds().values().stream().collect(Collectors
+//							.toList())));
+//		}
+//		catch (InterruptedException | ExecutionException e)
+//		{
+//			e.printStackTrace();
+//		}
+//		mc.setOnSelectionChanged(e -> forgeListView.setExpanded(true));
+//		this.tabPane.getTabs().setAll(mc, forge, liteLoader);
+//	}
 
 	protected JFXTableView<?> buildTable()
 	{
@@ -348,9 +336,9 @@ public class MinecraftVersionDisplayContent extends Region
 
 	protected void onConfirm()
 	{
-//		MCVersionObj selectedItem = (MCVersionObj) this.versionTable.getSelectionModel().getSelectedItem();
-//		if (selectedItem != null)
-//			picker.setValue(selectedItem.getVersion());
+		MCVersionObj selectedItem = (MCVersionObj) this.versionTable.getSelectionModel().getSelectedItem();
+		if (selectedItem != null)
+			picker.setValue(selectedItem.getVersion());
 	}
 
 	public static class MCVersionObj
