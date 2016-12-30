@@ -1,4 +1,4 @@
-package net.launcher.game.mod;
+package net.launcher.game.forge;
 
 import net.launcher.utils.StringUtils;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
@@ -9,7 +9,7 @@ import java.util.Map;
 /**
  * @author ci010
  */
-class MetaDataImpl implements ModMetaData
+class MetaDataImpl implements ForgeModMetaData
 {
 	private String modId = StringUtils.EMPTY;
 	private String description = StringUtils.EMPTY;

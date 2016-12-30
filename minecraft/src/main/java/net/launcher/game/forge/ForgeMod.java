@@ -1,4 +1,4 @@
-package net.launcher.game.mod;
+package net.launcher.game.forge;
 
 import net.launcher.utils.StringUtils;
 import net.minecraftforge.fml.common.versioning.*;
@@ -8,13 +8,13 @@ import java.util.Comparator;
 /**
  * @author ci010
  */
-public class Mod
+public class ForgeMod
 {
-	private ModMetaData metaData;
+	private ForgeModMetaData metaData;
 	private VersionRange range;
 	private ArtifactVersion version;
 
-	public Mod(ModMetaData metaData)
+	public ForgeMod(ForgeModMetaData metaData)
 	{
 		this.metaData = metaData;
 		this.range = parseMCVersionRange(metaData.getAcceptMinecraftVersion());
@@ -36,7 +36,7 @@ public class Mod
 		return range;
 	}
 
-	public ModMetaData getMetaData()
+	public ForgeModMetaData getMetaData()
 	{
 		return metaData;
 	}
@@ -44,7 +44,7 @@ public class Mod
 	@Override
 	public String toString()
 	{
-		return "ModRelease{" +
+		return "ForgeMod{" +
 				"modId='" + getModId() + '\'' +
 				", version='" + getVersion() + '\'' +
 				",\n metaData=" + metaData +
@@ -72,14 +72,14 @@ public class Mod
 		else return null;
 	}
 
-	Comparator<Mod> VERSION = (o1, o2) ->
+	Comparator<ForgeMod> VERSION = (o1, o2) ->
 	{
 		if (o1.getModId().compareTo(o2.getModId()) == 0)
 			return o1.getVersion().compareTo(o2.getVersion());
 		return Integer.MIN_VALUE;
 	};
 
-	Comparator<Mod> MCVERSION = (o1, o2) ->
+	Comparator<ForgeMod> MCVERSION = (o1, o2) ->
 			o1.getMinecraftVersionRange().getRecommendedVersion().compareTo(o2.getMinecraftVersionRange()
 					.getRecommendedVersion());
 

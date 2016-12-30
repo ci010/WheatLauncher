@@ -1,4 +1,4 @@
-package net.launcher.game.mod;/**
+package net.launcher.game.forge;/**
  * @author ci010
  */
 
@@ -17,41 +17,41 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-public class ModParser
+public class ForgeModParser
 {
-	public static ModParser create(Deserializer<Mod[], Path> deserializer)
+	public static ForgeModParser create(Deserializer<ForgeMod[], Path> deserializer)
 	{
 		Objects.requireNonNull(deserializer);
-		return new ModParser(deserializer);
+		return new ForgeModParser(deserializer);
 	}
 
-	public static ModParser create() {return new ModParser(defaultModDeserializer());}
+	public static ForgeModParser create() {return new ForgeModParser(defaultModDeserializer());}
 
-	public Mod[] parseFile(Path path)
+	public ForgeMod[] parseFile(Path path)
 	{
 		Objects.requireNonNull(path);
 		return deserializer.deserialize(path);
 	}
 
-	public Mod[] parseFile(Path path, Consumer<Throwable> exceptionHandler)
+	public ForgeMod[] parseFile(Path path, Consumer<Throwable> exceptionHandler)
 	{
 		Objects.requireNonNull(path);
 		return deserializer.deserializeWithException(path, exceptionHandler);
 	}
 
-	public Mod[] parseJson(String json)
+	public ForgeMod[] parseJson(String json)
 	{
 		Objects.requireNonNull(json);
 		return jsonParser().deserialize(json);
 	}
 
-	private Deserializer<Mod[], Path> deserializer;
+	private Deserializer<ForgeMod[], Path> deserializer;
 
-	public static Deserializer<Mod[], Path> defaultModDeserializer()
+	public static Deserializer<ForgeMod[], Path> defaultModDeserializer()
 	{
 		return (path, context) ->
 		{
-			List<Mod> releases = new ArrayList<>();
+			List<ForgeMod> releases = new ArrayList<>();
 			Path modInf = path.resolve("/mcmod.info");
 			Map<String, JSONObject> cacheInfoMap = new HashMap<>();
 			final Map<String, Map<String, Object>> annotationMap = new HashMap<>();
@@ -92,18 +92,18 @@ public class ModParser
 					if (info != null) meta.loadFromModInfo(info);
 					Map<String, Object> anno = annotationMap.get(s);
 					if (anno != null) meta.loadFromAnnotationMap(anno);
-					releases.add(new Mod(meta));
+					releases.add(new ForgeMod(meta));
 				}
 			}
 			catch (IOException e)
 			{
 				throw new IllegalArgumentException(e);
 			}
-			return releases.toArray(new Mod[releases.size()]);
+			return releases.toArray(new ForgeMod[releases.size()]);
 		};
 	}
 
-	private static Deserializer<Mod[], String> jsonParser()
+	private static Deserializer<ForgeMod[], String> jsonParser()
 	{
 		return (serialized, context) ->
 		{
@@ -116,17 +116,17 @@ public class ModParser
 				String modid = arr.getJSONObject(i).optString("modid");
 				if (StringUtils.isNotEmpty(modid)) cacheInfoMap.put(modid, arr.getJSONObject(i));
 			}
-			Mod[] mods = new Mod[cacheInfoMap.size()];
+			ForgeMod[] mods = new ForgeMod[cacheInfoMap.size()];
 			int i = 0;
 			for (Map.Entry<String, JSONObject> entry : cacheInfoMap.entrySet())
 			{
 				MetaDataImpl metaData = new MetaDataImpl();
 				metaData.loadFromModInfo(entry.getValue());
-				mods[i++] = new Mod(metaData);
+				mods[i++] = new ForgeMod(metaData);
 			}
 			return mods;
 		};
 	}
 
-	private ModParser(Deserializer<Mod[], Path> deserializer) {this.deserializer = deserializer;}
+	private ForgeModParser(Deserializer<ForgeMod[], Path> deserializer) {this.deserializer = deserializer;}
 }

@@ -1,23 +1,23 @@
-package net.launcher.game.mod;/**
+package net.launcher.game.forge;/**
  * @author ci010
  */
 
 import javafx.util.Builder;
 import net.launcher.utils.StringUtils;
 
-public class ModMetadataBuilder implements Builder<ModMetaData>
+public class ForgeModMetadataBuilder implements Builder<ForgeModMetaData>
 {
-	public static ModMetadataBuilder create() {return new ModMetadataBuilder();}
+	public static ForgeModMetadataBuilder create() {return new ForgeModMetadataBuilder();}
 
 	@Override
-	public ModMetaData build()
+	public ForgeModMetaData build()
 	{
 		return new MetaDataImpl(modId, description, updateJSON, url, logoFile, authorList, screenshots,
 				credits, parent, version, name, mcVersion, fingerprint, dependencies, acceptableRemoteVersions,
 				acceptableSaveVersions, clientOnly, severOnly);
 	}
 
-	private ModMetadataBuilder() {}
+	private ForgeModMetadataBuilder() {}
 
 	public void setModId(String modId)
 	{

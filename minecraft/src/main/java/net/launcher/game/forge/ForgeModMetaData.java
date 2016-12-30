@@ -1,9 +1,9 @@
-package net.launcher.game.mod;
+package net.launcher.game.forge;
 
 /**
  * @author ci010
  */
-public interface ModMetaData
+public interface ForgeModMetaData
 {
 	String getModId();
 

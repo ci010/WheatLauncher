@@ -1,4 +1,4 @@
-package net.launcher.game.mod;
+package net.launcher.game.forge;
 
 import jdk.internal.org.objectweb.asm.AnnotationVisitor;
 import jdk.internal.org.objectweb.asm.ClassVisitor;
@@ -24,7 +24,7 @@ class ModAnnotationVisitor extends ClassVisitor
 	@Override
 	public AnnotationVisitor visitAnnotation(String s, boolean b)
 	{
-		if (s.equals("Lnet/minecraftforge/fml/common/Mod;"))
+		if (s.equals("Lnet/minecraftforge/fml/common/ForgeMod;"))
 			return new AnnoVisitor(new HashMap<>());
 		return null;
 	}
