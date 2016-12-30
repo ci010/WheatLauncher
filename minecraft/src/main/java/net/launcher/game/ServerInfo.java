@@ -20,6 +20,11 @@ public class ServerInfo
 
 	private ServerStatus status;
 
+	public ServerInfo(String name, String hostName)
+	{
+		this(name, hostName, null, ResourceMode.PROMPT);
+	}
+
 	public ServerInfo(String name, String hostName, String serverIcon, ResourceMode resourceMode)
 	{
 		this.name = name;
