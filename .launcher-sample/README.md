@@ -1,0 +1,3 @@
+The root of the launcher, this dir includes the servers.dat which is the storage of servers ip, the
+
+The IO implementation and framework design should follow this dir's structure...

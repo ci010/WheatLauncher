@@ -74,17 +74,6 @@ public interface ArchiveRepository<T> extends Repository<ArchiveRepository.Resou
 		String parseToURL(Proxy proxy, String hash) throws IOException;
 	}
 
-	interface ArResource<T>
-	{
-		String getName();
-
-		ResourceType getType();
-
-		String getHash();
-
-		T getContainData();
-	}
-
 	class Resource<T>
 	{
 		private ResourceType type;
