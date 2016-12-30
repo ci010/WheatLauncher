@@ -17,8 +17,9 @@ import java.util.concurrent.Future;
 public class ServerPingTest {
 
     @Test
-    public void pingServer(){
-        // arbitary server
+	public void pingCloudGap()
+	{
+		// arbitary server
         ServerInfo testServer = new ServerInfo("Cloudgap","mc.cloudgap.net:25565","", ServerInfo.ResourceMode.DISABLED);
         Callback<ServerInfo> testCallback = new Callback<ServerInfo>(){
             @Override
