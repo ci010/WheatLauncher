@@ -24,7 +24,7 @@ public class CurseForgeServiceTest
 	public void testViewSession() throws IOException
 	{
 		CurseForgeService service = CurseForgeServices.newService(CurseForgeProjectType.Mods);
-		CurseForgeService.Cache<CurseForgeProject> cache = service.filter(null);
+		CurseForgeService.Cache<CurseForgeProject> cache = service.view(null);
 		assert service != null;
 		String s = cache.getCache().toString();
 
@@ -41,7 +41,7 @@ public class CurseForgeServiceTest
 		assert !s.equals(second);
 
 		CurseForgeService.Cache<CurseForgeProject> anotherCache
-				= service.filter(CurseForgeService.Option.create().setCategory(service.getCategories().get(1)));
+				= service.view(CurseForgeService.Option.create().setCategory(service.getCategories().get(1)));
 
 		String n = anotherCache.getCache().toString();
 		System.out.println(s);

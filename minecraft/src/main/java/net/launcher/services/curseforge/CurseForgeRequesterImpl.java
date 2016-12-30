@@ -44,10 +44,10 @@ class CurseForgeRequesterImpl implements CurseForgeService
 	{
 		if (filterTypesCache == null && gameVersionsCache == null && categoryCache == null)
 		{
-			Element filter = document.getElementById("filter-sort");
+			Element filter = document.getElementById("view-sort");
 			filterTypesCache = filter.children().stream().map(e -> e.attr("value")).collect(Collectors.toList());
 
-			gameVersionsCache = document.getElementById("filter-game-version").children().stream().collect
+			gameVersionsCache = document.getElementById("view-game-version").children().stream().collect
 					(Collectors.toMap(Element::val, Element::text));
 			gameVersionConstrains = new ArrayList<>(gameVersionsCache.values());
 			categoryCache = document.getElementsByClass("level-categories-nav").stream()
@@ -68,9 +68,9 @@ class CurseForgeRequesterImpl implements CurseForgeService
 		String url = root +
 				(option.getCategory() != null ? option.getCategory().getPath() : requestingType.getPath());
 		if (option.getConstrain() != null)
-			argumenst.put("filter-game-version", option.getConstrain());
+			argumenst.put("view-game-version", option.getConstrain());
 		if (option.getOption() != null)
-			argumenst.put("filter-sort", option.getOption());
+			argumenst.put("view-sort", option.getOption());
 		argumenst.put("page", page);
 		return HttpUtils.withUrlArguments(url, argumenst);
 	}
@@ -156,7 +156,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 	}
 
 	@Override
-	public Cache<CurseForgeProject> filter(Option option) throws IOException
+	public Cache<CurseForgeProject> view(Option option) throws IOException
 	{
 		if (option == null) option = new Option();
 		String url = buildURL(option, 1);
@@ -169,7 +169,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 		String val = pages.child(pages.children().size() - 1).child(0).attr("href");
 		int maxPage = Integer.valueOf(val.substring(val.lastIndexOf("page=") + 5));
 		Map<String, Object> context = new TreeMap<>();
-		context.put("type", "filter");
+		context.put("type", "view");
 		context.put("page", page);
 		context.put("maxPage", maxPage);
 		context.put("option", option);
@@ -184,7 +184,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 		if (context.get("type") == null) return false;
 		switch (context.get("type").toString())
 		{
-			case "filter":
+			case "view":
 				Cache<CurseForgeProject> projectCache = (Cache<CurseForgeProject>) cache;
 				int page = (int) context.get("page");
 				if ((page + 1) > (int) context.get("maxPage")) return false;

@@ -6,24 +6,64 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * The service for the CurseForge project.
+ * <p>Notice that these functions are all blocking.
+ *
  * @author ci010
+ * @see CurseForgeServices
  */
 public interface CurseForgeService
 {
+	/**
+	 * Get what the type this service is requesting.
+	 *
+	 * @return Project type enum
+	 */
 	CurseForgeProjectType getRequestingProjectType();
 
+	/**
+	 * Search project by keyword。
+	 *
+	 * @param keyword The keyword used to search
+	 * @return The project cache.
+	 */
 	Cache<CurseForgeProject> search(String keyword) throws IOException;
 
-	Cache<CurseForgeProject> filter(Option option) throws IOException;
+	/**
+	 * Filter projects by option
+	 *
+	 * @param option The option used to filter projects
+	 * @return The project cache.
+	 */
+	Cache<CurseForgeProject> view(Option option) throws IOException;
 
-	boolean growCache(Cache<?> session) throws IOException;
+	/**
+	 * Grow the cache to load more projects into it.
+	 *
+	 * @param cache The cache will be grow.
+	 * @return if the cache is grow. Basically, if there is no more projects satisfy the cache requirement, this will
+	 * return false
+	 */
+	boolean growCache(Cache<?> cache) throws IOException;
 
+	/**
+	 * @return The game version constrains, used on the {@link Option#setGameVersionConstrain(String)}.
+	 */
 	List<String> getGameVersionConstrains();
 
+	/**
+	 * @return The sort option, used on the {@link Option#setSortOption(String)} (String)}.
+	 */
 	List<String> getSortedOptions();
 
+	/**
+	 * @return The CurseForge category, used on the {@link Option#setCategory(CurseForgeCategory)}.
+	 */
 	List<CurseForgeCategory> getCategories();
 
+	/**
+	 * Indicate the search filter option.
+	 */
 	class Option
 	{
 		private CurseForgeCategory category;
@@ -54,6 +94,11 @@ public interface CurseForgeService
 		}
 	}
 
+	/**
+	 * Indicate a simple cache for a list of projects
+	 *
+	 * @param <T>
+	 */
 	class Cache<T>
 	{
 		protected List<T> cache;

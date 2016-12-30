@@ -154,7 +154,7 @@ public class MinecraftVersionDisplayContent extends Region
 		this.showAlpha.resize(refresh.getWidth(), refresh.getHeight());
 		this.showAlpha.setGraphic(new Icon("GAVEL", "2em", ";", "icon"));
 		this.showAlpha.setTooltip(new Tooltip(LanguageMap.INSTANCE.translate("showAlpha")));
-		//setup filter
+		//setup view
 		this.filter = new JFXTextField();
 		this.filter.setPromptText("Search...");
 		this.filter.setFocusColor(Color.ROSYBROWN);

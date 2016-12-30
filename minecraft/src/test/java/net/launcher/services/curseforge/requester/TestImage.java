@@ -31,7 +31,7 @@ public class TestImage extends Application
 		container.setStyle("-fx-background-color:WHITE;");
 		CurseForgeService service = CurseForgeServices.newService(CurseForgeProjectType.Mods);
 
-		CurseForgeService.Cache<CurseForgeProject> filter = service.filter(null);
+		CurseForgeService.Cache<CurseForgeProject> filter = service.view(null);
 		CurseForgeProject curseForgeProject = filter.getCache().get(0);
 		String imageUrl = curseForgeProject.getImageUrl();
 		System.out.println(imageUrl);
