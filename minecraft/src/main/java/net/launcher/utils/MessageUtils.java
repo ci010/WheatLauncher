@@ -17,6 +17,8 @@ public class MessageUtils
 	public static InetSocketAddress getAddress(String host)
 	{
 		if (host == null) return null;
+		if (host.toLowerCase().equals("localhost"))
+			host = "127.0.0.1";
 		String[] split = host.split(":");
 		if (host.startsWith("["))
 		{

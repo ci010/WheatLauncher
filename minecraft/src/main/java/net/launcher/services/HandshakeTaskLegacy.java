@@ -93,6 +93,6 @@ class HandshakeTaskLegacy implements Callable<ServerStatus>
 				if (split.length == 6)
 					return new String[]{split[1], split[2], split[3], split[4], split[5]};
 		}
-		throw new IOException("");
+		throw new IOException("Cannot ping the server");
 	}
 }

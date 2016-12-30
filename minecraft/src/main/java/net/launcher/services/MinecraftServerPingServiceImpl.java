@@ -69,14 +69,18 @@ class MinecraftServerPingServiceImpl implements MinecraftServerPingService
 	}
 
 	@Override
-	public Future<ServerStatus> fetchInfo(final ServerInfo info, final Callback<ServerInfo> callback)
+	public Future<ServerStatus> fetchInfo(ServerInfo info, Callback<ServerInfo> callback)
 	{
+		if (callback == null)
+			callback = new CallbackAdapter<ServerInfo>() {};
 		return fetchInfo0(info, callback, false);
 	}
 
 	@Override
 	public Future<ServerStatus> fetchInfoAndWaitPing(ServerInfo info, Callback<ServerInfo> callback)
 	{
+		if (callback == null)
+			callback = new CallbackAdapter<ServerInfo>() {};
 		return fetchInfo0(info, callback, true);
 	}
 

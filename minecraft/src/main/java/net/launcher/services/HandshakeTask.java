@@ -92,12 +92,13 @@ class HandshakeTask implements Callable<ServerStatus>
 	{
 		InetSocketAddress address = MessageUtils.getAddress(info.getHostName());
 
+		System.out.println(address);
 		if (channel == null)
 			channel = SocketChannel.open(address);
 		if (channel == null || !channel.isConnected())
 			throw new IOException("Cannot channel channel to " + info.getHostName());
 
-		ByteBuffer buffer = ByteBuffer.allocate(256); //handshake
+		ByteBuffer buffer = ByteBuffer.allocate(10240); //handshake
 		buffer.put((byte) 0x00);//handshake packet 0x00
 		writeVarInt(buffer, 210);//write protocol version
 		writeString(buffer, address.getHostName());//write host name
@@ -116,11 +117,13 @@ class HandshakeTask implements Callable<ServerStatus>
 		channel.write(serverStatus);
 
 		buffer.clear();
+
 		channel.read(buffer);
 		buffer.flip();
 
 		readVarInt(buffer);// size
 		int id = readVarInt(buffer);
+		System.out.println(id);
 		if (id == -1)
 			throw new IOException("Premature end of stream.");
 		if (id != 0x00)
