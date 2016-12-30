@@ -5,10 +5,7 @@ import com.jfoenix.effects.JFXDepthManager;
 import de.jensd.fx.fontawesome.Icon;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.event.Event;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -76,8 +73,6 @@ public class MinecraftVersionDisplayContent extends Region
 		this.mainDisplayContainer.setAlignment(Pos.CENTER);
 		this.mainDisplayContainer.setStyle("-fx-padding:5; -fx-background-color:#009688");
 
-//		this.setupBookmark();
-
 		this.containerParent.getChildren().add(mainDisplayContainer);
 
 		this.spinner = new JFXSpinner();
@@ -88,7 +83,6 @@ public class MinecraftVersionDisplayContent extends Region
 		header.getStyleClass().add("title");
 		header.setStyle("-fx-padding:10");
 
-//		JFXDepthManager.setDepth(header, 3);
 		setupHeader();
 		setupContent();
 		bindData();
@@ -97,21 +91,6 @@ public class MinecraftVersionDisplayContent extends Region
 		confirm.setOnMouseClicked(event -> onConfirm());
 	}
 
-//	protected void setupBookmark()
-//	{
-//		Label mcLabel = new Label("Minecraft");
-//		mcLabel.setRotate(270);
-//		VBox mcDetail = new VBox();
-//		HBox mc = new HBox();
-//		Animation mcAnimation = new Timeline(new KeyFrame(Duration.ZERO,
-//				new KeyValue(mc.translateXProperty(),)));
-//		mc.setOnMouseEntered(e ->
-//		{
-//			mc.setTranslateX();
-//		});
-//
-//		this.bookMarkContainer.setStyle("-fx-padding:10,10,0,0;");
-//	}
 
 	private void refresh()
 	{
@@ -157,39 +136,10 @@ public class MinecraftVersionDisplayContent extends Region
 		this.content.getChildren().setAll(versionTable, btnContainer);
 	}
 
-//	protected void setupTabs()
-//	{
-//		Tab mc = new Tab("Minecraft"), forge = new Tab("Forge"), liteLoader = new Tab("LiteLoader");
-//		mc.setContent(versionTable);
-//
-//		JFXListView<ForgeVersion> forgeListView = new JFXListView<>();
-//		JFXListViewSkin skin = (JFXListViewSkin) forgeListView.getSkin();
-//		forgeListView.setVerticalGap(5D);
-//		forge.setContent(forgeListView);
-//		ForgeDownloadProvider forgeDownloadProvider = new ForgeDownloadProvider();
-//		MinecraftDownloader build = MinecraftDownloaderBuilder.create().providerChain(DownloadProviderChain.create().addProvider(forgeDownloadProvider))
-//				.build();
-//		try
-//		{
-//			ForgeVersionList forgeVersionList = build.download(forgeDownloadProvider.forgeVersionList(), null).get();
-//			forgeListView.setItems(
-//					FXCollections.observableList(forgeVersionList.getRecommendeds().values().stream().collect(Collectors
-//							.toList())));
-//		}
-//		catch (InterruptedException | ExecutionException e)
-//		{
-//			e.printStackTrace();
-//		}
-//		mc.setOnSelectionChanged(e -> forgeListView.setExpanded(true));
-//		this.tabPane.getTabs().setAll(mc, forge, liteLoader);
-//	}
-
 	protected JFXTableView<?> buildTable()
 	{
 		TableColumn<MCVersionObj, Icon> releaseTypeIcon = new TableColumn<>("Type");
 		releaseTypeIcon.setCellValueFactory(param -> param.getValue().versionIcon);
-		releaseTypeIcon.setEditable(false);
-		releaseTypeIcon.setResizable(false);
 		releaseTypeIcon.setComparator((o1, o2) ->
 		{
 			String a = o1.getTooltip().getText();
@@ -203,8 +153,6 @@ public class MinecraftVersionDisplayContent extends Region
 		TableColumn<MCVersionObj, String> version = new TableColumn<>("Version");
 		version.setCellValueFactory(param ->
 				param.getValue().version);
-		version.setEditable(false);
-		version.setResizable(false);
 		version.setComparator((o1, o2) ->
 		{
 			if (!Character.isDigit(o1.charAt(0)))
@@ -220,14 +168,27 @@ public class MinecraftVersionDisplayContent extends Region
 
 		TableColumn<MCVersionObj, String> updateTime = new TableColumn<>("Update Time");
 		updateTime.setCellValueFactory(param -> param.getValue().updateTime);
-		updateTime.setEditable(false);
-		updateTime.setResizable(false);
-		updateTime.setContextMenu(null);
 		TableColumn<MCVersionObj, String> releaseTime = new TableColumn<>("Release Time");
 		releaseTime.setCellValueFactory(param -> param.getValue().releaseTime);
-		releaseTime.setEditable(false);
-		releaseTime.setResizable(false);
 
+		TableColumn<MCVersionObj, Icon> remote = new TableColumn<>("Status");
+		remote.setCellValueFactory(param ->
+				{
+					Icon icon;
+					if (param.getValue().isRemote.getValue())
+					{
+						icon = new Icon("DOWNLOAD");
+						Tooltip tooltip = new Tooltip("Need to be downloaded");
+						icon.setTooltip(tooltip);
+					}
+					else
+					{
+						icon = new Icon("DRAWER");
+						icon.setTooltip(new Tooltip("Already in storage"));
+					}
+					return new SimpleObjectProperty<>(icon);
+				}
+		);
 
 		JFXTableView<MCVersionObj> versionTable = new JFXTableView<>();
 		this.picker.dataListProperty().addListener(o ->
@@ -244,7 +205,12 @@ public class MinecraftVersionDisplayContent extends Region
 		versionTable.setFixedSize(true);
 		versionTable.setColumnsDraggable(false);
 		versionTable.setEditable(false);
-		versionTable.getColumns().setAll(releaseTypeIcon, version, updateTime, releaseTime);
+		versionTable.getColumns().setAll(releaseTypeIcon, version, updateTime, releaseTime, remote);
+		for (TableColumn<MCVersionObj, ?> column : versionTable.getColumns())
+		{
+			column.setEditable(false);
+			column.setResizable(false);
+		}
 		return versionTable;
 	}
 
@@ -289,22 +255,21 @@ public class MinecraftVersionDisplayContent extends Region
 		{
 			MCVersionObj obj = (MCVersionObj) versionTable.getSelectionModel().getSelectedItem();
 			if (obj != null)
-				return obj.getVersion().getVersion();
+				return obj.version.get();
 			return "";
 		}, versionTable.getSelectionModel().selectedIndexProperty()));
 		releaseType.textProperty().bind(Bindings.createStringBinding(() ->
 		{
 			MCVersionObj obj = (MCVersionObj) versionTable.getSelectionModel().getSelectedItem();
 			if (obj != null)
-				return obj.getVersion().getType();
+				return obj.type.get();
 			return "";
 		}, versionTable.getSelectionModel().selectedIndexProperty()));
 		releaseTime.textProperty().bind(Bindings.createStringBinding(() ->
 		{
 			MCVersionObj selectedItem = (MCVersionObj) versionTable.getSelectionModel().getSelectedItem();
 			if (selectedItem != null)
-				return DateFormat.getInstance().format((selectedItem).getVersion()
-						.getReleaseTime());
+				return selectedItem.releaseTime.get();
 			return "";
 		}, versionTable.getSelectionModel().selectedIndexProperty()));
 
@@ -345,32 +310,36 @@ public class MinecraftVersionDisplayContent extends Region
 	{
 		private StringProperty version, type, releaseTime, updateTime;
 		private ObjectProperty<Icon> versionIcon;
-		private ObjectProperty<RemoteVersion> versionObjectProperty;
+		private ObjectProperty<RemoteVersion> versionObject;
+		private BooleanProperty isRemote;
 
-		public MCVersionObj(RemoteVersion version)
+		public MCVersionObj(RemoteVersion version) {this(version, true);}
+
+		public MCVersionObj(RemoteVersion version, boolean isRemote)
 		{
-			this.versionObjectProperty = new SimpleObjectProperty<>(version);
+			this.isRemote = new SimpleBooleanProperty(isRemote);
+			this.versionObject = new SimpleObjectProperty<>(version);
 			this.version = new SimpleStringProperty("");
-			this.version.bind(Bindings.createStringBinding(versionObjectProperty.get()::getVersion, versionObjectProperty));
+			this.version.bind(Bindings.createStringBinding(versionObject.get()::getVersion, versionObject));
 			this.type = new SimpleStringProperty("");
-			this.type.bind(Bindings.createStringBinding(versionObjectProperty.get()::getType, versionObjectProperty));
+			this.type.bind(Bindings.createStringBinding(versionObject.get()::getType, versionObject));
 			this.releaseTime = new SimpleStringProperty("");
 			this.releaseTime.bind(Bindings.createStringBinding(() ->
 			{
-				Date releaseTime = versionObjectProperty.get().getReleaseTime();
+				Date releaseTime = versionObject.get().getReleaseTime();
 				if (releaseTime != null)
 					return DateFormat.getInstance().format
 							(releaseTime);
 				return "Unknown";
-			}, versionObjectProperty));
+			}, versionObject));
 			this.updateTime = new SimpleStringProperty("");
 			this.updateTime.bind(Bindings.createObjectBinding(() ->
 			{
-				Date uploadTime = versionObjectProperty.get().getUploadTime();
+				Date uploadTime = versionObject.get().getUploadTime();
 				if (uploadTime != null)
 					return DateFormat.getInstance().format(uploadTime);
 				return "Unknown";
-			}, versionObjectProperty));
+			}, versionObject));
 			this.versionIcon = new SimpleObjectProperty<>();
 			this.versionIcon.bind(Bindings.createObjectBinding(() ->
 			{
@@ -384,8 +353,6 @@ public class MinecraftVersionDisplayContent extends Region
 			}, type));
 		}
 
-		public void setVersion(RemoteVersion version) {versionObjectProperty.set(version);}
-
-		public RemoteVersion getVersion() {return versionObjectProperty.get();}
+		public RemoteVersion getVersion() {return versionObject.get();}
 	}
 }

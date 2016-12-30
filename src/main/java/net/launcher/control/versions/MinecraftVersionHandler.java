@@ -16,8 +16,10 @@ import org.to2mbn.jmccc.mcdownloader.provider.liteloader.LiteloaderVersion;
 import org.to2mbn.jmccc.mcdownloader.provider.liteloader.LiteloaderVersionList;
 
 /**
+ * NOT DONE YET
  * @author ci010
  */
+@Deprecated
 public class MinecraftVersionHandler
 {
 	private MinecraftDownloader downloader;
@@ -27,7 +29,6 @@ public class MinecraftVersionHandler
 	private ObjectProperty<RemoteVersionList> mcVersionList;
 	private ObjectProperty<ForgeVersionList> forgeVersionList;
 	private ObjectProperty<LiteloaderVersionList> liteloaderVersionList;
-
 
 	private ObjectProperty<RemoteVersion> selectedMC;
 	private ObjectProperty<ForgeVersion> selectedForge;
