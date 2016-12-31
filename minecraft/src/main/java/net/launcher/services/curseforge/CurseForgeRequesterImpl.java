@@ -44,10 +44,10 @@ class CurseForgeRequesterImpl implements CurseForgeService
 	{
 		if (filterTypesCache == null && gameVersionsCache == null && categoryCache == null)
 		{
-			Element filter = document.getElementById("view-sort");
+			Element filter = document.getElementById("filter-sort");
 			filterTypesCache = filter.children().stream().map(e -> e.attr("value")).collect(Collectors.toList());
 
-			gameVersionsCache = document.getElementById("view-game-version").children().stream().collect
+			gameVersionsCache = document.getElementById("filter-game-version").children().stream().collect
 					(Collectors.toMap(Element::val, Element::text));
 			gameVersionConstrains = new ArrayList<>(gameVersionsCache.values());
 			categoryCache = document.getElementsByClass("level-categories-nav").stream()
