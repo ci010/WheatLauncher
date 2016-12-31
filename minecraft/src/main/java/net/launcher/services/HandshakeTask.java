@@ -121,18 +121,12 @@ class HandshakeTask implements Callable<ServerStatus>
 		channel.read(buffer);
 		buffer.flip();
 
-		System.out.println("total " + buffer.limit());
-
 		int size = readVarInt(buffer);// size
-		System.out.println("expect (bytes)" + size);
 		int remaining = buffer.remaining();
-		System.out.println("read (bytes) " + remaining);
 
 		if (size > remaining)
 		{
 			int actualRemain = size - remaining;
-			System.out.println("size " + size + " is greater than remain " + remaining);
-			System.out.println("need to read " + actualRemain);
 
 			ByteBuffer temp = ByteBuffer.allocate(size);
 			temp.put(buffer);
