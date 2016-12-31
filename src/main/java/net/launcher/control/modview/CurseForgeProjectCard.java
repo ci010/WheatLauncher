@@ -39,11 +39,12 @@ public class CurseForgeProjectCard extends StackPane
 		this.project.set(project);
 	}
 
+	private BorderPane header;
+
 	@Override
 	protected double computeMinHeight(double width)
 	{
-		return 300;
-//		return super.computeMinHeight(width);
+		return header.getWidth() * 1.2;
 	}
 
 	@Override
@@ -55,33 +56,35 @@ public class CurseForgeProjectCard extends StackPane
 	@Override
 	protected double computePrefWidth(double height)
 	{
-		return super.computePrefWidth(height);
+		return header.getWidth();
 	}
 
 	@Override
 	protected double computePrefHeight(double width)
 	{
-		return super.computePrefHeight(width);
+		return header.getWidth() * 1.2;
 	}
+
 
 	@Override
 	protected double computeMaxWidth(double height)
 	{
-		return 150;
+		return header.getWidth();
 //		return super.computeMaxWidth(height);
 	}
 
 	@Override
 	protected double computeMaxHeight(double width)
 	{
-		return super.computeMaxHeight(width);
+		return header.getWidth() * 1.2;
 	}
 
 	public CurseForgeProjectCard(CurseForgeProject project, int i)
 	{
 		this.project.set(project);
 		VBox content = new VBox();
-		BorderPane header = new BorderPane();
+		this.header = new BorderPane();
+		this.header.setMaxWidth(200);
 		String headerColor = getDefaultColor(i % 12);
 		header.setStyle("-fx-background-radius: 5 5 0 0; -fx-background-color: " + headerColor);
 		VBox.setVgrow(header, Priority.ALWAYS);
@@ -150,6 +153,7 @@ public class CurseForgeProjectCard extends StackPane
 		name.getStyleClass().add("header-major");
 		author.getStyleClass().add("header-minor");
 		BorderPane borderPane = new BorderPane();
+		name.setWrapText(true);
 		borderPane.setLeft(name);
 		borderPane.setRight(author);
 		BorderPane mics = new BorderPane();
