@@ -37,7 +37,7 @@ class HandshakeTask implements Callable<ServerStatus>
 	public ServerStatus call() throws Exception
 	{
 		String s = handshake(info);
-		System.out.println(s);
+//		System.out.println(s);
 		JSONObject object = new JSONObject(s);
 		String description = object.getJSONObject("description").getString("text");
 		String favicon = object.optString("favicon");
@@ -98,7 +98,7 @@ class HandshakeTask implements Callable<ServerStatus>
 		if (channel == null || !channel.isConnected())
 			throw new IOException("Cannot channel channel to " + info.getHostName());
 
-		ByteBuffer buffer = ByteBuffer.allocate(10240); //handshake
+		ByteBuffer buffer = ByteBuffer.allocate(256); //handshake
 		buffer.put((byte) 0x00);//handshake packet 0x00
 		writeVarInt(buffer, 210);//write protocol version
 		writeString(buffer, address.getHostName());//write host name
@@ -121,7 +121,26 @@ class HandshakeTask implements Callable<ServerStatus>
 		channel.read(buffer);
 		buffer.flip();
 
-		readVarInt(buffer);// size
+		System.out.println("total " + buffer.limit());
+
+		int size = readVarInt(buffer);// size
+		System.out.println("expect (bytes)" + size);
+		int remaining = buffer.remaining();
+		System.out.println("read (bytes) " + remaining);
+
+		if (size > remaining)
+		{
+			int actualRemain = size - remaining;
+			System.out.println("size " + size + " is greater than remain " + remaining);
+			System.out.println("need to read " + actualRemain);
+
+			ByteBuffer temp = ByteBuffer.allocate(size);
+			temp.put(buffer);
+			for (int read = 0; read < actualRemain; )
+				read += channel.read(temp);
+			temp.flip();
+			buffer = temp;
+		}
 		int id = readVarInt(buffer);
 		if (id == -1)
 			throw new IOException("Premature end of stream.");
@@ -129,6 +148,7 @@ class HandshakeTask implements Callable<ServerStatus>
 			throw new IOException("Illegal packet id: " + id);
 
 		int length = readVarInt(buffer);
+
 		byte[] bytes = new byte[length];
 		buffer.get(bytes);
 		return new String(bytes);
