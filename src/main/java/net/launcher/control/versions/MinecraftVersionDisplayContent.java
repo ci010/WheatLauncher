@@ -6,6 +6,7 @@ import de.jensd.fx.fontawesome.Icon;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import javafx.collections.FXCollections;
 import javafx.event.Event;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
@@ -195,13 +196,16 @@ public class MinecraftVersionDisplayContent extends Region
 		{
 			RemoteVersionList dataList = this.picker.getDataList();
 			if (dataList != null)
-				versionTable.getItems().setAll(this.picker.getDataList().getVersions().values().stream().map(MCVersionObj::new)
-						.collect(Collectors.toList()));
+				versionTable.setItems(FXCollections.observableArrayList(this.picker.getDataList().getVersions().values().stream().map
+						(MCVersionObj::new)
+						.collect(Collectors.toList())));
 		});
 		RemoteVersionList dataList = this.picker.getDataList();
 		if (dataList != null)
-			versionTable.getItems().setAll(this.picker.getDataList().getVersions().values().stream().map(MCVersionObj::new)
-					.collect(Collectors.toList()));
+			versionTable.setItems(FXCollections.observableArrayList(this.picker.getDataList().getVersions().values()
+					.stream().map
+							(MCVersionObj::new)
+					.collect(Collectors.toList())));
 		versionTable.setFixedSize(true);
 		versionTable.setColumnsDraggable(false);
 		versionTable.setEditable(false);
