@@ -33,28 +33,24 @@ class ModMangerImpl extends OptionLaunchElementManager<ForgeMod, String[]> imple
 				modVersionToResource.put(release.getModId() + ":" +
 						release.getVersion(), k);
 		});
-		archiveResource.getResourceMap().addListener(new MapChangeListener<String, ArchiveRepository.Resource<ForgeMod[]>>()
+		archiveResource.getResourceMap().addListener((MapChangeListener<String, ArchiveRepository.Resource<ForgeMod[]>>) change ->
 		{
-			@Override
-			public void onChanged(Change<? extends String, ? extends ArchiveRepository.Resource<ForgeMod[]>> change)
-			{
-				if (change.wasAdded())
-					for (ForgeMod modMeta : change.getValueAdded().getContainData())
-					{
-						String s = modMeta.getModId() + ":" + modMeta.getMetaData().getVersion();
-						modVersionToResource.put(s,
-								change.getValueAdded().getHash());
-						toRelease.put(s, modMeta);
-					}
-				if (change.wasRemoved())
-					for (ForgeMod release : change.getValueRemoved().getContainData())
-					{
-						String s = release.getModId() + ":" +
-								release.getVersion();
-						modVersionToResource.remove(s);
-						toRelease.remove(s);
-					}
-			}
+			if (change.wasAdded())
+				for (ForgeMod modMeta : change.getValueAdded().getContainData())
+				{
+					String s = modMeta.getModId() + ":" + modMeta.getMetaData().getVersion();
+					modVersionToResource.put(s,
+							change.getValueAdded().getHash());
+					toRelease.put(s, modMeta);
+				}
+			if (change.wasRemoved())
+				for (ForgeMod release : change.getValueRemoved().getContainData())
+				{
+					String s = release.getModId() + ":" +
+							release.getVersion();
+					modVersionToResource.remove(s);
+					toRelease.remove(s);
+				}
 		});
 	}
 
