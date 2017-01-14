@@ -1,12 +1,10 @@
-package net.launcher.game.forge;/**
- * @author ci010
- */
+package net.launcher.game.forge;
 
-import jdk.internal.org.objectweb.asm.ClassReader;
 import net.launcher.utils.NIOUtils;
 import net.launcher.utils.Patterns;
 import net.launcher.utils.StringUtils;
 import net.launcher.utils.serial.Deserializer;
+import org.objectweb.asm.ClassReader;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 
@@ -17,6 +15,9 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+/**
+ * @author ci010
+ */
 public class ForgeModParser
 {
 	public static ForgeModParser create(Deserializer<ForgeMod[], Path> deserializer)

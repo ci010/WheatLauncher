@@ -1,3 +1,5 @@
+apply plugin: 'application'
+mainClassName = "net.wheatlauncher.MainApplication"
 
 repositories {
     mavenCentral()
