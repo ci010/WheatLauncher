@@ -1,0 +1,8 @@
+language: java
+install:
+ - ./gradlew check
+ - ./gradlew assemble
+jdk:
+  - oraclejdk8
+  - oraclejdk7
+  - openjdk7
