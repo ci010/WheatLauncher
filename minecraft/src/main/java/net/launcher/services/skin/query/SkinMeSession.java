@@ -1,6 +1,6 @@
 package net.launcher.services.skin.query;
 
-import net.launcher.utils.CallbacksOption;
+import net.launcher.utils.Tasks;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -81,7 +81,7 @@ class SkinMeSession implements SkinQueryService.Session
 
 	private void submit(int index, Callback<List<Skin>> callback)
 	{
-		service.submit(CallbacksOption.wrap(new QueryPage(index), callback));
+		service.submit(Tasks.wrap(new QueryPage(index), callback));
 	}
 
 	@Override

@@ -1,5 +1,7 @@
 package net.wheatlauncher;
 
+import net.hakugyokurou.aeb.EventBus;
+import net.hakugyokurou.aeb.EventBusBuilder;
 import net.launcher.AuthProfile;
 import net.launcher.Bootstrap;
 import net.launcher.LaunchCore;
@@ -23,7 +25,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -38,12 +43,7 @@ public class Core extends LaunchCore
 	}
 
 	private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(4);
-	private Timer timer = new Timer(true);
-
-	public Timer getTimer()
-	{
-		return timer;
-	}
+	private EventBus bus;
 
 	private Path root;
 	private LaunchProfileManager profileManager;
@@ -55,9 +55,15 @@ public class Core extends LaunchCore
 
 	private Map<Class, LaunchElementManager> managers;
 
-	public Path getRoot() {return root;}
+	public Path getRoot()
+	{
+		return root;
+	}
 
-	public Path getProfilesRoot() {return root.resolve("profiles");}
+	public Path getProfilesRoot()
+	{
+		return root.resolve("profiles");
+	}
 
 	@Override
 	public Collection<LaunchElementManager> getAllElementsManagers()
@@ -67,13 +73,28 @@ public class Core extends LaunchCore
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T> Optional<LaunchElementManager<T>> getElementManager(Class<T> clz) {return Optional.ofNullable(managers.get(clz));}
+	public <T> Optional<LaunchElementManager<T>> getElementManager(Class<T> clz)
+	{
+		return Optional.ofNullable(managers.get(clz));
+	}
 
 	@Override
-	public LaunchProfileManager getProfileManager() {return this.profileManager;}
+	public LaunchProfileManager getProfileManager()
+	{
+		return this.profileManager;
+	}
 
 	@Override
-	public AuthProfile getAuthProfile() {return authProfile;}
+	public AuthProfile getAuthProfile()
+	{
+		return authProfile;
+	}
+
+	@Override
+	public EventBus getEventBus()
+	{
+		return bus;
+	}
 
 	@Override
 	protected LaunchOption buildOption()
@@ -119,6 +140,7 @@ public class Core extends LaunchCore
 		Logger.trace("Start to init");
 
 		this.initRoot();
+		this.bus = EventBusBuilder.create().setExecutor(this.executorService).build();
 
 		this.maintainer = new WorldSaveMaintainer(root.resolve("saves"));
 
@@ -182,8 +204,6 @@ public class Core extends LaunchCore
 	{
 		executorService.shutdown();
 		ioContext.saveAll();
-		timer.cancel();
-		timer.purge();
 		Logger.trace("Shutdown");
 	}
 

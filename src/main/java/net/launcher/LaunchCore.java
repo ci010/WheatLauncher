@@ -1,5 +1,6 @@
 package net.launcher;
 
+import net.hakugyokurou.aeb.EventBus;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.profile.LaunchProfileManager;
 import org.to2mbn.jmccc.launch.Launcher;
@@ -23,6 +24,8 @@ public abstract class LaunchCore
 	public abstract LaunchProfileManager getProfileManager();
 
 	public abstract AuthProfile getAuthProfile();
+
+	public abstract EventBus getEventBus();
 
 	public void launch() throws Exception
 	{

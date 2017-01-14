@@ -20,15 +20,13 @@ import net.launcher.AuthProfile;
 import net.launcher.Bootstrap;
 import net.launcher.auth.Authorize;
 import net.launcher.auth.AuthorizeFactory;
-import net.launcher.utils.CallbacksOption;
 import net.launcher.utils.Logger;
+import net.launcher.utils.Tasks;
 import net.wheatlauncher.control.utils.ReloadableController;
 import net.wheatlauncher.control.utils.ValidatorDelegate;
 import net.wheatlauncher.control.utils.WindowsManager;
 import net.wheatlauncher.utils.LanguageMap;
-import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 
 import javax.annotation.PostConstruct;
 import java.net.UnknownHostException;
@@ -158,28 +156,18 @@ public class ControllerLogin
 		btnPane.getChildren().remove(login);
 		btnPane.getChildren().add(spinner);
 		onlineMode.setDisable(true);
-		Bootstrap.getCore().getService().submit(CallbacksOption.wrap(() ->
+		Bootstrap.getCore().getService().submit(Tasks.builder(() ->
 		{
 			AuthProfile module = Bootstrap.getCore().getAuthProfile();
 			return module.getAuthorize().auth(module.getAccount(), module.getPassword());
-		}, new CallbackAdapter<AuthInfo>()
+		}).setDone((result) -> Platform.runLater(() ->
 		{
-			@Override
-			public void done(AuthInfo result)
-			{
-				Platform.runLater(() ->
-				{
-					Bootstrap.getCore().getAuthProfile().setCache(result);
-					btnPane.getChildren().remove(spinner);
-					btnPane.getChildren().add(login);
-					switchToPreview();
-					onlineMode.setDisable(false);
-				});
-			}
-
-			@Override
-			public void failed(Throwable e)
-			{
+			Bootstrap.getCore().getAuthProfile().setCache(result);
+			btnPane.getChildren().remove(spinner);
+			btnPane.getChildren().add(login);
+			switchToPreview();
+			onlineMode.setDisable(false);
+		})).setException((e) ->
 				Platform.runLater(() ->
 				{
 					Throwable ex = e.getCause() == null ? e : e.getCause();
@@ -195,9 +183,8 @@ public class ControllerLogin
 					btnPane.getChildren().remove(spinner);
 					btnPane.getChildren().add(login);
 					onlineMode.setDisable(false);
-				});
-			}
-		}));
+				})).build());
+
 	}
 
 	private void switchToPreview()

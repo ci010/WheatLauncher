@@ -10,7 +10,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
-import net.launcher.utils.CallbacksOption;
+import net.launcher.utils.Tasks;
 import org.to2mbn.jmccc.mcdownloader.MinecraftDownloader;
 import org.to2mbn.jmccc.mcdownloader.MinecraftDownloaderBuilder;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersion;
@@ -34,7 +34,7 @@ public class MinecraftVersionPicker extends ComboBoxBase<RemoteVersion>
 	{
 		getStyleClass().add("jfx-date-picker");
 		setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
-		onUpdate(CallbacksOption.empty());
+		onUpdate(Tasks.empty());
 	}
 
 	public RemoteVersionList getDataList()

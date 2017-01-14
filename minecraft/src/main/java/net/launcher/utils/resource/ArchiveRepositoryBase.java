@@ -183,7 +183,7 @@ class ArchiveRepositoryBase<T>
 	public Future<Boolean> containResource(String path, Callback<Boolean> callback)
 	{
 		Objects.requireNonNull(path);
-		return service.submit(CallbacksOption.wrap(() ->
+		return service.submit(Tasks.wrap(() ->
 		{
 			if (archesMap.containsKey(path)) return true;
 			if (Files.exists(root.resolve(path + ".dat")))
@@ -248,7 +248,7 @@ class ArchiveRepositoryBase<T>
 	{
 		Objects.requireNonNull(file);
 		ProgressCallback<Resource<T>> call = callback == null ? new ProgressCallbackAdapter<Resource<T>>() {} : callback;
-		return service.submit(CallbacksOption.wrap(() ->
+		return service.submit(Tasks.wrap(() ->
 		{
 			call.updateProgress(0, 3, "start");
 			ResourceType resourceType = ResourceType.getType(file);
@@ -344,7 +344,7 @@ class ArchiveRepositoryBase<T>
 	{
 		Objects.requireNonNull(directory);
 		callback.updateProgress(0, 2, "start");
-		return new DeliveryImpl<>(service.submit(CallbacksOption.wrap(() ->
+		return new DeliveryImpl<>(service.submit(Tasks.wrap(() ->
 		{
 			callback.updateProgress(1, 2, "fetching");
 			for (EmbeddedRemoteArchiveRepository repository : remoteRepository)
@@ -478,7 +478,7 @@ class ArchiveRepositoryBase<T>
 		@Override
 		public Future<Boolean> containResource(String hash, Callback<Boolean> callback)
 		{
-			return getService().submit(CallbacksOption.wrap(() ->
+			return getService().submit(Tasks.wrap(() ->
 			{
 				if (getAllVisiblePaths().contains(hash)) return true;
 				String url = remote.parseToURL(getProxy(), hash + ".dat");
@@ -518,7 +518,7 @@ class ArchiveRepositoryBase<T>
 				throw new IllegalArgumentException();
 			if (callback == null) callback = new ProgressCallbackAdapter<Void>() {};
 			Callback<Void> call = callback;
-			getService().submit(CallbacksOption.wrap(() ->
+			getService().submit(Tasks.wrap(() ->
 			{
 				for (String path : index)
 					fetchResource(directory, path, new ProgressCallbackAdapter<Resource<T>>()

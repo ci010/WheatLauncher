@@ -16,7 +16,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import net.launcher.utils.CallbacksOption;
+import net.launcher.utils.Tasks;
 import net.minecraftforge.fml.common.versioning.ComparableVersion;
 import net.wheatlauncher.utils.LanguageMap;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersion;
@@ -98,7 +98,7 @@ public class MinecraftVersionDisplayContent extends Region
 		if (!root.getChildren().contains(spinner))
 			root.getChildren().add(spinner);
 		this.mainDisplayContainer.setDisable(true);
-		this.picker.onUpdate(CallbacksOption.whateverCallback(
+		this.picker.onUpdate(Tasks.whatever(
 				() ->
 				{
 					root.getChildren().remove(spinner);
