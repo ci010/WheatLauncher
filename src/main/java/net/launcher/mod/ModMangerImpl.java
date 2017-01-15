@@ -42,15 +42,13 @@ class ModMangerImpl extends OptionLaunchElementManager<ForgeMod, String[]> imple
 					for (ForgeMod modMeta : change.getValueAdded().getContainData())
 					{
 						String s = modMeta.getModId() + ":" + modMeta.getMetaData().getVersion();
-						modVersionToResource.put(s,
-								change.getValueAdded().getHash());
+						modVersionToResource.put(s, change.getValueAdded().getHash());
 						toRelease.put(s, modMeta);
 					}
 				if (change.wasRemoved())
 					for (ForgeMod release : change.getValueRemoved().getContainData())
 					{
-						String s = release.getModId() + ":" +
-								release.getVersion();
+						String s = release.getModId() + ":" + release.getVersion();
 						modVersionToResource.remove(s);
 						toRelease.remove(s);
 					}

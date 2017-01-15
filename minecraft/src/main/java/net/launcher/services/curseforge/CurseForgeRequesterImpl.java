@@ -127,10 +127,12 @@ class CurseForgeRequesterImpl implements CurseForgeService
 
 	private CurseForgeProject parseSearchProject(Element e)
 	{
+		String path = e.child(1).child(0).child(0).attr("href");
+		if (!path.contains(requestingType.getId())) return null;
 		return new CurseForgeProject(
 				e.child(1).child(0).child(0).text(),
 				e.child(1).child(1).text(),
-				e.child(1).child(0).child(0).attr("href"),
+				path,
 				e.child(0).child(0).child(0).attr("src"),
 				Collections.emptyList(),
 				e.child(2).child(0).text(),
@@ -146,8 +148,8 @@ class CurseForgeRequesterImpl implements CurseForgeService
 		url = HttpUtils.withUrlArguments(url, Collections.singletonMap("search", keyword));
 		Document document = Jsoup.parse(requester.request("GET", url));
 		if (document.getElementsByClass("tabbed-container").size() == 0) return new Cache<>();
-		List<CurseForgeProject> projects = document.getElementsByClass("results").stream().map(this::parseSearchProject).collect
-				(Collectors.toList());
+		List<CurseForgeProject> projects = document.getElementsByClass("results").stream().map(this::parseSearchProject)
+				.filter(Objects::nonNull).collect(Collectors.toList());
 		Map<String, Object> context = new TreeMap<>();
 		context.put("type", "search");
 		context.put("keyword", keyword);

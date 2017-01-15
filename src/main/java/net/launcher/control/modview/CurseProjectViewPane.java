@@ -8,6 +8,8 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.StackPane;
 import net.launcher.services.curseforge.CurseForgeProject;
@@ -20,6 +22,7 @@ import java.util.stream.Collectors;
  */
 public class CurseProjectViewPane extends StackPane
 {
+	//	public static final  EventType<RequireUpdateEvent>
 	private ScrollPane scrollControl;
 	private JFXMasonryPane container;
 	private ObjectProperty<CurseForgeService.Cache<CurseForgeProject>> projectCache = new SimpleObjectProperty<>();
@@ -42,6 +45,11 @@ public class CurseProjectViewPane extends StackPane
 
 	public JFXMasonryPane getContainer() {return container;}
 
+	public class RequireUpdateEvent extends Event
+	{
+		public RequireUpdateEvent() {super(EventType.ROOT);}
+	}
+
 	private StringProperty filter = new SimpleStringProperty();
 
 	public String getFilter()
@@ -49,10 +57,7 @@ public class CurseProjectViewPane extends StackPane
 		return filter.get();
 	}
 
-	public StringProperty filterProperty()
-	{
-		return filter;
-	}
+	public StringProperty filterProperty() {return filter;}
 
 	public void setFilter(String filter)
 	{
@@ -60,6 +65,8 @@ public class CurseProjectViewPane extends StackPane
 	}
 
 	private ObservableList<CurseForgeProjectCard> projectCards = FXCollections.observableArrayList();
+
+	private boolean reachEnd = false;
 
 	protected void init()
 	{
@@ -80,6 +87,15 @@ public class CurseProjectViewPane extends StackPane
 			container.getChildren().setAll(new FilteredList<>((ObservableList<CurseForgeProjectCard>) projectCache, card ->
 					card.getProject().getName().contains(filter) || card.getProject().getAuthor().contains(filter) ||
 							card.getProject().getDescription().contains(filter)));
+		});
+		scrollControl.vvalueProperty().addListener(o ->
+		{
+			if (scrollControl.getVvalue() == scrollControl.getVmax())
+			{
+				if (!reachEnd) reachEnd = true;
+				else Event.fireEvent(this, new RequireUpdateEvent());
+			}
+			else reachEnd = false;
 		});
 	}
 

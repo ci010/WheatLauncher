@@ -59,6 +59,7 @@ public class CurseForgeServiceTest
 		assert cache1.getCache().size() == 0;
 	}
 
+
 	@Test
 	public void testArtifact() throws IOException
 	{
