@@ -38,8 +38,7 @@ public interface Deserializer<T, S>
 		}
 		catch (Exception e)
 		{
-			throwableConsumer.accept(e);
-			return null;
+			throw new IllegalStateException(e);
 		}
 	}
 

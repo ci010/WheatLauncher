@@ -1,9 +1,6 @@
 package net.launcher.services.curseforge.requester;
 
-import net.launcher.services.curseforge.CurseForgeProject;
-import net.launcher.services.curseforge.CurseForgeProjectType;
-import net.launcher.services.curseforge.CurseForgeService;
-import net.launcher.services.curseforge.CurseForgeServices;
+import net.launcher.services.curseforge.*;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -63,15 +60,12 @@ public class CurseForgeServiceTest
 	@Test
 	public void testArtifact() throws IOException
 	{
-//		CurseForgeService service = CurseForgeServices.newService(CurseForgeProjectType.Mods).build();
-//		CurseForgeService.FilterProjectCache session = service.viewSession();
-//		CurseForgeService.ArtifactCache artifactCache = service.cacheArtifact(session.getProjects().get(0));
-//		assert artifactCache != null;
-//		String prev = artifactCache.toString();
-//		System.out.println(prev);
-//
-//		session.setPage(2);
-//
-//		service.growArtifactCache()
+		CurseForgeService service = CurseForgeServices.newService(CurseForgeProjectType.Mods);
+		CurseForgeService.Cache<CurseForgeProject> view = service.view(null);
+		CurseForgeProject curseForgeProject = view.getCache().get(0);
+		CurseForgeService.Cache<CurseForgeProjectArtifact> artifact = service.artifact(curseForgeProject);
+		assert artifact != null;
+		for (CurseForgeProjectArtifact curseForgeProjectArtifact : artifact.getCache())
+			System.out.println(curseForgeProjectArtifact);
 	}
 }
