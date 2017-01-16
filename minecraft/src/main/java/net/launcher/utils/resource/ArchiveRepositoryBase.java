@@ -173,13 +173,6 @@ class ArchiveRepositoryBase<T>
 	}
 
 	@Override
-	public Resource<T> mapResource(String hash)
-	{
-		Objects.requireNonNull(hash);
-		return archesMap.get(hash);
-	}
-
-	@Override
 	public Future<Boolean> containResource(String path, Callback<Boolean> callback)
 	{
 		Objects.requireNonNull(path);
@@ -188,7 +181,7 @@ class ArchiveRepositoryBase<T>
 			if (archesMap.containsKey(path)) return true;
 			if (Files.exists(root.resolve(path + ".dat")))
 			{
-				service.submit(() -> loadResource(root.resolve(path + ".dat")));
+				loadResource(root.resolve(path + ".dat"));
 				return true;
 			}
 			else for (EmbeddedRemoteArchiveRepository repository : remoteRepository)
@@ -228,8 +221,7 @@ class ArchiveRepositoryBase<T>
 
 	private boolean containLocal(String path)
 	{
-		if (archesMap.containsKey(path))
-			return true;
+		if (archesMap.containsKey(path)) return true;
 		return Files.exists(root.resolve(path + ".dat"));
 	}
 
@@ -282,7 +274,7 @@ class ArchiveRepositoryBase<T>
 						target = system.getPath("/");
 
 					T deserialize = parser.deserializeWithException(target, call::failed);
-					if (deserialize == null) throw new IOException();
+					if (deserialize == null) throw new IOException("Unable to parse the [" + file + "]!");
 					Resource<T> resource = new Resource<>(resourceType, md5,
 							deserialize, this).setName(simpleName);
 					this.archesMap.put(md5, resource);
@@ -296,13 +288,10 @@ class ArchiveRepositoryBase<T>
 				else
 				{
 					call.updateProgress(2, 3, "exist");
-					if (!archesMap.containsKey(md5))
-					{
-					}
 					return archesMap.get(md5);
 				}
 			}
-			else throw new IOException();
+			else throw new IOException("The file [" + file + "] need to be in jar/zip/folder to read.");
 		}, call));
 	}
 

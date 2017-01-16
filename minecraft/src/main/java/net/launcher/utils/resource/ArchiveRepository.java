@@ -32,14 +32,6 @@ public interface ArchiveRepository<T> extends Repository<ArchiveRepository.Resou
 
 	ObservableMap<String, Resource<T>> getResourceMap();
 
-
-	/**
-	 * Map resource to the callback.
-	 *
-	 * @param hash The hash of the resources.
-	 */
-	Resource<T> mapResource(String hash);
-
 	/**
 	 * Import a single file into the repository.
 	 * <p>Progress message:
