@@ -37,6 +37,9 @@ public interface CurseForgeService
 	 */
 	Cache<CurseForgeProject> view(Option option) throws IOException;
 
+
+	Cache<CurseForgeProjectArtifact> artifact(CurseForgeProject project) throws IOException;
+
 	/**
 	 * Grow the cache to load more projects into it.
 	 *
