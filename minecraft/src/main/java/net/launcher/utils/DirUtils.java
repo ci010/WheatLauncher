@@ -57,16 +57,32 @@ public class DirUtils
 		if (!dir.isDirectory())
 			throw new IllegalArgumentException();
 		Path path = dir.toPath();
-		Files.walkFileTree(path, new MoveVisitory(path, target.toPath()));
+		Files.walkFileTree(path, new MoveVisitor(path, target.toPath()));
 	}
 
-	public static class MoveVisitory extends SimpleFileVisitor<Path>
+	public static void deleteContent(Path dir) throws IOException
+	{
+		if (!Files.isDirectory(dir)) throw new IllegalArgumentException();
+		Files.walkFileTree(dir, new DeleteVisitor());
+	}
+
+	public static class DeleteVisitor extends SimpleFileVisitor<Path>
+	{
+		@Override
+		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+		{
+			Files.delete(file);
+			return super.visitFile(file, attrs);
+		}
+	}
+
+	public static class MoveVisitor extends SimpleFileVisitor<Path>
 	{
 		private final Path moveFrom;
 		private final Path moveTo;
 		static FileTime time = null;
 
-		public MoveVisitory(Path moveFrom, Path moveTo)
+		public MoveVisitor(Path moveFrom, Path moveTo)
 		{
 			this.moveFrom = moveFrom;
 			this.moveTo = moveTo;
