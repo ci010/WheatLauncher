@@ -13,12 +13,14 @@ public class ForgeMod
 	private ForgeModMetaData metaData;
 	private VersionRange range;
 	private ArtifactVersion version;
+	private Key key;
 
 	public ForgeMod(ForgeModMetaData metaData)
 	{
 		this.metaData = metaData;
 		this.range = parseMCVersionRange(metaData.getAcceptMinecraftVersion());
 		this.version = new DefaultArtifactVersion(metaData.getModId(), metaData.getVersion());
+		this.key = new Key(metaData.getModId(), metaData.getVersion());
 	}
 
 	public String getModId()
@@ -41,6 +43,8 @@ public class ForgeMod
 		return metaData;
 	}
 
+	public Key getKey() {return key;}
+
 	@Override
 	public String toString()
 	{
@@ -49,6 +53,44 @@ public class ForgeMod
 				", version='" + getVersion() + '\'' +
 				",\n metaData=" + metaData +
 				'}';
+	}
+
+	public static class Key
+	{
+		private String modid, version;
+
+		public Key(String modid, String version)
+		{
+			this.modid = modid;
+			this.version = version;
+		}
+
+		public String getModid() {return modid;}
+
+		public String getVersion() {return version;}
+
+		@Override
+		public String toString() {return modid + ":" + version;}
+
+		@Override
+		public boolean equals(Object o)
+		{
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+
+			Key key = (Key) o;
+
+			if (!modid.equals(key.modid)) return false;
+			return version.equals(key.version);
+		}
+
+		@Override
+		public int hashCode()
+		{
+			int result = modid.hashCode();
+			result = 31 * result + version.hashCode();
+			return result;
+		}
 	}
 
 	public static VersionRange parseMCVersionRange(String mcVersionString)
