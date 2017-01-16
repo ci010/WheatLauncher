@@ -155,7 +155,17 @@ public class Tasks
 		@Override
 		public T call() throws Exception
 		{
-			return c.call();
+			try
+			{
+				T call = c.call();
+				done(call);
+				return call;
+			}
+			catch (Exception e)
+			{
+				failed(e);
+				throw e;
+			}
 		}
 	}
 

@@ -13,6 +13,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * @author ci010
@@ -30,9 +31,9 @@ public class MD5
 
 	public static MD5 digest(Path path) throws IOException
 	{
-		if (Files.isRegularFile(path))
-			return digest(NIOUtils.mapToBytes(path));
-		else if (Files.isDirectory(path))
+		Objects.requireNonNull(path);
+
+		if (Files.isDirectory(path))
 		{
 			MessageDigest md5 = getMD5();
 			Files.walkFileTree(path, new SimpleFileVisitor<Path>()
@@ -48,7 +49,9 @@ public class MD5
 			});
 			return new MD5(md5.digest());
 		}
-		throw new IOException();
+		else if (Files.isRegularFile(path.toAbsolutePath()))
+			return digest(NIOUtils.mapToBytes(path.toAbsolutePath()));
+		throw new IOException(path.toString());
 	}
 
 	public static MD5 digest(File file) throws IOException {return digest(file.toPath());}
