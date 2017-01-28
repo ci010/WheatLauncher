@@ -1,7 +1,7 @@
 package net.launcher.game.forge;
 
+import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.*;
 import net.launcher.utils.StringUtils;
-import net.minecraftforge.fml.common.versioning.*;
 
 import java.util.Comparator;
 

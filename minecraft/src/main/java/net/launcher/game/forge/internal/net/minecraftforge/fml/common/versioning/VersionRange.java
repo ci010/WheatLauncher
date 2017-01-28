@@ -17,7 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package net.minecraftforge.fml.common.versioning;
+package net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning;
 /*
  * Modifications by cpw under LGPL 2.1 or later
  */
