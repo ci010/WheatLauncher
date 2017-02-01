@@ -1,38 +1,34 @@
 package net.wheatlauncher.control.profiles;
 
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTreeTableColumn;
-import com.jfoenix.controls.JFXTreeTableView;
-import com.jfoenix.controls.RecursiveTreeItem;
-import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
+import com.jfoenix.controls.JFXListView;
+import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.effects.JFXDepthManager;
 import de.jensd.fx.fontawesome.Icon;
+import io.datafx.controller.context.ApplicationContext;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.TreeTableColumn;
+import javafx.scene.control.ListCell;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.util.Callback;
 import net.launcher.Bootstrap;
 import net.launcher.LaunchElementManager;
 import net.launcher.game.ResourcePack;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.resourcepack.ResourcePackManager;
 import net.launcher.utils.Logger;
+import net.launcher.utils.Tasks;
 import net.wheatlauncher.control.utils.ReloadableController;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author ci010
@@ -40,70 +36,104 @@ import java.util.stream.Collectors;
 public class ControllerResourcePackView implements ReloadableController
 {
 	public StackPane root;
-	public JFXTreeTableView<ResCol> availableView;
-	public JFXTreeTableColumn<ResCol, StackPane> available;
-
-	public JFXTreeTableView<ResCol> selectedView;
-	public JFXTreeTableColumn<ResCol, StackPane> selected;
+	public JFXListView<ResourcePack> availableView;
+	public JFXListView<ResourcePack> selectedView;
 	//
 	public JFXButton manage;
+	public JFXTextField searchAvailable;
+	public JFXTextField searchSelecting;
 
 	private ResourcePackManager manager;
 
 	@PostConstruct
 	public void init()
 	{
+		ApplicationContext.getInstance().getRegisteredObject(ResourcePackManager.class.toString());
 		Optional<LaunchElementManager<ResourcePack>> elementManager = Bootstrap.getCore().getElementManager(ResourcePack.class);
 		if (!elementManager.isPresent()) {this.root.setDisable(true); return;}
 		manager = (ResourcePackManager) elementManager.get();
-		this.root.disableProperty().bind(Bindings.createBooleanBinding(() -> manager.getAllElement().isEmpty()
-		));
-	}
 
-	private ObservableList<ResCol> avail = FXCollections.observableArrayList(),
-			using = FXCollections.observableArrayList();
+		for (Node node : availableView.getParent().getChildrenUnmodifiable())
+			if (node != availableView)
+				JFXDepthManager.setDepth(node, 1);
+
+		for (Node node : selectedView.getParent().getChildrenUnmodifiable())
+			if (node != selectedView)
+				JFXDepthManager.setDepth(node, 1);
+
+//		ObservableList<ResourcePack> enabledResourcePacks = manager.getEnabledResourcePacks();
+//		selectedView.setItems(manager.getEnabledResourcePacks());
+//		availableView.setItems(new FilteredList<>(manager.getEnabledResourcePacks(),
+//				resourcePack -> manager.getEnabledResourcePacks().contains(resourcePack)));
+		availableView.getParent().disableProperty().bind(Bindings.createBooleanBinding(() -> availableView.getItems().isEmpty(),
+				availableView.getItems()));
+		selectedView.getParent().disableProperty().bind(Bindings.createBooleanBinding(() -> selectedView.getItems().isEmpty(),
+				selectedView.getItems()));
+		availableView.setCellFactory(param ->
+				new ListCell<ResourcePack>()
+				{
+					@Override
+					protected void updateItem(ResourcePack item, boolean empty)
+					{
+						super.updateItem(item, empty);
+						if (!empty && item != null)
+							Tasks.optional(() -> manager.getIcon(item)).ifPresent(img -> setGraphic(createPane(item, img, true)));
+					}
+				});
+		selectedView.setCellFactory(param ->
+				new ListCell<ResourcePack>()
+				{
+					@Override
+					protected void updateItem(ResourcePack item, boolean empty)
+					{
+						super.updateItem(item, empty);
+						if (!empty && item != null)
+							Tasks.optional(() -> manager.getIcon(item)).ifPresent(img -> setGraphic(createPane(item,
+									img, false)));
+					}
+				});
+	}
 
 	public void refresh(ActionEvent event)
 	{
 		LaunchProfile selectedProfile = Bootstrap.getCore().getProfileManager().selecting();
-		List<ResourcePack> element = manager.getAllIncludedElement(selectedProfile);
-		Set<ResourcePack> ava = manager.getAllElement();
-		ava.removeAll(element);
-		using.clear();
-		using.addAll(element.stream().map(ResCol::new).collect(Collectors.toList()));
-		avail.clear();
-		avail.addAll(ava.stream().map(ResCol::new).collect(Collectors.toList()));
+		List<ResourcePack> selected = manager.getAllIncludedElement(selectedProfile);
+		Set<ResourcePack> remain = manager.getAllElement();
+		remain.removeAll(selected);
+		selectedView.getItems().setAll(selected);
+		availableView.getItems().setAll(remain);
 	}
 
-	private Callback<TreeTableColumn.CellDataFeatures<ResCol, StackPane>, ObservableValue<StackPane>> createCallback
-			(boolean left)
+
+	@Override
+	public void reload()
 	{
-		return (feature) ->
-		{
-			ResourcePackManager resourcePackManger = manager;
+		Logger.trace("reload");
+//		available.setCellValueFactory(createCallback(true));
+//		selected.setCellValueFactory(createCallback(false));
+//		refresh(null);
+//		availableView.setRoot(new RecursiveTreeItem<>(avail, RecursiveTreeObject::getChildren));
+//		selectedView.setRoot(new RecursiveTreeItem<>(using, RecursiveTreeObject::getChildren));
+	}
 
-			StackPane pane = new StackPane();
+	@Override
+	public void unload()
+	{
 
-			ResCol value = feature.getValue().getValue();
-			HBox back = new HBox();
-			{
-				try
-				{
-					ImageView icon = new ImageView((resourcePackManger).getIcon(value.pack));
-					back.getChildren().add(icon);
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-				Label nameL = new Label(value.pack.getPackName()), desL = new Label(value.pack.getDescription());
-				back.getChildren().add(new VBox(nameL, desL));
-			}
-			pane.getChildren().add(back);
-			pane.getChildren().add(createBtnOverlay(left));
+	}
 
-			return new SimpleObjectProperty<>(pane);
-		};
+	private StackPane createPane(ResourcePack resourcePack, Image icon, boolean left)
+	{
+		StackPane root = new StackPane();
+		StackPane imgContainer = new StackPane();
+		ImageView view = new ImageView(icon);
+		HBox btnOverlay = createBtnOverlay(left);
+		imgContainer.getChildren().addAll(view, btnOverlay);
+		HBox box = new HBox();
+		VBox content = new VBox(new Label(resourcePack.getPackName()), new Label(resourcePack.getDescription()));
+		box.getChildren().addAll(imgContainer, content);
+		root.getChildren().addAll(box);
+		return root;
 	}
 
 	private HBox createBtnOverlay(boolean left)
@@ -133,32 +163,5 @@ public class ControllerResourcePackView implements ReloadableController
 			btnRoot.getChildren().add(moveBtnPanel);
 		}
 		return btnRoot;
-	}
-
-	@Override
-	public void reload()
-	{
-		Logger.trace("reload");
-		available.setCellValueFactory(createCallback(true));
-		selected.setCellValueFactory(createCallback(false));
-		refresh(null);
-		availableView.setRoot(new RecursiveTreeItem<>(avail, RecursiveTreeObject::getChildren));
-		selectedView.setRoot(new RecursiveTreeItem<>(using, RecursiveTreeObject::getChildren));
-	}
-
-	@Override
-	public void unload()
-	{
-
-	}
-
-	public static class ResCol extends RecursiveTreeObject<ResCol>
-	{
-		private ResourcePack pack;
-
-		public ResCol(ResourcePack pack)
-		{
-			this.pack = pack;
-		}
 	}
 }

@@ -33,7 +33,7 @@ public interface ForgeConfig
 
 		String getName();
 
-		Property.Type getType();
+		Type getType();
 
 		String getComment();
 

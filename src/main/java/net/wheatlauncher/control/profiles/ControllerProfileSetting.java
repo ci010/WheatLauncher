@@ -1,6 +1,8 @@
 package net.wheatlauncher.control.profiles;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXComboBox;
+import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXTabPane;
 import com.jfoenix.validation.ValidationFacade;
 import io.datafx.controller.FXMLController;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
@@ -13,16 +15,19 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import net.launcher.Bootstrap;
+import net.launcher.control.versions.MinecraftVersionPicker;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.utils.Logger;
+import net.launcher.utils.Tasks;
 import net.wheatlauncher.control.utils.FXMLInnerController;
 import net.wheatlauncher.control.utils.ReloadableController;
+import org.to2mbn.jmccc.mcdownloader.MinecraftDownloader;
+import org.to2mbn.jmccc.mcdownloader.MinecraftDownloaderBuilder;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.parsing.Versions;
 
@@ -44,8 +49,6 @@ import java.util.stream.Collectors;
 @FXMLController("/fxml/profiles/ProfileSetting.fxml")
 public class ControllerProfileSetting implements ReloadableController
 {
-	public Tab mcTab;
-
 	@FXMLViewFlowContext
 	private ViewFlowContext flowContext;
 
@@ -53,15 +56,14 @@ public class ControllerProfileSetting implements ReloadableController
 	public Label profileLabel;
 //	public ValidationFacade validProfile;
 
-	public JFXPopup profilePopup;
 	@FXMLInnerController
 	public ControllerSettingProfile profilePopupController;
 
-	public JFXRippler editProfileRegion;
+	//	public JFXRippler editProfileRegion;
 	public JFXComboBox<String> profile;
 
 	/*Version*/
-	public JFXComboBox<String> versions;
+	public MinecraftVersionPicker versions;
 	public ValidationFacade validVersion;
 
 	/*Sub-settings*/
@@ -75,9 +77,9 @@ public class ControllerProfileSetting implements ReloadableController
 	public ControllerGameSetting gameSettingController;
 	public StackPane gameSetting;
 
-	@FXMLInnerController
-	public ControllerLanguages languageSettingController;
-	public StackPane languageSetting;
+//	@FXMLInnerController
+//	public ControllerLanguages languageSettingController;
+//	public StackPane languageSetting;
 
 	@FXMLInnerController
 	public ControllerResourcePackView resourcePackSettingController;
@@ -100,6 +102,7 @@ public class ControllerProfileSetting implements ReloadableController
 		rootDialog.setOverlayClose(true);
 		initProfilePopupMenu();
 		initProfile();
+		initVersion();
 	}
 
 	@PreDestroy
@@ -128,20 +131,30 @@ public class ControllerProfileSetting implements ReloadableController
 		Bootstrap.getCore().getService().scheduleAtFixedRate(new SimpleFileWatcher(Paths.get("versions"),
 						() -> Platform.runLater(ControllerProfileSetting.this::updateVersionList)), 5, 5,
 				TimeUnit.SECONDS);
-		versionList = FXCollections.observableArrayList(Versions.getVersions(Bootstrap.getCore().getProfileManager().selecting()
-				.getMinecraftLocation()));
-		versions.itemsProperty().bind(Bindings.createObjectBinding(() ->
-				{
-					updateVersionList();
-					return versionList;
-				},
-				Bootstrap.getCore().getProfileManager().selectedProfileProperty()));
-		versions.valueProperty().bind(Bindings.createStringBinding(() ->
-						Bootstrap.getCore().getProfileManager().selecting().getVersion(),
-				Bootstrap.getCore().getProfileManager().selectedProfileProperty()));
-		versions.getJFXEditor().textProperty().bind(
-				Bindings.createStringBinding(() -> Bootstrap.getCore().getProfileManager().selecting().getVersion(), Bootstrap.getCore()
-						.getProfileManager().selectedProfileProperty()));
+		versions.setUpdateFunction(call ->
+		{
+			Bootstrap.getCore().getService().submit(() ->
+			{
+				MinecraftDownloader downloader = MinecraftDownloaderBuilder.buildDefault();
+				return downloader.fetchRemoteVersionList(Tasks.adept(call)).get();
+			});
+			return null;
+		});
+//		versionList = FXCollections.observableArrayList(Versions.getVersions(Bootstrap.getCore().getProfileManager()
+//			.selecting()
+//				.getMinecraftLocation()));
+//		versions.itemsProperty().bind(Bindings.createObjectBinding(() ->
+//				{
+//					updateVersionList();
+//					return versionList;
+//				},
+//				Bootstrap.getCore().getProfileManager().selectedProfileProperty()));
+//		versions.valueProperty().bind(Bindings.createStringBinding(() ->
+//						Bootstrap.getCore().getProfileManager().selecting().getVersion(),
+//				Bootstrap.getCore().getProfileManager().selectedProfileProperty()));
+//		versions.getJFXEditor().textProperty().bind(
+//				Bindings.createStringBinding(() -> Bootstrap.getCore().getProfileManager().selecting().getVersion(), Bootstrap.getCore()
+//						.getProfileManager().selectedProfileProperty()));
 	}
 
 	private String findIdByName(String name)
@@ -181,16 +194,16 @@ public class ControllerProfileSetting implements ReloadableController
 
 	private void initProfilePopupMenu()
 	{
-		rootDialog.getChildren().remove(profilePopup);
-		profilePopup.setPopupContainer(rootDialog);
-
-		profilePopup.setOnClose(e -> rootDialog.setOverlayClose(true));
-		profilePopup.setSource(editProfileRegion);
-		editProfileRegion.setOnMouseClicked(event ->
-		{
-			rootDialog.setOverlayClose(false);
-			profilePopup.show(JFXPopup.PopupVPosition.TOP, JFXPopup.PopupHPosition.LEFT, 40, 37);
-		});
+//		rootDialog.getChildren().remove(profilePopup);
+//		profilePopup.setPopupContainer(rootDialog);
+//		profilePopup.setPrefSize(200,400);
+//		profilePopup.setOnClose(e -> rootDialog.setOverlayClose(true));
+//		profilePopup.setSource(editProfileRegion);
+//		editProfileRegion.setOnMouseClicked(event ->
+//		{
+//			rootDialog.setOverlayClose(false);
+//			profilePopup.show(JFXPopup.PopupVPosition.TOP, JFXPopup.PopupHPosition.RIGHT/*, 40, 37*/);
+//		});
 
 	}
 
@@ -203,7 +216,7 @@ public class ControllerProfileSetting implements ReloadableController
 	@Override
 	public void unload()
 	{
-		profilePopup.close();
+//		profilePopup.close();
 	}
 
 	private class SimpleFileWatcher implements Runnable

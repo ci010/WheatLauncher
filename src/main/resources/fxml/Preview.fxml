@@ -1,63 +1,65 @@
+<?import com.jfoenix.controls.JFXButton?>
 <?import de.jensd.fx.fontawesome.Icon?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tooltip?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
 <?import moe.mickey.minecraft.skin.fx.SkinCanvas?>
 <?import net.wheatlauncher.control.utils.ColorTransitionButton?>
 <BorderPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
             style="-fx-padding:5,5">
     <left>
-        <VBox fx:id="leftBox" prefWidth="200" maxWidth="400" spacing="10" alignment="CENTER"
-              style="-fx-padding:15,5; -fx-background-color:BROWN">
-            <Label fx:id="player" style="-fx-font-size: 16.0px;-fx-text-fill: rgba(0.0, 0.0, 0.0, 0.87);"/>
+        <VBox fx:id="leftBox" prefWidth="200" maxWidth="400" spacing="20" alignment="CENTER"
+              styleClass="major"
+              style="-fx-padding:15,5;">
+            <StackPane style="-fx-padding:10; -fx-background-color:WHITE;" maxWidth="100">
+                <Label fx:id="player"
+                       style="-fx-font-size: 16.0px;-fx-text-fill: TOMATO;-fx-font-weight:BOLD"/>
+            </StackPane>
             <SkinCanvas fx:id="canvas" width="150" height="250" depth="4"/>
-            <BorderPane style="-fx-padding:10,10">
-                <left>
-                    <ColorTransitionButton fx:id="setting" maxHeight="10" buttonType="RAISED"
-                                           onAction="#popupSetting">
-                        <tooltip>
-                            <Tooltip text="%tooltip.setting"/>
-                        </tooltip>
-                        <graphic>
-                            <Icon awesomeIcon="GEAR" scaleX="1.3" scaleY="1.3" style="-fx-font-family:FontAwesome;"/>
-                        </graphic>
-                    </ColorTransitionButton>
-                </left>
-                <center>
-                    <ColorTransitionButton fx:id="profileName" buttonType="RAISED"
-                                           onAction="#popupProfileSetting">
-                        <tooltip>
-                            <Tooltip text="%tooltip.switchprofile"/>
-                        </tooltip>
-                    </ColorTransitionButton>
-                </center>
-                <right>
-                    <ColorTransitionButton fx:id="switchPlayer" maxHeight="10" buttonType="RAISED"
-                                           onAction="#onSwitchPlayer">
-                        <tooltip>
-                            <Tooltip text="%tooltip.switchaccount"/>
-                        </tooltip>
-                        <graphic>
-                            <Icon awesomeIcon="USER" scaleX="1.3" scaleY="1.3" style="-fx-font-family:FontAwesome;"/>
-                        </graphic>
-                    </ColorTransitionButton>
-                </right>
-            </BorderPane>
+            <HBox spacing="10" alignment="CENTER">
+                <JFXButton fx:id="setting" buttonType="RAISED"
+                           styleClass="minor-button"
+                           style="-fx-background-color:WHITE"
+                           onAction="#popupSetting">
+                    <tooltip>
+                        <Tooltip text="%tooltip.setting"/>
+                    </tooltip>
+                    <graphic>
+                        <Icon awesomeIcon="GEAR" textFill="tomato"/>
+                    </graphic>
+                </JFXButton>
+                <JFXButton fx:id="profileName" buttonType="RAISED"
+                           styleClass="major-button"
+                           style="-fx-background-color:WHITE; -fx-text-fill:TOMATO;"
+                           onAction="#popupProfileSetting">
+                    <tooltip>
+                        <Tooltip text="%tooltip.switchprofile"/>
+                    </tooltip>
+                </JFXButton>
+                <JFXButton fx:id="switchPlayer" maxHeight="10" buttonType="RAISED"
+                           styleClass="minor-button"
+                           style="-fx-background-color:WHITE"
+                           onAction="#onSwitchPlayer">
+                    <tooltip>
+                        <Tooltip text="%tooltip.switchaccount"/>
+                    </tooltip>
+                    <graphic>
+                        <Icon awesomeIcon="USER" textFill="tomato"/>
+                    </graphic>
+                </JFXButton>
+            </HBox>
         </VBox>
     </left>
     <right>
         <StackPane fx:id="rightBox" prefWidth="400" alignment="BOTTOM_RIGHT"
                    style="-fx-padding:15,10;">
             <ColorTransitionButton fx:id="launch" buttonType="RAISED" text="LAUNCH" style="-fx-padding:0,100,0,100"
+                                   styleClass="mics-button"
+                                   hoverColor="crimson"
                                    prefWidth="120"
                                    prefHeight="60"/>
         </StackPane>
     </right>
     <fx:include fx:id="settingDialog" source="settings/Setting.fxml"/>
     <fx:include fx:id="profileSettingDialog" source="profiles/ProfileSetting.fxml"/>
-    <!--<fx:include fx:id="loginDialog" source="Login.fxml"/>-->
-
-    <!--<fx:include fx:id="settingDialog" source="ProfileSetting.fxml"/>-->
 </BorderPane>

@@ -1,29 +1,49 @@
 <?import com.jfoenix.controls.*?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
+<?import de.jensd.fx.fontawesome.Icon?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.*?>
 <StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
            xmlns="http://javafx.com/javafx/2.2"
            fx:controller="net.wheatlauncher.control.profiles.ControllerResourcePackView">
     <VBox>
-        <HBox spacing="10">
-            <JFXTreeTableView fx:id="availableView" maxHeight="250">
-                <columns>
-                    <JFXTreeTableColumn fx:id="available" text="%setting.resourcepacks.available" resizable="false"
-                                        editable="false" prefWidth="200"/>
-                </columns>
-            </JFXTreeTableView>
-            <JFXTreeTableView fx:id="selectedView" maxHeight="250">
-                <columns>
-                    <JFXTreeTableColumn fx:id="selected" text="%setting.resourcepacks.selecting" resizable="false"
-                                        editable="false" prefWidth="200"/>
-                </columns>
-            </JFXTreeTableView>
-
+        <HBox spacing="10" style="-fx-padding:10">
+            <VBox alignment="CENTER" style="-fx-background-color:WHITE;">
+                <StackPane style=" -fx-padding:5;" styleClass="major">
+                    <Label text="%setting.resourcepacks.available"
+                           style="-fx-text-fill:WHITE;-fx-font-weight:BOLD;-fx-font-size:14;"
+                           styleClass="column-header"/>
+                </StackPane>
+                <JFXListView fx:id="availableView" maxHeight="200"/>
+            </VBox>
+            <VBox alignment="CENTER" style="-fx-background-color:WHITE;">
+                <StackPane style=" -fx-padding:5;" styleClass="major">
+                    <Label text="%setting.resourcepacks.selecting"
+                           style="-fx-text-fill:WHITE;-fx-font-weight:BOLD;-fx-font-size:14;"/>
+                </StackPane>
+                <JFXListView fx:id="selectedView" maxHeight="200"/>
+            </VBox>
         </HBox>
-        <HBox>
-            <JFXButton fx:id="manage"/>
-            <JFXButton  onAction="#refresh"/>
+        <HBox alignment="CENTER">
+            <JFXButton fx:id="manage" styleClass="minor-button">
+                <graphic>
+                    <Icon awesomeIcon="INBOX"/>
+                </graphic>
+                <tooltip>
+                    <Tooltip text="%setting.resourcepacks.manage"/>
+                </tooltip>
+            </JFXButton>
+            <StackPane>
+                <JFXTextField fx:id="searchSelecting" style="-fx-text-fill:WHITE;-fx-unfocus-color:WHITE;"/>
+            </StackPane>
+            <JFXButton onAction="#refresh" styleClass="minor-button">
+                <graphic>
+                    <Icon awesomeIcon="REFRESH"/>
+                </graphic>
+                <tooltip>
+                    <Tooltip text="%refresh"/>
+                </tooltip>
+            </JFXButton>
         </HBox>
     </VBox>
 </StackPane>

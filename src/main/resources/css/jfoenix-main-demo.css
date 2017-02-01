@@ -402,7 +402,7 @@
 
 .jfx-text-field, .jfx-password-field, .jfx-text-area{
 	-fx-background-color: transparent ;
-    -fx-font-weight: BOLD;
+    /*-fx-font-weight: BOLD;*/
     -fx-prompt-text-fill: #808080;
     -fx-alignment: top-left ;
     -fx-max-width: 300.0;

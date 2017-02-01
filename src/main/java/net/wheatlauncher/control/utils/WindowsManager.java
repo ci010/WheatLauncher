@@ -12,13 +12,10 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.utils.ControlUtils;
 import net.wheatlauncher.utils.LanguageMap;
 
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.TreeMap;
 
 /**
@@ -31,7 +28,7 @@ public class WindowsManager
 	public WindowsManager()
 	{
 		this.globalConfig = new ViewConfiguration();
-		initCfg();
+		ResourceManager.setupGlobalConfig(globalConfig);
 	}
 
 	public static class Page implements Thread.UncaughtExceptionHandler
@@ -156,23 +153,6 @@ public class WindowsManager
 		}
 	}
 
-	private void initCfg()
-	{
-		globalConfig = new ViewConfiguration();
-		ResourceBundle lang;
-		try
-		{
-			lang = ResourceBundle.getBundle("lang", Locale.getDefault());
-		}
-		catch (Exception e)
-		{
-			lang = ResourceBundle.getBundle("lang", Locale.ENGLISH);
-		}
-		if (lang == null)
-			throw new IllegalStateException();
-		globalConfig.setResources(lang);
-	}
-
 	public void addSupressedException(Exception ex)
 	{
 		ex.printStackTrace();
@@ -183,8 +163,7 @@ public class WindowsManager
 	{
 		DefaultFlowContainer container = new DefaultFlowContainer();
 		Scene scene = new Scene(container.getView(), xSize, ySize);//old 512 380  542, 380
-		scene.getStylesheets().add(MainApplication.class.getResource("/css/jfoenix-main-demo.css").toExternalForm());
-		scene.getStylesheets().add(MainApplication.class.getResource("/css/common.css").toExternalForm());
+		ResourceManager.setupScene(scene);
 
 		Flow flow = new Flow(clz, globalConfig);
 		ViewFlowContext viewFlowContext = new ViewFlowContext();

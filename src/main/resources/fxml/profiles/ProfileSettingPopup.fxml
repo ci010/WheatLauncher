@@ -62,7 +62,7 @@
             </JFXDialogLayout>
         </JFXDialog>
     </StackPane>
-    <JFXListView fx:id="optionList" styleClass="option-list-view">
+    <JFXListView fx:id="optionList" styleClass="options-list-view">
         <Label fx:id="renameProfile" text="%profile.rename"/>
         <Label fx:id="newProfile" text="%profile.create"/>
         <Label fx:id="deleteProfile" text="%profile.delete"/>

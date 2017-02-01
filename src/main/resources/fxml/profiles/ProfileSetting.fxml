@@ -1,62 +1,56 @@
-<?import com.jfoenix.controls.*?>
-<?import com.jfoenix.validation.ValidationFacade?>
-<?import de.jensd.fx.fontawesome.Icon?>
+<?import com.jfoenix.controls.JFXComboBox?>
+<?import com.jfoenix.controls.JFXDialog?>
+<?import com.jfoenix.controls.JFXTabPane?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import net.launcher.control.versions.MinecraftVersionPicker?>
 <JFXDialog fx:id="rootDialog" xmlns:fx="http://javafx.com/fxml/1"
            xmlns="http://javafx.com/javafx/2.2"
            fx:controller="net.wheatlauncher.control.profiles.ControllerProfileSetting"
            transitionType="CENTER">
     <FlowPane fx:id="root" minWidth="500" prefWidth="500" prefHeight="300"
               hgap="30" vgap="30" alignment="CENTER">
-        <VBox spacing="10" alignment="CENTER"
+        <VBox spacing="10" alignment="TOP_CENTER"
               style="-fx-background-color:WHITE;">
-            <StackPane style="-fx-background-color:#00BCD4; -fx-padding: 10">
-                <HBox alignment="CENTER" spacing="5">
+            <StackPane style="-fx-background-color:major-color; -fx-padding: 10">
+                <HBox alignment="CENTER" spacing="5" style="-fx-padding: 10">
                     <Label fx:id="profileLabel" contentDisplay="RIGHT" text="%profile"
                            style="-fx-font-weight:BOLD; -fx-text-fill:WHITE; -fx-font-size:16"/>
-
-                    <JFXRippler fx:id="editProfileRegion" maxWidth="10" maxHeight="10"
-                                maskType="CIRCLE"
-                                onMouseReleased="#requestProfilePopup">
-                        <Icon awesomeIcon="PENCIL_SQUARE" size="1.7em">
-                            <tooltip>
-                                <Tooltip text="%profile.edit"/>
-                            </tooltip>
-                        </Icon>
-                    </JFXRippler>
                 </HBox>
             </StackPane>
-            <JFXComboBox fx:id="profile"
-                         promptText="%profile" maxWidth="100"/>
+            <StackPane style="-fx-padding:10">
+                <JFXComboBox fx:id="profile"
+                             promptText="%profile" maxWidth="100"/>
+            </StackPane>
         </VBox>
-        <VBox alignment="CENTER" spacing="8"
-              style="-fx-background-color:WHITE; -fx-background-insets:-10;">
-            <Label>Version</Label>
-            <ValidationFacade fx:id="validVersion">
-                <control>
-                    <JFXComboBox fx:id="versions" promptText="Version" prefWidth="250"/>
-                </control>
-            </ValidationFacade>
+        <VBox alignment="CENTER" spacing="10"
+              style="-fx-background-color:WHITE;">
+            <StackPane style="-fx-background-color:major-color; -fx-padding: 10">
+                <Label text="%version"
+                       style="-fx-font-size:16; -fx-font-weight:BOLD; -fx-text-fill:WHITE; -fx-padding: 10"/>
+            </StackPane>
+            <StackPane style="-fx-padding:10">
+                <MinecraftVersionPicker fx:id="versions" promptText="Version" prefWidth="250"/>
+            </StackPane>
         </VBox>
 
-        <JFXTabPane fx:id="optionsTab" prefWidth="400">
+        <JFXTabPane fx:id="optionsTab" prefWidth="500" tabMinHeight="60"
+                    tabMaxHeight="100" tabMaxWidth="Infinity" maxHeight="300">
             <Tab text="%setting.common">
                 <fx:include fx:id="commonSetting" source="ProfileSettingCommon.fxml"/>
             </Tab>
             <Tab text="%setting.minecraft" fx:id="mcTab">
                 <fx:include fx:id="gameSetting" source="ProfileSettingMinecraft.fxml"/>
             </Tab>
-            <Tab text="%setting.resourcepacks">
-                <fx:include fx:id="resourcePackSetting" source="ProfileSettingResourcePacks.fxml"/>
-            </Tab>
             <Tab text="%setting.languages">
                 <fx:include fx:id="languageSetting" source="ProfileSettingLanguages.fxml"/>
+            </Tab>
+            <Tab text="%setting.resourcepacks">
+                <fx:include fx:id="resourcePackSetting" source="ProfileSettingResourcePacks.fxml"/>
             </Tab>
             <Tab text="%setting.mods">
                 <fx:include fx:id="modSetting" source="ProfileSettingModView.fxml"/>
             </Tab>
-
         </JFXTabPane>
 
     </FlowPane>

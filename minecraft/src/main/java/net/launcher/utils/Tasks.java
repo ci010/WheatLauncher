@@ -72,6 +72,30 @@ public class Tasks
 		};
 	}
 
+	public static <T> CallbackAdapter<T> adept(Callback<T> callback)
+	{
+		return new CallbackAdapter<T>()
+		{
+			@Override
+			public void done(T result)
+			{
+				callback.done(result);
+			}
+
+			@Override
+			public void failed(Throwable e)
+			{
+				callback.failed(e);
+			}
+
+			@Override
+			public void cancelled()
+			{
+				callback.cancelled();
+			}
+		};
+	}
+
 	public static <T> Callable<T> wrapFallback(Callable<T> primary, Callable<T> fallback, Callback<T> callback)
 	{
 		Objects.requireNonNull(primary);

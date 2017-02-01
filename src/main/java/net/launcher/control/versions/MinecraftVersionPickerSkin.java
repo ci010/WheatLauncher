@@ -26,10 +26,8 @@ public class MinecraftVersionPickerSkin extends ComboBoxPopupControl<RemoteVersi
 		this.textField = new JFXTextField();
 		this.textField.setEditable(false);
 		this.textField.setText("Unknown");
-
 		registerChangeListener(parent.valueProperty(), "VALUE");
 	}
-
 
 	@Override
 	protected Node getPopupContent()

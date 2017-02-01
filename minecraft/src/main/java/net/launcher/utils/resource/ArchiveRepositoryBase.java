@@ -47,7 +47,6 @@ class ArchiveRepositoryBase<T>
 	private ArrayList<EmbeddedRemoteArchiveRepository> remoteRepository;
 	private Deserializer<T, Path> parser;
 	private BiSerializer<T, NBTCompound> archiveSerializer;
-	private boolean ready;
 
 	public Path getRoot()
 	{
@@ -59,16 +58,15 @@ class ArchiveRepositoryBase<T>
 		return service;
 	}
 
-	public ArchiveRepositoryBase(Path root, ExecutorService service,
-								 Remote[] remote,
-								 Deserializer<T, Path> parser,
-								 BiSerializer<T, NBTCompound> archiveSerializer)
+	protected ArchiveRepositoryBase(Path root, ExecutorService service,
+									Remote[] remote,
+									Deserializer<T, Path> parser,
+									BiSerializer<T, NBTCompound> archiveSerializer)
 	{
 		this.root = root;
 		this.service = service;
 		this.remoteRepository = new ArrayList<>();
-		for (int i = 0; i < remote.length; i++)
-			this.remoteRepository.add(new EmbeddedRemoteArchiveRepository(remote[i]));
+		for (Remote aRemote : remote) this.remoteRepository.add(new EmbeddedRemoteArchiveRepository(aRemote));
 		this.parser = parser;
 		this.archiveSerializer = archiveSerializer;
 	}
