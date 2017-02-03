@@ -21,4 +21,3 @@ public class TestMCVersion extends Application
 		primaryStage.show();
 	}
 }
-1
