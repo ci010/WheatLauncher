@@ -3,11 +3,15 @@ package net.launcher.profile;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.scene.control.SelectionModel;
+import javafx.scene.control.SingleSelectionModel;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -16,10 +20,28 @@ import java.util.function.Function;
  */
 public class LaunchProfileManager
 {
-	private ObservableMap<String, LaunchProfile> map = FXCollections.observableHashMap(),
+	private ObservableMap<String, LaunchProfile> map = FXCollections.observableMap(new TreeMap<>()),
 			view = FXCollections.unmodifiableObservableMap(map);
+	private ObservableList<LaunchProfile> profiles = FXCollections.observableArrayList();
 	private Function<String, LaunchProfile> factory;
 	private Consumer<String> deleteConsumer;
+
+	private SelectionModel<LaunchProfile> selectionModel = new SingleSelectionModel<LaunchProfile>()
+	{
+		@Override
+		protected LaunchProfile getModelItem(int index)
+		{
+			return profiles.get(index);
+		}
+
+		@Override
+		protected int getItemCount()
+		{
+			return profiles.size();
+		}
+	};
+
+	public SelectionModel<LaunchProfile> getSelectionModel() {return selectionModel;}
 
 	private StringProperty selectedProfile = new SimpleStringProperty();
 
@@ -54,6 +76,14 @@ public class LaunchProfileManager
 			if (profile.getDisplayName().equals(name))
 				return true;
 		return false;
+	}
+
+	public LaunchProfile newProfile()
+	{
+		String id = String.valueOf(System.currentTimeMillis());
+		LaunchProfile profile = factory.apply(id);
+		map.put(id, profile);
+		return profile;
 	}
 
 	public LaunchProfile newProfile(String name)

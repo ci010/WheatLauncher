@@ -65,7 +65,7 @@ public class MinecraftVersionDisplayContent extends Region
 		this.mainDisplayContainer.setAlignment(Pos.CENTER);
 		this.mainDisplayContainer.setBackground(new Background(new BackgroundFill(Color.web("#009688"),
 				CornerRadii.EMPTY, Insets.EMPTY)));
-		mainDisplayContainer.getStyleClass().addAll("fx-mc-version-picker-container");
+		mainDisplayContainer.getStyleClass().addAll("fx-mc-picker-container");
 
 		header.getStyleClass().add("jfx-layout-heading");
 		header.getStyleClass().add("title");
