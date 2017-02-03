@@ -3,3 +3,4 @@
 build/
 out/
 src/main/resources/fxml/old
+*/*.iml
