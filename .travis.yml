@@ -6,3 +6,9 @@ before_install:
 # - ./gradlew assemble
 jdk:
   - oraclejdk8
+
+sudo: false
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
