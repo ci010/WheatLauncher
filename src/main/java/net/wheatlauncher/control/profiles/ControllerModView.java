@@ -1,12 +1,14 @@
 package net.wheatlauncher.control.profiles;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXTableView;
+import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
-import javafx.scene.control.TreeSortMode;
+import javafx.scene.control.TableColumn;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import net.launcher.game.forge.ForgeMod;
@@ -20,12 +22,12 @@ public class ControllerModView
 {
 	public StackPane root;
 
-	public JFXTreeTableView<ModCol> mods;
+	public JFXTableView<ModCol> mods;
 
-	public JFXTreeTableColumn<ModCol, String> name;
-	public JFXTreeTableColumn<ModCol, String> version;
-	public JFXTreeTableColumn<ModCol, String> minecraftVersion;
-	public JFXTreeTableColumn<ModCol, Boolean> enabled;
+	public TableColumn<ModCol, String> name;
+	public TableColumn<ModCol, String> version;
+	public TableColumn<ModCol, String> minecraftVersion;
+	public TableColumn<ModCol, Boolean> enabled;
 
 	public JFXTextField searchField;
 	public Label description;
@@ -36,7 +38,6 @@ public class ControllerModView
 	public void init()
 	{
 
-
 	}
 
 	public void reload()
@@ -46,21 +47,21 @@ public class ControllerModView
 
 //		modCols.addAll(Core.INSTANCE.().getAllElement().stream().map(ModCol::new).collect(Collectors.toList()));
 
-		mods.setRoot(new RecursiveTreeItem<>(modCols, RecursiveTreeObject::getChildren));
-		mods.setSortMode(TreeSortMode.ONLY_FIRST_LEVEL);
-		mods.setShowRoot(false);
+//		mods.setRoot(new RecursiveTreeItem<>(modCols, RecursiveTreeObject::getChildren));
+//		mods.setSortMode(TreeSortMode.ONLY_FIRST_LEVEL);
+//		mods.setShowRoot(false);
 
-		searchField.textProperty().addListener((o, oldVal, newVal) ->
-				mods.setPredicate(modCol -> modCol.getValue().release.getModId().contains(newVal) ||
-						modCol.getValue().name.get().contains(newVal) ||
-						modCol.getValue().version.get().contains(newVal) ||
-						modCol.getValue().mcVersion.get().contains(newVal) ||
-						modCol.getValue().description.get().contains(newVal)));
-		name.setCellValueFactory(feature -> feature.getValue().getValue().name);
-		version.setCellValueFactory(feature -> feature.getValue().getValue().version);
-		enabled.setCellValueFactory(feature-> feature.getValue().getValue().enabled);
+//		searchField.textProperty().addListener((o, oldVal, newVal) ->
+//				mods.setPredicate(modCol -> modCol.getValue().release.getModId().contains(newVal) ||
+//						modCol.getValue().name.get().contains(newVal) ||
+//						modCol.getValue().version.get().contains(newVal) ||
+//						modCol.getValue().mcVersion.get().contains(newVal) ||
+//						modCol.getValue().description.get().contains(newVal)));
+//		name.setCellValueFactory(feature -> feature.getValue().getValue().name);
+//		version.setCellValueFactory(feature -> feature.getValue().getValue().version);
+//		enabled.setCellValueFactory(feature -> feature.getValue().getValue().enabled);
 //		description.setCellValueFactory(feature -> feature.getValue().getValue().description);
-		minecraftVersion.setCellValueFactory(feature -> feature.getValue().getValue().mcVersion);
+//		minecraftVersion.setCellValueFactory(feature -> feature.getValue().getValue().mcVersion);
 
 	}
 
@@ -73,8 +74,8 @@ public class ControllerModView
 	{
 		StringProperty name, version, description, mcVersion;
 		ObjectProperty<ModType> type;
-		ForgeMod release;
 		BooleanProperty enabled;
+		ForgeMod release;
 
 		ModCol(ForgeMod release)
 		{

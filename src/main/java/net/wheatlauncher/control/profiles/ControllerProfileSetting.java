@@ -1,28 +1,30 @@
 package net.wheatlauncher.control.profiles;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXDialog;
+import com.jfoenix.controls.JFXTabPane;
 import com.jfoenix.validation.ValidationFacade;
 import io.datafx.controller.FXMLController;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
-import javafx.beans.binding.Bindings;
-import javafx.beans.binding.ObjectBinding;
-import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
-import javafx.scene.control.Tab;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import net.launcher.Bootstrap;
+import net.launcher.control.profile.base.ProfileTableSelector;
+import net.launcher.control.versions.MinecraftVersionPicker;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.utils.Logger;
+import net.launcher.utils.Tasks;
 import net.wheatlauncher.control.utils.FXMLInnerController;
 import net.wheatlauncher.control.utils.ReloadableController;
+import org.to2mbn.jmccc.mcdownloader.MinecraftDownloader;
+import org.to2mbn.jmccc.mcdownloader.MinecraftDownloaderBuilder;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.parsing.Versions;
 
@@ -35,7 +37,6 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.FileTime;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 
 /**
@@ -44,8 +45,6 @@ import java.util.stream.Collectors;
 @FXMLController("/fxml/profiles/ProfileSetting.fxml")
 public class ControllerProfileSetting implements ReloadableController
 {
-	public Tab mcTab;
-
 	@FXMLViewFlowContext
 	private ViewFlowContext flowContext;
 
@@ -53,15 +52,14 @@ public class ControllerProfileSetting implements ReloadableController
 	public Label profileLabel;
 //	public ValidationFacade validProfile;
 
-	public JFXPopup profilePopup;
 	@FXMLInnerController
 	public ControllerSettingProfile profilePopupController;
 
-	public JFXRippler editProfileRegion;
-	public JFXComboBox<String> profile;
+	//	public JFXRippler editProfileRegion;
+	public ProfileTableSelector profile;
 
 	/*Version*/
-	public JFXComboBox<String> versions;
+	public MinecraftVersionPicker versions;
 	public ValidationFacade validVersion;
 
 	/*Sub-settings*/
@@ -75,9 +73,9 @@ public class ControllerProfileSetting implements ReloadableController
 	public ControllerGameSetting gameSettingController;
 	public StackPane gameSetting;
 
-	@FXMLInnerController
-	public ControllerLanguages languageSettingController;
-	public StackPane languageSetting;
+//	@FXMLInnerController
+//	public ControllerLanguages languageSettingController;
+//	public StackPane languageSetting;
 
 	@FXMLInnerController
 	public ControllerResourcePackView resourcePackSettingController;
@@ -89,7 +87,7 @@ public class ControllerProfileSetting implements ReloadableController
 
 	/*root*/
 	@FXML
-	private FlowPane root;
+	private VBox root;
 
 	public JFXDialog rootDialog;
 
@@ -100,6 +98,7 @@ public class ControllerProfileSetting implements ReloadableController
 		rootDialog.setOverlayClose(true);
 		initProfilePopupMenu();
 		initProfile();
+		initVersion();
 	}
 
 	@PreDestroy
@@ -128,69 +127,95 @@ public class ControllerProfileSetting implements ReloadableController
 		Bootstrap.getCore().getService().scheduleAtFixedRate(new SimpleFileWatcher(Paths.get("versions"),
 						() -> Platform.runLater(ControllerProfileSetting.this::updateVersionList)), 5, 5,
 				TimeUnit.SECONDS);
-		versionList = FXCollections.observableArrayList(Versions.getVersions(Bootstrap.getCore().getProfileManager().selecting()
-				.getMinecraftLocation()));
-		versions.itemsProperty().bind(Bindings.createObjectBinding(() ->
-				{
-					updateVersionList();
-					return versionList;
-				},
-				Bootstrap.getCore().getProfileManager().selectedProfileProperty()));
-		versions.valueProperty().bind(Bindings.createStringBinding(() ->
-						Bootstrap.getCore().getProfileManager().selecting().getVersion(),
-				Bootstrap.getCore().getProfileManager().selectedProfileProperty()));
-		versions.getJFXEditor().textProperty().bind(
-				Bindings.createStringBinding(() -> Bootstrap.getCore().getProfileManager().selecting().getVersion(), Bootstrap.getCore()
-						.getProfileManager().selectedProfileProperty()));
+		versions.setUpdateFunction(call ->
+		{
+			Bootstrap.getCore().getService().submit(() ->
+			{
+				MinecraftDownloader downloader = MinecraftDownloaderBuilder.buildDefault();
+				return downloader.fetchRemoteVersionList(Tasks.adept(call)).get();
+			});
+			return null;
+		});
+//		versionList = FXCollections.observableArrayList(Versions.getVersions(Bootstrap.getCore().getProfileManager()
+//			.selecting()
+//				.getMinecraftLocation()));
+//		versions.itemsProperty().bind(Bindings.createObjectBinding(() ->
+//				{
+//					updateVersionList();
+//					return versionList;
+//				},
+//				Bootstrap.getCore().getProfileManager().selectedProfileProperty()));
+//		versions.valueProperty().bind(Bindings.createStringBinding(() ->
+//						Bootstrap.getCore().getProfileManager().selecting().getVersion(),
+//				Bootstrap.getCore().getProfileManager().selectedProfileProperty()));
+//		versions.getJFXEditor().textProperty().bind(
+//				Bindings.createStringBinding(() -> Bootstrap.getCore().getProfileManager().selecting().getVersion(), Bootstrap.getCore()
+//						.getProfileManager().selectedProfileProperty()));
 	}
 
 	private String findIdByName(String name)
 	{
-		for (Map.Entry<String, LaunchProfile> entry : Bootstrap.getCore().getProfileManager().getAllProfiles().entrySet())
+		for (Map.Entry<String, LaunchProfile> entry : Bootstrap.getCore().getProfileManager().getProfilesMap().entrySet())
 			if (entry.getValue().getDisplayName().equals(name)) return entry.getKey();
 		return null;
 	}
 
 	private void initProfile()
 	{
-		ObjectBinding<ObservableList<String>> itemsBinding = Bindings.createObjectBinding(() ->
-						FXCollections.observableArrayList(Bootstrap.getCore().getProfileManager().getAllProfiles()
-								.values().stream().map(LaunchProfile::getDisplayName)
-								.collect(Collectors.toList())),
-				Bootstrap.getCore().getProfileManager().getAllProfiles());
-		profile.itemsProperty().bind(itemsBinding);
-		InvalidationListener listener = (observable) ->
+		ObservableMap<String, LaunchProfile> allProfiles = Bootstrap.getCore().getProfileManager().getProfilesMap();
+		profile.getProfiles().addAll(allProfiles.values());
+		allProfiles.addListener((MapChangeListener<String, LaunchProfile>) change ->
 		{
-			profile.valueProperty().bind(Bindings.createStringBinding(() ->
-					{
-						Platform.runLater(itemsBinding::invalidate);
-						return Bootstrap.getCore().getProfileManager().selecting().getDisplayName();
-					},
-					Bootstrap.getCore().getProfileManager().selecting().displayNameProperty()));
-		};
-		Bootstrap.getCore().getProfileManager().selectedProfileProperty().addListener(listener);
-		listener.invalidated(null);
+			LaunchProfile valueAdded = change.getValueAdded();
+			if (valueAdded != null)
+			{
+				profile.getProfiles().add(valueAdded);
+			}
+			LaunchProfile valueRemoved = change.getValueRemoved();
+			if (valueAdded != null)
+			{
+				profile.getProfiles().remove(valueRemoved);
+			}
+		});
+//		ObjectBinding<ObservableList<String>> itemsBinding = Bindings.createObjectBinding(() ->
+//						FXCollections.observableArrayList(Bootstrap.getCore().getProfileManager().getProfilesMap()
+//								.values().stream().map(LaunchProfile::getDisplayName)
+//								.collect(Collectors.toList())),
+//				Bootstrap.getCore().getProfileManager().getProfilesMap());
 
-		profile.selectionModelProperty().get().selectedItemProperty().addListener(
-				(observable, oldValue, newValue) ->
-				{
-					String idByName = findIdByName(newValue);
-					if (idByName != null) Bootstrap.getCore().getProfileManager().setSelectedProfile(idByName);
-				});
+//		profile.itemsProperty().bind(itemsBinding);
+//		InvalidationListener listener = (observable) ->
+//		{
+//			profile.valueProperty().bind(Bindings.createStringBinding(() ->
+//					{
+//						Platform.runLater(itemsBinding::invalidate);
+//						return Bootstrap.getCore().getProfileManager().selecting().getDisplayName();
+//					},
+//					Bootstrap.getCore().getProfileManager().selecting().displayNameProperty()));
+//		};
+//		Bootstrap.getCore().getProfileManager().selectedProfileProperty().addListener(listener);
+//		listener.invalidated(null);
+//
+//		profile.selectionModelProperty().get().selectedItemProperty().addListener(
+//				(observable, oldValue, newValue) ->
+//				{
+//					String idByName = findIdByName(newValue);
+//					if (idByName != null) Bootstrap.getCore().getProfileManager().setSelectedProfile(idByName);
+//				});
 	}
 
 	private void initProfilePopupMenu()
 	{
-		rootDialog.getChildren().remove(profilePopup);
-		profilePopup.setPopupContainer(rootDialog);
-
-		profilePopup.setOnClose(e -> rootDialog.setOverlayClose(true));
-		profilePopup.setSource(editProfileRegion);
-		editProfileRegion.setOnMouseClicked(event ->
-		{
-			rootDialog.setOverlayClose(false);
-			profilePopup.show(JFXPopup.PopupVPosition.TOP, JFXPopup.PopupHPosition.LEFT, 40, 37);
-		});
+//		rootDialog.getChildren().remove(profilePopup);
+//		profilePopup.setPopupContainer(rootDialog);
+//		profilePopup.setPrefSize(200,400);
+//		profilePopup.setOnClose(e -> rootDialog.setOverlayClose(true));
+//		profilePopup.setSource(editProfileRegion);
+//		editProfileRegion.setOnMouseClicked(event ->
+//		{
+//			rootDialog.setOverlayClose(false);
+//			profilePopup.show(JFXPopup.PopupVPosition.TOP, JFXPopup.PopupHPosition.RIGHT/*, 40, 37*/);
+//		});
 
 	}
 
@@ -203,7 +228,7 @@ public class ControllerProfileSetting implements ReloadableController
 	@Override
 	public void unload()
 	{
-		profilePopup.close();
+//		profilePopup.close();
 	}
 
 	private class SimpleFileWatcher implements Runnable

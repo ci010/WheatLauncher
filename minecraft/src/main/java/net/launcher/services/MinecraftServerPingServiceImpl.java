@@ -2,8 +2,8 @@ package net.launcher.services;
 
 import net.launcher.game.ServerInfo;
 import net.launcher.game.ServerStatus;
-import net.launcher.utils.CallbacksOption;
 import net.launcher.utils.MessageUtils;
+import net.launcher.utils.Tasks;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callbacks;
@@ -91,7 +91,7 @@ class MinecraftServerPingServiceImpl implements MinecraftServerPingService
 		{
 			SocketChannel open = SocketChannel.open(MessageUtils.getAddress(info.getHostName()));
 			CallbackAdapter<ServerStatus> adapter = new Task(callback, open, waitPing, info);
-			return service.submit(CallbacksOption.wrapFallback(
+			return service.submit(Tasks.wrapFallback(
 					new HandshakeTask(info, open),
 					new HandshakeTaskLegacy(info, open), adapter));
 		}

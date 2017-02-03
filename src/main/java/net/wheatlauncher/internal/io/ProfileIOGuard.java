@@ -10,9 +10,9 @@ import net.launcher.profile.LaunchProfileManagerBuilder;
 import net.launcher.setting.GameSetting;
 import net.launcher.setting.GameSettingFactory;
 import net.launcher.setting.GameSettingInstance;
-import net.launcher.utils.CallbacksOption;
 import net.launcher.utils.Logger;
 import net.launcher.utils.NIOUtils;
+import net.launcher.utils.Tasks;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
@@ -87,7 +87,7 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 	@Override
 	public void forceSave() throws IOException
 	{
-		for (String s : getInstance().getAllProfiles().keySet()) saveProfile(s);
+		for (String s : getInstance().getProfilesMap().keySet()) saveProfile(s);
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 				profile.setMemory(Integer.valueOf(object.optString("memory", "512")));
 				profile.setMinecraftLocation(new MinecraftDirectory(new File(
 						object.optString("minecraft", ".minecraft"))));
-				if (!CallbacksOption.whatever(() ->
+				if (!Tasks.optional(() ->
 				{
 					String winSize = object.optString("resolution", "856x482");
 					if (winSize.equals("Fullscreen"))
@@ -139,7 +139,7 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 					try
 					{
 						GameSetting value = entry.getValue();
-						Optional<GameSettingInstance> whatever = CallbacksOption.whatever(() -> value.load(profile
+						Optional<GameSettingInstance> whatever = Tasks.optional(() -> value.load(profile
 								.getMinecraftLocation().getRoot().toPath()));
 						if (whatever.isPresent())
 							profile.addGameSetting(whatever.get());
@@ -174,12 +174,12 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 		}
 		catch (Exception e)
 		{
-			if (manager.getAllProfiles().isEmpty())
+			if (manager.getProfilesMap().isEmpty())
 			{
 				manager.setSelectedProfile(manager.newProfile("default").getId());
 			}
 			else
-				manager.setSelectedProfile(manager.getAllProfiles().keySet().iterator().next());
+				manager.setSelectedProfile(manager.getProfilesMap().keySet().iterator().next());
 		}
 		Logger.trace("returning the manager instance");
 		return manager;
@@ -226,7 +226,7 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 	protected void deploy()
 	{
 		LaunchProfileManager instance = getInstance();
-		instance.getAllProfiles().addListener((MapChangeListener<String, LaunchProfile>) change ->
+		instance.getProfilesMap().addListener((MapChangeListener<String, LaunchProfile>) change ->
 		{
 			String key = change.getKey();
 			if (change.wasAdded())

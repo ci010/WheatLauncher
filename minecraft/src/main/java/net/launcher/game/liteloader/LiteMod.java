@@ -1,6 +1,6 @@
 package net.launcher.game.liteloader;
 
-import net.minecraftforge.fml.common.versioning.ComparableVersion;
+import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.ComparableVersion;
 
 /**
  * @author ci010

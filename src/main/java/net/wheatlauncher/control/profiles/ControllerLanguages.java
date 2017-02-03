@@ -1,8 +1,6 @@
 package net.wheatlauncher.control.profiles;
 
-import com.jfoenix.controls.JFXToggleButton;
-import com.jfoenix.controls.JFXTreeTableColumn;
-import com.jfoenix.controls.JFXTreeTableView;
+import com.jfoenix.controls.JFXTableView;
 import com.jfoenix.controls.RecursiveTreeItem;
 import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
@@ -12,6 +10,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.TableColumn;
 import javafx.scene.layout.StackPane;
 import net.launcher.Bootstrap;
 import net.launcher.game.Language;
@@ -40,12 +39,12 @@ public class ControllerLanguages implements ReloadableController
 	@FXMLViewFlowContext
 	public ViewFlowContext context;
 	public StackPane root;
-	public JFXToggleButton useUnicode;
-	public JFXTreeTableView<LanguageCell> languageTable;
-	public JFXTreeTableColumn<LanguageCell, String> id;
-	public JFXTreeTableColumn<LanguageCell, String> name;
-	public JFXTreeTableColumn<LanguageCell, String> region;
-	public JFXTreeTableColumn<LanguageCell, String> bidi;
+	public JFXTableView<LanguageCell> languageTable;
+	public TableColumn<LanguageCell, String> id;
+	public TableColumn<LanguageCell, String> useUnicode;
+	public TableColumn<LanguageCell, String> name;
+	public TableColumn<LanguageCell, String> region;
+	public TableColumn<LanguageCell, String> bidi;
 
 	@Override
 	public void reload()
@@ -93,7 +92,7 @@ public class ControllerLanguages implements ReloadableController
 		System.out.println(languageLists.isEmpty());
 		root.disableProperty().bind(Bindings.createBooleanBinding(() ->
 				languageLists.isEmpty(), languageLists));
-		languageTable.setRoot(recursiveTreeItem);
+//		languageTable.setRoot(recursiveTreeItem);
 	}
 
 	private void updateLanguageList() throws IOException, NoSuchAlgorithmException

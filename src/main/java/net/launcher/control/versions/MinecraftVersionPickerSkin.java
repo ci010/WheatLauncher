@@ -1,7 +1,9 @@
 package net.launcher.control.versions;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
 import com.sun.javafx.scene.control.skin.ComboBoxPopupControl;
+import de.jensd.fx.fontawesome.Icon;
 import javafx.scene.Node;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -23,13 +25,19 @@ public class MinecraftVersionPickerSkin extends ComboBoxPopupControl<RemoteVersi
 	{
 		super(parent, new MinecraftVersionPicker.Behavior(parent));
 		this.parent = parent;
-		this.textField = new JFXTextField();
-		this.textField.setEditable(false);
-		this.textField.setText("Unknown");
-
 		registerChangeListener(parent.valueProperty(), "VALUE");
+		JFXButton button = new JFXButton();
+		button.setGraphic(new Icon("ANGLE_DOWN"));
+		button.setMaxSize(10, 10);
+		button.setFocusTraversable(false);
+//		arrowButton.getChildren().add(button);
+//		arrowButton.getChildren().remove(arrow);
+//		arrow.setOnMouseReleased(event ->
+//		{
+//			if (!parent.isShowing())
+//				parent.show();
+//		});
 	}
-
 
 	@Override
 	protected Node getPopupContent()
@@ -55,6 +63,13 @@ public class MinecraftVersionPickerSkin extends ComboBoxPopupControl<RemoteVersi
 			caller = Thread.currentThread().getStackTrace()[3];
 		boolean parentListenerCall = caller.getMethodName().contains("lambda") && caller.getClassName().equals("com.sun.javafx.scene.control.skin.ComboBoxPopupControl");
 		if (parentListenerCall) return null;
+		if (textField == null)
+		{
+			this.textField = new JFXTextField();
+			this.textField.setEditable(false);
+			this.textField.setText("Unknown");
+			this.textField.setMaxWidth(100);
+		}
 		return textField;
 	}
 
@@ -70,14 +85,17 @@ public class MinecraftVersionPickerSkin extends ComboBoxPopupControl<RemoteVersi
 	@Override
 	protected void handleControlPropertyChanged(String p)
 	{
-		if ("VALUE".equals(p))
+		super.handleControlPropertyChanged(p);
+		if ("SHOWING".equals(p))
+		{
+			if (getSkinnable().isShowing()) show();
+		}
+		else if ("VALUE".equals(p))
 		{
 			updateDisplayNode();
-			if (content != null && this.popup.isShowing())
-				this.popup.hide();
+			if (content != null && this.parent.isShowing())
+				parent.hide();
 		}
-		else
-			super.handleControlPropertyChanged(p);
 	}
 
 	@Override
@@ -100,7 +118,9 @@ public class MinecraftVersionPickerSkin extends ComboBoxPopupControl<RemoteVersi
 			@Override
 			public String toString(RemoteVersion object)
 			{
-				return object.getVersion();
+				if (object != null)
+					return object.getVersion();
+				return "Unknown";
 			}
 
 			@Override

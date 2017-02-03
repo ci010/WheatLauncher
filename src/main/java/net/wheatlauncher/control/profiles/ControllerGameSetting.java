@@ -1,101 +1,123 @@
 package net.wheatlauncher.control.profiles;
 
-import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.effects.JFXDepthManager;
-import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.Label;
-import javafx.scene.control.Labeled;
 import javafx.scene.layout.VBox;
 import net.launcher.Bootstrap;
-import net.launcher.profile.LaunchProfile;
+import net.launcher.control.MinecraftOptionButton;
+import net.launcher.control.MinecraftSlider;
 import net.launcher.setting.GameSetting;
 import net.launcher.setting.GameSettingInstance;
 import net.launcher.setting.GameSettingMinecraft;
-import net.wheatlauncher.utils.LanguageMap;
+import net.launcher.setting.IntOption;
 
 import javax.annotation.PostConstruct;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author ci010
  */
 public class ControllerGameSetting
 {
-	public JFXButton graphic;
-	public JFXButton ambientOcclusion;
+	public MinecraftOptionButton graphic;
+	public MinecraftOptionButton ambientOcclusion;
 
-	public JFXButton mipmap;
-	public JFXButton particle;
+	public MinecraftOptionButton mipmap;
+	public MinecraftOptionButton particle;
 
-	public JFXButton entityShadow;
-	public JFXButton renderCloud;
+	public MinecraftOptionButton entityShadow;
+	public MinecraftOptionButton renderCloud;
 
-	public JFXButton enableFBO;
-	public JFXButton enableVBO;
+	public MinecraftOptionButton enableFBO;
+	public MinecraftOptionButton enableVBO;
 
-	public JFXSlider renderDistance;
-	public JFXSlider maxFPS;
+	public MinecraftSlider maxFPS;
+	public MinecraftSlider renderDistance;
 
 	public VBox container;
 	public VBox missingFileIndicator;
 	public Label missingFileIndicatorText;
 
+
 	@PostConstruct
 	public void init()
 	{
 		JFXDepthManager.setDepth(missingFileIndicatorText, 3);
+		missingFileIndicator.setVisible(false);
+//		container.disableProperty().bind(Bindings.createBooleanBinding(
+//				() ->
+//				{
+//					LaunchProfile profile = Bootstrap.getCore().getProfileManager().selecting();
+//					return !profile.getGameSetting(GameSettingMinecraft.INSTANCE).isPresent();
+//				}
+//				, Bindings.createObjectBinding(() -> Bootstrap.getCore().getProfileManager().selecting().versionProperty(),
+//						Bootstrap.getCore().getProfileManager().selectedProfileProperty())));
+//		missingFileIndicator.visibleProperty().bind(Bindings.createBooleanBinding(() -> container.isDisabled(),
+//				container.disabledProperty()));
+//		missingFileIndicator.disableProperty().bind(Bindings.createBooleanBinding(() -> !container.isDisabled(),
+//				container.disabledProperty()));
 
-		container.disableProperty().bind(Bindings.createBooleanBinding(
-				() ->
-				{
-					LaunchProfile profile = Bootstrap.getCore().getProfileManager().selecting();
-					return !profile.getGameSetting(GameSettingMinecraft.INSTANCE).isPresent();
-				}
-				, Bindings.createObjectBinding(() -> Bootstrap.getCore().getProfileManager().selecting().versionProperty(),
-						Bootstrap.getCore().getProfileManager().selectedProfileProperty())));
+		setup(entityShadow, GameSettingMinecraft.INSTANCE.ENTITY_SHADOWS);
+		setup(renderCloud, GameSettingMinecraft.INSTANCE.RENDER_CLOUDS);
+		setup(enableFBO, GameSettingMinecraft.INSTANCE.FBO_ENABLE);
+		setup(enableVBO, GameSettingMinecraft.INSTANCE.USE_VBO);
+		setup(graphic, GameSettingMinecraft.INSTANCE.GRAPHIC);
+		setup(mipmap, GameSettingMinecraft.INSTANCE.MIPMAP_LEVELS);
+		setup(particle, GameSettingMinecraft.INSTANCE.PARTICLES);
+		setup(ambientOcclusion, GameSettingMinecraft.INSTANCE.AMBIENT_OCCLUSION);
 
-//		BooleanBinding missingBoolean = Bindings.createBooleanBinding(
-//				() -> Bootstrap.getCore().getProfileManager().selecting().getGameSetting(GameSettingMinecraft.INSTANCE).isPresent()
-//				, Bindings.createObjectBinding(() -> Bootstrap.getCore().getProfileManager().selecting().gameSettingsProperty(),
-//						Bootstrap.getCore().selectedProperty()));
-		missingFileIndicator.visibleProperty().bind(Bindings.createBooleanBinding(() -> container.isDisabled(),
-				container.disabledProperty()));
-		missingFileIndicator.disableProperty().bind(Bindings.createBooleanBinding(() -> !container.isDisabled(),
-				container.disabledProperty()));
-
-
-		entityShadow.setOnAction(setup(entityShadow, GameSettingMinecraft.INSTANCE.ENTITY_SHADOWS));
-		renderCloud.setOnAction(setup(renderCloud, GameSettingMinecraft.INSTANCE.RENDER_CLOUDS));
-		enableFBO.setOnAction(setup(enableFBO, GameSettingMinecraft.INSTANCE.FBO_ENABLE));
-		enableVBO.setOnAction(setup(enableVBO, GameSettingMinecraft.INSTANCE.USE_VBO));
-		graphic.setOnAction(setup(graphic, GameSettingMinecraft.INSTANCE.GRAPHIC));
-		mipmap.setOnAction(setup(mipmap, GameSettingMinecraft.INSTANCE.MIPMAP_LEVELS));
-		particle.setOnAction(setup(particle, GameSettingMinecraft.INSTANCE.PARTICLES));
-		ambientOcclusion.setOnAction(setup(ambientOcclusion, GameSettingMinecraft.INSTANCE.AMBIENT_OCCLUSION));
+//		((Pane) maxFPSBtn.getParent()).getChildren().remove(maxFPS);
+//		maxFPSBtn.getParent().hoverProperty().addListener(observable ->
+//		{
+//			if (maxFPSBtn.getParent().isHover())
+//			{
+//				maxFPSBtn.setDisable(true);
+//				((Pane) maxFPSBtn.getParent()).getChildren().add(maxFPS);
+//			}
+//			else
+//			{
+//				maxFPSBtn.setDisable(false);
+//				((Pane) maxFPSBtn.getParent()).getChildren().remove(maxFPS);
+//			}
+//		});
+//
+//		((Pane) renderDistanceBtn.getParent()).getChildren().remove(renderDistance);
+//		renderDistanceBtn.getParent().hoverProperty().addListener(observable ->
+//		{
+//			if (renderDistanceBtn.getParent().isHover())
+//			{
+//				renderDistanceBtn.setDisable(true);
+//				((Pane) renderDistanceBtn.getParent()).getChildren().add(renderDistance);
+//			}
+//			else
+//			{
+//				renderDistanceBtn.setDisable(false);
+//				((Pane) renderDistanceBtn.getParent()).getChildren().remove(renderDistance);
+//			}
+//		});
 	}
 
-	private EventHandler<ActionEvent> setup(Labeled labeled, GameSetting.Option<?> option)
+	private List<String> boolOptions = Arrays.asList("true", "false");
+
+	private void setup(MinecraftOptionButton button, GameSetting.Option<Boolean> option)
 	{
-		labeled.setText(getLocalizedText(option));
-		return event ->
-				Bootstrap.getCore().getProfileManager().selecting().getGameSetting(GameSettingMinecraft.INSTANCE).ifPresent(gameSettingInstance ->
-						labeled.setText(getLocalizedText(option, gameSettingInstance.getOption(option))));
+		button.setOptions(boolOptions);
+		button.valueProperty().addListener((observable, oldValue, newValue) ->
+				Bootstrap.getCore().getProfileManager().selecting().getGameSetting(GameSettingMinecraft.INSTANCE)
+						.ifPresent(gameSettingInstance -> gameSettingInstance.setOption(option, Boolean.valueOf(newValue))));
 	}
 
-	private String getLocalizedText(GameSetting.Option<?> option)
+	private void setup(MinecraftOptionButton button, IntOption option)
 	{
-		String name = option.getName();
-		return LanguageMap.INSTANCE.translate(name) + ":" +
-				LanguageMap.INSTANCE.translate(name + "." + "null");
-	}
-
-	private String getLocalizedText(GameSetting.Option<?> option, Object value)
-	{
-		String name = option.getName();
-		return LanguageMap.INSTANCE.translate(name) + ":" +
-				LanguageMap.INSTANCE.translate(name + "." + value);
+		String[] arr = new String[option.getMax() - option.getMin() + 1];
+		for (int i = 0; i < arr.length; i++)
+			arr[i] = String.valueOf((option.getMin() + i));
+		button.setOptions(Arrays.asList(arr));
+		button.valueProperty().addListener((observable, oldValue, newValue) ->
+				Bootstrap.getCore().getProfileManager().selecting().getGameSetting(GameSettingMinecraft.INSTANCE)
+						.ifPresent(gameSettingInstance -> gameSettingInstance.setOption(option, Integer.valueOf(newValue))));
 	}
 
 	public void createMinecraftGameSetting(ActionEvent event)

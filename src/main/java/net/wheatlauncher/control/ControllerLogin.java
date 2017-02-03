@@ -20,15 +20,13 @@ import net.launcher.AuthProfile;
 import net.launcher.Bootstrap;
 import net.launcher.auth.Authorize;
 import net.launcher.auth.AuthorizeFactory;
-import net.launcher.utils.CallbacksOption;
 import net.launcher.utils.Logger;
+import net.launcher.utils.Tasks;
 import net.wheatlauncher.control.utils.ReloadableController;
 import net.wheatlauncher.control.utils.ValidatorDelegate;
 import net.wheatlauncher.control.utils.WindowsManager;
 import net.wheatlauncher.utils.LanguageMap;
-import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 
 import javax.annotation.PostConstruct;
 import java.net.UnknownHostException;
@@ -45,7 +43,7 @@ public class ControllerLogin
 
 	/*MainApplication controls*/
 	@FXML
-	private JFXComboBox<String> account;
+	private JFXTextField account;
 
 	@FXML
 	private JFXPasswordField password;
@@ -95,14 +93,20 @@ public class ControllerLogin
 						Bootstrap.getCore().getAuthProfile().getAuthorize()::validatePassword,
 				Bootstrap.getCore().getAuthProfile().authorizeProperty()));
 
-		account.getJFXEditor().textProperty().addListener(observable ->
+//		account.getJFXEditor().textProperty().addListener(observable ->
+//		{
+//			JFXTextField f = (JFXTextField) account.jfxEditorProperty().get();
+//			if (f.validate())
+//				Bootstrap.getCore().getAuthProfile().setAccount(account.getJFXEditor().getText());
+//		});
+//		account.itemsProperty().bind(Bindings.createObjectBinding(() ->
+//						Bootstrap.getCore().getAuthProfile().getHistoryList(),
+//				Bootstrap.getCore().getAuthProfile().authorizeProperty()));
+
+		account.textProperty().addListener(observable ->
 		{
-			if (ValidationFacade.validate(account))
-				Bootstrap.getCore().getAuthProfile().setAccount(account.getJFXEditor().getText());
+			if (account.validate()) Bootstrap.getCore().getAuthProfile().setAccount(account.getText());
 		});
-		account.itemsProperty().bind(Bindings.createObjectBinding(() ->
-						Bootstrap.getCore().getAuthProfile().getHistoryList(),
-				Bootstrap.getCore().getAuthProfile().authorizeProperty()));
 		password.textProperty().addListener(observable ->
 		{
 			if (password.isDisable())
@@ -113,7 +117,7 @@ public class ControllerLogin
 		login.disableProperty().bind(Bindings.createBooleanBinding(() ->
 						accountValid.hasErrorsProperty().get() ||
 								(passwordValid.hasErrorsProperty().get() && !password.isDisable()),
-				account.valueProperty(), account.jfxEditorProperty().get().textProperty(),
+				account.textProperty(),
 				password.textProperty(), password.disableProperty()));
 
 		AuthProfile authModule = Bootstrap.getCore().getAuthProfile();
@@ -129,8 +133,8 @@ public class ControllerLogin
 		{
 			AuthProfile module = Bootstrap.getCore().getAuthProfile();
 			module.setAuthorize(n ? AuthorizeFactory.ONLINE : AuthorizeFactory.OFFLINE);
-			account.setValue("");
-			ValidationFacade.reset(account);
+			account.setText("");
+			account.reset();
 			password.setText("");
 			password.reset();
 		}); //Common
@@ -158,28 +162,18 @@ public class ControllerLogin
 		btnPane.getChildren().remove(login);
 		btnPane.getChildren().add(spinner);
 		onlineMode.setDisable(true);
-		Bootstrap.getCore().getService().submit(CallbacksOption.wrap(() ->
+		Bootstrap.getCore().getService().submit(Tasks.builder(() ->
 		{
 			AuthProfile module = Bootstrap.getCore().getAuthProfile();
 			return module.getAuthorize().auth(module.getAccount(), module.getPassword());
-		}, new CallbackAdapter<AuthInfo>()
+		}).setDone((result) -> Platform.runLater(() ->
 		{
-			@Override
-			public void done(AuthInfo result)
-			{
-				Platform.runLater(() ->
-				{
-					Bootstrap.getCore().getAuthProfile().setCache(result);
-					btnPane.getChildren().remove(spinner);
-					btnPane.getChildren().add(login);
-					switchToPreview();
-					onlineMode.setDisable(false);
-				});
-			}
-
-			@Override
-			public void failed(Throwable e)
-			{
+			Bootstrap.getCore().getAuthProfile().setCache(result);
+			btnPane.getChildren().remove(spinner);
+			btnPane.getChildren().add(login);
+			switchToPreview();
+			onlineMode.setDisable(false);
+		})).setException((e) ->
 				Platform.runLater(() ->
 				{
 					Throwable ex = e.getCause() == null ? e : e.getCause();
@@ -195,9 +189,8 @@ public class ControllerLogin
 					btnPane.getChildren().remove(spinner);
 					btnPane.getChildren().add(login);
 					onlineMode.setDisable(false);
-				});
-			}
-		}));
+				})).build());
+
 	}
 
 	private void switchToPreview()

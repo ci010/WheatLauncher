@@ -1,7 +1,7 @@
 package net.launcher.utils.resource;
 
-import net.launcher.utils.CallbacksOption;
 import net.launcher.utils.ProgressCallback;
+import net.launcher.utils.Tasks;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 
 import java.io.FileNotFoundException;
@@ -105,7 +105,7 @@ class BackupRepository implements Repository<Void>
 		Objects.requireNonNull(path);
 
 		Path target = directory.resolve(path);
-		return new DeliveryImpl<>(service.submit(CallbacksOption.wrap(() ->
+		return new DeliveryImpl<>(service.submit(Tasks.wrap(() ->
 		{
 			Path src = repoRoot.resolve(path);
 			FetchUtils.fetch(src, target, option);

@@ -32,14 +32,6 @@ public interface ArchiveRepository<T> extends Repository<ArchiveRepository.Resou
 
 	ObservableMap<String, Resource<T>> getResourceMap();
 
-
-	/**
-	 * Map resource to the callback.
-	 *
-	 * @param hash The hash of the resources.
-	 */
-	Resource<T> mapResource(String hash);
-
 	/**
 	 * Import a single file into the repository.
 	 * <p>Progress message:
@@ -82,15 +74,6 @@ public interface ArchiveRepository<T> extends Repository<ArchiveRepository.Resou
 		private Object signature;
 		private String[] tags;
 
-		public Resource(ResourceType type, String hash, T containData)
-		{
-			this.type = type;
-			this.hash = hash;
-			this.containData = containData;
-			this.tags = new String[16];
-			this.tags[0] = hash;
-		}
-
 		public Resource(ResourceType type, String hash, T containData, Object signiture)
 		{
 			this.type = type;
@@ -110,8 +93,13 @@ public interface ArchiveRepository<T> extends Repository<ArchiveRepository.Resou
 
 		public void addTag(String tag)
 		{
-
 		}
+
+		public void removeTag(String tag)
+		{
+		}
+
+		public String[] getTags() {return Arrays.copyOf(tags, 16);}
 
 		public Object getSignature()
 		{

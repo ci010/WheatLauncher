@@ -1,5 +1,6 @@
 package net.wheatlauncher.control;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.effects.JFXDepthManager;
 import io.datafx.controller.FXMLController;
@@ -24,7 +25,10 @@ import net.launcher.Bootstrap;
 import net.launcher.utils.StringUtils;
 import net.wheatlauncher.control.profiles.ControllerProfileSetting;
 import net.wheatlauncher.control.settings.ControllerSetting;
-import net.wheatlauncher.control.utils.*;
+import net.wheatlauncher.control.utils.AnimationRotate;
+import net.wheatlauncher.control.utils.FXMLInnerController;
+import net.wheatlauncher.control.utils.ReloadableController;
+import net.wheatlauncher.control.utils.WindowsManager;
 import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
@@ -49,9 +53,9 @@ public class ControllerPreview implements ReloadableController
 
 	/*controls*/
 	@FXML
-	private ColorTransitionButton setting, switchPlayer;
+	private JFXButton setting, switchPlayer;
 	@FXML
-	private ColorTransitionButton launch, profileName;
+	private JFXButton launch, profileName;
 	@FXML
 	private Label player;
 	private Animation animation;
@@ -82,7 +86,7 @@ public class ControllerPreview implements ReloadableController
 		JFXDepthManager.setDepth(leftBox, 3);
 		animation = new AnimationRotate(canvas);
 		canvas.getAnimationPlayer().addSkinAnimation(new SkinAniRunning(100, 100, 30, canvas));
-
+		JFXDepthManager.setDepth(player.getParent(), 2);
 		profileName.textProperty().bind(Bindings.createStringBinding(() -> Bootstrap.getCore().getProfileManager().selecting().getDisplayName(),
 				Bindings.createObjectBinding(() -> Bootstrap.getCore().getProfileManager().selecting().displayNameProperty(),
 						Bootstrap.getCore().getProfileManager().selectedProfileProperty()

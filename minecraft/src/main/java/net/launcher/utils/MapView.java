@@ -36,10 +36,10 @@ public interface MapView<K, V>
 	 * key
 	 * @throws ClassCastException   if the key is of an inappropriate type for
 	 *                              this map
-	 *                              (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
+	 *                              (<a href="{@docRoot}/java/util/Collection.html#runTaskOptional-restrictions">runTaskOptional</a>)
 	 * @throws NullPointerException if the specified key is null and this map
 	 *                              does not permit null keys
-	 *                              (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
+	 *                              (<a href="{@docRoot}/java/util/Collection.html#runTaskOptional-restrictions">runTaskOptional</a>)
 	 */
 	boolean containsKey(Object key);
 
@@ -56,10 +56,10 @@ public interface MapView<K, V>
 	 * specified value
 	 * @throws ClassCastException   if the value is of an inappropriate type for
 	 *                              this map
-	 *                              (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
+	 *                              (<a href="{@docRoot}/java/util/Collection.html#runTaskOptional-restrictions">runTaskOptional</a>)
 	 * @throws NullPointerException if the specified value is null and this
 	 *                              map does not permit null values
-	 *                              (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
+	 *                              (<a href="{@docRoot}/java/util/Collection.html#runTaskOptional-restrictions">runTaskOptional</a>)
 	 */
 	boolean containsValue(Object value);
 
@@ -83,10 +83,10 @@ public interface MapView<K, V>
 	 * {@code null} if this map contains no mapping for the key
 	 * @throws ClassCastException   if the key is of an inappropriate type for
 	 *                              this map
-	 *                              (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
+	 *                              (<a href="{@docRoot}/java/util/Collection.html#runTaskOptional-restrictions">runTaskOptional</a>)
 	 * @throws NullPointerException if the specified key is null and this map
 	 *                              does not permit null keys
-	 *                              (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
+	 *                              (<a href="{@docRoot}/java/util/Collection.html#runTaskOptional-restrictions">runTaskOptional</a>)
 	 */
 	V get(Object key);
 
@@ -171,10 +171,10 @@ public interface MapView<K, V>
 	 * {@code defaultValue} if this map contains no mapping for the key
 	 * @throws ClassCastException   if the key is of an inappropriate type for
 	 *                              this map
-	 *                              (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
+	 *                              (<a href="{@docRoot}/java/util/Collection.html#runTaskOptional-restrictions">runTaskOptional</a>)
 	 * @throws NullPointerException if the specified key is null and this map
 	 *                              does not permit null keys
-	 *                              (<a href="{@docRoot}/java/util/Collection.html#optional-restrictions">optional</a>)
+	 *                              (<a href="{@docRoot}/java/util/Collection.html#runTaskOptional-restrictions">runTaskOptional</a>)
 	 * @implSpec The default implementation makes no guarantees about synchronization
 	 * or atomicity properties of this method. Any implementation providing
 	 * atomicity guarantees must override this method and document its

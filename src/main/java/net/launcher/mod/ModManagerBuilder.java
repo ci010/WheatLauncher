@@ -13,6 +13,7 @@ import net.launcher.utils.serial.BiSerializer;
 import org.to2mbn.jmccc.util.Builder;
 
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -99,10 +100,12 @@ public class ModManagerBuilder implements Builder<LaunchElementManager<ForgeMod>
 					builder.setAcceptableRemoteVersions(modObj.get("acceptableRemoteVersions").asString());
 					builder.setAcceptableSaveVersions(modObj.get("acceptableSaveVersions").asString());
 					builder.setCredits(modObj.get("credits").asString());
-					builder.setAuthorList((String[]) modObj.get("authorList").asList().toArray());
+					builder.setAuthorList(Arrays.stream(modObj.get("authorList").asList().toArray()).map
+							(Object::toString).toArray(String[]::new));
 					builder.setUrl(modObj.get("url").asString());
 					builder.setParent(modObj.get("parent").asString());
-					builder.setScreenshots((String[]) modObj.get("screenShots").asList().toArray());
+					builder.setScreenshots(Arrays.stream(modObj.get("screenShots").asList().toArray()).map
+							(Object::toString).toArray(String[]::new));
 					builder.setMcVersion(modObj.get("mcVersion").asString());
 					builder.setFingerprint(modObj.get("fingerprint").asString());
 					builder.setDependencies(modObj.get("dependencies").asString());

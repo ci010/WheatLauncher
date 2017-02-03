@@ -7,7 +7,9 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.Event;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -16,8 +18,8 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import net.launcher.utils.CallbacksOption;
-import net.minecraftforge.fml.common.versioning.ComparableVersion;
+import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.ComparableVersion;
+import net.launcher.utils.Tasks;
 import net.wheatlauncher.utils.LanguageMap;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersion;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersionList;
@@ -33,16 +35,14 @@ public class MinecraftVersionDisplayContent extends Region
 {
 	protected MinecraftVersionPicker picker;
 
-	protected StackPane root;
-	protected HBox containerParent;
-	protected VBox bookMarkContainer;
-	protected VBox mainDisplayContainer;
-	protected VBox header;
-	protected VBox content;
+	protected StackPane root = new StackPane();
+	protected VBox mainDisplayContainer = new VBox();
+	protected VBox header = new VBox();
+	protected VBox content = new VBox();
+
+	private JFXSpinner spinner = new JFXSpinner();
 
 	protected JFXTextField filter;
-
-	private JFXSpinner spinner;
 
 	//contents
 	protected JFXTableView<?> versionTable;
@@ -50,35 +50,22 @@ public class MinecraftVersionDisplayContent extends Region
 	protected JFXToggleNode showAlpha;
 	//header labels
 	private Label version;
-	private Label releaseTime;
-	private Label releaseType;
+	private Label releaseTime = new Label();
+	private Label releaseType = new Label();
 
 	public MinecraftVersionDisplayContent(MinecraftVersionPicker picker)
 	{
 		this.picker = picker;
 
-		this.root = new StackPane();
 		this.root.setOnMouseClicked(Event::consume);
 		this.root.setAlignment(Pos.CENTER);
-		this.getChildren().add(root);
-
-		this.containerParent = new HBox();
-		this.mainDisplayContainer = new VBox();
-		this.bookMarkContainer = new VBox();
-		this.header = new VBox();
-		this.content = new VBox();
+		this.root.setStyle("-fx-padding:10");
 		this.content.setAlignment(Pos.CENTER);
 
-		this.mainDisplayContainer.getChildren().add(header);
-		this.mainDisplayContainer.getChildren().add(content);
 		this.mainDisplayContainer.setAlignment(Pos.CENTER);
-		this.mainDisplayContainer.setStyle("-fx-padding:5; -fx-background-color:#009688");
-
-		this.containerParent.getChildren().add(mainDisplayContainer);
-
-		this.spinner = new JFXSpinner();
-
-		this.root.getChildren().add(mainDisplayContainer);
+		this.mainDisplayContainer.setBackground(new Background(new BackgroundFill(Color.web("#009688"),
+				CornerRadii.EMPTY, Insets.EMPTY)));
+		mainDisplayContainer.getStyleClass().addAll("fx-mc-picker-container");
 
 		header.getStyleClass().add("jfx-layout-heading");
 		header.getStyleClass().add("title");
@@ -90,6 +77,11 @@ public class MinecraftVersionDisplayContent extends Region
 
 		refresh.setOnMouseClicked(event -> refresh());
 		confirm.setOnMouseClicked(event -> onConfirm());
+
+		this.getChildren().add(root);
+		this.root.getChildren().add(mainDisplayContainer);
+		this.mainDisplayContainer.getChildren().add(header);
+		this.mainDisplayContainer.getChildren().add(content);
 	}
 
 
@@ -98,7 +90,7 @@ public class MinecraftVersionDisplayContent extends Region
 		if (!root.getChildren().contains(spinner))
 			root.getChildren().add(spinner);
 		this.mainDisplayContainer.setDisable(true);
-		this.picker.onUpdate(CallbacksOption.whateverCallback(
+		this.picker.onUpdate(Tasks.whatever(
 				() ->
 				{
 					root.getChildren().remove(spinner);
@@ -109,6 +101,7 @@ public class MinecraftVersionDisplayContent extends Region
 	protected void setupContent()
 	{
 		this.versionTable = buildTable();
+		this.versionTable.getStyleClass().addAll("table-view", "mc-version-picker-table");
 		//setup refresh
 		this.refresh = new JFXRippler(new Icon("REFRESH", "2em", ";", "icon"));
 		//setup onConfirm
@@ -192,20 +185,19 @@ public class MinecraftVersionDisplayContent extends Region
 		);
 
 		JFXTableView<MCVersionObj> versionTable = new JFXTableView<>();
-		this.picker.dataListProperty().addListener(o ->
+		InvalidationListener listener = o ->
 		{
 			RemoteVersionList dataList = this.picker.getDataList();
 			if (dataList != null)
-				versionTable.setItems(FXCollections.observableArrayList(this.picker.getDataList().getVersions().values().stream().map
-						(MCVersionObj::new)
-						.collect(Collectors.toList())));
-		});
-		RemoteVersionList dataList = this.picker.getDataList();
-		if (dataList != null)
-			versionTable.setItems(FXCollections.observableArrayList(this.picker.getDataList().getVersions().values()
-					.stream().map
-							(MCVersionObj::new)
-					.collect(Collectors.toList())));
+			{
+				ObservableList<MCVersionObj> list = FXCollections.observableArrayList(dataList.getVersions().values().stream().map
+						(MCVersionObj::new).collect(Collectors.toList()));
+				versionTable.getItems().setAll(list);
+			}
+		};
+		this.picker.dataListProperty().addListener(listener);
+		listener.invalidated(null);
+
 		versionTable.setFixedSize(true);
 		versionTable.setColumnsDraggable(false);
 		versionTable.setEditable(false);
@@ -233,12 +225,10 @@ public class MinecraftVersionDisplayContent extends Region
 		versionContainer.setAlignment(Pos.CENTER_LEFT);
 
 		//release//
-		releaseTime = new Label();
 		releaseTime.getStyleClass().add("spinner-label");
 		releaseTime.setTextFill(Color.rgb(255, 255, 255, 0.67));
 		releaseTime.setFont(Font.font("Roboto", FontWeight.BOLD, 14));
 
-		releaseType = new Label();
 		releaseType.getStyleClass().add("spinner-label");
 		releaseType.setTextFill(Color.rgb(255, 255, 255, 0.67));
 		releaseType.setFont(Font.font("Roboto", FontWeight.BOLD, 14));

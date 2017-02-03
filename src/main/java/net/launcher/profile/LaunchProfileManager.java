@@ -3,11 +3,13 @@ package net.launcher.profile;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -16,8 +18,9 @@ import java.util.function.Function;
  */
 public class LaunchProfileManager
 {
-	private ObservableMap<String, LaunchProfile> map = FXCollections.observableHashMap(),
+	private ObservableMap<String, LaunchProfile> map = FXCollections.observableMap(new TreeMap<>()),
 			view = FXCollections.unmodifiableObservableMap(map);
+	private ObservableList<LaunchProfile> profiles = FXCollections.observableArrayList();
 	private Function<String, LaunchProfile> factory;
 	private Consumer<String> deleteConsumer;
 
@@ -56,6 +59,14 @@ public class LaunchProfileManager
 		return false;
 	}
 
+	public LaunchProfile newProfile()
+	{
+		String id = String.valueOf(System.currentTimeMillis());
+		LaunchProfile profile = factory.apply(id);
+		map.put(id, profile);
+		return profile;
+	}
+
 	public LaunchProfile newProfile(String name)
 	{
 		Objects.requireNonNull(name);
@@ -83,9 +94,11 @@ public class LaunchProfileManager
 		return Optional.ofNullable(map.get(id));
 	}
 
-	public ObservableMap<String, LaunchProfile> getAllProfiles() {return view;}
+	public ObservableMap<String, LaunchProfile> getProfilesMap() {return view;}
 
-	public LaunchProfile selecting() {return getAllProfiles().get(getSelectedProfile());}
+	public ObservableList<LaunchProfile> getAllProfiles() {return this.profiles;}
+
+	public LaunchProfile selecting() {return getProfilesMap().get(getSelectedProfile());}
 
 //	public void renameProfile(String profile, String newName)
 //	{

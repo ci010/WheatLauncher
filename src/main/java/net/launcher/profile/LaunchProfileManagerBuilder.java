@@ -2,9 +2,7 @@ package net.launcher.profile;
 
 import javafx.util.Builder;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -65,6 +63,7 @@ public class LaunchProfileManagerBuilder implements Builder<LaunchProfileManager
 	}
 
 	private Map<String, LaunchProfile> loaded = Collections.emptyMap();
+	private List<LaunchProfile> profiles = new ArrayList<>();
 	private Consumer<String> deleteGuard = defaultDeleteGuard();
 	private Function<String, LaunchProfile> factory = defaultProfileFactory();
 

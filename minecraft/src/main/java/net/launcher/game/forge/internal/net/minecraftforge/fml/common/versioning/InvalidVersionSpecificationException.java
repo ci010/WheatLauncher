@@ -17,22 +17,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package net.minecraftforge.fml.common.versioning;
+package net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning;
 
 /**
- * Describes an artifact version in terms of its components, converts it to/from a string and
- * compares two versions.
+ * Occurs when a version is invalid.
  *
  * @author <a href="mailto:brett@apache.org">Brett Porter</a>
  */
-public interface ArtifactVersion
-		extends Comparable<ArtifactVersion>
+public class InvalidVersionSpecificationException extends Exception
 {
-	String getLabel();
+	private static final long serialVersionUID = 1L;
 
-	String getVersionString();
-
-	boolean containsVersion(ArtifactVersion source);
-
-	String getRangeString();
+	public InvalidVersionSpecificationException(String message)
+	{
+		super(message);
+	}
 }

@@ -24,6 +24,8 @@ public class CurseForgeProjectCard extends StackPane
 {
 	private ObjectProperty<CurseForgeProject> project = new SimpleObjectProperty<>();
 
+	public CurseForgeProjectCard() {}
+
 	public CurseForgeProject getProject()
 	{
 		return project.get();
@@ -41,52 +43,20 @@ public class CurseForgeProjectCard extends StackPane
 
 	private BorderPane header;
 
-	@Override
-	protected double computeMinHeight(double width)
-	{
-		return header.getWidth() * 1.2;
-	}
+	private static int i = 0;
 
-	@Override
-	protected double computeMinWidth(double height)
-	{
-		return super.computeMinWidth(height);
-	}
-
-	@Override
-	protected double computePrefWidth(double height)
-	{
-		return header.getWidth();
-	}
-
-	@Override
-	protected double computePrefHeight(double width)
-	{
-		return header.getWidth() * 1.2;
-	}
-
-
-	@Override
-	protected double computeMaxWidth(double height)
-	{
-		return header.getWidth();
-//		return super.computeMaxWidth(height);
-	}
-
-	@Override
-	protected double computeMaxHeight(double width)
-	{
-		return header.getWidth() * 1.2;
-	}
-
-	public CurseForgeProjectCard(CurseForgeProject project, int i)
+	public CurseForgeProjectCard(CurseForgeProject project)
 	{
 		this.project.set(project);
 		VBox content = new VBox();
 		this.header = new BorderPane();
-		this.header.setMaxWidth(200);
-		String headerColor = getDefaultColor(i % 12);
-		header.setStyle("-fx-background-radius: 5 5 0 0; -fx-background-color: " + headerColor);
+
+		String headerColor = getDefaultColor(i++ % 12);
+		header.setStyle("-fx-background-radius: 5 5 0 0;-fx-background-color: " +
+				headerColor);
+		Region placeHolder = new Region();
+		placeHolder.setMinHeight(50);
+		header.setCenter(placeHolder);
 		VBox.setVgrow(header, Priority.ALWAYS);
 		VBox body = new VBox();
 		body.setMinHeight(40 + 50);
@@ -95,6 +65,9 @@ public class CurseForgeProjectCard extends StackPane
 
 		setupHeader(header);
 		setupBody(body);
+		body.maxWidthProperty().bind(header.maxWidthProperty());
+		body.prefWidthProperty().bind(header.prefWidthProperty());
+		body.minWidthProperty().bind(header.minWidthProperty());
 
 		// create button
 		JFXButton button = new JFXButton("");
@@ -122,7 +95,7 @@ public class CurseForgeProjectCard extends StackPane
 
 		JFXDepthManager.setDepth(imageViewContainer, 2);
 		BorderPane mics = new BorderPane();
-		mics.setPadding(new Insets(5));
+		mics.setPadding(new Insets(5, 10, 5, 10));
 		mics.setLeft(imageViewContainer);
 		mics.setRight(button);
 
@@ -132,17 +105,22 @@ public class CurseForgeProjectCard extends StackPane
 				.heightProperty()));
 		StackPane.setAlignment(mics, Pos.CENTER);
 
-
 		JFXDepthManager.setDepth(this, 1);
 		this.getChildren().setAll(content, mics);
 	}
 
 	protected void setupBody(VBox body)
 	{
-		body.setAlignment(Pos.CENTER);
 		CurseForgeProject project = getProject();
 		Label label = new Label(project.getDescription());
-		body.getChildren().add(label);
+		label.setWrapText(true);
+		label.setMaxWidth(200);
+		VBox container = new VBox(label);
+		container.setAlignment(Pos.CENTER);
+		container.setStyle("-fx-padding:60 30 30 30");
+		label.setAlignment(Pos.CENTER);
+		body.setAlignment(Pos.CENTER);
+		body.getChildren().add(container);
 	}
 
 	protected void setupHeader(BorderPane header)
@@ -150,12 +128,13 @@ public class CurseForgeProjectCard extends StackPane
 		CurseForgeProject curseForgeProject = this.project.get();
 		Label name = new Label(curseForgeProject.getName()),
 				author = new Label(curseForgeProject.getAuthor());
-		name.getStyleClass().add("header-major");
-		author.getStyleClass().add("header-minor");
-		BorderPane borderPane = new BorderPane();
+		name.getStyleClass().add("header-major-small");
+		author.getStyleClass().add("header-minor-small");
+		VBox top = new VBox();
 		name.setWrapText(true);
-		borderPane.setLeft(name);
-		borderPane.setRight(author);
+		top.setSpacing(10);
+		top.getChildren().add(name);
+		top.getChildren().add(author);
 		BorderPane mics = new BorderPane();
 
 		Label count = new Label(curseForgeProject.getDownloadCount());
@@ -174,9 +153,10 @@ public class CurseForgeProjectCard extends StackPane
 
 		mics.setLeft(left);
 		mics.setRight(right);
+		mics.setStyle("-fx-padding:0 0 10 0");
 
 		header.setPadding(new Insets(20));
-		header.setTop(borderPane);
+		header.setTop(top);
 		header.setBottom(mics);
 	}
 

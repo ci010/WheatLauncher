@@ -2,7 +2,7 @@ apply plugin: 'java'
 
 dependencies {
     testCompile 'junit:junit:4.12'
-
+    compile 'org.ow2.asm:asm:5.0.3'
     compile 'org.jsoup:jsoup:1.9.2'
     compile 'org.to2mbn:jmccc:2.5-beta-1'
     compile 'org.to2mbn:jmccc-yggdrasil-authenticator:2.5-beta-1'

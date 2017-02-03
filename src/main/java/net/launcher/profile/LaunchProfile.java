@@ -10,6 +10,7 @@ import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.option.WindowSize;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -29,6 +30,7 @@ public class LaunchProfile
 	private StringProperty displayName = new SimpleStringProperty("");
 
 	private final String id;
+	private Date createdDate, lastModified;
 
 	public LaunchProfile(String id) {this.id = id;}
 

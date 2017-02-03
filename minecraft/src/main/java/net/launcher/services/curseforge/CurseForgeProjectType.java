@@ -5,22 +5,26 @@ package net.launcher.services.curseforge;
  */
 public enum CurseForgeProjectType
 {
-	Modpacks("/modpacks"),
-	Customization("/customization"),
-	Addons("/mc-addons"),
-	Mods("/mc-mods"),
-	TexturePacks("/texture-packs"),
-	Worlds("/worlds");
+	Modpacks("modpacks"),
+	Customization("customization"),
+	Addons("mc-addons"),
+	Mods("mc-mods"),
+	TexturePacks("texture-packs"),
+	Worlds("worlds");
 
-	private String path;
+	private String path, id;
 
-	CurseForgeProjectType(String path)
+	CurseForgeProjectType(String id)
 	{
-		this.path = path;
+		this.id = id;
+		this.path = "/" + id;
 	}
 
 	public String getPath()
 	{
 		return path;
 	}
+
+	public String getId()
+	{return id;}
 }

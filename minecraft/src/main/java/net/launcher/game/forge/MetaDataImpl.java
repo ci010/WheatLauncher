@@ -4,6 +4,7 @@ import net.launcher.utils.StringUtils;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -266,5 +267,32 @@ class MetaDataImpl implements ForgeModMetaData
 	public String getCollapsedVersion()
 	{
 		return collapsed[1];
+	}
+
+
+	@Override
+	public String toString()
+	{
+		return "MetaDataImpl{" +
+				"modId='" + modId + '\'' +
+				", description='" + description + '\'' +
+				", updateJSON='" + updateJSON + '\'' +
+				", url='" + url + '\'' +
+				", logoFile='" + logoFile + '\'' +
+				", authorList=" + Arrays.toString(authorList) +
+				", screenshots=" + Arrays.toString(screenshots) +
+				", credits='" + credits + '\'' +
+				", parent='" + parent + '\'' +
+				", version='" + version + '\'' +
+				", name='" + name + '\'' +
+				", mcVersion='" + mcVersion + '\'' +
+				", fingerprint='" + fingerprint + '\'' +
+				", dependencies='" + dependencies + '\'' +
+				", acceptableRemoteVersions='" + acceptableRemoteVersions + '\'' +
+				", acceptableSaveVersions='" + acceptableSaveVersions + '\'' +
+				", clientOnly=" + clientOnly +
+				", severOnly=" + severOnly +
+				", collapsed=" + Arrays.toString(collapsed) +
+				'}';
 	}
 }

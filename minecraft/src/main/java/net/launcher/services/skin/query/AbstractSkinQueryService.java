@@ -1,6 +1,6 @@
 package net.launcher.services.skin.query;
 
-import net.launcher.utils.CallbacksOption;
+import net.launcher.utils.Tasks;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.TextureType;
@@ -57,7 +57,7 @@ public abstract class AbstractSkinQueryService implements SkinQueryService
 	@Override
 	public Future<Session> session(final String keyword, Callback<Session> sessionCallback, TextureType textureType)
 	{
-		return service.submit(CallbacksOption.wrap(() ->
+		return service.submit(Tasks.wrap(() ->
 		{
 			Document parse = Jsoup.parse(queryPage(keyword, 1));
 			return createSession(keyword, parseSize(parse), 1, Collections.unmodifiableList(parseList(parse)));
@@ -106,7 +106,7 @@ public abstract class AbstractSkinQueryService implements SkinQueryService
 				callback.done(cache);
 				return;
 			}
-			service.submit(CallbacksOption.wrap(() -> parseList(Jsoup.parse(AbstractSkinQueryService.this.queryPage
+			service.submit(Tasks.wrap(() -> parseList(Jsoup.parse(AbstractSkinQueryService.this.queryPage
 					(keyword, index))), Callbacks.group(callback, new CallbackAdapter<List<Skin>>()
 			{
 				@Override

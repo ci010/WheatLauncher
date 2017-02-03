@@ -1,33 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXTableView?>
 <?import com.jfoenix.controls.JFXTextField?>
-<?import com.jfoenix.controls.JFXTreeTableColumn?>
-<?import com.jfoenix.controls.JFXTreeTableView?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.StackPane?>
-<?import javafx.scene.layout.VBox?>
-
-<StackPane fx:id="root" xmlns="http://javafx.com/javafx/8.0.71" xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.wheatlauncher.control.profiles.ControllerModView">
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<StackPane fx:id="root" xmlns="http://javafx.com/javafx/8.0.71" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="net.wheatlauncher.control.profiles.ControllerModView"
+           style="-fx-padding:10">
     <HBox spacing="10">
-        <VBox>
-            <JFXTreeTableView fx:id="mods" prefHeight="200" prefWidth="200">
+        <VBox spacing="10" HBox.hgrow="NEVER" prefWidth="400">
+            <JFXTableView fx:id="mods" prefHeight="200" prefWidth="200">
                 <columns>
-                    <JFXTreeTableColumn fx:id="name" text="%mod.name" />
-                    <JFXTreeTableColumn fx:id="version" text="%mod.author" />
-                    <JFXTreeTableColumn fx:id="minecraftVersion" text="%mod.version" />
-                    <JFXTreeTableColumn fx:id="enabled" text="%mod.enabled" />
+                    <TableColumn fx:id="name" text="%mod.name"/>
+                    <TableColumn fx:id="version" text="%mod.author"/>
+                    <TableColumn fx:id="minecraftVersion" text="%mod.version"/>
+                    <TableColumn fx:id="enabled" text="%mod.enabled"/>
                 </columns>
-            </JFXTreeTableView>
-            <JFXTextField fx:id="searchField" promptText="Search..." />
+            </JFXTableView>
         </VBox>
-        <VBox alignment="CENTER" spacing="10.0">
-            <Label>Description</Label>
-            <VBox fx:id="descriptionBox">
-                <Label fx:id="description" />
+        <VBox spacing="10" style=" -fx-padding:10;" HBox.hgrow="ALWAYS">
+            <!--<top>-->
+            <StackPane style="-fx-background-color:WHITE; -fx-padding:10">
+                <Label text="%mod.description"/>
+            </StackPane>
+            <!--</top>-->
+            <!--<center>-->
+            <VBox fx:id="descriptionBox" style="-fx-background-color:WHITE;" accessibleText="">
+                <Label fx:id="description"/>
             </VBox>
-            <JFXButton fx:id="details" />
+            <!--</center>-->
+            <!--<bottom>-->
+            <StackPane style="-fx-background-color:WHITE">
+                <JFXTextField fx:id="searchField" promptText="Search..." maxWidth="50" maxHeight="50"/>
+            </StackPane>
+            <!--</bottom>-->
         </VBox>
     </HBox>
 </StackPane>

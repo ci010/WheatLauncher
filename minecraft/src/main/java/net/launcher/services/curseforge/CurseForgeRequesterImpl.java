@@ -75,6 +75,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 		return HttpUtils.withUrlArguments(url, argumenst);
 	}
 
+	//parse Element class=project-file-list-item
 	private CurseForgeProjectArtifact parseArtifact(Element element)
 	{
 		String releaseType = element.getElementsByClass("tip").get(0).attr("title");
@@ -127,10 +128,12 @@ class CurseForgeRequesterImpl implements CurseForgeService
 
 	private CurseForgeProject parseSearchProject(Element e)
 	{
+		String path = e.child(1).child(0).child(0).attr("href");
+		if (!path.contains(requestingType.getId())) return null;
 		return new CurseForgeProject(
 				e.child(1).child(0).child(0).text(),
 				e.child(1).child(1).text(),
-				e.child(1).child(0).child(0).attr("href"),
+				path,
 				e.child(0).child(0).child(0).attr("src"),
 				Collections.emptyList(),
 				e.child(2).child(0).text(),
@@ -146,8 +149,8 @@ class CurseForgeRequesterImpl implements CurseForgeService
 		url = HttpUtils.withUrlArguments(url, Collections.singletonMap("search", keyword));
 		Document document = Jsoup.parse(requester.request("GET", url));
 		if (document.getElementsByClass("tabbed-container").size() == 0) return new Cache<>();
-		List<CurseForgeProject> projects = document.getElementsByClass("results").stream().map(this::parseSearchProject).collect
-				(Collectors.toList());
+		List<CurseForgeProject> projects = document.getElementsByClass("results").stream().map(this::parseSearchProject)
+				.filter(Objects::nonNull).collect(Collectors.toList());
 		Map<String, Object> context = new TreeMap<>();
 		context.put("type", "search");
 		context.put("keyword", keyword);
@@ -174,6 +177,37 @@ class CurseForgeRequesterImpl implements CurseForgeService
 		context.put("maxPage", maxPage);
 		context.put("option", option);
 		return new Cache<>(parseProjects(document), context);
+	}
+
+	@Override
+	public Cache<CurseForgeProjectArtifact> artifact(CurseForgeProject project) throws IOException
+	{
+		Objects.requireNonNull(project);
+
+		String files = project.getProjectPath() + "/files";
+		int page = 1;
+		int maxPage = 1;
+		Document doc = Jsoup.parse(this.requester.request("GET", root + files));
+		Elements pages = doc.getElementsByClass("b-pagination-item");
+		List<String> collect = pages.stream().map(Element::text).collect(Collectors.toList());
+		for (String s : collect)
+		{
+			try
+			{
+				Integer v = Integer.valueOf(s);
+				if (maxPage < v)
+					maxPage = v;
+			}
+			catch (Exception e) {}
+		}
+		Elements elementsByClass = doc.getElementsByClass("project-file-list-item");
+		Map<String, Object> context = new TreeMap<>();
+
+		context.put("page", page);
+		context.put("maxPage", maxPage);
+		context.put("requestURL", files);
+
+		return new Cache<>(elementsByClass.stream().map(this::parseArtifact).collect(Collectors.toList()), context);
 	}
 
 
