@@ -1,6 +1,5 @@
 package test.wheatlauncher;
 
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
 import javafx.util.Pair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -54,7 +53,7 @@ public class TestSkinme
 	}
 
 	@Test
-	public void testDown() throws IOException, Base64DecodingException
+	public void testDown() throws IOException
 	{
 		HttpRequester httpRequester = new HttpRequester();
 		URL url = new URL("http://www.minecraftskins.net/winterboy/download");
