@@ -11,11 +11,9 @@ import net.launcher.control.versions.MinecraftVersionPicker;
  */
 public class TestMCVersion extends Application
 {
-
 	@Override
 	public void start(Stage primaryStage) throws Exception
 	{
-
 		MinecraftVersionPicker minecraftVersionPicker = new MinecraftVersionPicker();
 		StackPane main = new StackPane(minecraftVersionPicker);
 		Scene scene = new Scene(main);
@@ -23,3 +21,4 @@ public class TestMCVersion extends Application
 		primaryStage.show();
 	}
 }
+1

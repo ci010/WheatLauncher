@@ -19,6 +19,6 @@ public class ModManagerTest
 		ModManagerBuilder modManagerBuilder = ModManagerBuilder.create(Paths.get("C:\\Users\\CIJhn\\Desktop\\testMod"), Executors.newFixedThreadPool(1));
 		ArchiveRepository<ForgeMod[]> archiveRepository = modManagerBuilder.getArchiveRepository();
 		LaunchElementManager<ForgeMod> build = modManagerBuilder.build();
-		archiveRepository.importFile();
+//		archiveRepository.importFile();
 	}
 }
