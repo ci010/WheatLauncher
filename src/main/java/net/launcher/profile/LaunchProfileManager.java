@@ -5,8 +5,6 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import javafx.scene.control.SelectionModel;
-import javafx.scene.control.SingleSelectionModel;
 
 import java.util.Map;
 import java.util.Objects;
@@ -25,23 +23,6 @@ public class LaunchProfileManager
 	private ObservableList<LaunchProfile> profiles = FXCollections.observableArrayList();
 	private Function<String, LaunchProfile> factory;
 	private Consumer<String> deleteConsumer;
-
-	private SelectionModel<LaunchProfile> selectionModel = new SingleSelectionModel<LaunchProfile>()
-	{
-		@Override
-		protected LaunchProfile getModelItem(int index)
-		{
-			return profiles.get(index);
-		}
-
-		@Override
-		protected int getItemCount()
-		{
-			return profiles.size();
-		}
-	};
-
-	public SelectionModel<LaunchProfile> getSelectionModel() {return selectionModel;}
 
 	private StringProperty selectedProfile = new SimpleStringProperty();
 
@@ -113,9 +94,11 @@ public class LaunchProfileManager
 		return Optional.ofNullable(map.get(id));
 	}
 
-	public ObservableMap<String, LaunchProfile> getAllProfiles() {return view;}
+	public ObservableMap<String, LaunchProfile> getProfilesMap() {return view;}
 
-	public LaunchProfile selecting() {return getAllProfiles().get(getSelectedProfile());}
+	public ObservableList<LaunchProfile> getAllProfiles() {return this.profiles;}
+
+	public LaunchProfile selecting() {return getProfilesMap().get(getSelectedProfile());}
 
 //	public void renameProfile(String profile, String newName)
 //	{
