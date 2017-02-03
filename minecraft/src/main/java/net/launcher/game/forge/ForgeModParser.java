@@ -1,10 +1,10 @@
 package net.launcher.game.forge;
 
-import jdk.internal.org.objectweb.asm.ClassReader;
 import net.launcher.utils.NIOUtils;
 import net.launcher.utils.Patterns;
 import net.launcher.utils.StringUtils;
 import net.launcher.utils.serial.Deserializer;
+import org.objectweb.asm.ClassReader;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 
