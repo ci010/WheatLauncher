@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public class MinecraftOptionButton extends JFXButton
 {
-	private static final String STYLE_CLASS = "options-button";
+	protected static final String STYLE_CLASS = "options-button";
 
 	public MinecraftOptionButton()
 	{

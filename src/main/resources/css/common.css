@@ -292,7 +292,57 @@
 	-fx-alignment: top-center ;
 }
 
+.jfx-text-field, .jfx-password-field{
+	-fx-background-color: transparent ;
+    -fx-font-weight: BOLD;
+    -fx-font-color: GREY;
+    -fx-prompt-text-fill: #808080;
+    -fx-alignment: top-left ;
+    -fx-focus-color:TOMATO;
+    -fx-unfocus-color: #4d4d4d;
+}
 
+.combo-text-field{
+	-fx-background-color: transparent;
+	-fx-prompt-text-fill: #808080;
+    -fx-alignment: top-left;
+    -fx-max-width: 200;
+    -fx-pref-width: 200;
+    -fx-focus-color: TOMATO;
+   /* -fx-focus-color:#77C2BB;*/
+    -fx-unfocus-color: #4d4d4d;
+}
+
+.login-field{
+	-fx-max-width:300;
+	-fx-pref-width:300;
+}
+
+.colored-button{
+	-fx-background-color:WHITE;
+	-fx-hover-background-color: crimson;
+	-fx-button-type:RAISED;
+}
+
+
+/*.jfx-text-field, .jfx-password-field, .jfx-text-area{
+    *//*-fx-font-weight: BOLD;*//*
+    -fx-prompt-text-fill: #808080;
+    -fx-alignment: top-left ;
+    *//*-fx-max-width: 300.0;
+    -fx-pref-width:300.0;*//*
+    *//*-fx-focus-color: #4059A9;*//*
+    *//*-fx-focus-color: SADDLEBROWN;*//*
+    -fx-focus-color:#77C2BB;
+	*//*-fx-label-float: false;*//*
+    -fx-unfocus-color: #4d4d4d;
+}*/
+
+.jfx-text-field:error , .jfx-password-field:error , .jfx-text-area:error {
+	-fx-focus-color: #D34336;
+	/*-fx-focus-color: WHEAT;*/
+	-fx-unfocus-color: #D34336;
+}
 /*.table-view .column-header {
 	-fx-background-color:WHITESMOKE;
 }

@@ -16,12 +16,9 @@ import net.launcher.Bootstrap;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.utils.Logger;
 import org.to2mbn.jmccc.option.JavaEnvironment;
-import org.to2mbn.jmccc.option.WindowSize;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author ci010
@@ -37,16 +34,7 @@ public class ControllerCommonSetting
 	//1980x1184 scale from MC standard(512)
 
 	//1024x768 common
-	private Map<Integer, WindowSize> stageToResolution = new HashMap<>(6);
 
-	{
-		stageToResolution.put(0, new WindowSize(856, 482));
-		stageToResolution.put(1, new WindowSize(1024, 612));
-		stageToResolution.put(2, new WindowSize(1280, 766));
-		stageToResolution.put(3, new WindowSize(1712, 1024));
-		stageToResolution.put(4, new WindowSize(1980, 1184));
-		stageToResolution.put(5, WindowSize.fullscreen());
-	}
 
 
 	public JFXTextField minecraftLocation;
@@ -80,9 +68,9 @@ public class ControllerCommonSetting
 //		memory.valueProperty().addListener((observable, oldValue, newValue) ->
 //				Bootstrap.getCore().getProfileManager().selecting().setMemory(newValue.intValue()));
 		int value = 0;
-		for (Map.Entry<Integer, WindowSize> entry : stageToResolution.entrySet())
-			if (profile.getResolution().equals(entry.getValue()))
-				value = entry.getKey();
+//		for (Map.Entry<Integer, WindowSize> entry : stageToResolution.entrySet())
+//			if (profile.getResolution().equals(entry.getValue()))
+//				value = entry.getKey();
 
 //		resolution.skinProperty().addListener(o ->
 //		{
@@ -118,9 +106,9 @@ public class ControllerCommonSetting
 
 //			memory.valueProperty().set(Bootstrap.getCore().getProfileManager().selecting().getMemory());
 			int v = 0;
-			for (Map.Entry<Integer, WindowSize> entry : stageToResolution.entrySet())
-				if (p.getResolution().equals(entry.getValue()))
-					v = entry.getKey();
+//			for (Map.Entry<Integer, WindowSize> entry : stageToResolution.entrySet())
+//				if (p.getResolution().equals(entry.getValue()))
+//					v = entry.getKey();
 //			resolution.valueProperty().set(v);
 //
 //			minecraftLocation.textProperty().bind(Bindings.createStringBinding(() -> Bootstrap.getCore().getProfileManager().selecting()

@@ -1,12 +1,8 @@
-<?import com.jfoenix.controls.JFXPasswordField?>
-<?import com.jfoenix.controls.JFXSpinner?>
-<?import com.jfoenix.controls.JFXTextField?>
-<?import com.jfoenix.controls.JFXToggleNode?>
+<?import com.jfoenix.controls.*?>
 <?import de.jensd.fx.fontawesome.Icon?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.*?>
-<?import net.wheatlauncher.control.utils.ColorTransitionButton?>
 <?import net.wheatlauncher.control.utils.ValidatorDelegate?>
 <StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
            styleClass="jfx-container" onKeyPressed="#onGlobalKeyPressed">
@@ -17,14 +13,15 @@
             <Label styleClass="title-label">LOGIN</Label>
         </HBox>
         <HBox spacing="10" style="-fx-padding: 0 0 10 50;">
-            <JFXTextField fx:id="account" onKeyPressed="#switchOnlineMode">
+            <JFXTextField fx:id="account" onKeyPressed="#switchOnlineMode" styleClass="login-field">
                 <validators>
                     <ValidatorDelegate fx:id="accountValid"/>
                 </validators>
             </JFXTextField>
         </HBox>
         <HBox spacing="10" style="-fx-padding: 10 0 10 50;">
-            <JFXPasswordField id="password" promptText="Password" labelFloat="true" onKeyPressed="#switchOnlineMode">
+            <JFXPasswordField id="password" promptText="Password" labelFloat="true"
+                              onKeyPressed="#switchOnlineMode" styleClass="login-field">
                 <validators>
                     <ValidatorDelegate fx:id="passwordValid"/>
                 </validators>
@@ -40,11 +37,12 @@
         <StackPane fx:id="btnPane">
             <JFXSpinner fx:id="spinner" style="-fx-radius:16" styleClass="materialDesign-purple, first-spinner"
                         startingAngle="-40"/>
-            <ColorTransitionButton fx:id="login" prefWidth="100" prefHeight="40" buttonType="RAISED"
-                                   disable="true"
-                                   onAction="#login"
-                                   styleClass="minor"
-                                   text="%login.button"/>
+            <JFXButton fx:id="login" prefWidth="100" prefHeight="40"
+                       onAction="#login"
+                       disable="true"
+                       buttonType="RAISED"
+                       styleClass="mics-button"
+                       text="%login.button"/>
         </StackPane>
         <HBox prefHeight="5"/>
     </VBox>

@@ -5,13 +5,13 @@ import javafx.scene.Node;
 import javafx.scene.control.ComboBoxBase;
 import javafx.util.StringConverter;
 import net.launcher.Bootstrap;
-import net.launcher.control.BaseSkin;
+import net.launcher.control.ComboBoxSkinSimple;
 import net.launcher.profile.LaunchProfile;
 
 /**
  * @author ci010
  */
-public class ProfileSelectorComplexSkin extends BaseSkin<LaunchProfile>
+public class ProfileSelectorComplexSkin extends ComboBoxSkinSimple<LaunchProfile>
 {
 	private Node content;
 

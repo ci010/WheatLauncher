@@ -19,20 +19,6 @@
 
 /* Input Demo */
 
-.text-field {
-    -fx-max-width: 200;
-}
-
-.jfx-text-field, .jfx-password-field{
-	-fx-background-color: WHITE;
-    -fx-font-weight: BOLD;
-    -fx-font-color: GREY;
-    -fx-prompt-text-fill: #808080;
-    -fx-alignment: top-left ;
-    -fx-focus-color: #4059A9;
-    -fx-unfocus-color: #4d4d4d;
-    -fx-max-width: 200;
-}
 
 
 

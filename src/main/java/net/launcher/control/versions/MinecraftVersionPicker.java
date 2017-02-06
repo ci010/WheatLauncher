@@ -33,7 +33,7 @@ public class MinecraftVersionPicker extends ComboBoxBase<RemoteVersion>
 
 	protected void init()
 	{
-		getStyleClass().add("jfx-date-picker");
+		getStyleClass().add("version-picker");
 		setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
 		onUpdate(Tasks.empty());
 		this.updateFunction.addListener(o -> onUpdate(Tasks.empty()));

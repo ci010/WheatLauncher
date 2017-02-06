@@ -10,14 +10,15 @@ import javafx.scene.control.TextField;
 /**
  * @author ci010
  */
-public abstract class BaseSkin<T> extends ComboBoxPopupControl<T>
+public abstract class ComboBoxSkinSimple<T> extends ComboBoxPopupControl<T>
 {
 	protected JFXTextField textField;
 	protected Node displayNode;
 
-	public BaseSkin(ComboBoxBase<T> comboBoxBase, ComboBoxBaseBehavior<T> behavior)
+	public ComboBoxSkinSimple(ComboBoxBase<T> comboBoxBase, ComboBoxBaseBehavior<T> behavior)
 	{
 		super(comboBoxBase, behavior);
+		registerChangeListener(comboBoxBase.valueProperty(), "VALUE");
 	}
 
 	@Override
@@ -37,7 +38,9 @@ public abstract class BaseSkin<T> extends ComboBoxPopupControl<T>
 			this.textField = new JFXTextField();
 			this.textField.setEditable(false);
 			this.textField.setText("Unknown");
-			this.textField.setMaxWidth(100);
+//			this.textField.setMaxWidth(100);
+			this.textField.getStyleClass().add("combo-text-field");
+			this.textField.setStyle("-fx-max-width:100;");
 		}
 		return textField;
 	}

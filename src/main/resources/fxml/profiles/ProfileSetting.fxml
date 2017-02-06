@@ -7,12 +7,12 @@
 <JFXDialog fx:id="rootDialog" xmlns:fx="http://javafx.com/fxml/1"
            xmlns="http://javafx.com/javafx/2.2"
            fx:controller="net.wheatlauncher.control.profiles.ControllerProfileSetting"
-           transitionType="CENTER">
+           transitionType="CENTER" maxWidth="1000">
     <VBox fx:id="root" minWidth="500" prefWidth="500" prefHeight="300"
-          maxHeight="300"
+          maxHeight="Infinity"
           spacing="30" alignment="CENTER">
         <!-- hgap="30" vgap="30"-->
-        <HBox spacing="30">
+        <HBox spacing="30" maxWidth="1000">
             <VBox spacing="10" alignment="TOP_CENTER"
                   style="-fx-background-color:WHITE;">
                 <StackPane style="-fx-background-color:major-color; -fx-padding: 10">
@@ -22,7 +22,7 @@
                     </HBox>
                 </StackPane>
                 <StackPane style="-fx-padding:10">
-                    <ProfileTableSelector fx:id="profile" maxWidth="100"/>
+                    <ProfileTableSelector fx:id="profile" maxWidth="100" prefWidth="100"/>
                     <!--<JFXComboBox fx:id="profile"
                                  promptText="%profile" maxWidth="100"/>-->
                 </StackPane>
@@ -33,13 +33,14 @@
                     <Label text="%version"
                            style="-fx-font-size:16; -fx-font-weight:BOLD; -fx-text-fill:WHITE; -fx-padding: 10"/>
                 </StackPane>
-                <StackPane style="-fx-padding:10">
-                    <MinecraftVersionPicker fx:id="versions" promptText="Version" prefWidth="250"/>
+                <StackPane style="-fx-padding:10;-fx-max-width:250;" maxWidth="250">
+                    <MinecraftVersionPicker fx:id="versions" promptText="Version" prefWidth="250" maxWidth="250"/>
                 </StackPane>
             </VBox>
         </HBox>
 
         <JFXTabPane fx:id="optionsTab" prefWidth="500" tabMinHeight="60"
+                    minHeight="300"
                     tabMaxHeight="100" tabMaxWidth="Infinity" maxHeight="300">
             <Tab text="%setting.common">
                 <fx:include fx:id="commonSetting" source="ProfileSettingCommon.fxml"/>

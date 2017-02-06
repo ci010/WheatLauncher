@@ -99,7 +99,6 @@ public class ColorTransitionButton extends JFXButton
 					@Override
 					public void set(ColorTransitionButton styleable, Duration value, StyleOrigin origin)
 					{
-						System.out.println("set " + value);
 						super.set(styleable, value, origin);
 					}
 

@@ -72,7 +72,7 @@ public class ProfileSelector extends ComboBoxBase<LaunchProfile>
 	}
 
 	{
-		getStyleClass().add("jfx-date-picker");
+		getStyleClass().add("profile-picker");
 		setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
 	}
 //	private StyleableObjectProperty<Paint> selectedColor = new SimpleStyleableObjectProperty<Paint>();

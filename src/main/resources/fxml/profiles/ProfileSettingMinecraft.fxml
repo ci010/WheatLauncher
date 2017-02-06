@@ -27,6 +27,10 @@
             <MinecraftOptionButton fx:id="enableFBO" key="%fboEnable"/>
             <MinecraftOptionButton fx:id="enableVBO" key="%useVbo"/>
         </HBox>
+        <HBox spacing="10" alignment="CENTER">
+            <MinecraftOptionMemory key="%setting.memory"/>
+            <MinecraftOptionResolution key="%setting.resolution"/>
+        </HBox>
     </VBox>
     <VBox fx:id="missingFileIndicator" alignment="CENTER" spacing="30">
         <Label fx:id="missingFileIndicatorText" text="%minecraft.setting.notfound"
