@@ -3,18 +3,18 @@ package net.launcher.control;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
 import de.jensd.fx.fontawesome.Icon;
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.*;
 import javafx.beans.value.ChangeListener;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import net.launcher.utils.ResolutionUtils;
+import net.launcher.ArrayUtils;
+import net.launcher.utils.EnvironmentUtils;
+import net.launcher.utils.Tasks;
 import org.to2mbn.jmccc.option.WindowSize;
 
 import java.util.Comparator;
@@ -26,9 +26,11 @@ import java.util.Comparator;
 public class MinecraftOptionResolution extends MinecraftOptionWidget
 {
 	private ObjectProperty<WindowSize> windowSize;
-	private JFXTextField width, height;
+	private IntegerProperty screenWidth,
+			screenHeight;
+	private JFXTextField widthSrc, heightSrc;
 
-	private static WindowSize[] commons = new WindowSize[6];
+	private static WindowSize[] commons = new WindowSize[5];
 
 	static
 	{
@@ -37,83 +39,47 @@ public class MinecraftOptionResolution extends MinecraftOptionWidget
 		commons[2] = new WindowSize(1280, 766);
 		commons[3] = new WindowSize(1712, 1024);
 		commons[4] = new WindowSize(1980, 1184);
-		commons[5] = WindowSize.fullscreen();
+//		commons[5] = WindowSize.fullscreen();
 	}
 
-	private WindowSize updateWindow(String width, String height)
+	private void trim(boolean left)
 	{
-		try
-		{
-			return new WindowSize(Integer.valueOf(width), Integer.valueOf(height));
-		}
-		catch (Exception e)
-		{
-			return new WindowSize(856, 482);
-		}
+		WindowSize windowSize = Tasks.optional(() -> new WindowSize(Integer.valueOf(widthSrc.getText()), Integer.valueOf(heightSrc.getText())))
+				.orElse(getWindowSize());
+		int snap = ArrayUtils.snap(commons, windowSize, EnvironmentUtils.getComparator(), left);
+		windowSize = commons[snap];
+		screenWidth.set(windowSize.getWidth());
+		screenHeight.set(windowSize.getHeight());
 	}
 
-	private void trim(JFXTextField width, JFXTextField height, boolean left)
+	@Override
+	protected boolean shouldHide()
 	{
-		WindowSize windowSize;
-		try
-		{
-			windowSize = new WindowSize(Integer.valueOf(width.getText()), Integer.valueOf(height.getText()));
-		}
-		catch (Exception e) {windowSize = getWindowSize();}
-		Comparator<WindowSize> comparator = ResolutionUtils.getComparator();
-		int min = Integer.MAX_VALUE;
-		int minIdx = -1;
-		for (int i = 0; i < commons.length; i++)
-		{
-			int compare = comparator.compare(windowSize, commons[i]);
-			if (Math.abs(min) > Math.abs(compare))
-			{
-				min = compare;
-				minIdx = i;
-			}
-		}
-
-		int leftIdx, rightIdx;
-
-		if (min > 0)
-		{
-			leftIdx = minIdx;
-			rightIdx = minIdx + 1;
-		}
-		else
-		{
-			leftIdx = minIdx - 1;
-			rightIdx = minIdx;
-		}
-
-		if (leftIdx < 0)
-			leftIdx = 0;
-		if (rightIdx >= commons.length)
-			rightIdx = commons.length - 1;
-
-		if (left)
-		{
-
-		}
+		return !widthSrc.isFocused() && !heightSrc.isFocused() && super.shouldHide();
 	}
 
 	@Override
 	protected Node createContent()
 	{
-		this.windowSize = new SimpleObjectProperty<>();
+		windowSize = new SimpleObjectProperty<>();
+		screenWidth = new SimpleIntegerProperty(856);
+		screenHeight = new SimpleIntegerProperty(482);
+
 		ChangeListener<String> txtLis = (observable, oldValue, newValue) ->
 		{
 			if (!newValue.matches("\\d*"))
 				((StringProperty) observable).set(newValue.replaceAll("[^\\d]", ""));
 		};
-		width = new JFXTextField();
-		height = new JFXTextField();
-		width.textProperty().addListener(txtLis);
-		height.textProperty().addListener(txtLis);
-		width.setMaxWidth(50);
-		height.setMaxWidth(50);
-		width.setText("856");
-		height.setText("482");
+		widthSrc = new JFXTextField();
+		heightSrc = new JFXTextField();
+		widthSrc.textProperty().addListener(txtLis);
+		heightSrc.textProperty().addListener(txtLis);
+		widthSrc.setMaxWidth(50);
+		heightSrc.setMaxWidth(50);
+		widthSrc.setText("856");
+		heightSrc.setText("482");
+
+
 		JFXButton left = new JFXButton();
 		left.setStyle("-fx-padding:3,3,3,3; -fx-background-color:TRANSPARENT;");
 		Icon angle_left = new Icon("ANGLE_LEFT");
@@ -128,22 +94,74 @@ public class MinecraftOptionResolution extends MinecraftOptionWidget
 		angle_right.setScaleY(0.8);
 		right.setGraphic(angle_right);
 
-		left.setOnAction(event -> trim(width, height, true));
-		right.setOnAction(event -> trim(width, height, false));
-		windowSize.bind(Bindings.createObjectBinding(() ->
-						updateWindow(width.getText(), height.getText()),
-				width.textProperty(), height.textProperty()));
-		this.value.bind(Bindings.createStringBinding(() -> windowSize.get().toString(), windowSize));
+		left.setOnAction(event -> trim(true));
+		right.setOnAction(event -> trim(false));
 
 		Label label = new Label("X");
 
 		BorderPane borderPane = new BorderPane();
-		HBox hBox = new HBox(width, label, height);
+		HBox hBox = new HBox(widthSrc, label, heightSrc);
 		hBox.setAlignment(Pos.CENTER);
 		borderPane.setCenter(hBox);
 		borderPane.setLeft(left);
 		borderPane.setRight(right);
+
+		InvalidationListener listener = observable ->
+		{
+			if (shouldHide())
+				hide();
+		};
+		widthSrc.focusedProperty().addListener(listener);
+		heightSrc.focusedProperty().addListener(listener);
+		widthSrc.textProperty().addListener(observable ->
+				Tasks.optional(() -> Integer.valueOf(widthSrc.getText())).ifPresent(screenWidth::set));
+		heightSrc.textProperty().addListener(observable ->
+				Tasks.optional(() -> Integer.valueOf(heightSrc.getText())).ifPresent(screenHeight::set));
+		screenHeight.addListener(observable ->
+				heightSrc.setText(String.valueOf(screenHeight.get())));
+		screenWidth.addListener(observable ->
+				widthSrc.setText(String.valueOf(screenWidth.get())));
+		windowSize.bind(Bindings.createObjectBinding(() ->
+		{
+			WindowSize windowSize = new WindowSize(screenWidth.get(), screenHeight.get());
+			Comparator<WindowSize> comparator = EnvironmentUtils.getComparator();
+			int compare = comparator.compare(windowSize, EnvironmentUtils.getScreenSize());
+			if (compare > 0) windowSize = WindowSize.fullscreen();
+			return windowSize;
+		}, screenWidth, screenHeight));
+		value.bind(Bindings.createStringBinding(() -> windowSize.get().toString(), windowSize));
+
 		return borderPane;
+	}
+
+	public int getScreenWidth()
+	{
+		return screenWidth.get();
+	}
+
+	public IntegerProperty screenWidthProperty()
+	{
+		return screenWidth;
+	}
+
+	public void setScreenWidth(int screenWidth)
+	{
+		this.screenWidth.set(screenWidth);
+	}
+
+	public int getScreenHeight()
+	{
+		return screenHeight.get();
+	}
+
+	public IntegerProperty screenHeightProperty()
+	{
+		return screenHeight;
+	}
+
+	public void setScreenHeight(int screenHeight)
+	{
+		this.screenHeight.set(screenHeight);
 	}
 
 	public WindowSize getWindowSize()
@@ -158,11 +176,11 @@ public class MinecraftOptionResolution extends MinecraftOptionWidget
 
 	public JFXTextField getWidthField()
 	{
-		return width;
+		return widthSrc;
 	}
 
 	public JFXTextField getHeightField()
 	{
-		return height;
+		return heightSrc;
 	}
 }

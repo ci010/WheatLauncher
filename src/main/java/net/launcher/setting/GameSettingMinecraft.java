@@ -28,8 +28,8 @@ public class GameSettingMinecraft extends GameSetting
 
 	public final IntOption
 			FOV = new IntOption(this, "fov", 70, 30, 110),
-			MAXFPS = new IntOption(this, "maxFps", 120, 10, 260),
-			RENDER_DISTANCE = new IntOption(this, "renderDistance", 12, 2, 16),
+			MAXFPS = new IntOption(this, "maxFps", 120, 10, 260).setStep(10),
+			RENDER_DISTANCE = new IntOption(this, "renderDistance", 12, 2, 32),
 			MIPMAP_LEVELS = new IntOption(this, "mipmapLevels", 4, 0, 4),
 			PARTICLES = new IntOption(this, "particles", 0, 0, 2),
 			AMBIENT_OCCLUSION = new IntOption(this, "ao", 0, 0, 2);

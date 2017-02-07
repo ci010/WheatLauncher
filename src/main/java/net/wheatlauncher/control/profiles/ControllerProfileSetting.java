@@ -65,9 +65,9 @@ public class ControllerProfileSetting implements ReloadableController
 	/*Sub-settings*/
 	public JFXTabPane optionsTab;
 
-	@FXMLInnerController
-	public ControllerCommonSetting commonSettingController;
-	public VBox commonSetting;
+//	@FXMLInnerController
+//	public ControllerCommonSetting commonSettingController;
+//	public VBox commonSetting;
 
 	@FXMLInnerController
 	public ControllerGameSetting gameSettingController;

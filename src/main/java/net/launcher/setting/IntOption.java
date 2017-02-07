@@ -7,6 +7,7 @@ public class IntOption extends GameSetting.Option<Integer>
 {
 	private int min, max;
 	private int defValue;
+	private int step = 1;
 
 	public IntOption(GameSetting parent, String name, int defaultV, int min, int max)
 	{
@@ -24,6 +25,14 @@ public class IntOption extends GameSetting.Option<Integer>
 	public int getMax()
 	{
 		return max;
+	}
+
+	public int getStep() {return step;}
+
+	public IntOption setStep(int step)
+	{
+		this.step = step;
+		return this;
 	}
 
 	@Override

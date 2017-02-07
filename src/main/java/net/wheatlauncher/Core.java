@@ -3,7 +3,6 @@ package net.wheatlauncher;
 import net.hakugyokurou.aeb.EventBus;
 import net.hakugyokurou.aeb.EventBusBuilder;
 import net.launcher.AuthProfile;
-import net.launcher.Bootstrap;
 import net.launcher.LaunchCore;
 import net.launcher.LaunchElementManager;
 import net.launcher.game.ResourcePack;
@@ -37,11 +36,6 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public class Core extends LaunchCore
 {
-	public static Core getInstance()
-	{
-		return (Core) Bootstrap.getCore();
-	}
-
 	private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(4);
 	private EventBus bus;
 

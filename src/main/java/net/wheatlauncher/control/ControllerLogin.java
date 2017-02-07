@@ -6,10 +6,14 @@ import io.datafx.controller.FXMLController;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Side;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -30,6 +34,7 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
 
 import javax.annotation.PostConstruct;
 import java.net.UnknownHostException;
+import java.util.stream.Collectors;
 
 /**
  * @author ci010
@@ -72,6 +77,21 @@ public class ControllerLogin
 
 	public ValidationFacade validFacade;
 
+
+	private ContextMenu accountMenu;
+	private boolean shouldEnter;
+
+	private MenuItem createItem(String s)
+	{
+		MenuItem item = new MenuItem(s);
+		item.setOnAction(event ->
+		{
+			account.setText(item.getText());
+			shouldEnter = false;
+		});
+		return item;
+	}
+
 	@PostConstruct
 	public void init()
 	{
@@ -81,8 +101,32 @@ public class ControllerLogin
 
 		EventHandler<? super KeyEvent> fireLogin = event ->
 		{
-			if (event.getCode() == KeyCode.ENTER) login.fire();
+			if (event.getCode() == KeyCode.ENTER)
+			{
+				if (!shouldEnter)
+				{
+					shouldEnter = true;
+					return;
+				}
+				login.fire();
+			}
 		};
+		accountMenu = new ContextMenu();
+		account.setText(Bootstrap.getCore().getAuthProfile().getAccount());
+		account.textProperty().addListener((observable, oldValue, newValue) ->
+		{
+			if (account.getText().length() == 0)
+				accountMenu.hide();
+			else
+				accountMenu.getItems().setAll(Bootstrap.getCore().getAuthProfile().getHistoryList().stream().filter(s -> s.startsWith(newValue))
+						.map(this::createItem).collect(Collectors.toList()));
+		});
+
+		accountMenu.getItems().addListener((InvalidationListener) observable ->
+		{
+			if (accountMenu.getItems().isEmpty()) accountMenu.hide();
+			else if (!accountMenu.isShowing()) accountMenu.show(account, Side.BOTTOM, 0, 0);
+		});
 		account.setOnKeyReleased(fireLogin);
 		password.setOnKeyReleased(fireLogin);
 

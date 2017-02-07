@@ -77,7 +77,10 @@ public abstract class MinecraftOptionWidget extends StackPane
 
 	protected abstract Node createContent();
 
-	protected boolean shouldHide() {return true;}
+	protected boolean shouldHide()
+	{
+		return !isHover();
+	}
 
 	public void setValuePredicate(Callback<String, String> valuePredicate)
 	{
@@ -101,6 +104,7 @@ public abstract class MinecraftOptionWidget extends StackPane
 		this.content = createContent();
 		JFXButton button = new JFXButton();
 		button.getStyleClass().add(STYLE_CLASS);
+		this.setPickOnBounds(false);
 		this.button.set(button);
 
 		this.getChildren().add(button);
@@ -110,10 +114,9 @@ public abstract class MinecraftOptionWidget extends StackPane
 				getKey() + ":" + value.get(), key, value));
 		this.hoverProperty().addListener(o ->
 		{
-			if (this.isHover())
-				show();
-			else if (shouldHide())
+			if (shouldHide())
 				hide();
+			else show();
 		});
 	}
 }

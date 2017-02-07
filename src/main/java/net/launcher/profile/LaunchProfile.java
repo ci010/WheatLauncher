@@ -91,8 +91,8 @@ public class LaunchProfile
 
 	public void setMemory(int memory)
 	{
-		if (memory > Runtime.getRuntime().totalMemory())
-			throw new IllegalArgumentException("memory.excesses");
+//		if (memory > Runtime.getRuntime().totalMemory())
+//			throw new IllegalArgumentException("memory.excesses");
 		this.memory.set(memory);
 	}
 

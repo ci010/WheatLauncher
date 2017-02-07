@@ -1,11 +1,14 @@
 package net.wheatlauncher.control.profiles;
 
+import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.effects.JFXDepthManager;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import net.launcher.Bootstrap;
 import net.launcher.control.MinecraftOptionButton;
+import net.launcher.control.MinecraftOptionMemory;
+import net.launcher.control.MinecraftOptionResolution;
 import net.launcher.control.MinecraftSlider;
 import net.launcher.setting.GameSetting;
 import net.launcher.setting.GameSettingInstance;
@@ -36,10 +39,12 @@ public class ControllerGameSetting
 	public MinecraftSlider maxFPS;
 	public MinecraftSlider renderDistance;
 
+	public MinecraftOptionMemory memory;
+	public MinecraftOptionResolution resolution;
+
 	public VBox container;
 	public VBox missingFileIndicator;
 	public Label missingFileIndicatorText;
-
 
 	@PostConstruct
 	public void init()
@@ -59,6 +64,8 @@ public class ControllerGameSetting
 //		missingFileIndicator.disableProperty().bind(Bindings.createBooleanBinding(() -> !container.isDisabled(),
 //				container.disabledProperty()));
 
+		setup(maxFPS, GameSettingMinecraft.INSTANCE.MAXFPS);
+		setup(renderDistance, GameSettingMinecraft.INSTANCE.RENDER_DISTANCE);
 		setup(entityShadow, GameSettingMinecraft.INSTANCE.ENTITY_SHADOWS);
 		setup(renderCloud, GameSettingMinecraft.INSTANCE.RENDER_CLOUDS);
 		setup(enableFBO, GameSettingMinecraft.INSTANCE.FBO_ENABLE);
@@ -68,38 +75,19 @@ public class ControllerGameSetting
 		setup(particle, GameSettingMinecraft.INSTANCE.PARTICLES);
 		setup(ambientOcclusion, GameSettingMinecraft.INSTANCE.AMBIENT_OCCLUSION);
 
-//		((Pane) maxFPSBtn.getParent()).getChildren().remove(maxFPS);
-//		maxFPSBtn.getParent().hoverProperty().addListener(observable ->
-//		{
-//			if (maxFPSBtn.getParent().isHover())
-//			{
-//				maxFPSBtn.setDisable(true);
-//				((Pane) maxFPSBtn.getParent()).getChildren().add(maxFPS);
-//			}
-//			else
-//			{
-//				maxFPSBtn.setDisable(false);
-//				((Pane) maxFPSBtn.getParent()).getChildren().remove(maxFPS);
-//			}
-//		});
-//
-//		((Pane) renderDistanceBtn.getParent()).getChildren().remove(renderDistance);
-//		renderDistanceBtn.getParent().hoverProperty().addListener(observable ->
-//		{
-//			if (renderDistanceBtn.getParent().isHover())
-//			{
-//				renderDistanceBtn.setDisable(true);
-//				((Pane) renderDistanceBtn.getParent()).getChildren().add(renderDistance);
-//			}
-//			else
-//			{
-//				renderDistanceBtn.setDisable(false);
-//				((Pane) renderDistanceBtn.getParent()).getChildren().remove(renderDistance);
-//			}
-//		});
+//		Bootstrap.getCore().getProfileManager().selecting().setMemory(memory.memoryProperty().get());
 	}
 
 	private List<String> boolOptions = Arrays.asList("true", "false");
+
+	private void setup(MinecraftSlider slider, IntOption option)
+	{
+		JFXSlider s = slider.getSlider();
+		s.setMin(option.getMin());
+		s.setMax(option.getMax());
+		s.setMajorTickUnit(option.getStep());
+		s.setSnapToTicks(true);
+	}
 
 	private void setup(MinecraftOptionButton button, GameSetting.Option<Boolean> option)
 	{
