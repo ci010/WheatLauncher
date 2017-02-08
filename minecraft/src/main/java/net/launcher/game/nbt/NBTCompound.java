@@ -133,8 +133,10 @@ public class NBTCompound extends NBT
 	@Override
 	public Object asRaw()
 	{
-		return map.entrySet().stream().map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), e.getValue().asRaw()
-		)).collect(Collectors.toMap(AbstractMap.SimpleImmutableEntry::getKey, AbstractMap.SimpleImmutableEntry::getValue));
+		return map.entrySet().stream().map(e ->
+				new AbstractMap.SimpleImmutableEntry<>(e.getKey(), e.getValue().asRaw()))
+				.collect(Collectors.toMap(AbstractMap.SimpleImmutableEntry::getKey, AbstractMap
+						.SimpleImmutableEntry::getValue));
 	}
 
 	@Override

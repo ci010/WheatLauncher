@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author ci010
@@ -34,6 +35,14 @@ public class NBTList extends NBT implements Iterable<NBT>
 		if (base.getType() == NBTType.NULL) return false;
 		if (validate(base)) if (list.add(base)) return true;
 		return false;
+	}
+
+	public boolean addAll(List<? extends NBT> nbts)
+	{
+		for (NBT nbt : nbts)
+			if (!validate(nbt)) return false;
+		this.list.addAll(nbts);
+		return true;
 	}
 
 	public NBT get(int i)
@@ -102,6 +111,11 @@ public class NBTList extends NBT implements Iterable<NBT>
 		return this.list.stream().map(NBT::asRaw).collect(Collectors.toList());
 	}
 
+	public Stream<NBT> stream()
+	{
+		return list.stream();
+	}
+
 	@Override
 	public boolean isList()
 	{
@@ -113,7 +127,7 @@ public class NBTList extends NBT implements Iterable<NBT>
 	{
 		return "NBTList{" +
 				"type=" + type +
-				", list=" + list +
+				", listStr=" + list +
 				'}';
 	}
 }

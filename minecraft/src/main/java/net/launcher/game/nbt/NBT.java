@@ -108,6 +108,7 @@ public abstract class NBT implements Cloneable
 
 	public static NBTPrimitive string(String s)
 	{
+		if (s == null) s = "";
 		return new NBTPrimitive(s, NBTType.STRING);
 	}
 
@@ -128,14 +129,21 @@ public abstract class NBT implements Cloneable
 
 	public static NBTList list() {return new NBTList();}
 
-	public static NBTList list(List<String> list)
+	public static NBTList list(List<NBT> listStr)
+	{
+		NBTList nbts = new NBTList();
+		nbts.addAll(listStr);
+		return nbts;
+	}
+
+	public static NBTList listStr(List<String> list)
 	{
 		NBTList nbts = new NBTList();
 		for (String string : list) nbts.add(NBT.string(string));
 		return nbts;
 	}
 
-	public static NBTList list(String[] strings)
+	public static NBTList listStr(String[] strings)
 	{
 		NBTList nbts = new NBTList();
 		for (String string : strings)
@@ -183,7 +191,10 @@ public abstract class NBT implements Cloneable
 		try (FileChannel channel = FileChannel.open(file, StandardOpenOption.CREATE, StandardOpenOption.READ,
 				StandardOpenOption.WRITE))
 		{
+			FileLock fileLock = channel.tryLock();
+			channel.truncate(bytes.length);
 			channel.map(FileChannel.MapMode.READ_WRITE, 0, bytes.length).put(bytes);
+			fileLock.release();
 		}
 	}
 
