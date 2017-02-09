@@ -153,7 +153,7 @@ public class WindowsManager
 		}
 	}
 
-	public void addSupressedException(Exception ex)
+	public void addSuppressedException(Exception ex)
 	{
 		ex.printStackTrace();
 	}

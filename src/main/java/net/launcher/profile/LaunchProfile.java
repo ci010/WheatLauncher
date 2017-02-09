@@ -5,12 +5,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import net.launcher.setting.GameSetting;
 import net.launcher.setting.GameSettingInstance;
+import net.launcher.version.MinecraftVersion;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.option.WindowSize;
 
+import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -19,7 +20,19 @@ import java.util.Optional;
  */
 public class LaunchProfile
 {
-	private StringProperty version = new SimpleStringProperty();
+	public enum Source
+	{
+		CREATED, IMPORTED
+	}
+
+	private final String id;
+	private final long createdDate;
+	private final Source source;
+
+	private ObjectProperty<LaunchProfile> parent = new SimpleObjectProperty<>();
+
+	private StringProperty displayName = new SimpleStringProperty("");
+	private ObjectProperty<MinecraftVersion> version = new SimpleObjectProperty<>();
 	private ObjectProperty<WindowSize> resolution = new SimpleObjectProperty<>(WindowSize.window(856, 482));
 	private IntegerProperty memory = new SimpleIntegerProperty(512);
 	private ObjectProperty<MinecraftDirectory> minecraftLocation = new SimpleObjectProperty<>(new MinecraftDirectory());
@@ -27,16 +40,35 @@ public class LaunchProfile
 
 	private ObservableMap<String, GameSettingInstance> gameSettingInstanceMap = FXCollections.observableHashMap();
 
-	private StringProperty displayName = new SimpleStringProperty("");
+	public LaunchProfile(String id, long createdDate, Source source)
+	{
+		this.id = id;
+		this.createdDate = createdDate;
+		this.source = source;
+	}
 
-	private final String id;
-	private Date createdDate, lastModified;
+	public LaunchProfile(String id)
+	{
+		this(id, Calendar.getInstance().getTimeInMillis(), Source.CREATED);
+	}
 
-	public LaunchProfile(String id) {this.id = id;}
+	public LaunchProfile()
+	{
+		this(Long.toString(System.currentTimeMillis()), Calendar.getInstance().getTimeInMillis(),
+				Source.CREATED);
+	}
 
-	public LaunchProfile() {this.id = Long.toString(System.currentTimeMillis());}
+	public LaunchProfile(Source source)
+	{
+		this(Long.toString(System.currentTimeMillis()), Calendar.getInstance().getTimeInMillis(),
+				source);
+	}
 
-	public String getId() {return id;}
+	public LaunchProfile getParent() {return parent.get();}
+
+	public ObjectProperty<LaunchProfile> parentProperty() {return parent;}
+
+	public void setParent(LaunchProfile parent) {this.parent.set(parent);}
 
 	public String getDisplayName() {return displayName.get();}
 
@@ -44,20 +76,11 @@ public class LaunchProfile
 
 	public void setDisplayName(String displayName) {this.displayName.set(displayName);}
 
-	public String getVersion() {return version.get();}
+	public MinecraftVersion getVersion() {return version.get();}
 
-	public void setVersion(String version)
-	{
-		Objects.requireNonNull(version);
-//		if (minecraftLocation.get().getVersion(version.getVersion()).exists())
-		this.version.set(version);
-//		else throw new IllegalArgumentException("invalid.version");
-	}
+	public ObjectProperty<MinecraftVersion> versionProperty() {return version;}
 
-	public ReadOnlyStringProperty versionProperty()
-	{
-		return version;
-	}
+	public void setVersion(MinecraftVersion version) {this.version.set(version);}
 
 	public ReadOnlyObjectProperty<WindowSize> resolutionProperty()
 	{
@@ -89,12 +112,7 @@ public class LaunchProfile
 
 	public int getMemory() {return memory.get();}
 
-	public void setMemory(int memory)
-	{
-//		if (memory > Runtime.getRuntime().totalMemory())
-//			throw new IllegalArgumentException("memory.excesses");
-		this.memory.set(memory);
-	}
+	public void setMemory(int memory) {this.memory.set(memory);}
 
 	public MinecraftDirectory getMinecraftLocation()
 	{
@@ -143,4 +161,10 @@ public class LaunchProfile
 	{
 		return gameSettingInstanceMap.values();
 	}
+
+	public String getId() {return id;}
+
+	public long getCreatedDate() {return createdDate;}
+
+	public Source getSource() {return source;}
 }

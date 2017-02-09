@@ -73,10 +73,10 @@ public class ModManagerBuilder implements Builder<LaunchElementManager<ForgeMod>
 							.put("acceptableRemoteVersions", metaData.acceptableRemoteVersions())
 							.put("acceptableSaveVersions", metaData.acceptableSaveVersions())
 							.put("credits", metaData.getCredits())
-							.put("authorList", NBT.list(metaData.getAuthorList()))
+							.put("authorList", NBT.listStr(metaData.getAuthorList()))
 							.put("url", metaData.getUrl())
 							.put("parent", metaData.getParent())
-							.put("screenShots", NBT.list(metaData.getScreenshots()))
+							.put("screenShots", NBT.listStr(metaData.getScreenshots()))
 							.put("mcVersion", metaData.getAcceptMinecraftVersion())
 							.put("fingerprint", metaData.getFingerprint())
 							.put("dependencies", metaData.getDependencies());

@@ -21,8 +21,7 @@ public class AuthProfile
 {
 	private StringProperty account = new SimpleStringProperty(StringUtils.EMPTY),
 			password = new SimpleStringProperty(StringUtils.EMPTY);
-	private String
-			clientToken = StringUtils.EMPTY,
+	private String clientToken = StringUtils.EMPTY,
 			accessToken = StringUtils.EMPTY;
 	private ObjectProperty<Authorize> authorize = new SimpleObjectProperty<>(AuthorizeFactory.ONLINE);
 	private ObjectProperty<AuthInfo> cache = new SimpleObjectProperty<>();

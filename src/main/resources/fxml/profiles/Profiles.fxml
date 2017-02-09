@@ -6,7 +6,7 @@
 <?import net.launcher.control.versions.MinecraftVersionPicker?>
 <JFXDialog fx:id="rootDialog" xmlns:fx="http://javafx.com/fxml/1"
            xmlns="http://javafx.com/javafx/2.2"
-           fx:controller="net.wheatlauncher.control.profiles.ControllerProfileSetting"
+           fx:controller="net.wheatlauncher.control.profiles.ControllerProfiles"
            transitionType="CENTER" maxWidth="1000">
     <VBox fx:id="root" minWidth="500" prefWidth="500" prefHeight="300"
           maxHeight="Infinity"
@@ -17,7 +17,7 @@
                   style="-fx-background-color:WHITE;">
                 <StackPane style="-fx-background-color:major-color; -fx-padding: 10">
                     <HBox alignment="CENTER" spacing="5" style="-fx-padding: 10">
-                        <Label fx:id="profileLabel" contentDisplay="RIGHT" text="%profile"
+                        <Label contentDisplay="RIGHT" text="%profile"
                                style="-fx-font-weight:BOLD; -fx-text-fill:WHITE; -fx-font-size:16"/>
                     </HBox>
                 </StackPane>
@@ -60,5 +60,5 @@
         </JFXTabPane>
 
     </VBox>
-    <fx:include fx:id="profilePopup" source="ProfileSettingPopup.fxml"/>
+    <!--<fx:include fx:id="profilePopup" source="ProfileSettingPopup.fxml"/>-->
 </JFXDialog>

@@ -8,8 +8,8 @@ import com.jfoenix.controls.cells.editors.TextFieldEditorBuilder;
 import com.jfoenix.controls.cells.editors.base.GenericEditableTableCell;
 import de.jensd.fx.fontawesome.Icon;
 import javafx.beans.binding.Bindings;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.Event;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -22,6 +22,7 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import net.launcher.profile.LaunchProfile;
+import net.launcher.version.MinecraftVersion;
 
 /**
  * @author ci010
@@ -46,37 +47,38 @@ public class ProfileSelectorTableContent extends StackPane
 
 	private void bindData()
 	{
-		ObservableList<LaunchProfile> profiles = selector.getProfiles();
-		this.profileTable.getItems().addAll(profiles);
-		profiles.addListener((ListChangeListener<LaunchProfile>) c ->
+		FilteredList<LaunchProfile> filteredList = new FilteredList<>(selector.profilesProperty());
+		filteredList.predicateProperty().bind(Bindings.createObjectBinding(() -> (profile) ->
 		{
-			while (c.next())
+			String text = filter.getText();
+			return text == null || text.equals("") || profile.getDisplayName().contains(text);
+		}, filter.textProperty()));
+		SortedList<LaunchProfile> sortedList = new SortedList<>(filteredList);
+		sortedList.comparatorProperty().bind(profileTable.comparatorProperty());
+		profileTable.setItems(sortedList);
+
+		selectionModel.selectedIndexProperty().addListener(observable ->
+		{
+			profileName.textProperty().bind(Bindings.createStringBinding(() ->
 			{
-				for (LaunchProfile added : c.getAddedSubList())
-					this.profileTable.getItems().add(added);
-				for (LaunchProfile removed : c.getRemoved())
-					this.profileTable.getItems().remove(removed);
-			}
+				LaunchProfile value = selectionModel.getSelectedItem();
+				if (value != null) return value.getDisplayName();
+				return "Not Selecting";
+			}, selectionModel.getSelectedItem().displayNameProperty()));
+			version.textProperty().bind(Bindings.createStringBinding(() ->
+			{
+				LaunchProfile value = selectionModel.getSelectedItem();
+				if (value != null)
+					return value.getVersion() == null ? "No Version" : value.getVersion().getVersionID();
+				return "No Value";
+			}, selectionModel.getSelectedItem().versionProperty()));
 		});
-		profileName.textProperty().bind(Bindings.createStringBinding(() ->
-		{
-			LaunchProfile value = selectionModel.getSelectedItem();
-			if (value != null) return value.getDisplayName();
-			return "Not Selecting";
-		}, selectionModel.selectedIndexProperty()));
-		version.textProperty().bind(Bindings.createStringBinding(() ->
-		{
-			LaunchProfile value = selectionModel.getSelectedItem();
-			if (value != null)
-				return value.getVersion() == null ? "No Version" : value.getVersion();
-			return "No Value";
-		}, selectionModel.selectedIndexProperty()));
 
 		name.setOnEditCommit(event ->
 		{
-			LaunchProfile value = selector.getValue();
+			LaunchProfile value = event.getRowValue();
 			if (value != null)
-				if (event.getNewValue() != null && event.getNewValue().equals(""))
+				if (event.getNewValue() != null && !event.getNewValue().equals(""))
 					value.setDisplayName(event.getNewValue());
 		});
 
@@ -85,6 +87,13 @@ public class ProfileSelectorTableContent extends StackPane
 			selector.setValue(selectionModel.getSelectedItem());
 			selector.hide();
 		});
+		add.setOnMouseReleased(event ->
+		{
+			selector.getProfileFactory().call("Untitled");
+			profileTable.edit(profileTable.getItems().size() - 1, name);
+		});
+		delete.setOnMouseReleased(event -> selector.getRemoveCallback().call(this.selectionModel.getSelectedItem()));
+		//TODO handle the exception
 	}
 
 	private Label profileName, createDate, version;
@@ -121,7 +130,7 @@ public class ProfileSelectorTableContent extends StackPane
 	{
 		VBox body = new VBox();
 		body.setPadding(new Insets(10));
-
+		body.setSpacing(10);
 		this.profileTable = createTable();
 		this.foot = createFoot();
 
@@ -134,6 +143,7 @@ public class ProfileSelectorTableContent extends StackPane
 	{
 		JFXTableView<LaunchProfile> profileTable = new JFXTableView<>();
 		selectionModel = profileTable.getSelectionModel();
+		profileTable.setOnMouseReleased(Event::consume);
 		profileTable.setEditable(true);
 		profileTable.setMaxHeight(300);
 		profileTable.setFixedSize(true);
@@ -164,7 +174,9 @@ public class ProfileSelectorTableContent extends StackPane
 		TableColumn<LaunchProfile, String> mcVersion = new TableColumn<>("Version");
 		mcVersion.setCellValueFactory(param -> Bindings.createStringBinding(() ->
 		{
-			String version = param.getValue().getVersion();
+			MinecraftVersion ver = param.getValue().getVersion();
+			if (ver == null) return "None";
+			String version = ver.getVersionID();
 			if (version == null || version.equals(""))
 				version = "None";
 			return version;
@@ -208,5 +220,8 @@ public class ProfileSelectorTableContent extends StackPane
 		return pane;
 	}
 
-
+	public void onShow()
+	{
+		if (this.selectionModel.isEmpty()) selectionModel.select(0);
+	}
 }

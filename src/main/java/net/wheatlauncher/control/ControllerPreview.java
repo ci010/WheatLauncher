@@ -23,7 +23,7 @@ import moe.mickey.minecraft.skin.fx.animation.SkinAniRunning;
 import net.launcher.AuthProfile;
 import net.launcher.Bootstrap;
 import net.launcher.utils.StringUtils;
-import net.wheatlauncher.control.profiles.ControllerProfileSetting;
+import net.wheatlauncher.control.profiles.ControllerProfiles;
 import net.wheatlauncher.control.settings.ControllerSetting;
 import net.wheatlauncher.control.utils.AnimationRotate;
 import net.wheatlauncher.control.utils.FXMLInnerController;
@@ -74,7 +74,7 @@ public class ControllerPreview implements ReloadableController
 	/*dialog*/
 	public JFXDialog profileSettingDialog;
 	@FXMLInnerController
-	public ControllerProfileSetting profileSettingDialogController;
+	public ControllerProfiles profileSettingDialogController;
 
 	public JFXDialog settingDialog;
 	@FXMLInnerController

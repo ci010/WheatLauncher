@@ -1,92 +1,87 @@
 package net.launcher.control.versions;
 
 import com.sun.javafx.scene.control.behavior.ComboBoxBaseBehavior;
-import javafx.application.Platform;
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.ComboBoxBase;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
-import net.launcher.utils.Tasks;
-import org.to2mbn.jmccc.mcdownloader.RemoteVersion;
-import org.to2mbn.jmccc.mcdownloader.RemoteVersionList;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
+import net.launcher.version.MinecraftVersion;
+import org.to2mbn.jmccc.mcdownloader.download.concurrent.CombinedDownloadCallback;
+import org.to2mbn.jmccc.version.Version;
 
-import java.util.function.Function;
+import java.util.function.BiConsumer;
 
 /**
  * @author ci010
  */
-public class MinecraftVersionPicker extends ComboBoxBase<RemoteVersion>
+public class MinecraftVersionPicker extends ComboBoxBase<MinecraftVersion>
 {
 	public MinecraftVersionPicker()
 	{
 		init();
 	}
 
-	private ObjectProperty<RemoteVersionList> dataList = new SimpleObjectProperty<>();
+	private ListProperty<MinecraftVersion> dataList = new SimpleListProperty<>(FXCollections.observableArrayList());
 
 	protected void init()
 	{
 		getStyleClass().add("version-picker");
 		setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
-		onUpdate(Tasks.empty());
-		this.updateFunction.addListener(o -> onUpdate(Tasks.empty()));
+		Runnable updateFunction = getRequestUpdate();
+		if (updateFunction != null) updateFunction.run();
+		this.requestUpdate.addListener(observable ->
+		{
+			Runnable f = getRequestUpdate();
+			if (f != null) f.run();
+		});
 	}
 
-	public RemoteVersionList getDataList()
+	public void setDataList(ObservableList<MinecraftVersion> dataList) {this.dataList.set(dataList);}
+
+	public ObservableList<MinecraftVersion> getDataList() {return dataList.get();}
+
+	public ListProperty<MinecraftVersion> dataListProperty() {return dataList;}
+
+	private ObjectProperty<Runnable> requestUpdate = new SimpleObjectProperty<>();
+
+	public Runnable getRequestUpdate()
 	{
-		return dataList.get();
+		return requestUpdate.get();
 	}
 
-	public ReadOnlyObjectProperty<RemoteVersionList> dataListProperty()
+	public ObjectProperty<Runnable> requestUpdateProperty()
 	{
-		return dataList;
+		return requestUpdate;
 	}
 
-	private ObjectProperty<Function<Callback<RemoteVersionList>, Void>> updateFunction = new SimpleObjectProperty<>();
-
-	public Function<Callback<RemoteVersionList>, Void> getUpdateFunction()
+	public void setRequestUpdate(Runnable requestUpdate)
 	{
-		return updateFunction.get();
+		this.requestUpdate.set(requestUpdate);
 	}
 
-	public ObjectProperty<Function<Callback<RemoteVersionList>, Void>> updateFunctionProperty()
+	private ObjectProperty<BiConsumer<MinecraftVersion, CombinedDownloadCallback<Version>>> downloadRequest = new SimpleObjectProperty<>();
+
+	public BiConsumer<MinecraftVersion, CombinedDownloadCallback<Version>> getDownloadRequest()
 	{
-		return updateFunction;
+		return downloadRequest.get();
 	}
 
-	public void setUpdateFunction(Function<Callback<RemoteVersionList>, Void> updateFunction)
+	public ObjectProperty<BiConsumer<MinecraftVersion, CombinedDownloadCallback<Version>>> downloadRequestProperty()
 	{
-		this.updateFunction.set(updateFunction);
+		return downloadRequest;
 	}
 
-	public void onUpdate(Callback<RemoteVersionList> callback)
+	public void setDownloadRequest(BiConsumer<MinecraftVersion, CombinedDownloadCallback<Version>> downloadRequest)
 	{
-		if (updateFunction.get() != null)
-			updateFunction.get().apply(new CallbackAdapter<RemoteVersionList>()
-			{
-				@Override
-				public void done(RemoteVersionList result)
-				{
-					Platform.runLater(() ->
-					{
-						dataList.set(result);
-						callback.done(result);
-					});
-				}
-
-				@Override
-				public void failed(Throwable e) {Platform.runLater(() -> callback.failed(e));}
-
-				@Override
-				public void cancelled() {Platform.runLater(callback::cancelled);}
-			});
+		this.downloadRequest.set(downloadRequest);
 	}
 
 	@Override
@@ -95,9 +90,8 @@ public class MinecraftVersionPicker extends ComboBoxBase<RemoteVersion>
 		return new MinecraftVersionPickerSkin(this);
 	}
 
-	static class Behavior extends ComboBoxBaseBehavior<RemoteVersion>
+	static class Behavior extends ComboBoxBaseBehavior<MinecraftVersion>
 	{
 		public Behavior(MinecraftVersionPicker comboBoxBase) {super(comboBoxBase, COMBO_BOX_BASE_BINDINGS);}
 	}
-
 }

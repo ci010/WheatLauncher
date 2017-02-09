@@ -13,7 +13,7 @@ import net.launcher.profile.LaunchProfile;
  */
 public class ProfileSelectorComplexSkin extends ComboBoxSkinSimple<LaunchProfile>
 {
-	private Node content;
+	private ProfileSelectorTableContent content;
 
 	public ProfileSelectorComplexSkin(ComboBoxBase<LaunchProfile> comboBoxBase, ComboBoxBaseBehavior<LaunchProfile> behavior)
 	{
@@ -26,6 +26,13 @@ public class ProfileSelectorComplexSkin extends ComboBoxSkinSimple<LaunchProfile
 		if (content == null)
 			content = new ProfileSelectorTableContent((ProfileSelector) getSkinnable());
 		return content;
+	}
+
+	@Override
+	public void show()
+	{
+		super.show();
+		content.onShow();
 	}
 
 	@Override

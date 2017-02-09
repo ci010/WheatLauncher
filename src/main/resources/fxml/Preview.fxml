@@ -61,5 +61,5 @@
         </StackPane>
     </right>
     <fx:include fx:id="settingDialog" source="settings/Setting.fxml"/>
-    <fx:include fx:id="profileSettingDialog" source="profiles/ProfileSetting.fxml"/>
+    <fx:include fx:id="profileSettingDialog" source="profiles/Profiles.fxml"/>
 </BorderPane>

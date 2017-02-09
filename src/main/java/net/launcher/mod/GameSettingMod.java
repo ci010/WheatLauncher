@@ -53,7 +53,7 @@ public class GameSettingMod extends GameSetting
 		Path path = directory.resolve("mods.dat");
 		String[] option = setting.getOption(MODS);
 		if (option != null)
-			NBT.write(path, NBT.compound().put("mods", NBT.list(option)), true);
+			NBT.write(path, NBT.compound().put("mods", NBT.listStr(option)), true);
 	}
 
 	@Override

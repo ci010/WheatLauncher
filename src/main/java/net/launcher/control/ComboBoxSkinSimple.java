@@ -3,9 +3,12 @@ package net.launcher.control;
 import com.jfoenix.controls.JFXTextField;
 import com.sun.javafx.scene.control.behavior.ComboBoxBaseBehavior;
 import com.sun.javafx.scene.control.skin.ComboBoxPopupControl;
+import javafx.event.Event;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBoxBase;
+import javafx.scene.control.PopupControl;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 
 /**
  * @author ci010
@@ -19,6 +22,20 @@ public abstract class ComboBoxSkinSimple<T> extends ComboBoxPopupControl<T>
 	{
 		super(comboBoxBase, behavior);
 		registerChangeListener(comboBoxBase.valueProperty(), "VALUE");
+	}
+
+	private boolean init = false;
+
+	protected PopupControl getPopup()
+	{
+		PopupControl popup = super.getPopup();
+		if (!init)//fix the popup hiding
+		{
+			popup.addEventFilter(MouseEvent.MOUSE_CLICKED, Event::consume);
+			popup.addEventHandler(MouseEvent.MOUSE_CLICKED, Event::consume);
+			init = true;
+		}
+		return popup;
 	}
 
 	@Override
@@ -56,8 +73,8 @@ public abstract class ComboBoxSkinSimple<T> extends ComboBoxPopupControl<T>
 		else if ("VALUE".equals(p))
 		{
 			updateDisplayNode();
-			if (getSkinnable() != null && getSkinnable().isShowing())
-				getSkinnable().hide();
+//			if (getSkinnable() != null && getSkinnable().isShowing())
+//				getSkinnable().hide();
 		}
 	}
 

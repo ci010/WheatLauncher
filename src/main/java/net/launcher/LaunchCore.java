@@ -1,8 +1,8 @@
 package net.launcher;
 
-import net.hakugyokurou.aeb.EventBus;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.profile.LaunchProfileManager;
+import net.launcher.version.MinecraftVersionManager;
 import org.to2mbn.jmccc.launch.Launcher;
 import org.to2mbn.jmccc.launch.ProcessListener;
 import org.to2mbn.jmccc.option.LaunchOption;
@@ -25,7 +25,7 @@ public abstract class LaunchCore
 
 	public abstract AuthProfile getAuthProfile();
 
-	public abstract EventBus getEventBus();
+	public abstract MinecraftVersionManager getVersionManager();
 
 	public void launch() throws Exception
 	{

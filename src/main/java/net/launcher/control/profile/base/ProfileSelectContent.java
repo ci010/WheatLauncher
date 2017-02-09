@@ -48,7 +48,7 @@ public class ProfileSelectContent extends StackPane
 			profiles.getChildren().add(new ProfilePane(launchProfile));
 		profiles.getChildren().add(new ProfilePane());
 		this.setOnMouseClicked(Event::consume);
-		this.selector.getProfiles().addListener((ListChangeListener<LaunchProfile>) c ->
+		this.selector.profilesProperty().addListener((ListChangeListener<LaunchProfile>) c ->
 		{
 			while (c.next())
 			{

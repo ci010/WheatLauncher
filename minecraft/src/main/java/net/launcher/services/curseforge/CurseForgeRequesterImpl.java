@@ -75,7 +75,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 		return HttpUtils.withUrlArguments(url, argumenst);
 	}
 
-	//parse Element class=project-file-list-item
+	//parse Element class=project-file-listStr-item
 	private CurseForgeProjectArtifact parseArtifact(Element element)
 	{
 		String releaseType = element.getElementsByClass("tip").get(0).attr("title");
@@ -99,7 +99,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 
 	private List<CurseForgeProject> parseProjects(Document document)
 	{
-		Elements projectItems = document.getElementsByClass("project-list-item");
+		Elements projectItems = document.getElementsByClass("project-listStr-item");
 		List<CurseForgeProject> projects = new ArrayList<>(projectItems.size());
 		for (Element item : projectItems)
 		{
@@ -167,7 +167,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 
 		checkCache(document);
 
-		Element pages = document.getElementsByClass("paging-list").get(0);
+		Element pages = document.getElementsByClass("paging-listStr").get(0);
 		int page = 1;
 		String val = pages.child(pages.children().size() - 1).child(0).attr("href");
 		int maxPage = Integer.valueOf(val.substring(val.lastIndexOf("page=") + 5));
@@ -200,7 +200,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 			}
 			catch (Exception e) {}
 		}
-		Elements elementsByClass = doc.getElementsByClass("project-file-list-item");
+		Elements elementsByClass = doc.getElementsByClass("project-file-listStr-item");
 		Map<String, Object> context = new TreeMap<>();
 
 		context.put("page", page);
@@ -248,7 +248,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 				String requestURL = context.get("requestURL").toString();
 				url = root + requestURL;
 				url = HttpUtils.withUrlArguments(url, Collections.singletonMap("page", page + 1));
-				artifactCache.cache.addAll(Jsoup.parse(requester.request("GET", url)).getElementsByClass("project-file-list-item")
+				artifactCache.cache.addAll(Jsoup.parse(requester.request("GET", url)).getElementsByClass("project-file-listStr-item")
 						.stream().map(this::parseArtifact).collect(Collectors.toList()));
 				return true;
 			default:

@@ -1,18 +1,19 @@
 package net.wheatlauncher;
 
-import net.hakugyokurou.aeb.EventBus;
-import net.hakugyokurou.aeb.EventBusBuilder;
 import net.launcher.AuthProfile;
 import net.launcher.LaunchCore;
 import net.launcher.LaunchElementManager;
+import net.launcher.Logger;
 import net.launcher.game.ResourcePack;
 import net.launcher.game.forge.ForgeMod;
 import net.launcher.mod.ModManagerBuilder;
 import net.launcher.profile.LaunchProfileManager;
 import net.launcher.resourcepack.ResourcePackMangerBuilder;
-import net.launcher.utils.Logger;
-import net.wheatlauncher.internal.io.AuthIOGuard;
+import net.launcher.version.IOGuardMinecraftVersionManager;
+import net.launcher.version.MinecraftVersionManager;
+import net.wheatlauncher.internal.io.IOGuardAuth;
 import net.wheatlauncher.internal.io.IOGuardContext;
+import net.wheatlauncher.internal.io.IOGuardContextScheduled;
 import net.wheatlauncher.internal.io.ProfileIOGuard;
 import org.to2mbn.jmccc.launch.Launcher;
 import org.to2mbn.jmccc.launch.LauncherBuilder;
@@ -37,11 +38,11 @@ import java.util.concurrent.ScheduledExecutorService;
 public class Core extends LaunchCore
 {
 	private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(4);
-	private EventBus bus;
 
 	private Path root;
 	private LaunchProfileManager profileManager;
 	private AuthProfile authProfile;
+	private MinecraftVersionManager versionManager;
 
 	private IOGuardContext ioContext;
 
@@ -85,9 +86,9 @@ public class Core extends LaunchCore
 	}
 
 	@Override
-	public EventBus getEventBus()
+	public MinecraftVersionManager getVersionManager()
 	{
-		return bus;
+		return versionManager;
 	}
 
 	@Override
@@ -134,7 +135,6 @@ public class Core extends LaunchCore
 		Logger.trace("Start to init");
 
 		this.initRoot();
-		this.bus = EventBusBuilder.create().setExecutor(this.executorService).build();
 
 		this.maintainer = new WorldSaveMaintainer(root.resolve("saves"));
 
@@ -147,20 +147,15 @@ public class Core extends LaunchCore
 				this.executorService).build());
 
 		//main module io start
-		this.ioContext = IOGuardContext.Builder.create(this.root)
+		this.ioContext = IOGuardContextScheduled.Builder.create(this.root, executorService)
 				.register(LaunchProfileManager.class, new ProfileIOGuard())
-				.register(AuthProfile.class, new AuthIOGuard())
-				.setTaskExecutor(t ->
-				{
-				}).build();
-//				.setTaskExecutor(ioTask ->
-//						executorService.submit(() ->
-//						{
-//							ioTask.performance(this.root);
-//							return null;
-//						})).build();
+				.register(AuthProfile.class, new IOGuardAuth())
+				.register(MinecraftVersionManager.class, new IOGuardMinecraftVersionManager())
+				.build();
 		this.profileManager = ioContext.load(LaunchProfileManager.class);
 		this.authProfile = ioContext.load(AuthProfile.class);
+		this.versionManager = ioContext.load(MinecraftVersionManager.class);
+		this.versionManager.getRepository().update();
 
 		//main module io end
 		assert profileManager.getSelectedProfile() != null;
@@ -196,8 +191,12 @@ public class Core extends LaunchCore
 	@Override
 	public void destroy() throws IOException
 	{
+		try {ioContext.saveAll();}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 		executorService.shutdown();
-		ioContext.saveAll();
 		Logger.trace("Shutdown");
 	}
 

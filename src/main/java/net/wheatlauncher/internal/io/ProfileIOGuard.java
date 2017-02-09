@@ -2,6 +2,7 @@ package net.wheatlauncher.internal.io;
 
 import javafx.beans.Observable;
 import javafx.collections.MapChangeListener;
+import net.launcher.Logger;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
 import net.launcher.profile.LaunchProfile;
@@ -10,12 +11,10 @@ import net.launcher.profile.LaunchProfileManagerBuilder;
 import net.launcher.setting.GameSetting;
 import net.launcher.setting.GameSettingFactory;
 import net.launcher.setting.GameSettingInstance;
-import net.launcher.utils.Logger;
 import net.launcher.utils.NIOUtils;
 import net.launcher.utils.Tasks;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.option.JavaEnvironment;
-import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.option.WindowSize;
 
 import java.io.File;
@@ -68,7 +67,6 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 		object.put("version", profile.getVersion());
 		object.put("resolution", profile.getResolution().toString());
 		object.put("memory", profile.getMemory());
-		object.put("minecraft", profile.getMinecraftLocation().getAbsolutePath());
 		object.put("java", profile.getJavaEnvironment().getJavaPath());
 		object.put("name", profile.getDisplayName());
 		object.put("id", profile.getId());
@@ -115,12 +113,10 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 				LaunchProfile profile = new LaunchProfile(id);
 				profileMap.put(id, profile);
 				profile.setDisplayName(object.optString("name"));
-				profile.setVersion(object.optString("version"));
+//				profile.setVersion(object.optString("version"));
 				profile.setJavaEnvironment(new JavaEnvironment(new File(
 						object.optString("java", JavaEnvironment.getCurrentJavaPath().getAbsolutePath()))));
 				profile.setMemory(Integer.valueOf(object.optString("memory", "512")));
-				profile.setMinecraftLocation(new MinecraftDirectory(new File(
-						object.optString("minecraft", ".minecraft"))));
 				if (!Tasks.optional(() ->
 				{
 					String winSize = object.optString("resolution", "856x482");
@@ -163,8 +159,8 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 			}
 		}
 		LaunchProfileManager manager = LaunchProfileManagerBuilder.create()
-				.setProfileFactory(this::onNewProfile)
-				.setInitState(profileMap)
+//				.setCreateGuard(this::onNewProfile)
+//				.setInitState(profileMap)
 //				.setDeleteGuard(this::onDeleteProfile)
 				.build();
 		try
@@ -189,7 +185,7 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 	public LaunchProfileManager defaultInstance() {return LaunchProfileManagerBuilder.buildDefault();}
 
 
-	private class ProfileSaveTask implements IOGuardContext.IOTask
+	private class ProfileSaveTask implements IOGuardContextScheduled.IOTask
 	{
 		private String profile;
 
@@ -202,7 +198,7 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 		public void performance(Path root) throws IOException {saveProfile(profile);}
 
 		@Override
-		public boolean canMerge(IOGuardContext.IOTask task)
+		public boolean canMerge(IOGuardContextScheduled.IOTask task)
 		{
 			if (task instanceof ProfileSaveTask)
 				if (Objects.equals(((ProfileSaveTask) task).profile, this.profile)) return true;
@@ -210,7 +206,7 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 		}
 	}
 
-	private class ProfileSaveSelectTask implements IOGuardContext.IOTask
+	private class ProfileSaveSelectTask implements IOGuardContextScheduled.IOTask
 	{
 		@Override
 		public void performance(Path root) throws IOException
@@ -219,7 +215,6 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 					NBT.compound().put("select", getInstance().getSelectedProfile()),
 					true);
 		}
-
 	}
 
 	@Override
@@ -231,7 +226,7 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 			String key = change.getKey();
 			if (change.wasAdded())
 			{
-				getContext().registerSaveTask(grab(change.getValueAdded()), new ProfileSaveTask(key));
+				getContext().registerSaveTask(new ProfileSaveTask(key), grab(change.getValueAdded()));
 			}
 			else if (change.wasRemoved())
 			{

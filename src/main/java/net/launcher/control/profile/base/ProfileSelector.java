@@ -1,7 +1,9 @@
 package net.launcher.control.profile.base;
 
 import com.sun.javafx.scene.control.behavior.ComboBoxBaseBehavior;
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -20,14 +22,24 @@ import net.launcher.profile.LaunchProfile;
  */
 public class ProfileSelector extends ComboBoxBase<LaunchProfile>
 {
-	private ObservableList<LaunchProfile> profiles = FXCollections.observableArrayList();
+	private ListProperty<LaunchProfile> profiles = new SimpleListProperty<>(FXCollections.observableArrayList());
 
 	protected javafx.scene.control.Skin<?> createDefaultSkin()
 	{
 		return new ProfileSelectorSimpleSkin(this, new Behav(this));
 	}
 
-	public ObservableList<LaunchProfile> getProfiles() {return profiles;}
+	public ListProperty<LaunchProfile> profilesProperty() {return profiles;}
+
+	public ObservableList<LaunchProfile> getProfiles()
+	{
+		return profiles.get();
+	}
+
+	public void setProfiles(ObservableList<LaunchProfile> profiles)
+	{
+		this.profiles.set(profiles);
+	}
 
 	private ObjectProperty<Callback<String, LaunchProfile>> profileFactory = new SimpleObjectProperty<>();
 
@@ -63,7 +75,7 @@ public class ProfileSelector extends ComboBoxBase<LaunchProfile>
 		this.profileFactory.set(profileFactory);
 	}
 
-	protected static class Behav extends ComboBoxBaseBehavior<LaunchProfile>
+	static class Behav extends ComboBoxBaseBehavior<LaunchProfile>
 	{
 		Behav(ComboBoxBase<LaunchProfile> comboBox)
 		{
@@ -74,6 +86,7 @@ public class ProfileSelector extends ComboBoxBase<LaunchProfile>
 	{
 		getStyleClass().add("profile-picker");
 		setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+
 	}
-//	private StyleableObjectProperty<Paint> selectedColor = new SimpleStyleableObjectProperty<Paint>();
+
 }

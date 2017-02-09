@@ -74,7 +74,7 @@ public class ComparableVersion
 	}
 
 	/**
-	 * Represents a numeric item in the version item list.
+	 * Represents a numeric item in the version item listStr.
 	 */
 	private static class IntegerItem
 			implements Item
@@ -139,7 +139,7 @@ public class ComparableVersion
 	}
 
 	/**
-	 * Represents a string in the version item list, usually a qualifier.
+	 * Represents a string in the version item listStr, usually a qualifier.
 	 */
 	private static class StringItem
 			implements Item
@@ -249,7 +249,7 @@ public class ComparableVersion
 	}
 
 	/**
-	 * Represents a version list item. This class is used both for the global item list and for sub-lists (which start
+	 * Represents a version listStr item. This class is used both for the global item listStr and for sub-lists (which start
 	 * with '-(number)' in the version specification).
 	 */
 	private static class ListItem
@@ -280,7 +280,7 @@ public class ComparableVersion
 				Item item = iterator.previous();
 				if (item.isNull())
 				{
-					iterator.remove(); // remove null trailing items: 0, "", empty list
+					iterator.remove(); // remove null trailing items: 0, "", empty listStr
 				}
 				else
 				{

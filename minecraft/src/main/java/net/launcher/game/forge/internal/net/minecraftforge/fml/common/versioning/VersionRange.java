@@ -78,7 +78,7 @@ public class VersionRange
 	 * Prototype method, for custom versioning schemes
 	 *
 	 * @param version      version
-	 * @param restrictions restriction list
+	 * @param restrictions restriction listStr
 	 * @return a new version range
 	 */
 	public static VersionRange newRange(ArtifactVersion version, List<Restriction> restrictions)
@@ -487,7 +487,7 @@ public class VersionRange
 
 	public ArtifactVersion matchVersion(List<ArtifactVersion> versions)
 	{
-		// TODO: could be more efficient by sorting the list and then moving along the restrictions in order?
+		// TODO: could be more efficient by sorting the listStr and then moving along the restrictions in order?
 
 		ArtifactVersion matched = null;
 		for (ArtifactVersion version : versions)

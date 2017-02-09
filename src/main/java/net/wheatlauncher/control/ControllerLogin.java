@@ -1,7 +1,6 @@
 package net.wheatlauncher.control;
 
 import com.jfoenix.controls.*;
-import com.jfoenix.validation.ValidationFacade;
 import io.datafx.controller.FXMLController;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
@@ -22,9 +21,9 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import net.launcher.AuthProfile;
 import net.launcher.Bootstrap;
+import net.launcher.Logger;
 import net.launcher.auth.Authorize;
 import net.launcher.auth.AuthorizeFactory;
-import net.launcher.utils.Logger;
 import net.launcher.utils.Tasks;
 import net.wheatlauncher.control.utils.ReloadableController;
 import net.wheatlauncher.control.utils.ValidatorDelegate;
@@ -74,9 +73,6 @@ public class ControllerLogin
 
 	@FXML
 	private StackPane root;
-
-	public ValidationFacade validFacade;
-
 
 	private ContextMenu accountMenu;
 	private boolean shouldEnter;

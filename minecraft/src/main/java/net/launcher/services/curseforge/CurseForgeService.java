@@ -98,7 +98,7 @@ public interface CurseForgeService
 	}
 
 	/**
-	 * Indicate a simple cache for a list of projects
+	 * Indicate a simple cache for a listStr of projects
 	 *
 	 * @param <T>
 	 */

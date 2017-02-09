@@ -1,107 +1,66 @@
 package net.launcher.control.versions;
 
 import com.jfoenix.controls.*;
-import com.jfoenix.effects.JFXDepthManager;
 import de.jensd.fx.fontawesome.Icon;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.*;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.event.Event;
-import javafx.geometry.Insets;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.ComparableVersion;
-import net.launcher.utils.Tasks;
+import net.launcher.version.MinecraftVersion;
 import net.wheatlauncher.utils.LanguageMap;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersion;
-import org.to2mbn.jmccc.mcdownloader.RemoteVersionList;
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 
 /**
  * @author ci010
  */
-public class MinecraftVersionDisplayContent extends Region
+public class MinecraftVersionDisplayContent extends StackPane
 {
 	protected MinecraftVersionPicker picker;
-
-	protected StackPane root = new StackPane();
-	protected VBox mainDisplayContainer = new VBox();
-	protected VBox header = new VBox();
-	protected VBox content = new VBox();
-
-	private JFXSpinner spinner = new JFXSpinner();
-
-	protected JFXTextField filter;
-
-	//contents
-	protected JFXTableView<?> versionTable;
-	protected JFXRippler confirm, refresh;
-	protected JFXToggleNode showAlpha;
-	//header labels
-	private Label version;
-	private Label releaseTime = new Label();
-	private Label releaseType = new Label();
+	protected Node content;
 
 	public MinecraftVersionDisplayContent(MinecraftVersionPicker picker)
 	{
 		this.picker = picker;
 
-		this.root.setOnMouseClicked(Event::consume);
-		this.root.setAlignment(Pos.CENTER);
-		this.root.setStyle("-fx-padding:10");
-		this.content.setAlignment(Pos.CENTER);
+		this.setAlignment(Pos.CENTER);
+		this.setStyle("-fx-padding:10;");
+		this.getStyleClass().addAll("fx-mc-picker-container");
+		VBox header = setupHeader();
+		this.content = setupContent();
+		Node foot = setupFoot();
 
-		this.mainDisplayContainer.setAlignment(Pos.CENTER);
-		this.mainDisplayContainer.setBackground(new Background(new BackgroundFill(Color.web("#009688"),
-				CornerRadii.EMPTY, Insets.EMPTY)));
-		mainDisplayContainer.getStyleClass().addAll("fx-mc-picker-container");
+		VBox box = new VBox(header, content, foot);
+		box.setSpacing(10);
+		this.getChildren().add(box);
 
-		header.getStyleClass().add("jfx-layout-heading");
-		header.getStyleClass().add("title");
-		header.setStyle("-fx-padding:10");
-
-		setupHeader();
-		setupContent();
-		bindData();
-
-		refresh.setOnMouseClicked(event -> refresh());
-		confirm.setOnMouseClicked(event -> onConfirm());
-
-		this.getChildren().add(root);
-		this.root.getChildren().add(mainDisplayContainer);
-		this.mainDisplayContainer.getChildren().add(header);
-		this.mainDisplayContainer.getChildren().add(content);
+		this.bindData();
 	}
 
+	private JFXSpinner spinner = new JFXSpinner();
 
-	private void refresh()
-	{
-		if (!root.getChildren().contains(spinner))
-			root.getChildren().add(spinner);
-		this.mainDisplayContainer.setDisable(true);
-		this.picker.onUpdate(Tasks.whatever(
-				() ->
-				{
-					root.getChildren().remove(spinner);
-					mainDisplayContainer.setDisable(false);
-				}));
-	}
+	private JFXTextField filter;
 
-	protected void setupContent()
+	//contents
+	private JFXRippler confirm, refresh;
+	private JFXToggleNode showAlpha;
+
+	private Node setupFoot()
 	{
-		this.versionTable = buildTable();
-		this.versionTable.getStyleClass().addAll("table-view", "mc-version-picker-table");
 		//setup refresh
 		this.refresh = new JFXRippler(new Icon("REFRESH", "2em", ";", "icon"));
 		//setup onConfirm
@@ -118,91 +77,109 @@ public class MinecraftVersionDisplayContent extends Region
 		//setup view
 		this.filter = new JFXTextField();
 		this.filter.setPromptText("Search...");
-		this.filter.setFocusColor(Color.ROSYBROWN);
+		this.filter.setFocusColor(Color.TOMATO);
 		this.filter.getStyleClass().setAll("search-field");
 		this.filter.setStyle("-fx-background-color:transparent;");
+
 		BorderPane btnContainer = new BorderPane();
 		btnContainer.setLeft(new HBox(refresh, showAlpha));
 		btnContainer.setCenter(filter);
 		btnContainer.setRight(confirm);
 
-//		setupTabs();
-		this.content.getChildren().setAll(versionTable, btnContainer);
+		return btnContainer;
 	}
 
-	protected JFXTableView<?> buildTable()
+	private JFXTableView<MinecraftVersion> versionTable;
+
+	private Node setupContent()
 	{
-		TableColumn<MCVersionObj, Icon> releaseTypeIcon = new TableColumn<>("Type");
-		releaseTypeIcon.setCellValueFactory(param -> param.getValue().versionIcon);
-		releaseTypeIcon.setComparator((o1, o2) ->
+		this.versionTable = buildTable();
+		return versionTable;
+	}
+
+	private JFXTableView<MinecraftVersion> buildTable()
+	{
+		TableColumn<MinecraftVersion, Icon> remote = new TableColumn<>("Status");
+		remote.setCellValueFactory(param -> Bindings.createObjectBinding(() ->
 		{
-			String a = o1.getTooltip().getText();
-			String b = o2.getTooltip().getText();
-			if (a.equals("release"))
-				if (b.equals("release")) return 0;
-				else return 1;
-			return a.compareTo(b);
-		});
-		releaseTypeIcon.setMaxWidth(50);
-		TableColumn<MCVersionObj, String> version = new TableColumn<>("Version");
+			Icon icon;
+			if (param.getValue().isInStorage())
+			{
+				icon = new Icon("DRAWER");
+				icon.setTooltip(new Tooltip("Already in storage"));
+			}
+			else
+			{
+				icon = new Icon("DOWNLOAD");
+				Tooltip tooltip = new Tooltip("Need to be downloaded");
+				icon.setTooltip(tooltip);
+			}
+			return icon;
+		}, param.getValue().inStorageProperty()));
+		remote.setMaxWidth(50);
+
+		TableColumn<MinecraftVersion, Node> version = new TableColumn<>("Version");
 		version.setCellValueFactory(param ->
-				param.getValue().version);
+				Bindings.createObjectBinding(() ->
+				{
+					HBox parent = new HBox();
+					parent.setAlignment(Pos.CENTER);
+					MinecraftVersion value = param.getValue();
+					String versionID = value.getVersionID();
+					Object re = value.getMetadata().get("remote");
+					parent.getChildren().add(new Label(versionID));
+					if (re != null)
+					{
+						RemoteVersion remoteVersion = (RemoteVersion) re;
+						String type = remoteVersion.getType();
+						if (!type.equals("release"))
+						{
+							Icon warning = new Icon("WARNING");
+							warning.setTextFill(Color.web("#D34336"));
+							warning.setScaleX(0.5);
+							warning.setScaleY(0.5);
+							warning.setTooltip(new Tooltip("BETA!!"));
+							parent.getChildren().add(warning);
+						}
+					}
+					return parent;
+				}, param.getValue().versionIDProperty())
+		);
 		version.setComparator((o1, o2) ->
 		{
-			if (!Character.isDigit(o1.charAt(0)))
-				if (!Character.isDigit(o2.charAt(0))) return o1.compareTo(o2);
+			String v1 = ((Label) ((HBox) o1).getChildren().get(0)).getText(), v2 = ((Label) ((HBox) o2).getChildren().get(0))
+					.getText();
+			if (!Character.isDigit(v1.charAt(0)))
+				if (!Character.isDigit(v2.charAt(0))) return v1.compareTo(v2);
 				else return -1;
-			if (!Character.isDigit(o1.charAt(2)))
-				if (!Character.isDigit(o2.charAt(2))) return o1.compareTo(o2);
+			if (!Character.isDigit(v1.charAt(2)))
+				if (!Character.isDigit(v2.charAt(2))) return v1.compareTo(v2);
 				else return -1;
-			return new ComparableVersion(o1).compareTo(new ComparableVersion(o2));
-
+			return new ComparableVersion(v1).compareTo(new ComparableVersion(v2));
 		});
 		version.setSortType(TableColumn.SortType.DESCENDING);
 
-		TableColumn<MCVersionObj, String> updateTime = new TableColumn<>("Update Time");
-		updateTime.setCellValueFactory(param -> param.getValue().updateTime);
-		TableColumn<MCVersionObj, String> releaseTime = new TableColumn<>("Release Time");
-		releaseTime.setCellValueFactory(param -> param.getValue().releaseTime);
-
-		TableColumn<MCVersionObj, Icon> remote = new TableColumn<>("Status");
-		remote.setCellValueFactory(param ->
-				{
-					Icon icon;
-					if (param.getValue().isRemote.getValue())
-					{
-						icon = new Icon("DOWNLOAD");
-						Tooltip tooltip = new Tooltip("Need to be downloaded");
-						icon.setTooltip(tooltip);
-					}
-					else
-					{
-						icon = new Icon("DRAWER");
-						icon.setTooltip(new Tooltip("Already in storage"));
-					}
-					return new SimpleObjectProperty<>(icon);
-				}
-		);
-
-		JFXTableView<MCVersionObj> versionTable = new JFXTableView<>();
-		InvalidationListener listener = o ->
+		TableColumn<MinecraftVersion, String> updateTime = new TableColumn<>("Update Time");
+		updateTime.setCellValueFactory(param -> Bindings.createStringBinding(() ->
 		{
-			RemoteVersionList dataList = this.picker.getDataList();
-			if (dataList != null)
-			{
-				ObservableList<MCVersionObj> list = FXCollections.observableArrayList(dataList.getVersions().values().stream().map
-						(MCVersionObj::new).collect(Collectors.toList()));
-				versionTable.getItems().setAll(list);
-			}
-		};
-		this.picker.dataListProperty().addListener(listener);
-		listener.invalidated(null);
+			RemoteVersion ver = (RemoteVersion) param.getValue().getMetadata().get("remote");
+			return ver.getUploadTime().toString();
+		}, param.getValue().getMetadata()));
+
+		TableColumn<MinecraftVersion, String> releaseTime = new TableColumn<>("Release Time");
+		releaseTime.setCellValueFactory(param -> Bindings.createStringBinding(() ->
+		{
+			RemoteVersion ver = (RemoteVersion) param.getValue().getMetadata().get("remote");
+			return ver.getReleaseTime().toString();
+		}, param.getValue().getMetadata()));
+
+		JFXTableView<MinecraftVersion> versionTable = new JFXTableView<>();
 
 		versionTable.setFixedSize(true);
 		versionTable.setColumnsDraggable(false);
-		versionTable.setEditable(false);
-		versionTable.getColumns().setAll(releaseTypeIcon, version, updateTime, releaseTime, remote);
-		for (TableColumn<MCVersionObj, ?> column : versionTable.getColumns())
+		versionTable.setEditable(true);
+		versionTable.getColumns().setAll(remote, version, updateTime, releaseTime);
+		for (TableColumn<MinecraftVersion, ?> column : versionTable.getColumns())
 		{
 			column.setEditable(false);
 			column.setResizable(false);
@@ -210,9 +187,18 @@ public class MinecraftVersionDisplayContent extends Region
 		return versionTable;
 	}
 
-	protected void setupHeader()
+	private Label version;
+	private Label releaseTime = new Label();
+	private Label releaseType = new Label();
+
+	private VBox setupHeader()
 	{
 		//version//
+		VBox header = new VBox();
+		header.getStyleClass().add("jfx-layout-heading");
+		header.getStyleClass().add("title");
+		header.setStyle("-fx-padding:10");
+
 		version = new Label();
 		version.getStyleClass().add("spinner-label");
 		version.setTextFill(Color.WHITE);
@@ -241,112 +227,118 @@ public class MinecraftVersionDisplayContent extends Region
 
 		//overall
 		header.getChildren().setAll(versionContainer, releaseInfo);
+		return header;
 	}
 
-	protected void bindData()
+	private void bindData()
 	{
+		FilteredList<MinecraftVersion> filteredList = new FilteredList<>(picker.getDataList());
+		filteredList.predicateProperty().bind(Bindings.createObjectBinding(
+				() -> (Predicate<MinecraftVersion>) version ->
+				{
+					if (filter.getText() != null && !filter.getText().equals(""))
+						if (!version.getVersionID().contains(filter.getText())) return false;
+					Object temp = version.getMetadata().get("remote");
+					return temp == null || showAlpha.isSelected() || ((RemoteVersion) temp).getType().equals("release");
+				},
+				filter.textProperty(), showAlpha.selectedProperty()
+		));
+		SortedList<MinecraftVersion> sortedList = new SortedList<>(filteredList);
+		sortedList.comparatorProperty().bind(versionTable.comparatorProperty());
+		versionTable.setItems(sortedList);
+
 		version.textProperty().bind(Bindings.createStringBinding(() ->
 		{
-			MCVersionObj obj = (MCVersionObj) versionTable.getSelectionModel().getSelectedItem();
-			if (obj != null)
-				return obj.version.get();
+			MinecraftVersion obj = versionTable.getSelectionModel().getSelectedItem();
+			if (obj != null) return obj.getVersionID();
 			return "";
 		}, versionTable.getSelectionModel().selectedIndexProperty()));
 		releaseType.textProperty().bind(Bindings.createStringBinding(() ->
 		{
-			MCVersionObj obj = (MCVersionObj) versionTable.getSelectionModel().getSelectedItem();
+			MinecraftVersion obj = versionTable.getSelectionModel().getSelectedItem();
 			if (obj != null)
-				return obj.type.get();
+			{
+				Object o = obj.getMetadata().get("remote");
+				if (o != null)
+				{
+					RemoteVersion rv = (RemoteVersion) o;
+					return rv.getType();
+				}
+			}
 			return "";
 		}, versionTable.getSelectionModel().selectedIndexProperty()));
 		releaseTime.textProperty().bind(Bindings.createStringBinding(() ->
 		{
-			MCVersionObj selectedItem = (MCVersionObj) versionTable.getSelectionModel().getSelectedItem();
-			if (selectedItem != null)
-				return selectedItem.releaseTime.get();
+			MinecraftVersion obj = versionTable.getSelectionModel().getSelectedItem();
+			if (obj != null)
+			{
+				Object o = obj.getMetadata().get("remote");
+				if (o != null)
+				{
+					RemoteVersion rv = (RemoteVersion) o;
+					return rv.getReleaseTime().toString();
+				}
+			}
 			return "";
 		}, versionTable.getSelectionModel().selectedIndexProperty()));
 
-		filter.textProperty().addListener((o, oldV, newV) ->
+		refresh.setOnMouseReleased(event -> refresh());
+		confirm.setOnMouseReleased(event -> onConfirm());
+
+		this.picker.dataListProperty().addListener((InvalidationListener) observable ->
 		{
-			if (newV == null || "".equals(newV))
-				versionTable.getFilterMap().remove("key");
-			else
-				versionTable.getFilterMap().put("key", obj ->
-				{
-					MCVersionObj versionObj = (MCVersionObj) obj;
-					return versionObj.type.get().contains(newV) || versionObj.version.get().contains(newV);
-				});
+//			if (getChildren().contains(spinner))
+//				getChildren().remove(spinner);
+//			if (content.isDisable())
+//				this.content.setDisable(false);
 		});
-		InvalidationListener listener = o ->
-		{
-			if (!showAlpha.isSelected())
-				versionTable.getFilterMap().put("type", p ->
-				{
-					MCVersionObj versionObj = (MCVersionObj) p;
-					return versionObj.type.get().equals("release");
-				});
-			else
-				versionTable.getFilterMap().remove("type");
-		};
-		showAlpha.selectedProperty().addListener(listener);
-		listener.invalidated(null);
 	}
 
-	protected void onConfirm()
+	private JFXDialog confirmDownload;
+
+	private JFXDialog getConfirmDownload()
 	{
-		MCVersionObj selectedItem = (MCVersionObj) this.versionTable.getSelectionModel().getSelectedItem();
-		if (selectedItem != null)
-			picker.setValue(selectedItem.getVersion());
-	}
-
-	public static class MCVersionObj
-	{
-		private StringProperty version, type, releaseTime, updateTime;
-		private ObjectProperty<Icon> versionIcon;
-		private ObjectProperty<RemoteVersion> versionObject;
-		private BooleanProperty isRemote;
-
-		public MCVersionObj(RemoteVersion version) {this(version, true);}
-
-		public MCVersionObj(RemoteVersion version, boolean isRemote)
+		if (confirmDownload == null)
 		{
-			this.isRemote = new SimpleBooleanProperty(isRemote);
-			this.versionObject = new SimpleObjectProperty<>(version);
-			this.version = new SimpleStringProperty("");
-			this.version.bind(Bindings.createStringBinding(versionObject.get()::getVersion, versionObject));
-			this.type = new SimpleStringProperty("");
-			this.type.bind(Bindings.createStringBinding(versionObject.get()::getType, versionObject));
-			this.releaseTime = new SimpleStringProperty("");
-			this.releaseTime.bind(Bindings.createStringBinding(() ->
-			{
-				Date releaseTime = versionObject.get().getReleaseTime();
-				if (releaseTime != null)
-					return DateFormat.getInstance().format
-							(releaseTime);
-				return "Unknown";
-			}, versionObject));
-			this.updateTime = new SimpleStringProperty("");
-			this.updateTime.bind(Bindings.createObjectBinding(() ->
-			{
-				Date uploadTime = versionObject.get().getUploadTime();
-				if (uploadTime != null)
-					return DateFormat.getInstance().format(uploadTime);
-				return "Unknown";
-			}, versionObject));
-			this.versionIcon = new SimpleObjectProperty<>();
-			this.versionIcon.bind(Bindings.createObjectBinding(() ->
-			{
-				String value = type.getValue();
-				Icon icon = new Icon("CIRCLE");
-				JFXDepthManager.setDepth(icon, 1);
-				if (value.equals("release")) icon.setTextFill(Color.valueOf("#01A05E"));
-				else icon.setTextFill(Color.DARKRED);
-				icon.setTooltip(new Tooltip(value));
-				return icon;
-			}, type));
+			JFXDialogLayout layout = new JFXDialogLayout();
+//			layout.setHeading(new Label());
+			confirmDownload = new JFXDialog(this, layout, JFXDialog.DialogTransition.CENTER);
 		}
+		return confirmDownload;
+	}
 
-		public RemoteVersion getVersion() {return versionObject.get();}
+	private void onConfirm()
+	{
+		MinecraftVersion selectedItem = this.versionTable.getSelectionModel().getSelectedItem();
+		if (selectedItem != null)
+		{
+			if (!selectedItem.isInStorage())
+			{
+				picker.setValue(selectedItem);
+				picker.hide();
+			}
+			else
+			{
+
+			}
+		}
+	}
+
+	public void onShow()
+	{
+		if (!versionTable.getItems().isEmpty() && versionTable.getSelectionModel().isEmpty())
+		{
+			versionTable.getSelectionModel().select(0);
+			versionTable.sort();
+		}
+	}
+
+	private void refresh()
+	{
+//		if (!getChildren().contains(spinner))
+//			getChildren().add(spinner);
+//		this.content.setDisable(true);
+		Runnable requestUpdate = this.picker.getRequestUpdate();
+		if (requestUpdate != null) requestUpdate.run();
 	}
 }

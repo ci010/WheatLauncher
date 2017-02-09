@@ -13,8 +13,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import net.launcher.Bootstrap;
+import net.launcher.Logger;
 import net.launcher.profile.LaunchProfile;
-import net.launcher.utils.Logger;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 
 import javax.annotation.PostConstruct;

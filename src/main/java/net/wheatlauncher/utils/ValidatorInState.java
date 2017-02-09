@@ -3,7 +3,7 @@ package net.wheatlauncher.utils;
 import com.jfoenix.validation.base.ValidatorBase;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import net.launcher.utils.Logger;
+import net.launcher.Logger;
 
 /**
  * @author ci010

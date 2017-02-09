@@ -18,10 +18,10 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import net.launcher.Bootstrap;
 import net.launcher.LaunchElementManager;
+import net.launcher.Logger;
 import net.launcher.game.ResourcePack;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.resourcepack.ResourcePackManager;
-import net.launcher.utils.Logger;
 import net.launcher.utils.Tasks;
 import net.wheatlauncher.control.utils.ReloadableController;
 

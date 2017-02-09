@@ -14,7 +14,7 @@ public abstract class IOGuard<T>
 
 	protected IOGuardContext getContext() {return context;}
 
-	public abstract void forceSave() throws IOException;
+	protected abstract void forceSave() throws IOException;
 
 	public abstract T loadInstance() throws IOException;
 

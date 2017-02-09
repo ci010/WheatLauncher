@@ -1,4 +1,4 @@
-package net.launcher.utils;
+package net.launcher;
 
 /**
  * @author ci010

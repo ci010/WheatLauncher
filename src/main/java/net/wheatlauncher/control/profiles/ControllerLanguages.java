@@ -12,24 +12,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.layout.StackPane;
-import net.launcher.Bootstrap;
+import net.launcher.Logger;
 import net.launcher.game.Language;
-import net.launcher.profile.LaunchProfile;
-import net.launcher.utils.Logger;
 import net.wheatlauncher.control.utils.ReloadableController;
 import net.wheatlauncher.control.utils.WindowsManager;
-import org.to2mbn.jmccc.internal.org.json.JSONObject;
-import org.to2mbn.jmccc.util.IOUtils;
-import org.to2mbn.jmccc.version.Asset;
-import org.to2mbn.jmccc.version.Version;
-import org.to2mbn.jmccc.version.parsing.Versions;
 
 import javax.annotation.PostConstruct;
-import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 /**
  * @author ci010
@@ -97,18 +87,18 @@ public class ControllerLanguages implements ReloadableController
 
 	private void updateLanguageList() throws IOException, NoSuchAlgorithmException
 	{
-		languageLists.clear();
-		LaunchProfile p = Bootstrap.getCore().getProfileManager().selecting();
-		Version version = Versions.resolveVersion(p.getMinecraftLocation(), p.getVersion());
-		if (version == null) return;
-		Asset languageIndex = Versions.resolveAssets(p.getMinecraftLocation(), version).stream().filter(a -> a
-				.getPath().equals("pack.mcmeta")).collect(Collectors.toList()).get(0);
-		if (languageIndex.isValid(p.getMinecraftLocation()))
-		{
-			File asset = p.getMinecraftLocation().getAsset(languageIndex);
-			JSONObject jsonObject = IOUtils.toJson(asset);
-			Language[] languages = Language.deserializer().deserialize(jsonObject);
-			languageLists.addAll(Arrays.stream(languages).map(LanguageCell::new).collect(Collectors.toList()));
-		}
+//		languageLists.clear();
+//		LaunchProfile p = Bootstrap.getCore().getProfileManager().selecting();
+//		Version version = Versions.resolveVersion(p.getMinecraftLocation(), p.getVersion());
+//		if (version == null) return;
+//		Asset languageIndex = Versions.resolveAssets(p.getMinecraftLocation(), version).stream().filter(a -> a
+//				.getPath().equals("pack.mcmeta")).collect(Collectors.toList()).get(0);
+//		if (languageIndex.isValid(p.getMinecraftLocation()))
+//		{
+//			File asset = p.getMinecraftLocation().getAsset(languageIndex);
+//			JSONObject jsonObject = IOUtils.toJson(asset);
+//			Language[] languages = Language.deserializer().deserialize(jsonObject);
+//			languageLists.addAll(Arrays.stream(languages).map(LanguageCell::new).collect(Collectors.toList()));
+//		}
 	}
 }
