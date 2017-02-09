@@ -5,7 +5,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import net.launcher.setting.GameSetting;
 import net.launcher.setting.GameSettingInstance;
-import net.launcher.version.MinecraftVersion;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.option.WindowSize;
@@ -32,7 +31,7 @@ public class LaunchProfile
 	private ObjectProperty<LaunchProfile> parent = new SimpleObjectProperty<>();
 
 	private StringProperty displayName = new SimpleStringProperty("");
-	private ObjectProperty<MinecraftVersion> version = new SimpleObjectProperty<>();
+	private StringProperty version = new SimpleStringProperty();
 	private ObjectProperty<WindowSize> resolution = new SimpleObjectProperty<>(WindowSize.window(856, 482));
 	private IntegerProperty memory = new SimpleIntegerProperty(512);
 	private ObjectProperty<MinecraftDirectory> minecraftLocation = new SimpleObjectProperty<>(new MinecraftDirectory());
@@ -76,11 +75,11 @@ public class LaunchProfile
 
 	public void setDisplayName(String displayName) {this.displayName.set(displayName);}
 
-	public MinecraftVersion getVersion() {return version.get();}
+	public String getVersion() {return version.get();}
 
-	public ObjectProperty<MinecraftVersion> versionProperty() {return version;}
+	public StringProperty versionProperty() {return version;}
 
-	public void setVersion(MinecraftVersion version) {this.version.set(version);}
+	public void setVersion(String version) {this.version.set(version);}
 
 	public ReadOnlyObjectProperty<WindowSize> resolutionProperty()
 	{

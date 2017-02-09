@@ -22,7 +22,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import net.launcher.profile.LaunchProfile;
-import net.launcher.version.MinecraftVersion;
 
 /**
  * @author ci010
@@ -59,6 +58,7 @@ public class ProfileSelectorTableContent extends StackPane
 
 		selectionModel.selectedIndexProperty().addListener(observable ->
 		{
+			if (selectionModel.getSelectedItem() == null) return;
 			profileName.textProperty().bind(Bindings.createStringBinding(() ->
 			{
 				LaunchProfile value = selectionModel.getSelectedItem();
@@ -69,7 +69,7 @@ public class ProfileSelectorTableContent extends StackPane
 			{
 				LaunchProfile value = selectionModel.getSelectedItem();
 				if (value != null)
-					return value.getVersion() == null ? "No Version" : value.getVersion().getVersionID();
+					return value.getVersion() == null ? "No Version" : value.getVersion();
 				return "No Value";
 			}, selectionModel.getSelectedItem().versionProperty()));
 		});
@@ -174,9 +174,7 @@ public class ProfileSelectorTableContent extends StackPane
 		TableColumn<LaunchProfile, String> mcVersion = new TableColumn<>("Version");
 		mcVersion.setCellValueFactory(param -> Bindings.createStringBinding(() ->
 		{
-			MinecraftVersion ver = param.getValue().getVersion();
-			if (ver == null) return "None";
-			String version = ver.getVersionID();
+			String version = param.getValue().getVersion();
 			if (version == null || version.equals(""))
 				version = "None";
 			return version;

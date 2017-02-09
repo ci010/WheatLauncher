@@ -1,4 +1,4 @@
-package net.launcher.services;
+package requester;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -7,6 +7,8 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import net.launcher.game.ServerInfo;
 import net.launcher.game.ServerStatus;
+import net.launcher.services.MinecraftServerPingService;
+import net.launcher.services.MinecraftServerPingServiceBuilder;
 import org.junit.Test;
 
 import java.util.concurrent.ExecutionException;
@@ -20,10 +22,10 @@ public class MinecraftServerPingServiceTest extends Application
 	@Test
 	public void pingLocal() throws Exception
 	{
-		MinecraftServerPingService service = MinecraftServerPingServiceBuilder.buildDefault();
-		Future<ServerStatus> localhost = service.fetchInfo(new ServerInfo("", "localhost"), null);
-		ServerStatus serverStatus = localhost.get();
-		System.out.println(serverStatus);
+//		MinecraftServerPingService service = MinecraftServerPingServiceBuilder.buildDefault();
+//		Future<ServerStatus> localhost = service.fetchInfo(new ServerInfo("", "localhost"), null);
+//		ServerStatus serverStatus = localhost.get();
+//		System.out.println(serverStatus);
 	}
 
 

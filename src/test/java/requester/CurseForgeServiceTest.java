@@ -1,4 +1,4 @@
-package net.launcher.services.curseforge.requester;
+package requester;
 
 import net.launcher.services.curseforge.*;
 import org.junit.Test;

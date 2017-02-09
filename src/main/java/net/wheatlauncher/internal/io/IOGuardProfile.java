@@ -1,5 +1,6 @@
 package net.wheatlauncher.internal.io;
 
+import javafx.collections.MapChangeListener;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
 import net.launcher.game.nbt.NBTList;
@@ -29,7 +30,8 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 	{
 		return NBT.compound().put("name", profile.getDisplayName()).put("id", profile.getId()).put("memory", profile
 				.getMemory()).put("java", profile.getJavaEnvironment().getJavaPath().getAbsolutePath())
-				.put("resolution", profile.getResolution().toString());
+				.put("resolution", profile.getResolution().toString())
+				.put("version", profile.getVersion());
 	}
 
 	private LaunchProfile deserialize(NBT nbt)
@@ -39,7 +41,7 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 		launchProfile.setDisplayName(compound.get("name").asString());
 		launchProfile.setJavaEnvironment(new JavaEnvironment(new File(compound.get("java").asString())));
 		launchProfile.setMemory(compound.get("memory").asInt());
-//		launchProfile.setVersion(compound.get("version").asString());
+		launchProfile.setVersion(compound.get("version").asString());
 		return launchProfile;
 	}
 
@@ -75,18 +77,18 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 	@Override
 	public void forceSave() throws IOException
 	{
+		System.out.println("force save");
+
 		Path path = this.getContext().getRoot().resolve("profiles.dat");
 		LaunchProfileManager instance = this.getInstance();
 		if (instance == null) throw new IllegalStateException();
 
 		NBTCompound compound = NBT.compound();
 		compound.put("selecting", instance.getSelectedProfile());
-		List<NBT> collect = instance.getAllProfiles().stream().map(this::serialize).collect(Collectors.toList());
-		NBTList list = NBT.list();
-		list.addAll(collect);
-		compound.put("profiles", list);
-
+		compound.put("profiles", NBT.list(instance.getAllProfiles().stream().map(this::serialize).collect(Collectors.toList())));
 		NBT.write(path, compound, false);
+
+		System.out.println("force save done");
 	}
 
 	@Override
@@ -112,11 +114,53 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 	}
 
 	@Override
-	public LaunchProfileManager defaultInstance() {return LaunchProfileManagerBuilder.buildDefault();}
+	public LaunchProfileManager defaultInstance()
+	{
+		LaunchProfileManager manager = LaunchProfileManagerBuilder.buildDefault();
+		manager.newProfile("default");
+		manager.setSelectedProfile("default");
+		return manager;
+	}
 
 	@Override
 	protected void deploy()
 	{
-//		this.getInstance().selectedProfileProperty()
+		LaunchProfileManager instance = this.getInstance();
+		Save save = new Save();
+		this.getContext().registerSaveTask(save, instance.selectedProfileProperty(),
+				instance.getAllProfiles());
+		for (LaunchProfile profile : instance.getAllProfiles())
+			getContext().registerSaveTask(save, profile.displayNameProperty(),
+					profile.javaEnvironmentProperty(),
+					profile.memoryProperty(),
+					profile.versionProperty(),
+					profile.resolutionProperty());
+		instance.getProfilesMap().addListener((MapChangeListener<String, LaunchProfile>) change ->
+		{
+			LaunchProfile profile = change.getValueAdded();
+			if (profile != null)
+			{
+				getContext().registerSaveTask(save, profile.displayNameProperty(),
+						profile.javaEnvironmentProperty(),
+						profile.memoryProperty(),
+						profile.versionProperty(),
+						profile.resolutionProperty());
+			}
+		});
+	}
+
+	class Save implements IOGuardContext.IOTask
+	{
+		@Override
+		public void performance(Path root) throws Exception
+		{
+			forceSave();
+		}
+
+		@Override
+		public boolean canMerge(IOGuardContext.IOTask task)
+		{
+			return task == this || task instanceof Save;
+		}
 	}
 }

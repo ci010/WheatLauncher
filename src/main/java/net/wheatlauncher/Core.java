@@ -14,7 +14,7 @@ import net.launcher.version.MinecraftVersionManager;
 import net.wheatlauncher.internal.io.IOGuardAuth;
 import net.wheatlauncher.internal.io.IOGuardContext;
 import net.wheatlauncher.internal.io.IOGuardContextScheduled;
-import net.wheatlauncher.internal.io.ProfileIOGuard;
+import net.wheatlauncher.internal.io.IOGuardProfile;
 import org.to2mbn.jmccc.launch.Launcher;
 import org.to2mbn.jmccc.launch.LauncherBuilder;
 import org.to2mbn.jmccc.launch.ProcessListener;
@@ -148,13 +148,13 @@ public class Core extends LaunchCore
 
 		//main module io start
 		this.ioContext = IOGuardContextScheduled.Builder.create(this.root, executorService)
-				.register(LaunchProfileManager.class, new ProfileIOGuard())
+				.register(LaunchProfileManager.class, new IOGuardProfile())
 				.register(AuthProfile.class, new IOGuardAuth())
 				.register(MinecraftVersionManager.class, new IOGuardMinecraftVersionManager())
 				.build();
-		this.profileManager = ioContext.load(LaunchProfileManager.class);
 		this.authProfile = ioContext.load(AuthProfile.class);
 		this.versionManager = ioContext.load(MinecraftVersionManager.class);
+		this.profileManager = ioContext.load(LaunchProfileManager.class);
 		this.versionManager.getRepository().update();
 
 		//main module io end

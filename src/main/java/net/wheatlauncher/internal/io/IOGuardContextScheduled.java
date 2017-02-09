@@ -52,6 +52,14 @@ public class IOGuardContextScheduled implements IOGuardContext
 	}
 
 	@Override
+	public <T> T getInstance(Class<T> tClass)
+	{
+		IOGuard<T> ioGuard = ioGuards.get(tClass);
+		if (ioGuard.isActive()) return ioGuard.getInstance();
+		return null;
+	}
+
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> IOGuard<T> getGuard(Class<T> clz) {return ioGuards.get(clz);}
 

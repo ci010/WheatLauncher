@@ -12,6 +12,7 @@ import net.launcher.Bootstrap;
 import net.launcher.Logger;
 import net.launcher.control.profile.base.ProfileTableSelector;
 import net.launcher.control.versions.MinecraftVersionPicker;
+import net.launcher.version.MinecraftVersion;
 import net.wheatlauncher.control.utils.FXMLInnerController;
 import net.wheatlauncher.control.utils.ReloadableController;
 import net.wheatlauncher.control.utils.WindowsManager;
@@ -89,8 +90,16 @@ public class ControllerProfiles implements ReloadableController
 			catch (IOException e) {flowContext.getRegisteredObject(WindowsManager.Page.class).displayError(e);}
 		});
 		Bootstrap.getCore().getProfileManager().selectedProfileProperty().addListener(observable ->
-				versions.setValue(Bootstrap.getCore().getProfileManager().selecting().getVersion()));
-		versions.valueProperty().addListener(observable -> Bootstrap.getCore().getProfileManager().selecting().setVersion(versions.getValue()));
+		{
+			String version = Bootstrap.getCore().getProfileManager().selecting().getVersion();
+			if (version != null) versions.setValue(Bootstrap.getCore().getVersionManager().getVersion(version));
+		});
+		versions.valueProperty().addListener(observable ->
+		{
+			MinecraftVersion value = versions.getValue();
+			if (value != null)
+				Bootstrap.getCore().getProfileManager().selecting().setVersion(value.getVersionID());
+		});
 	}
 
 	private void initProfile()

@@ -1,4 +1,4 @@
-package net.launcher.services.curseforge.requester;
+package requester;
 
 import javafx.application.Application;
 import javafx.scene.Scene;

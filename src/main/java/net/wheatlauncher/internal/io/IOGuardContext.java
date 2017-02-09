@@ -16,6 +16,8 @@ public interface IOGuardContext
 
 	<T> T load(Class<T> tClass) throws IOException;
 
+	<T> T getInstance(Class<T> tClass);
+
 	@SuppressWarnings("unchecked")
 	<T> IOGuard<T> getGuard(Class<T> clz);
 
