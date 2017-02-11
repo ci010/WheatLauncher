@@ -10,14 +10,12 @@ import net.launcher.control.MinecraftOptionButton;
 import net.launcher.control.MinecraftOptionMemory;
 import net.launcher.control.MinecraftOptionResolution;
 import net.launcher.control.MinecraftSlider;
-import net.launcher.setting.GameSetting;
-import net.launcher.setting.GameSettingInstance;
 import net.launcher.setting.GameSettingMinecraft;
-import net.launcher.setting.IntOption;
+import net.launcher.setting.GameSettingType;
+import net.launcher.setting.OptionInt;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author ci010
@@ -51,6 +49,7 @@ public class ControllerGameSetting
 	{
 		JFXDepthManager.setDepth(missingFileIndicatorText, 3);
 		missingFileIndicator.setVisible(false);
+
 //		container.disableProperty().bind(Bindings.createBooleanBinding(
 //				() ->
 //				{
@@ -78,9 +77,7 @@ public class ControllerGameSetting
 //		Bootstrap.getCore().getProfileManager().selecting().setMemory(memory.memoryProperty().get());
 	}
 
-	private List<String> boolOptions = Arrays.asList("true", "false");
-
-	private void setup(MinecraftSlider slider, IntOption option)
+	private void setup(MinecraftSlider slider, OptionInt option)
 	{
 		JFXSlider s = slider.getSlider();
 		s.setMin(option.getMin());
@@ -89,15 +86,15 @@ public class ControllerGameSetting
 		s.setSnapToTicks(true);
 	}
 
-	private void setup(MinecraftOptionButton button, GameSetting.Option<Boolean> option)
+	private void setup(MinecraftOptionButton button, GameSettingType.Option<Boolean> option)
 	{
-		button.setOptions(boolOptions);
+		button.setOptions(Arrays.asList("true", "false"));
 		button.valueProperty().addListener((observable, oldValue, newValue) ->
 				Bootstrap.getCore().getProfileManager().selecting().getGameSetting(GameSettingMinecraft.INSTANCE)
-						.ifPresent(gameSettingInstance -> gameSettingInstance.setOption(option, Boolean.valueOf(newValue))));
+						.ifPresent(gameSettingInstance -> gameSettingInstance.getOption(option).setValue(Boolean.valueOf(newValue))));
 	}
 
-	private void setup(MinecraftOptionButton button, IntOption option)
+	private void setup(MinecraftOptionButton button, OptionInt option)
 	{
 		String[] arr = new String[option.getMax() - option.getMin() + 1];
 		for (int i = 0; i < arr.length; i++)
@@ -105,13 +102,13 @@ public class ControllerGameSetting
 		button.setOptions(Arrays.asList(arr));
 		button.valueProperty().addListener((observable, oldValue, newValue) ->
 				Bootstrap.getCore().getProfileManager().selecting().getGameSetting(GameSettingMinecraft.INSTANCE)
-						.ifPresent(gameSettingInstance -> gameSettingInstance.setOption(option, Integer.valueOf(newValue))));
+						.ifPresent(gameSettingInstance -> gameSettingInstance.getOption(option).setValue(Integer.valueOf(newValue))));
 	}
 
 	public void createMinecraftGameSetting(ActionEvent event)
 	{
-		Bootstrap.getCore().getProfileManager().selecting().addGameSetting(new GameSettingInstance(GameSettingMinecraft
-				.INSTANCE));
+//		Bootstrap.getCore().getProfileManager().selecting().addGameSetting(new GameSetting(GameSettingMinecraft
+//				.INSTANCE));
 	}
 }
 

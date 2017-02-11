@@ -56,6 +56,7 @@ public class DeliveryImpl<T> implements Repository.Delivery<T>
 			service = new WeakReference<>(null);
 			executorService.submit(() ->
 			{
+				get();
 				for (Path path : virtualPaths) Files.deleteIfExists(path);
 				return null;
 			});

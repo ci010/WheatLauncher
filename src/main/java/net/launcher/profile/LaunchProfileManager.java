@@ -36,7 +36,6 @@ public class LaunchProfileManager
 		this.map = FXCollections.observableMap(new TreeMap<>());
 		for (LaunchProfile profile : profiles) map.put(profile.getId(), profile);
 		this.view = FXCollections.unmodifiableObservableMap(map);
-
 	}
 
 	public String getSelectedProfile()

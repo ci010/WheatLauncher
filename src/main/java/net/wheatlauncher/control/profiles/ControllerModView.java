@@ -3,10 +3,6 @@ package net.wheatlauncher.control.profiles;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTableView;
 import com.jfoenix.controls.JFXTextField;
-import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
-import javafx.beans.property.*;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.layout.StackPane;
@@ -22,12 +18,12 @@ public class ControllerModView
 {
 	public StackPane root;
 
-	public JFXTableView<ModCol> mods;
+	public JFXTableView<ForgeMod> mods;
 
-	public TableColumn<ModCol, String> name;
-	public TableColumn<ModCol, String> version;
-	public TableColumn<ModCol, String> minecraftVersion;
-	public TableColumn<ModCol, Boolean> enabled;
+	public TableColumn<ForgeMod, String> name;
+	public TableColumn<ForgeMod, String> version;
+	public TableColumn<ForgeMod, String> minecraftVersion;
+	public TableColumn<ForgeMod, Boolean> enabled;
 
 	public JFXTextField searchField;
 	public Label description;
@@ -42,9 +38,9 @@ public class ControllerModView
 
 	public void reload()
 	{
-		//		modId.setCellValueFactory(features -> features.getValue().getValue().modid);
-		ObservableList<ModCol> modCols = FXCollections.observableArrayList();
-
+//		ObservableList<ModCol> modCols = FXCollections.observableArrayList();
+//
+//		new FilteredList<>(modCols);
 //		modCols.addAll(Core.INSTANCE.().getAllElement().stream().map(ModCol::new).collect(Collectors.toList()));
 
 //		mods.setRoot(new RecursiveTreeItem<>(modCols, RecursiveTreeObject::getChildren));
@@ -63,28 +59,5 @@ public class ControllerModView
 //		description.setCellValueFactory(feature -> feature.getValue().getValue().description);
 //		minecraftVersion.setCellValueFactory(feature -> feature.getValue().getValue().mcVersion);
 
-	}
-
-	private enum ModType
-	{
-		LOCAL, REMOTE, ARCHIVE
-	}
-
-	private class ModCol extends RecursiveTreeObject<ModCol>
-	{
-		StringProperty name, version, description, mcVersion;
-		ObjectProperty<ModType> type;
-		BooleanProperty enabled;
-		ForgeMod release;
-
-		ModCol(ForgeMod release)
-		{
-			this.release = release;
-			name = new SimpleStringProperty(release.getMetaData().getName());
-			version = new SimpleStringProperty(release.getMetaData().getVersion());
-			description = new SimpleStringProperty(release.getMetaData().getDescription());
-			mcVersion = new SimpleStringProperty(release.getMetaData().getAcceptMinecraftVersion());
-			enabled = new SimpleBooleanProperty(false);
-		}
 	}
 }

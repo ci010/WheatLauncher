@@ -1,7 +1,5 @@
 package net.launcher.utils.resource;
 
-import net.launcher.utils.ProgressCallback;
-import net.launcher.utils.Tasks;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 
 import java.io.FileNotFoundException;
@@ -12,10 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
@@ -99,23 +94,29 @@ class BackupRepository implements Repository<Void>
 	}
 
 	@Override
-	public Delivery<Void> fetchResource(Path directory, String path, ProgressCallback<Void> callback, FetchOption option)
+	public Delivery<Void> fetchResource(Path directory, String path, FetchOption option)
 	{
 		Objects.requireNonNull(directory);
 		Objects.requireNonNull(path);
 
 		Path target = directory.resolve(path);
-		return new DeliveryImpl<>(service.submit(Tasks.wrap(() ->
+		return new DeliveryImpl<>(service.submit(() ->
 		{
 			Path src = repoRoot.resolve(path);
 			FetchUtils.fetch(src, target, option);
 			pathCache.add(path);
 			return null;
-		}, callback)), Collections.singleton(target), service);
+		}), Collections.singleton(target), service);
 	}
 
 	@Override
-	public Delivery<Void> fetchAllResources(Path directory, ProgressCallback<Void> callback, FetchOption option)
+	public Delivery<Void> fetchAllResources(Path directory, Collection<String> paths, FetchOption option)
+	{
+		return null;
+	}
+
+	@Override
+	public Delivery<Void> fetchAllResources(Path directory, FetchOption option)
 	{
 		Objects.requireNonNull(directory);
 

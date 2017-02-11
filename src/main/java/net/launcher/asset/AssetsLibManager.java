@@ -30,9 +30,9 @@ public class AssetsLibManager implements LaunchManager
 		Object[] deliveries = new Object[2];
 
 		Path assets = path.resolve("assets");
-		deliveries[0] = assetRepository.fetchAllResources(assets, null, Repository.FetchOption.SYMBOL_LINK);
-		Path libraries = path.resolve("libraries");
-		deliveries[1] = libRepo.fetchAllResources(libraries, null, Repository.FetchOption.SYMBOL_LINK);
+//		deliveries[0] = assetRepository.fetchAllResources(assets, null, Repository.FetchOption.SYMBOL_LINK);
+//		Path libraries = path.resolve("libraries");
+//		deliveries[1] = libRepo.fetchAllResources(libraries, null, Repository.FetchOption.SYMBOL_LINK);
 
 		launchCache.put(option, deliveries);
 	}

@@ -43,7 +43,7 @@ public class TestSkinme
 		String search = "http://www.minecraftskins.net/search/" + keyword;
 		HttpRequester httpRequester = new HttpRequester();
 		String get = httpRequester.request("GET", "http://www.minecraftskins.net/winterboy/", Collections
-				.singletonMap("Content-GameSetting", HttpUtils.CONTENT_TYPE_JSON));
+				.singletonMap("Content-GameSettingType", HttpUtils.CONTENT_TYPE_JSON));
 		Document parse = Jsoup.parse(get);
 		Element fa = parse.getElementsByClass("card-content").get(0);
 		String author = fa.child(0).text().substring("Designed by ".length());

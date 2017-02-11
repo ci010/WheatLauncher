@@ -331,6 +331,16 @@ public class MinecraftVersionDisplayContent extends StackPane
 			versionTable.getSelectionModel().select(0);
 			versionTable.sort();
 		}
+		else
+		{
+			MinecraftVersion value = picker.getValue();
+			if (value != null)
+			{
+				int i = versionTable.getItems().indexOf(value);
+				versionTable.getSelectionModel().select(i);
+				versionTable.scrollTo(i);
+			}
+		}
 	}
 
 	private void refresh()

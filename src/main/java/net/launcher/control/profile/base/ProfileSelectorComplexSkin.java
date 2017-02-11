@@ -1,6 +1,7 @@
 package net.launcher.control.profile.base;
 
 import com.sun.javafx.scene.control.behavior.ComboBoxBaseBehavior;
+import javafx.beans.InvalidationListener;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBoxBase;
 import javafx.util.StringConverter;
@@ -14,10 +15,27 @@ import net.launcher.profile.LaunchProfile;
 public class ProfileSelectorComplexSkin extends ComboBoxSkinSimple<LaunchProfile>
 {
 	private ProfileSelectorTableContent content;
+	private InvalidationListener listener = observable -> updateDisplayNode();
 
 	public ProfileSelectorComplexSkin(ComboBoxBase<LaunchProfile> comboBoxBase, ComboBoxBaseBehavior<LaunchProfile> behavior)
 	{
 		super(comboBoxBase, behavior);
+		LaunchProfile value = this.getSkinnable().getValue();
+		if (value != null)
+			value.displayNameProperty().addListener(listener);
+		this.getSkinnable().valueProperty().addListener((observable, oldValue, newValue) ->
+		{
+			if (oldValue != null)
+				oldValue.displayNameProperty().removeListener(listener);
+			if (newValue != null)
+				newValue.displayNameProperty().addListener(listener);
+		});
+	}
+
+	protected void createEditor()
+	{
+		super.createEditor();
+		textField.setPromptText("Profile");
 	}
 
 	@Override

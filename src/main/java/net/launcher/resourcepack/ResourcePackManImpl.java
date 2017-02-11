@@ -1,13 +1,14 @@
 package net.launcher.resourcepack;
 
 import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableList;
 import javafx.scene.image.Image;
 import net.launcher.OptionLaunchElementManager;
 import net.launcher.game.ResourcePack;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.setting.GameSetting;
-import net.launcher.setting.GameSettingInstance;
 import net.launcher.setting.GameSettingMinecraft;
+import net.launcher.setting.GameSettingType;
 import net.launcher.utils.resource.ArchiveRepository;
 import net.launcher.utils.resource.Repository;
 import org.to2mbn.jmccc.option.LaunchOption;
@@ -15,8 +16,10 @@ import org.to2mbn.jmccc.option.LaunchOption;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author ci010
@@ -49,13 +52,14 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	}
 
 	@Override
-	public Set<ResourcePack> getAllElement()
+	public ObservableList<ResourcePack> getAllElement()
 	{
-		return archiveRepository.getResourceMap().entrySet().stream().map(e -> e.getValue().getContainData()).collect(Collectors.toSet());
+		return null;
+//		return archiveRepository.getResourceMap().entrySet().stream().map(e -> e.getValue().getContainData()).collect(Collectors.toSet());
 	}
 
 	@Override
-	protected GameSetting.Option<String[]> getOption()
+	protected GameSettingType.Option<String[]> getOption()
 	{
 		return GameSettingMinecraft.INSTANCE.RESOURCE_PACE;
 	}
@@ -76,18 +80,15 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	@Override
 	protected String[] to(List<ResourcePack> lst)
 	{
-		String[] strings = new String[lst.size()];
-		for (int i = 0; i < strings.length; i++)
-			strings[i] = lst.get(i).getPackName();
-		return strings;
+		return new String[0];
 	}
 
 	@Override
-	protected void implementRuntimePath(LaunchProfile profile, Path path, GameSettingInstance property, LaunchOption option)
+	protected void implementRuntimePath(LaunchProfile profile, Path path, GameSetting property, LaunchOption option)
 	{
-		String[] value = property.getOption(getOption());
-		for (int i = 0; i < value.length; i++)
-			launchCache.put(option, archiveRepository.fetchResource(path, record.get(value[i]).getHash(), null,
+		String[] value = property.getOption(getOption()).getValue();
+		for (String aValue : value)
+			launchCache.put(option, archiveRepository.fetchResource(path, record.get(aValue).getHash(),
 					Repository.FetchOption.SYMBOL_LINK));
 	}
 

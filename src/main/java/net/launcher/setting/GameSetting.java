@@ -1,59 +1,53 @@
 package net.launcher.setting;
 
-import java.io.IOException;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.nio.file.Path;
+import javafx.collections.ObservableList;
+
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 
 /**
  * @author ci010
  */
-public abstract class GameSetting
+public class GameSetting
 {
-	@Target(ElementType.TYPE)
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface ID
+	private Map<String, GameSettingProperty<?>> optionObjectMap = new TreeMap<>();
+	private GameSettingType type;
+
+	public static GameSetting of(GameSettingType type, List<GameSettingProperty<?>> properties)
 	{
-		String value();
+		Objects.requireNonNull(type);
+		Objects.requireNonNull(properties);
+		return new GameSetting(type, properties);
 	}
 
-	public abstract List<Option<?>> getAllOption();
-
-	public abstract GameSettingInstance load(Path directory) throws IOException;
-
-	public abstract void save(Path directory, GameSettingInstance setting) throws IOException;
-
-	public abstract void saveTemplate(Path templateRoot, GameSettingInstance.Template instance) throws IOException;
-
-	public abstract GameSettingInstance.Template loadTemplate(Path templateRoot, String template) throws IOException;
-
-	public abstract static class Option<T>
+	private GameSetting(GameSettingType type, List<GameSettingProperty<?>> properties)
 	{
-		private GameSetting parent;
-		private String name;
+		this.type = type;
+		for (GameSettingProperty<?> property : properties) optionObjectMap.put(property.getName(), property);
+	}
 
-		public Option(GameSetting parent, String name)
-		{
-			this.parent = parent;
-			this.name = name;
-		}
+	public GameSettingType getGameSettingType()
+	{
+		return type;
+	}
 
-		public String getName() {return name;}
+	public <V> GameSettingProperty<V> getOption(GameSettingType.Option<V> s)
+	{
+		return (GameSettingProperty<V>) optionObjectMap.get(s.getName());
+	}
 
-		public T valid(T v) {return v;}
+	public <V> GameSettingProperty.List<V> getListProperty(GameSettingType.Option<ObservableList<V>> s)
+	{
+		return (GameSettingProperty.List<V>) optionObjectMap.get(s.getName());
+	}
 
-		public GameSetting getParent() {return parent;}
-
-		public abstract T getDefaultValue();
-
-		public abstract T deserialize(String s);
-
-		public String serialize(Object tValue)
-		{
-			return tValue.toString();
-		}
+	public void loadFrom(GameSetting settingInstance)
+	{
+		Objects.requireNonNull(settingInstance);
+		if (settingInstance.getGameSettingType() != type) throw new IllegalArgumentException("wrong type!");
+		this.optionObjectMap.clear();
+		this.optionObjectMap.putAll(settingInstance.optionObjectMap);
 	}
 }

@@ -174,9 +174,9 @@ public class ControllerLogin
 			AuthProfile module = Bootstrap.getCore().getAuthProfile();
 			module.setAuthorize(n ? AuthorizeFactory.ONLINE : AuthorizeFactory.OFFLINE);
 			account.setText("");
-			account.reset();
+			account.resetValidation();
 			password.setText("");
-			password.reset();
+			password.resetValidation();
 		}); //Common
 
 		password.disableProperty().bind(Bindings.createBooleanBinding(() ->

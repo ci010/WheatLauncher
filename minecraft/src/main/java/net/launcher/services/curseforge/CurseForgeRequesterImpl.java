@@ -85,6 +85,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 		String fileName = tip.text();
 		String size = element.getElementsByClass("project-file-size").get(0).text();
 		DataSizeUnit unit = DataSizeUnit.of(size);
+		size = size.replace(",", "");
 		long fileSize;
 		if (unit == null) fileSize = 0;
 		else fileSize = unit.toByte(unit.fromString(size));
@@ -99,7 +100,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 
 	private List<CurseForgeProject> parseProjects(Document document)
 	{
-		Elements projectItems = document.getElementsByClass("project-listStr-item");
+		Elements projectItems = document.getElementsByClass("project-list-item");
 		List<CurseForgeProject> projects = new ArrayList<>(projectItems.size());
 		for (Element item : projectItems)
 		{
@@ -164,10 +165,9 @@ class CurseForgeRequesterImpl implements CurseForgeService
 		if (option == null) option = new Option();
 		String url = buildURL(option, 1);
 		Document document = Jsoup.parse(requester.request("GET", url));
-
 		checkCache(document);
 
-		Element pages = document.getElementsByClass("paging-listStr").get(0);
+		Element pages = document.getElementsByClass("paging-list").get(0);
 		int page = 1;
 		String val = pages.child(pages.children().size() - 1).child(0).attr("href");
 		int maxPage = Integer.valueOf(val.substring(val.lastIndexOf("page=") + 5));
@@ -188,6 +188,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 		int page = 1;
 		int maxPage = 1;
 		Document doc = Jsoup.parse(this.requester.request("GET", root + files));
+		System.out.println();
 		Elements pages = doc.getElementsByClass("b-pagination-item");
 		List<String> collect = pages.stream().map(Element::text).collect(Collectors.toList());
 		for (String s : collect)
@@ -200,7 +201,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 			}
 			catch (Exception e) {}
 		}
-		Elements elementsByClass = doc.getElementsByClass("project-file-listStr-item");
+		Elements elementsByClass = doc.getElementsByClass("project-file-list-item");
 		Map<String, Object> context = new TreeMap<>();
 
 		context.put("page", page);
@@ -216,6 +217,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 	{
 		Map<String, Object> context = cache.context;
 		if (context.get("type") == null) return false;
+		cache.cache.clear();
 		switch (context.get("type").toString())
 		{
 			case "view":

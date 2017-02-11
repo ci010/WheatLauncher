@@ -26,9 +26,7 @@ import net.launcher.utils.Tasks;
 import net.wheatlauncher.control.utils.ReloadableController;
 
 import javax.annotation.PostConstruct;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * @author ci010
@@ -97,11 +95,11 @@ public class ControllerResourcePackView implements ReloadableController
 	public void refresh(ActionEvent event)
 	{
 		LaunchProfile selectedProfile = Bootstrap.getCore().getProfileManager().selecting();
-		List<ResourcePack> selected = manager.getAllIncludedElement(selectedProfile);
-		Set<ResourcePack> remain = manager.getAllElement();
-		remain.removeAll(selected);
-		selectedView.getItems().setAll(selected);
-		availableView.getItems().setAll(remain);
+//		List<ResourcePack> selected = manager.getAllIncludedElement(selectedProfile);
+//		Set<ResourcePack> remain = manager.getAllElement();
+//		remain.removeAll(selected);
+//		selectedView.getItems().setAll(selected);
+//		availableView.getItems().setAll(remain);
 	}
 
 

@@ -62,7 +62,8 @@ public class DirUtils
 
 	public static void deleteContent(Path dir) throws IOException
 	{
-		if (!Files.isDirectory(dir)) throw new IllegalArgumentException();
+		if (!Files.isDirectory(dir))
+			throw new IllegalArgumentException("need to be a directory! " + dir.toAbsolutePath());
 		Files.walkFileTree(dir, new DeleteVisitor());
 	}
 

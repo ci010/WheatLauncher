@@ -1,12 +1,14 @@
 package net.launcher.mod;
 
+import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
+import javafx.collections.ObservableList;
 import net.launcher.LaunchElementManager;
 import net.launcher.OptionLaunchElementManager;
 import net.launcher.game.forge.ForgeMod;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.setting.GameSetting;
-import net.launcher.setting.GameSettingInstance;
+import net.launcher.setting.GameSettingType;
 import net.launcher.utils.resource.ArchiveRepository;
 import net.launcher.utils.resource.Repository;
 import org.to2mbn.jmccc.option.LaunchOption;
@@ -20,9 +22,12 @@ import java.util.*;
 class ModMangerImpl extends OptionLaunchElementManager<ForgeMod, String[]> implements LaunchElementManager<ForgeMod>
 {
 	private ArchiveRepository<ForgeMod[]> archiveResource;
+
 	private Map<String, String> modVersionToResource = new TreeMap<>();
 	private Map<String, ForgeMod> toRelease = new TreeMap<>();
+
 	private Map<LaunchOption, Repository.Delivery<ArchiveRepository.Resource<ForgeMod[]>>> deliveryCache = new HashMap<>();
+	private ObservableList<ForgeMod> list;
 
 	ModMangerImpl(ArchiveRepository<ForgeMod[]> archiveResource)
 	{
@@ -54,30 +59,43 @@ class ModMangerImpl extends OptionLaunchElementManager<ForgeMod, String[]> imple
 		});
 	}
 
+	//
 	@Override
-	public Set<ForgeMod> getAllElement()
+	public ObservableList<ForgeMod> getAllElement()
 	{
-		HashSet<ForgeMod> releases = new HashSet<>();
-		Collection<ArchiveRepository.Resource<ForgeMod[]>> values = archiveResource.getResourceMap().values();
-		for (ArchiveRepository.Resource<ForgeMod[]> value : values)
-			Collections.addAll(releases, value.getContainData());
-		return releases;
+		if (list == null)
+		{
+			list = FXCollections.observableList(new ArrayList<>());
+			Collection<ArchiveRepository.Resource<ForgeMod[]>> values = archiveResource.getResourceMap().values();
+			for (ArchiveRepository.Resource<ForgeMod[]> value : values)
+				Collections.addAll(list, value.getContainData());
+		}
+		return FXCollections.unmodifiableObservableList(list);
 	}
 
 	@Override
-	protected GameSetting.Option<String[]> getOption()
+	protected GameSettingType.Option<String[]> getOption()
 	{
 		return GameSettingMod.INSTANCE.MODS;
 	}
 
 	@Override
-	protected void implementRuntimePath(LaunchProfile profile, Path path, GameSettingInstance instance, LaunchOption option)
+	protected void implementRuntimePath(LaunchProfile profile, Path path, GameSetting instance, LaunchOption option)
 	{
-		String[] value = instance.getOption(getOption());
-		for (int i = 0; i < value.length; i++)
-			deliveryCache.put(option,
-					archiveResource.fetchResource(path, modVersionToResource.get(value[i]), null, Repository.FetchOption
-							.SYMBOL_LINK));
+		ObservableList<ForgeMod> forgeMods = cache.get();
+		if (forgeMods == null)
+		{
+			String[] value = instance.getOption(getOption()).getValue();
+			if (value != null)
+				for (String aValue : value)
+					deliveryCache.put(option,
+							archiveResource.fetchResource(path.resolve("mods"), modVersionToResource.get(aValue),
+									Repository.FetchOption.SYMBOL_LINK));
+		}
+		else
+		{
+//			deliveryCache.put(option, )
+		}
 	}
 
 	@Override
@@ -89,24 +107,18 @@ class ModMangerImpl extends OptionLaunchElementManager<ForgeMod, String[]> imple
 	}
 
 	@Override
-	protected String[] to(List<ForgeMod> lst)
-	{
-		String[] strings = new String[lst.size()];
-		for (int i = 0; i < lst.size(); i++)
-		{
-			ForgeMod element = lst.get(i);
-			strings[i] = element.getModId() + ":" + element.getMetaData().getVersion();
-		}
-		return strings;
-	}
-
-	@Override
 	protected List<ForgeMod> from(String[] value)
 	{
 		List<ForgeMod> lst = new ArrayList<>(value.length);
 		for (String s : value)
 			lst.add(toRelease.get(s));
 		return lst;
+	}
+
+	@Override
+	protected String[] to(List<ForgeMod> lst)
+	{
+		return new String[0];
 	}
 
 }

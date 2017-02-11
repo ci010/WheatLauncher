@@ -13,6 +13,7 @@ class FetchUtils
 	{
 		if (option == null)
 			option = Repository.FetchOption.SYMBOL_LINK;
+		if (Files.exists(to)) return;
 		switch (option)
 		{
 			case COPY:

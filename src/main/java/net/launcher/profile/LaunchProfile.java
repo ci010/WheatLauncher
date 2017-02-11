@@ -4,7 +4,7 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import net.launcher.setting.GameSetting;
-import net.launcher.setting.GameSettingInstance;
+import net.launcher.setting.GameSettingType;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.option.WindowSize;
@@ -37,7 +37,7 @@ public class LaunchProfile
 	private ObjectProperty<MinecraftDirectory> minecraftLocation = new SimpleObjectProperty<>(new MinecraftDirectory());
 	private ObjectProperty<JavaEnvironment> javaEnvironment = new SimpleObjectProperty<>(JavaEnvironment.current());
 
-	private ObservableMap<String, GameSettingInstance> gameSettingInstanceMap = FXCollections.observableHashMap();
+	private ObservableMap<String, GameSetting> gameSettingInstanceMap = FXCollections.observableHashMap();
 
 	public LaunchProfile(String id, long createdDate, Source source)
 	{
@@ -134,29 +134,26 @@ public class LaunchProfile
 		this.javaEnvironment.set(javaEnvironment);
 	}
 
-	public ObservableMap<String, GameSettingInstance> gameSettingsProperty()
+	public ObservableMap<String, GameSetting> gameSettingsProperty()
 	{
 		return gameSettingInstanceMap;
 	}
 
-	public Optional<GameSettingInstance> getGameSetting(GameSetting setting)
+	public Optional<GameSetting> getGameSetting(GameSettingType setting)
 	{
 		Objects.requireNonNull(setting);
-		Objects.requireNonNull(setting.getClass().getAnnotation(GameSetting.ID.class));
-		String id = setting.getClass().getAnnotation(GameSetting.ID.class).value();
+		String id = setting.getID();
 		return Optional.ofNullable(gameSettingInstanceMap.get(id));
 	}
 
-	public void addGameSetting(GameSettingInstance instance)
+	public void addGameSetting(GameSetting setting)
 	{
-		Objects.requireNonNull(instance);
-		GameSetting.ID annotation = instance.getGameSettingType().getClass().getAnnotation(GameSetting.ID.class);
-		Objects.requireNonNull(annotation);
-		String id = annotation.value();
-		gameSettingInstanceMap.put(id, instance);
+		Objects.requireNonNull(setting);
+		String id = setting.getGameSettingType().getID();
+		gameSettingInstanceMap.put(id, setting);
 	}
 
-	public Collection<GameSettingInstance> getAllGameSettings()
+	public Collection<GameSetting> getAllGameSettings()
 	{
 		return gameSettingInstanceMap.values();
 	}

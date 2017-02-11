@@ -1,16 +1,19 @@
 package net.launcher;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.setting.GameSetting;
-import net.launcher.setting.GameSettingInstance;
+import net.launcher.setting.GameSettingProperty;
+import net.launcher.setting.GameSettingType;
 import org.to2mbn.jmccc.option.LaunchOption;
 
+import java.lang.ref.WeakReference;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 /**
  * Manage IO, index and search.
@@ -19,30 +22,28 @@ import java.util.function.Consumer;
  */
 public abstract class OptionLaunchElementManager<T, O> implements LaunchElementManager<T>
 {
-	protected abstract GameSetting.Option<O> getOption();
+	protected WeakReference<ObservableList<T>> cache;
+
+	protected abstract GameSettingType.Option<O> getOption();
 
 	@Override
-	public List<T> getAllIncludedElement(LaunchProfile profile)
+	public ObservableList<T> getIncludeElementContainer(LaunchProfile profile)
 	{
 		Objects.requireNonNull(profile);
-		Optional<GameSettingInstance> setting = profile.getGameSetting(getOption().getParent());
-		if (!setting.isPresent()) return Collections.emptyList();
-		GameSettingInstance prop = setting.get();
-		return from(prop.getOption(getOption()));
-	}
+		ObservableList<T> list = cache.get();
+		if (list != null) return list;
+		Optional<GameSetting> optional = profile.getGameSetting(getOption().getParent());
+		GameSetting setting;
+		if (!optional.isPresent())
+			profile.addGameSetting(setting = getOption().getParent().defaultInstance());
+		else setting = optional.get();
 
-	@Override
-	public void manipulateIncludeElement(LaunchProfile profile, Consumer<List<T>> manipulator)
-	{
-		Objects.requireNonNull(profile);
-		Objects.requireNonNull(manipulator);
-		Optional<GameSettingInstance> setting = profile.getGameSetting(getOption().getParent());
-		if (!setting.isPresent()) return;
-		GameSettingInstance prop = setting.get();
-		List<T> from = from(prop.getOption(getOption()));
-		manipulator.accept(from);
-		O to = to(from);
-		prop.setOption(getOption(), to);
+		GameSettingProperty<O> option = setting.getOption(getOption());
+		list = FXCollections.observableArrayList(from(option.getValue()));
+		cache = new WeakReference<>(list);
+		list.addListener((ListChangeListener<T>) c -> option.setValue(to((List<T>) c.getList())));
+
+		return list;
 	}
 
 	protected abstract List<T> from(O value);
@@ -54,11 +55,11 @@ public abstract class OptionLaunchElementManager<T, O> implements LaunchElementM
 	{
 		Objects.requireNonNull(option);
 		Objects.requireNonNull(profile);
-		GameSetting.Option<O> goption = getOption();
-		Optional<GameSettingInstance> gameSetting = profile.getGameSetting(goption.getParent());
+		GameSettingType.Option<O> goption = getOption();
+		Optional<GameSetting> gameSetting = profile.getGameSetting(goption.getParent());
 		if (gameSetting.isPresent())
 			implementRuntimePath(profile, option.getRuntimeDirectory().getRoot().toPath(), gameSetting.get(), option);
 	}
 
-	protected abstract void implementRuntimePath(LaunchProfile profile, Path path, GameSettingInstance instance, LaunchOption option);
+	protected abstract void implementRuntimePath(LaunchProfile profile, Path path, GameSetting instance, LaunchOption option);
 }

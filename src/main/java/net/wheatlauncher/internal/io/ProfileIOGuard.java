@@ -9,8 +9,8 @@ import net.launcher.profile.LaunchProfile;
 import net.launcher.profile.LaunchProfileManager;
 import net.launcher.profile.LaunchProfileManagerBuilder;
 import net.launcher.setting.GameSetting;
-import net.launcher.setting.GameSettingFactory;
-import net.launcher.setting.GameSettingInstance;
+import net.launcher.setting.GameSettingManager;
+import net.launcher.setting.GameSettingType;
 import net.launcher.utils.NIOUtils;
 import net.launcher.utils.Tasks;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
@@ -37,7 +37,7 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 
 	private Path getProfileSetting(String name) {return getProfileDir(name).resolve(PROFILE_NAME);}
 
-	public void saveProfileSetting(String profileName, GameSettingInstance instance) throws IOException
+	public void saveProfileSetting(String profileName, GameSetting instance) throws IOException
 	{
 		LaunchProfileManager manager = getInstance();
 		if (manager == null) throw new IllegalStateException();
@@ -131,17 +131,17 @@ public class ProfileIOGuard extends IOGuard<LaunchProfileManager>
 				}).isPresent()) profile.setResolution(new WindowSize(856, 482));
 
 				IOException exception = null;
-				for (Map.Entry<String, GameSetting> entry : GameSettingFactory.getAllSetting().entrySet())
+				for (Map.Entry<String, GameSettingType> entry : GameSettingManager.getAllSetting().entrySet())
 					try
 					{
-						GameSetting value = entry.getValue();
-						Optional<GameSettingInstance> whatever = Tasks.optional(() -> value.load(profile
+						GameSettingType value = entry.getValue();
+						Optional<GameSetting> whatever = Tasks.optional(() -> value.load(profile
 								.getMinecraftLocation().getRoot().toPath()));
 						if (whatever.isPresent())
 							profile.addGameSetting(whatever.get());
 						else
 						{
-							GameSettingInstance load = value.load(getProfileDir(dirName));
+							GameSetting load = value.load(getProfileDir(dirName));
 							if (load != null)
 								profile.addGameSetting(load);
 						}

@@ -146,6 +146,9 @@ public class Core extends LaunchCore
 				this.getRoot().resolve("resourcepacks"),
 				this.executorService).build());
 
+		Optional<LaunchElementManager<ResourcePack>> optional = getElementManager(ResourcePack.class);
+		LaunchElementManager<ResourcePack> manager = optional.get();
+
 		//main module io start
 		this.ioContext = IOGuardContextScheduled.Builder.create(this.root, executorService)
 				.register(LaunchProfileManager.class, new IOGuardProfile())

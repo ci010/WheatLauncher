@@ -220,6 +220,16 @@ public class ProfileSelectorTableContent extends StackPane
 
 	public void onShow()
 	{
-		if (this.selectionModel.isEmpty()) selectionModel.select(0);
+		if (this.selectionModel.isEmpty() && selectionModel.isEmpty()) selectionModel.select(0);
+		else
+		{
+			LaunchProfile value = selector.getValue();
+			if (value != null)
+			{
+				int i = profileTable.getItems().indexOf(value);
+				profileTable.scrollTo(i);
+				selectionModel.select(i);
+			}
+		}
 	}
 }

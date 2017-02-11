@@ -46,7 +46,7 @@ public abstract class IOGuard<T>
 		return load;
 	}
 
-	protected abstract void deploy();
+	protected abstract void deploy() throws IOException;
 
 	public boolean isActive() {return reference != null && reference.get() != null;}
 }

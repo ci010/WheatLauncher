@@ -12,8 +12,6 @@ import org.to2mbn.jmccc.internal.org.json.JSONArray;
 import org.to2mbn.jmccc.mcdownloader.download.Downloader;
 import org.to2mbn.jmccc.mcdownloader.download.DownloaderBuilders;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.tasks.FileDownloadTask;
 import org.to2mbn.jmccc.mcdownloader.download.tasks.MemoryDownloadTask;
 
 import java.io.ByteArrayInputStream;
@@ -21,7 +19,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Proxy;
-import java.net.URL;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
@@ -29,7 +26,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -44,7 +40,6 @@ class ArchiveRepositoryBase<T>
 	private ExecutorService service;
 
 	private ObservableMap<String, Resource<T>> archesMap = FXCollections.synchronizedObservableMap(FXCollections.observableHashMap());
-	private ArrayList<EmbeddedRemoteArchiveRepository> remoteRepository;
 	private Deserializer<T, Path> parser;
 	private BiSerializer<T, NBTCompound> archiveSerializer;
 
@@ -59,14 +54,11 @@ class ArchiveRepositoryBase<T>
 	}
 
 	protected ArchiveRepositoryBase(Path root, ExecutorService service,
-									Remote[] remote,
 									Deserializer<T, Path> parser,
 									BiSerializer<T, NBTCompound> archiveSerializer)
 	{
 		this.root = root;
 		this.service = service;
-		this.remoteRepository = new ArrayList<>();
-		for (Remote aRemote : remote) this.remoteRepository.add(new EmbeddedRemoteArchiveRepository(aRemote));
 		this.parser = parser;
 		this.archiveSerializer = archiveSerializer;
 	}
@@ -88,8 +80,6 @@ class ArchiveRepositoryBase<T>
 	{
 		return service.submit(() ->
 		{
-			for (EmbeddedRemoteArchiveRepository tRemoteRepository : remoteRepository)
-				tRemoteRepository.update();
 			if (Files.exists(root))
 				Files.walkFileTree(root, new SimpleFileVisitor<Path>()
 				{
@@ -107,7 +97,15 @@ class ArchiveRepositoryBase<T>
 		});
 	}
 
-	protected Resource<T> loadResource(Path indexFile) throws IOException
+	private Resource<T> getResource(String resource) throws IOException
+	{
+		if (archesMap.containsKey(resource)) return archesMap.get(resource);
+		if (Files.exists(root.resolve(resource + ".dat")))
+			return loadResource(root.resolve(resource + ".dat"));
+		return null;
+	}
+
+	private Resource<T> loadResource(Path indexFile) throws IOException
 	{
 		NBTCompound read = NBT.read(indexFile, true).asCompound();
 		Resource<T> tResource = readNBT(read, this);
@@ -156,8 +154,8 @@ class ArchiveRepositoryBase<T>
 	public Set<String> getAllVisiblePaths()
 	{
 		Set<String> set = new HashSet<>();
-		for (EmbeddedRemoteArchiveRepository repository : remoteRepository)
-			set.addAll(repository.getAllVisiblePaths());
+//		for (EmbeddedRemoteArchiveRepository repository : remoteRepository)
+//			set.addAll(repository.getAllVisiblePaths());
 		set.addAll(archesMap.keySet());
 		return set;
 	}
@@ -174,47 +172,70 @@ class ArchiveRepositoryBase<T>
 	public Future<Boolean> containResource(String path, Callback<Boolean> callback)
 	{
 		Objects.requireNonNull(path);
-		return service.submit(Tasks.wrap(() ->
-		{
-			if (archesMap.containsKey(path)) return true;
-			if (Files.exists(root.resolve(path + ".dat")))
-			{
-				loadResource(root.resolve(path + ".dat"));
-				return true;
-			}
-			else for (EmbeddedRemoteArchiveRepository repository : remoteRepository)
-				if (repository.containResource(path, null).get()) return true;
-			return false;
-		}, callback));
+		return service.submit(Tasks.wrap(() -> getResource(path) != null, callback));
 	}
 
 	@Override
-	public Delivery<Resource<T>> fetchResource(Path directory, String path, ProgressCallback<Resource<T>> callback,
+	public Delivery<Resource<T>> fetchResource(Path directory, String path,
 											   FetchOption option)
 	{
 		Objects.requireNonNull(directory);
 		Objects.requireNonNull(path);
-		callback.updateProgress(0, 3, "start");
+		TreeSet<Path> treeSet = new TreeSet<>();
 		return new DeliveryImpl<>(service.submit(() ->
 		{
-			callback.updateProgress(1, 3, "checking");
-			if (!containLocal(path))
-			{
-				for (EmbeddedRemoteArchiveRepository repository : remoteRepository)
-					if (repository.containResource(path, null).get())
-					{
-						repository.fetchResource(root, path, null, option).get();
-						callback.updateProgress(2, 3, "fetching");
-						return fetchLocal(directory, path, option);
-					}
+			Resource<T> fetch = fetch(directory, path, option);
+			if (fetch == null)
 				throw new IOException("No resource", new FileNotFoundException("No resource in " + path));
-			}
-			else
+			treeSet.add(directory.resolve(path + fetch.getType().getSuffix()));
+			return fetch;
+		}), treeSet, service);
+	}
+
+	@Override
+	public Delivery<Void> fetchAllResources(Path directory, FetchOption option)
+	{
+		Objects.requireNonNull(directory);
+		TreeSet<Path> treeSet = new TreeSet<>();
+		return new DeliveryImpl<>(service.submit(() ->
+		{
+			Exception exception = null;
+			for (String s : getAllVisiblePaths())
 			{
-				callback.updateProgress(2, 3, "fetching");
-				return fetchLocal(directory, path, option);
+				Resource<T> fetch = fetch(directory, s, option);
+				if (fetch == null)
+					if (exception == null)
+					{
+						exception = new IOException("corrupted file " + s);
+						continue;
+					}
+					else
+					{
+						exception.addSuppressed(new IOException("corrupted file " + s));
+						continue;
+					}
+				treeSet.add(directory.resolve(fetch.getHash().concat(fetch.getType().getSuffix())));
 			}
-		}), Collections.singleton(directory.resolve(path)), service);
+			return null;
+		}), treeSet, service);
+	}
+
+	@Override
+	public Delivery<Void> fetchAllResources(Path directory, Collection<String> paths, FetchOption option)
+	{
+		Objects.requireNonNull(directory);
+		Objects.requireNonNull(paths);
+		TreeSet<Path> treeSet = new TreeSet<>();
+		return new DeliveryImpl<>(service.submit(() ->
+		{
+			for (String s : paths)
+			{
+				Resource<T> fetch = fetch(directory, s, option);
+				if (fetch != null)
+					treeSet.add(directory.resolve(s + fetch.getType().getSuffix()));
+			}
+			return null;
+		}), treeSet, service);
 	}
 
 	private boolean containLocal(String path)
@@ -223,9 +244,10 @@ class ArchiveRepositoryBase<T>
 		return Files.exists(root.resolve(path + ".dat"));
 	}
 
-	private Resource<T> fetchLocal(Path dir, String path, FetchOption option) throws IOException
+	private Resource<T> fetch(Path dir, String path, FetchOption option) throws IOException
 	{
 		Resource<T> resource = archesMap.get(path);
+		if (resource == null) return null;
 		Files.createDirectories(dir);
 		Path resolve = root.resolve(resource.getHash() + resource.getType().getSuffix());
 		Path target = dir.resolve(resource.getName() + resource.getType().getSuffix());
@@ -261,12 +283,8 @@ class ArchiveRepositoryBase<T>
 
 					String simpleName = file.getFileName().toString().replace(resourceType.getSuffix(), "");
 					FileSystem system = null;
-					try
-					{
-						system = FileSystems.newFileSystem(file, ArchiveRepositoryBase.class.getClassLoader());
-					}
+					try {system = FileSystems.newFileSystem(file, ArchiveRepositoryBase.class.getClassLoader());}
 					catch (IOException ignored) {}
-
 
 					if (system != null)
 						target = system.getPath("/");
@@ -276,11 +294,8 @@ class ArchiveRepositoryBase<T>
 					Resource<T> resource = new Resource<>(resourceType, md5,
 							deserialize, this).setName(simpleName);
 					this.archesMap.put(md5, resource);
-
 					call.updateProgress(2, 3, "saving");
-
 					this.saveResource(resource);
-
 					return resource;
 				}
 				else
@@ -309,39 +324,17 @@ class ArchiveRepositoryBase<T>
 		if (resource.getSignature() == this && containLocal(resource.getHash()))
 		{
 			Path file = root.resolve(resource.getHash() + resource.getType().getSuffix());
+			if (!Files.exists(file))
+				throw new IOException("corrupted resource " + resource.getHash());
 			FileSystem system = null;
-			try
-			{
-				system = FileSystems.newFileSystem(file, ArchiveRepositoryBase.class.getClassLoader());
-			}
+			try {system = FileSystems.newFileSystem(file, ArchiveRepositoryBase.class.getClassLoader());}
 			catch (IOException ignored) {}
 			if (system != null)
 				file = system.getPath("/");
+			file = file.resolve(path);
 			return Files.newInputStream(file);
 		}
-		else
-			for (EmbeddedRemoteArchiveRepository repository : remoteRepository)
-				if (resource.getSignature() == repository)
-					return new URL(repository.remote.parseToURL(this.getProxy(), resource.getHash() + resource.getType().getSuffix())).openStream();
-		throw new FileNotFoundException();
-	}
-
-	@Override
-	public Delivery<Void> fetchAllResources(Path directory, ProgressCallback<Void> callback, FetchOption option)
-	{
-		Objects.requireNonNull(directory);
-		callback.updateProgress(0, 2, "start");
-		return new DeliveryImpl<>(service.submit(Tasks.wrap(() ->
-		{
-			callback.updateProgress(1, 2, "fetching");
-			for (EmbeddedRemoteArchiveRepository repository : remoteRepository)
-				for (String s : repository.getAllVisiblePaths())
-					if (!containLocal(s))
-						repository.fetchResource(root, s, null, option).get();
-			for (String s : getAllVisiblePaths())
-				fetchLocal(directory, s, option);
-			return null;
-		}, callback)), this.getAllVisiblePaths().stream().map(directory::resolve).collect(Collectors.toSet()), service);
+		else throw new FileNotFoundException(path);
 	}
 
 
@@ -387,79 +380,85 @@ class ArchiveRepositoryBase<T>
 
 		@Override
 		public Delivery<Resource<T>> fetchResource(Path directory, String path,
-												   ProgressCallback<Resource<T>> callback,
 												   FetchOption option)
 		{
-			Objects.requireNonNull(directory);
-			Objects.requireNonNull(path);
-			if (directory != root)
-				throw new IllegalArgumentException();
-			if (callback == null) callback = new ProgressCallbackAdapter<Resource<T>>() {};
-			ProgressCallback<Resource<T>> call = callback;
-			return new DeliveryImpl<>(getService().submit(() ->
-			{
-				call.updateProgress(0, 3, "start");
-				if (containResource(path, null).get())
-				{
-					call.updateProgress(1, 3, "found");
+			return null;
+//			Objects.requireNonNull(directory);
+//			Objects.requireNonNull(path);
+//			if (directory != root)
+//				throw new IllegalArgumentException();
+//			if (callback == null) callback = new ProgressCallbackAdapter<Resource<T>>() {};
+//			ProgressCallback<Resource<T>> call = callback;
+//			return new DeliveryImpl<>(getService().submit(() ->
+//			{
+//				call.updateProgress(0, 3, "start");
+//				if (containResource(path, null).get())
+//				{
+//					call.updateProgress(1, 3, "found");
+//
+//					Downloader build = DownloaderBuilders.downloader().build();
+//					Resource<T> resource = cache.get(path);
+//					if (resource != null)
+//						cache.remove(path);
+//					else
+//					{
+//						Path resolve = root.resolve(path + ".dat");
+//						build.download(new FileDownloadTask(remote.parseToURL(getProxy(), path + ".dat"), resolve.toFile()), null).get();
+//						resource = loadResource(resolve);
+//					}
+//					String cachePath = resource.getHash() + resource.getType().getSuffix();
+//					final DownloadCallback<T> finalDownloadCallback = call instanceof DownloadCallback ? (DownloadCallback<T>) call : null;
+//
+//					Resource<T> finalRes = resource;
+//					call.updateProgress(2, 3, "downloading");
+//
+//					build.download(new FileDownloadTask(remote.parseToURL(getProxy(), cachePath), directory.resolve
+//									(cachePath)
+//									.toFile()),
+//							new DownloadCallback<Void>()
+//							{
+//								@Override
+//								public void updateProgress(long done, long total)
+//								{
+//									if (finalDownloadCallback != null)
+//										finalDownloadCallback.updateProgress(done, total);
+//								}
+//
+//								@Override
+//								public void retry(Throwable e, int current, int max)
+//								{
+//									if (finalDownloadCallback != null)
+//										finalDownloadCallback.retry(e, current, max);
+//								}
+//
+//								@Override
+//								public void done(Void result)
+//								{
+//									call.done(finalRes);
+//								}
+//
+//								@Override
+//								public void failed(Throwable e)
+//								{
+//									call.failed(e);
+//								}
+//
+//								@Override
+//								public void cancelled()
+//								{
+//									call.cancelled();
+//								}
+//							});
+//					return resource;
+//				}
+//				return null;
+//			}), Collections.singleton(directory.resolve(path)), service);
+		}
 
-					Downloader build = DownloaderBuilders.downloader().build();
-					Resource<T> resource = cache.get(path);
-					if (resource != null)
-						cache.remove(path);
-					else
-					{
-						Path resolve = root.resolve(path + ".dat");
-						build.download(new FileDownloadTask(remote.parseToURL(getProxy(), path + ".dat"), resolve.toFile()), null).get();
-						resource = loadResource(resolve);
-					}
-					String cachePath = resource.getHash() + resource.getType().getSuffix();
-					final DownloadCallback<T> finalDownloadCallback = call instanceof DownloadCallback ? (DownloadCallback<T>) call : null;
-
-					Resource<T> finalRes = resource;
-					call.updateProgress(2, 3, "downloading");
-
-					build.download(new FileDownloadTask(remote.parseToURL(getProxy(), cachePath), directory.resolve
-									(cachePath)
-									.toFile()),
-							new DownloadCallback<Void>()
-							{
-								@Override
-								public void updateProgress(long done, long total)
-								{
-									if (finalDownloadCallback != null)
-										finalDownloadCallback.updateProgress(done, total);
-								}
-
-								@Override
-								public void retry(Throwable e, int current, int max)
-								{
-									if (finalDownloadCallback != null)
-										finalDownloadCallback.retry(e, current, max);
-								}
-
-								@Override
-								public void done(Void result)
-								{
-									call.done(finalRes);
-								}
-
-								@Override
-								public void failed(Throwable e)
-								{
-									call.failed(e);
-								}
-
-								@Override
-								public void cancelled()
-								{
-									call.cancelled();
-								}
-							});
-					return resource;
-				}
-				return null;
-			}), Collections.singleton(directory.resolve(path)), service);
+		@Override
+		public Delivery<Void> fetchAllResources(Path directory, Collection<String> paths, FetchOption option)
+		{
+			return null;
 		}
 
 		@Override
@@ -498,26 +497,19 @@ class ArchiveRepositoryBase<T>
 		}
 
 		@Override
-		public Delivery<Void> fetchAllResources(Path directory, ProgressCallback<Void> callback, FetchOption option)
+		public Delivery<Void> fetchAllResources(Path directory, FetchOption option)
 		{
 			Objects.requireNonNull(directory);
-			if (directory != root)
-				throw new IllegalArgumentException();
-			if (callback == null) callback = new ProgressCallbackAdapter<Void>() {};
-			Callback<Void> call = callback;
-			getService().submit(Tasks.wrap(() ->
-			{
-				for (String path : index)
-					fetchResource(directory, path, new ProgressCallbackAdapter<Resource<T>>()
-					{
-						@Override
-						public void failed(Throwable e)
-						{
-							call.failed(e);
-						}
-					}, option).get();
-				return null;
-			}, call));
+//			if (directory != root)
+//				throw new IllegalArgumentException();
+//			if (callback == null) callback = new ProgressCallbackAdapter<Void>() {};
+//			Callback<Void> call = callback;
+//			getService().submit(Tasks.wrap(() ->
+//			{
+//				for (String path : index)
+//					fetchResource(directory, path, option).get();
+//				return null;
+//			}, call));
 
 			return null;
 		}

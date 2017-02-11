@@ -1,6 +1,5 @@
 package net.launcher.utils.resource;
 
-import net.launcher.utils.ProgressCallback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 
 import java.net.Proxy;
@@ -34,19 +33,18 @@ public interface Repository<T>
 	 * Fetch the resource to directory under the path.
 	 *  @param directory The target directory which the new resource will be placed in.
 	 * @param path      The resource path.
-	 * @param callback  The job callback.
 	 * @param option    The fetch option.
 	 */
-	Delivery<T> fetchResource(Path directory, String path, ProgressCallback<T> callback, FetchOption option);
+	Delivery<T> fetchResource(Path directory, String path, FetchOption option);
+
+	Delivery<Void> fetchAllResources(Path directory, Collection<String> paths, FetchOption option);
 
 	/**
 	 * Fetch all the resources recorded in memory into the directory.
 	 *  @param directory The target directory which the new resource will be placed in.
-	 * @param callback  The job callback. {@link Callback#done(Object)} will only called when the task done.
-	 *                  {@link Callback#failed(Throwable)} will be called whenever there is an exception thrown.
 	 * @param option    The fetch option.
 	 */
-	Delivery<Void> fetchAllResources(Path directory, ProgressCallback<Void> callback, FetchOption option);
+	Delivery<Void> fetchAllResources(Path directory, FetchOption option);
 
 	/**
 	 * Update this repository indexes from the disk.

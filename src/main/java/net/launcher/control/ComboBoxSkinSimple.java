@@ -38,6 +38,14 @@ public abstract class ComboBoxSkinSimple<T> extends ComboBoxPopupControl<T>
 		return popup;
 	}
 
+	protected void createEditor()
+	{
+		this.textField = new JFXTextField();
+		this.textField.setEditable(false);
+		this.textField.getStyleClass().add("combo-text-field");
+		this.textField.setStyle("-fx-max-width:100;");
+	}
+
 	@Override
 	protected TextField getEditor()
 	{
@@ -51,14 +59,7 @@ public abstract class ComboBoxSkinSimple<T> extends ComboBoxPopupControl<T>
 		boolean parentListenerCall = caller.getMethodName().contains("lambda") && caller.getClassName().equals("com.sun.javafx.scene.control.skin.ComboBoxPopupControl");
 		if (parentListenerCall) return null;
 		if (textField == null)
-		{
-			this.textField = new JFXTextField();
-			this.textField.setEditable(false);
-			this.textField.setText("Unknown");
-//			this.textField.setMaxWidth(100);
-			this.textField.getStyleClass().add("combo-text-field");
-			this.textField.setStyle("-fx-max-width:100;");
-		}
+			createEditor();
 		return textField;
 	}
 
@@ -73,8 +74,6 @@ public abstract class ComboBoxSkinSimple<T> extends ComboBoxPopupControl<T>
 		else if ("VALUE".equals(p))
 		{
 			updateDisplayNode();
-//			if (getSkinnable() != null && getSkinnable().isShowing())
-//				getSkinnable().hide();
 		}
 	}
 

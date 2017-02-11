@@ -137,7 +137,7 @@ public class WindowsManager
 		public synchronized void displayError(String message)
 		{
 			_checkState();
-			bar.enqueue(new JFXSnackbar.SnackbarEvent(LanguageMap.INSTANCE.translate(message), null, 2500, null));
+			bar.enqueue(new JFXSnackbar.SnackbarEvent(LanguageMap.INSTANCE.translate(message), null, 2500, false, null));
 		}
 
 		public void displayError(Throwable throwable)

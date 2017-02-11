@@ -19,6 +19,12 @@ public class MinecraftVersionPickerSkin extends ComboBoxSkinSimple<MinecraftVers
 		this.parent = parent;
 	}
 
+	protected void createEditor()
+	{
+		super.createEditor();
+		textField.setPromptText("Version");
+	}
+
 	@Override
 	protected Node getPopupContent()
 	{

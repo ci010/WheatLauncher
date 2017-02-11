@@ -12,6 +12,7 @@ import net.launcher.Bootstrap;
 import net.launcher.Logger;
 import net.launcher.control.profile.base.ProfileTableSelector;
 import net.launcher.control.versions.MinecraftVersionPicker;
+import net.launcher.profile.LaunchProfile;
 import net.launcher.version.MinecraftVersion;
 import net.wheatlauncher.control.utils.FXMLInnerController;
 import net.wheatlauncher.control.utils.ReloadableController;
@@ -70,8 +71,8 @@ public class ControllerProfiles implements ReloadableController
 	{
 		Logger.trace("init");
 		rootDialog.setOverlayClose(true);
-		initProfile();
 		initVersion();
+		initProfile();
 	}
 
 	@PreDestroy
@@ -111,6 +112,9 @@ public class ControllerProfiles implements ReloadableController
 			Bootstrap.getCore().getProfileManager().deleteProfile(param.getId());
 			return null;
 		});
+		LaunchProfile selecting = Bootstrap.getCore().getProfileManager().selecting();
+		if (selecting != null)
+			profile.setValue(selecting);
 		profile.valueProperty().addListener(observable ->
 				Bootstrap.getCore().getProfileManager().setSelectedProfile(profile.getValue().getId()));
 	}

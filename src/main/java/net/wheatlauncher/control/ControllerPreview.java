@@ -22,6 +22,7 @@ import moe.mickey.minecraft.skin.fx.SkinCanvas;
 import moe.mickey.minecraft.skin.fx.animation.SkinAniRunning;
 import net.launcher.AuthProfile;
 import net.launcher.Bootstrap;
+import net.launcher.profile.LaunchProfile;
 import net.launcher.utils.StringUtils;
 import net.wheatlauncher.control.profiles.ControllerProfiles;
 import net.wheatlauncher.control.settings.ControllerSetting;
@@ -87,10 +88,14 @@ public class ControllerPreview implements ReloadableController
 		animation = new AnimationRotate(canvas);
 		canvas.getAnimationPlayer().addSkinAnimation(new SkinAniRunning(100, 100, 30, canvas));
 		JFXDepthManager.setDepth(player.getParent(), 2);
-		profileName.textProperty().bind(Bindings.createStringBinding(() -> Bootstrap.getCore().getProfileManager().selecting().getDisplayName(),
-				Bindings.createObjectBinding(() -> Bootstrap.getCore().getProfileManager().selecting().displayNameProperty(),
-						Bootstrap.getCore().getProfileManager().selectedProfileProperty()
-				)));
+
+		LaunchProfile selecting = Bootstrap.getCore().getProfileManager().selecting();
+		if (selecting != null)
+			profileName.setText(selecting.getDisplayName());
+		Bootstrap.getCore().getProfileManager().selectedProfileProperty().addListener(observable ->
+				profileName.textProperty().bind(Bindings.createStringBinding(() ->
+								Bootstrap.getCore().getProfileManager().selecting().getDisplayName(),
+						Bootstrap.getCore().getProfileManager().selectedProfileProperty())));
 		player.textProperty().bind(Bindings.createStringBinding(() ->
 				{
 					if (Bootstrap.getCore().getAuthProfile().getCache() != null)

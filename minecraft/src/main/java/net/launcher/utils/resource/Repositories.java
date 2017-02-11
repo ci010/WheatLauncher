@@ -8,8 +8,6 @@ import net.launcher.utils.serial.Deserializer;
 
 import java.net.Proxy;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -33,7 +31,7 @@ public class Repositories
 
 	public static class ArchiveRepositoryBuilder<T> implements Builder<ArchiveRepository<T>>
 	{
-		private List<ArchiveRepository.Remote> remotePorts = new ArrayList<>();
+		//		private List<ArchiveRepository.Remote> remotePorts = new ArrayList<>();
 		private Path path;
 		private ExecutorService service;
 		private BiSerializer<T, NBTCompound> archiveSerializer;
@@ -50,11 +48,11 @@ public class Repositories
 			this.parser = parser;
 		}
 
-		public ArchiveRepositoryBuilder<T> registerRemote(ArchiveRepository.Remote remote)
-		{
-			remotePorts.add(remote);
-			return this;
-		}
+//		public ArchiveRepositoryBuilder<T> registerRemote(ArchiveRepository.Remote remote)
+//		{
+//			remotePorts.add(remote);
+//			return this;
+//		}
 
 		public ArchiveRepositoryBuilder<T> setProxy(Proxy proxy)
 		{
@@ -66,7 +64,7 @@ public class Repositories
 		public ArchiveRepository<T> build()
 		{
 			ArchiveRepositoryBase<T> repositoryBase = new ArchiveRepositoryBase<>(path, service,
-					remotePorts.toArray(new ArchiveRepository.Remote[remotePorts.size()]),
+//					remotePorts.toArray(new ArchiveRepository.Remote[remotePorts.size()]),
 					parser, archiveSerializer);
 			repositoryBase.setProxy(proxy == null ? Proxy.NO_PROXY : proxy);
 			return repositoryBase;

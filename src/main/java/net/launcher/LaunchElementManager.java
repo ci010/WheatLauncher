@@ -1,22 +1,17 @@
 package net.launcher;
 
+import javafx.collections.ObservableList;
 import net.launcher.profile.LaunchProfile;
 import org.to2mbn.jmccc.option.LaunchOption;
-
-import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
 
 /**
  * @author ci010
  */
 public interface LaunchElementManager<T> extends LaunchManager
 {
-	Set<T> getAllElement();
+	ObservableList<T> getAllElement();
 
-	List<T> getAllIncludedElement(LaunchProfile profile);
-
-	void manipulateIncludeElement(LaunchProfile profile, Consumer<List<T>> manipulator);
+	ObservableList<T> getIncludeElementContainer(LaunchProfile profile);
 
 	void onLaunch(LaunchOption option, LaunchProfile profile);
 
