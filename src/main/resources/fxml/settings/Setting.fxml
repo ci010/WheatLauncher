@@ -1,0 +1,11 @@
+<?import com.jfoenix.controls.JFXDialog?>
+<?import com.jfoenix.controls.JFXListView?>
+<?import javafx.scene.layout.HBox?>
+<JFXDialog fx:id="root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
+           fx:controller="net.wheatlauncher.control.settings.ControllerSetting">
+    <HBox>
+        <JFXListView fx:id="options">
+
+        </JFXListView>
+    </HBox>
+</JFXDialog>

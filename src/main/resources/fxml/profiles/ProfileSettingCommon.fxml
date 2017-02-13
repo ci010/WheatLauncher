@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.*?>
+<?import de.jensd.fx.fontawesome.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<VBox fx:id="root" alignment="CENTER" spacing="15" style="-fx-background-color:WHITE; -fx-padding:10;"
+      xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="net.wheatlauncher.control.profiles.ControllerCommonSetting">
+    <GridPane hgap="5" vgap="20">
+        <columnConstraints>
+            <ColumnConstraints halignment="LEFT" hgrow="SOMETIMES" minWidth="10.0" percentWidth="25"/>
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" percentWidth="65"/>
+            <ColumnConstraints halignment="RIGHT" hgrow="SOMETIMES" minWidth="10.0" percentWidth="10"/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES"/>
+            <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES"/>
+            <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES"/>
+            <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES"/>
+        </rowConstraints>
+
+        <StackPane GridPane.columnIndex="0" GridPane.rowIndex="0"
+                   style=" -fx-padding:5">
+            <Label text="%setting.javaLocation" style=" -fx-font-weight: BOLD; -fx-underline:true;-fx-border-color: black;
+            -fx-border-width: 0 0 1 0; "/>
+        </StackPane>
+        <JFXTextField fx:id="javaLocation" disable="true" editable="false" GridPane.columnIndex="1"
+                      GridPane.rowIndex="0"/>
+        <HBox GridPane.columnIndex="2" GridPane.rowIndex="0">
+            <JFXButton fx:id="browsJava" style="-fx-padding:3,3,3,3; -fx-background-color:TRANSPARENT;">
+                <graphic>
+                    <Icon awesomeIcon="FOLDER" scaleX="0.8" scaleY="0.8"/>
+                </graphic>
+            </JFXButton>
+        </HBox>
+
+        <StackPane GridPane.columnIndex="0" GridPane.rowIndex="1"
+                   style=" -fx-padding:5">
+            <Label text="%setting.memory" style=" -fx-font-weight: BOLD;-fx-underline:true;-fx-border-color: black;
+            -fx-border-width: 0 0 1 0; "/>
+        </StackPane>
+        <HBox GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <JFXTextField fx:id="memory" maxWidth="50" prefWidth="50"/>
+        </HBox>
+        <HBox GridPane.columnIndex="2" GridPane.rowIndex="1">
+            <JFXButton style="-fx-padding:3,3,3,3; -fx-background-color:TRANSPARENT;">
+                <graphic>
+                    <Icon awesomeIcon="ANGLE_LEFT" scaleX="0.8" scaleY="0.8"/>
+                </graphic>
+            </JFXButton>
+            <JFXButton style="-fx-padding:3,3,3,3; -fx-background-color:TRANSPARENT;">
+                <graphic>
+                    <Icon awesomeIcon="ANGLE_RIGHT" scaleX="0.8" scaleY="0.8"/>
+                </graphic>
+            </JFXButton>
+        </HBox>
+
+        <StackPane GridPane.columnIndex="0" GridPane.rowIndex="2"
+                   style="-fx-padding:5;">
+            <Label text="%setting.resolution" style=" -fx-font-weight: BOLD;-fx-underline:true;-fx-border-color: black;
+            -fx-border-width: 0 0 1 0; "/>
+        </StackPane>
+        <HBox GridPane.columnIndex="1" GridPane.rowIndex="2">
+            <JFXTextField fx:id="width"/>
+            <Label text="X"/>
+            <JFXTextField fx:id="height"/>
+        </HBox>
+        <HBox GridPane.columnIndex="2" GridPane.rowIndex="2">
+            <JFXButton style="-fx-padding:3,3,3,3; -fx-background-color:TRANSPARENT;">
+                <graphic>
+                    <Icon awesomeIcon="ANGLE_LEFT" scaleX="0.8" scaleY="0.8"/>
+                </graphic>
+            </JFXButton>
+            <JFXButton style="-fx-padding:3,3,3,3; -fx-background-color:TRANSPARENT;">
+                <graphic>
+                    <Icon awesomeIcon="ANGLE_RIGHT" scaleX="0.8" scaleY="0.8"/>
+                </graphic>
+            </JFXButton>
+        </HBox>
+        <VBox.margin>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+        </VBox.margin>
+    </GridPane>
+</VBox>

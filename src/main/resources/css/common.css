@@ -1,8 +1,20 @@
-.jfx-button{
-	-fx-text-fill:GREY;
-	-fx-background-color:WHEAT;
-	-fx-button-target-color:TOMATO;
-	-fx-font-size:14px;
+@font-face {
+    font-family: Minecrafter;
+    src: url('/fonts/Minecrafter.Reg.ttf');
+}
+
+@font-face {
+    font-family: Minecrafter Alt;
+    src: url('/fonts/Minecrafter.Alt.ttf');
+}
+
+* {
+	major-color: GREY;
+	minor-color: #a1a1a1;
+	mics-color: TOMATO;
+   /*major-color: #99c286;*/
+   /*minor-color:#01a05e;*/
+   /*mics-color: #f3e69b;*/
 }
 
 .jfx-container{
@@ -24,29 +36,321 @@
 	-fx-background-color:TRANSPARENT;
 	-fx-selection-bar: red;
 }
-/*
 
-.jfx-list-cell:odd, .jfx-list-cell:even{
-	-fx-selection-bar:red;
-	-fx-background-radius:5;
-	-fx-background-color:WHEAT;
+.jfx-dialog-overlay-pane {
+	-fx-background-color: rgba(0.0,0.0,0.0,0.1);
 }
 
-.jfx-list-cell:selected{
-	-fx-background-color:RED;
-	-fx-selection-bar:red;
+.dialog-trigger{
+	-fx-background-color: WHITE;
+	-fx-button-type:RAISED;
+	-fx-font-size: 14.0px;
 }
-*/
 
-.jfx-button{
+.jfx-dialog-layout {
+	-fx-padding: 24.0px 24.0px 16.0px 24.0px;
+	-fx-text-fill: rgba(0.0, 0.0, 0.0, 0.87);
+}
+.jfx-layout-heading {
+	-fx-font-size: 16.0px;
+	-fx-font-weight: BOLD;
+	-fx-alignment: center;
+	-fx-padding: 5.0 0.0 5.0 0.0;
+}
+
+.jfx-layout-body .label {
+	-fx-font-size: 12.0px;
+	-fx-pref-width: 400.0px;
+	-fx-wrap-text: true;
+}
+
+.jfx-layout-actions {
+	-fx-padding: 10.0px 0.0 0.0 0.0 ;
+	-fx-alignment: center-right;
+}
+
+
+.colored-button{
 	-fx-button-type: RAISED;
 	-fx-padding: 0.7em 0.57em;
     -fx-font-size: 14px;
     -fx-text-fill: BLACK;
+    -fx-background-color:#ffffc6;
+    -fx-button-target-color:TOMATO;
     -fx-background-radius:10;
 }
+
 
 .option-list-view {
   	-fx-pref-width: 160.0px;
   	-fx-background-color: WHITE ;
 }
+
+
+.dialog-accept{
+	-fx-text-fill: #03A9F4;
+	-fx-background-color:TRANSPARENT;
+	-fx-font-weight: BOLD;
+	-fx-padding: 0.7em 0.8em;
+}
+
+.search-field{
+	-fx-min-width: 50;
+    -fx-max-width: 100;
+}
+
+.header-major{
+	-fx-text-fill:WHITE;
+	-fx-font-weight:BOLD;
+	-fx-font-family:Roboto;
+	-fx-font-size:32;
+}
+
+.header-minor{
+	-fx-text-fill:rgb(255, 255, 255, 0.67);
+	-fx-font-weight:BOLD;
+	-fx-font-family:Roboto;
+	-fx-font-size:14;
+}
+
+.header-major-small{
+	-fx-text-fill:WHITE;
+	-fx-font-weight:BOLD;
+	-fx-font-family:Minecrafter;
+	-fx-font-size:24;
+}
+
+.header-minor-small{
+	-fx-text-fill:rgb(255, 255, 255, 0.67);
+	-fx-font-weight:BOLD;
+	-fx-font-family:Minecrafter;
+	-fx-font-size:12;
+}
+
+
+
+.table-view{
+	-fx-table-color: rgba(255, 0, 0, 0.2);
+	-fx-table-rippler-color : rgba(255, 0, 0, 0.4);
+}
+ .table-view:focused .table-row-cell:selected {
+	-fx-background-color: -fx-table-color  ;
+	-fx-table-cell-border-color: -fx-table-color;
+	-fx-text-fill: BLACK;
+}
+
+ .table-view:focused .table-row-cell:selected .table-cell{
+	-fx-text-fill: BLACK;
+}
+
+.table-view .jfx-rippler {
+	-fx-rippler-fill: -fx-table-rippler-color;
+}
+
+.table-view .column-header ,
+.table-view .column-header-background,
+.table-view .column-header-background .filler{
+	-fx-background-color:TRANSPARENT;
+}
+
+.table-view .column-header{
+	-fx-border-width : 0 1 0 1;
+	-fx-border-color: #F3F3F3;
+}
+
+.table-view .column-header .label {
+	-fx-text-fill : #949494;
+	-fx-padding : 16 0 16 0 ;
+}
+
+.table-view .column-header .arrow, .table-view .column-header .sort-order-dot{
+	-fx-background-color : #949494;
+}
+
+.table-view .column-header:last-visible {
+	-fx-border-width: 0 2 0 1;
+}
+
+.table-view .column-header-background{
+	-fx-border-width : 0 0.0 1 0;
+	-fx-border-color:#F3F3F3;
+}
+
+.table-view .table-cell{
+	-fx-border-width:0 0 0 0;
+	-fx-padding : 16 0 16 0 ;
+}
+
+.table-view .column-overlay{
+	-fx-background-color: -fx-table-color;
+}
+
+.table-view .column-resize-line, .table-view .column-drag-header{
+	-fx-background-color: -fx-table-rippler-color;
+}
+
+.table-view:focused {
+  -fx-background-color: -fx-table-color,-fx-box-border,-fx-control-inner-background;
+  -fx-background-insets: -1.4, 0, 1;
+  -fx-background-radius: 1.4, 0, 0;
+  /*....*/
+  -fx-padding: 1; /* 0.083333em; */
+}
+
+.jfx-text-field, .jfx-password-field{
+    /*-fx-font-weight: BOLD;*/
+    -fx-font-color: GREY;
+    -fx-prompt-text-fill: #808080;
+    -fx-focus-color: TOMATO;
+    -fx-unfocus-color: #4d4d4d;
+}
+
+.jfx-combo-box{
+	/*-fx-font-weight: BOLD;*/
+    -fx-font-color: GREY;
+    -fx-prompt-text-fill: #808080;
+    /*-fx-focus-color: #4059A9;
+    -fx-unfocus-color: #4d4d4d;*/
+}
+
+.major{
+	-fx-background-color:major-color;
+}
+.light-major{
+	-fx-background-color:minor-color;
+}
+.deep-major{
+	-fx-background-color:#7a211a;
+}
+
+/*SANDYBROWN< SADDLEBROWN*/
+.mics{
+	-fx-background-color:mics-color;
+}
+
+.minor{
+	-fx-background-color:minor-color;
+	/*-fx-background-color:#ffffc6;*/
+	-fx-text-fill:BLACK;
+}
+
+
+.animated-thumb{
+	-fx-background-radius:0;
+	/*-fx-background-color:WHITE;*/
+}
+
+.thumb{
+	-fx-background-radius:0;
+	/*-fx-pref-height:5;*/
+	-fx-max-height:2;
+	-fx-background-color:minor-color;
+	-fx-background-insets:0;
+}
+.tab-header-background {
+	/*-fx-background-insets: -29;*/
+	-fx-background-color:major-color;
+}
+.root{
+	/*-fx-text-fill:WHITE;*/
+}
+.major-button{
+	-jfx-button-type: RAISED;
+	-fx-padding: 0.7em 0.57em;
+    -fx-font-size: 14px;
+    -fx-text-fill: BLACK;
+    /*-fx-background-color:#ffffc6;*/
+    /*-fx-button-target-color:TOMATO;*/
+   /* -fx-background-radius:10;*/
+}
+.mics-button{
+	-fx-background-color:WHITE;
+	-fx-text-fill:TOMATO;
+}
+.options-button{
+		-fx-button-type: RAISED;
+		-fx-background-radius:0;
+		-fx-text-fill:WHITE;
+		-fx-pref-width:200;
+		-fx-max-width:200;
+		-fx-background-color: minor-color;
+		/*-fx-background-color:#5264AE;*/
+		-fx-font-size:14px;
+		/*-fx-background-color: rgb(102.0,153.0,102.0);*/
+}
+.fx-mc-picker-container{
+	-fx-background-color:major-color;
+	-fx-padding:5;
+}
+.mc-version-picker-table{
+
+}
+
+.table-view .table-cell{
+	-fx-border-width:0 0 0 0;
+	-fx-padding : 16 0 16 0 ;
+	-fx-alignment: top-center ;
+}
+
+.jfx-text-field, .jfx-password-field{
+	-fx-background-color: transparent ;
+    -fx-font-weight: BOLD;
+    -fx-font-color: GREY;
+    -fx-prompt-text-fill: #808080;
+    -fx-alignment: top-left ;
+    -jfx-focus-color: mics-color;
+    -jfx-unfocus-color: #4d4d4d;
+}
+
+.combo-text-field{
+	-fx-background-color: transparent;
+	-fx-prompt-text-fill: #808080;
+    -fx-alignment: top-left;
+    -fx-max-width: 200;
+    -fx-pref-width: 200;
+    -jfx-focus-color: mics-color;
+    -jfx-unfocus-color: #4d4d4d;
+}
+
+.login-field{
+	-fx-max-width:300;
+	-fx-pref-width:300;
+}
+
+.colored-button{
+	-fx-background-color:WHITE;
+	-fx-hover-background-color: crimson;
+	-jfx-button-type:RAISED;
+}
+
+
+/*.jfx-text-field, .jfx-password-field, .jfx-text-area{
+    *//*-fx-font-weight: BOLD;*//*
+    -fx-prompt-text-fill: #808080;
+    -fx-alignment: top-left ;
+    *//*-fx-max-width: 300.0;
+    -fx-pref-width:300.0;*//*
+    *//*-fx-focus-color: #4059A9;*//*
+    *//*-fx-focus-color: SADDLEBROWN;*//*
+    -fx-focus-color:#77C2BB;
+	*//*-fx-label-float: false;*//*
+    -fx-unfocus-color: #4d4d4d;
+}*/
+
+.jfx-text-field:error , .jfx-password-field:error , .jfx-text-area:error {
+	-fx-focus-color: #D34336;
+	/*-fx-focus-color: WHEAT;*/
+	-fx-unfocus-color: #D34336;
+}
+/*.table-view .column-header {
+	-fx-background-color:WHITESMOKE;
+}
+.table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}*/
+/*tab-header-area,tab-header-background,tab-selected-line,tab-label,tab-container,tab-down-button,tab-content-area*/
+/*.root{
+    -fx-font-family: 'Minecrafter'
+}*/
+

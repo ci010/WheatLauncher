@@ -1,0 +1,18 @@
+<?import com.jfoenix.controls.JFXTableView?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<StackPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
+           fx:controller="net.wheatlauncher.control.settings.ControllerDownload">
+    <HBox>
+        <Label text="%download.id"/>
+        <Label fx:id="downloadID"/>
+    </HBox>
+    <JFXTableView fx:id="taskTable" columnsDraggable="false" fixedSize="true">
+        <columns>
+            <TableColumn fx:id="downloadURL" text="%download.url"/>
+            <TableColumn fx:id="downloadProgress" text="%download.progress"/>
+        </columns>
+    </JFXTableView>
+</StackPane>

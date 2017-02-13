@@ -1,282 +1,221 @@
 package net.wheatlauncher;
 
-import javafx.beans.property.*;
-import javafx.collections.FXCollections;
-import net.wheatlauncher.launch.LaunchProfile;
-import net.wheatlauncher.utils.Logger;
-import org.to2mbn.jmccc.internal.org.json.JSONArray;
-import org.to2mbn.jmccc.internal.org.json.JSONObject;
-import org.to2mbn.jmccc.mcdownloader.MinecraftDownloaderBuilder;
-import org.to2mbn.jmccc.mcdownloader.RemoteVersionList;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.CombinedDownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.DownloadCallback;
-import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
-import org.to2mbn.jmccc.option.JavaEnvironment;
-import org.to2mbn.jmccc.option.MinecraftDirectory;
-import org.to2mbn.jmccc.util.IOUtils;
+import net.launcher.*;
+import net.launcher.game.ResourcePack;
+import net.launcher.game.forge.ForgeMod;
+import net.launcher.mod.ModManagerBuilder;
+import net.launcher.profile.LaunchProfileManager;
+import net.launcher.resourcepack.ResourcePackMangerBuilder;
+import net.launcher.version.IOGuardMinecraftAssetsManager;
+import net.launcher.version.MinecraftAssetsManager;
+import net.wheatlauncher.internal.io.IOGuardAuth;
+import net.wheatlauncher.internal.io.IOGuardContext;
+import net.wheatlauncher.internal.io.IOGuardContextScheduled;
+import net.wheatlauncher.internal.io.IOGuardProfile;
+import org.to2mbn.jmccc.launch.Launcher;
+import org.to2mbn.jmccc.launch.LauncherBuilder;
+import org.to2mbn.jmccc.launch.ProcessListener;
+import org.to2mbn.jmccc.option.LaunchOption;
 import org.to2mbn.jmccc.util.Platform;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Timer;
-import java.util.concurrent.ExecutorService;
+import java.util.Optional;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author ci010
  */
-public enum Core
+public class Core extends LaunchCore
 {
-	INSTANCE;
-	private RemoteVersionList versionList;
+	private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(4);
 
-	private ExecutorService executorService = Executors.newCachedThreadPool();
-	private Timer timer = new Timer(true);
+	private Path root;
+	private LaunchProfileManager profileManager;
+	private AuthProfile authProfile;
+	private MinecraftAssetsManager versionManager;
 
-	private final File root;
-	private final boolean isRootValid;
+	private IOGuardContext ioContext;
+	private DownloadCenter downloadCenter;
 
+	private WorldSaveMaintainer maintainer;
+
+	private Map<Class, LaunchElementManager> managers;
+
+	public Path getRoot()
 	{
-		File root;
-		switch (Platform.CURRENT)
-		{
-			case WINDOWS:
-				String appdata = System.getenv("APPDATA");
-				root = new File(appdata == null ? System.getProperty("user.home", ".") : appdata, ".launcher/");
-				break;
-			case LINUX:
-				root = new File(System.getProperty("user.home", "."), ".launcher/");
-				break;
-			case OSX:
-				root = new File("Library/Application Support/launcher/");
-				break;
-			default:
-				root = new File(System.getProperty("user.home", ".") + "/");
-		}
-		if (isRootValid = root.exists() || root.mkdir())
-			this.root = root;
-		else
-			this.root = new File("").getAbsoluteFile();
+		return root;
 	}
 
-	private ListProperty<MinecraftDirectory> mcHistory = new SimpleListProperty<>(FXCollections.observableArrayList
-			(new ArrayList<MinecraftDirectory>()
-			{
-				@Override
-				public boolean add(MinecraftDirectory minecraftDirectory)
-				{
-					return !contains(minecraftDirectory) && super.add(minecraftDirectory);
-				}
-			}));
-	private ListProperty<JavaEnvironment> javaHistory = new SimpleListProperty<>(FXCollections.observableArrayList());
-	private MapProperty<String, LaunchProfile> profileMapProperty = new SimpleMapProperty<>
-			(FXCollections.observableHashMap());
-	private ObjectProperty<LaunchProfile> selectLaunchProperty = new SimpleObjectProperty<LaunchProfile>()
+	public Path getProfilesRoot()
 	{
-		@Override
-		public void set(LaunchProfile newValue)
-		{
-			newValue.onApply();
-			super.set(newValue);
-		}
-	};
-
-	{
-		selectLaunchProperty.addListener((observable, oldValue, newValue) -> {
-			if (oldValue != null)
-			{
-
-			}
-			newValue.onApply();
-			newValue.minecraftLocationProperty().addListener(observable1 -> {
-			});
-		});
+		return root.resolve("profiles");
 	}
 
-	private Map<String, LaunchProfile> profileMap = new HashMap<>();
+	@Override
+	public Collection<LaunchElementManager> getAllElementsManagers()
+	{
+		return managers.values();
+	}
 
-	public LaunchProfile newProfile(String name, LaunchProfile parent)
+	@Override
+	@SuppressWarnings("unchecked")
+	public <T> Optional<LaunchElementManager<T>> getElementManager(Class<T> clz)
+	{
+		return Optional.ofNullable(managers.get(clz));
+	}
+
+	@Override
+	public LaunchProfileManager getProfileManager()
+	{
+		return this.profileManager;
+	}
+
+	@Override
+	public AuthProfile getAuthProfile()
+	{
+		return authProfile;
+	}
+
+	@Override
+	public MinecraftAssetsManager getAssetsManager()
+	{
+		return versionManager;
+	}
+
+	@Override
+	public DownloadCenter getDownloadCenter()
+	{
+		return downloadCenter;
+	}
+
+	@Override
+	protected LaunchOption buildOption()
 	{
 		return null;
 	}
 
-	public LaunchProfile getCurrentProfile()
+	@Override
+	protected Launcher buildLauncher()
 	{
-		return selectLaunchProfile().get();
+		return LauncherBuilder.create().nativeFastCheck(true).printDebugCommandline
+				(true).useDaemonThreads(true).build();
 	}
 
-	public ObjectProperty<LaunchProfile> selectLaunchProfile()
+	@Override
+	protected ProcessListener getProcessListener()
 	{
-		return selectLaunchProperty;
+		return new ProcessListener()
+		{
+			@Override
+			public void onLog(String log)
+			{
+				System.out.println(log);
+			}
+
+			@Override
+			public void onErrorLog(String log)
+			{
+				System.out.println(log);
+			}
+
+			@Override
+			public void onExit(int code)
+			{
+				System.out.println("exit " + code);
+			}
+		};
 	}
 
-	public ExecutorService getService()
+	@Override
+	public void init() throws Exception
+	{
+		Logger.trace("Start to init");
+
+		this.initRoot();
+
+		this.maintainer = new WorldSaveMaintainer(root.resolve("saves"));
+		this.downloadCenter = new DownloadCenterImpl();
+		this.managers = new HashMap<>();
+		this.managers.put(ForgeMod.class, ModManagerBuilder.create(
+				this.getRoot().resolve("mods"),
+				this.executorService).build());
+		this.managers.put(ResourcePack.class, ResourcePackMangerBuilder.create(
+				this.getRoot().resolve("resourcepacks"),
+				this.executorService).build());
+
+		Optional<LaunchElementManager<ResourcePack>> optional = getElementManager(ResourcePack.class);
+		LaunchElementManager<ResourcePack> manager = optional.get();
+
+		//main module io start
+		this.ioContext = IOGuardContextScheduled.Builder.create(this.root, executorService)
+				.register(LaunchProfileManager.class, new IOGuardProfile())
+				.register(AuthProfile.class, new IOGuardAuth())
+				.register(MinecraftAssetsManager.class, new IOGuardMinecraftAssetsManager())
+				.build();
+		this.authProfile = ioContext.load(AuthProfile.class);
+		this.versionManager = ioContext.load(MinecraftAssetsManager.class);
+		this.profileManager = ioContext.load(LaunchProfileManager.class);
+		this.versionManager.getRepository().update();
+
+		//main module io end
+		assert profileManager.getSelectedProfile() != null;
+		assert profileManager.selecting() != null;
+
+		Logger.trace("Complete init");
+	}
+
+	private void initRoot() throws IOException
+	{
+		Path root;
+		switch (Platform.CURRENT)
+		{
+			case WINDOWS:
+				String appdata = System.getenv("APPDATA");
+				root = Paths.get(appdata == null ? System.getProperty("user.home", ".") : appdata, ".launcher/");
+				break;
+			case LINUX:
+				root = Paths.get(System.getProperty("user.home", "."), ".launcher/");
+				break;
+			case OSX:
+				root = Paths.get("Library/Application Support/launcher/");
+				break;
+			default:
+				root = Paths.get(System.getProperty("user.home", ".") + "/");
+		}
+		if (!Files.exists(root))
+			Files.createDirectories(root);
+		this.root = root;
+		Files.createDirectories(getProfilesRoot());
+	}
+
+	@Override
+	public void destroy() throws IOException
+	{
+		try {ioContext.saveAll();}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		executorService.shutdown();
+		Logger.trace("Shutdown");
+	}
+
+	@Override
+	public ScheduledExecutorService getService()
 	{
 		return executorService;
 	}
 
-	public ListProperty<MinecraftDirectory> getMinecraftLocationHistory()
+	@Override
+	public ScheduledExecutorService getService(String id)
 	{
-		return mcHistory;
-	}
-
-	public ListProperty<JavaEnvironment> getJavaHistory()
-	{
-		return javaHistory;
-	}
-
-	public MapProperty<String, LaunchProfile> profileMapProperty()
-	{
-		return profileMapProperty;
-	}
-
-	public File getRoot()
-	{
-		return root;
-	}
-
-	public File getArchivesRoot()
-	{
-		return new File(root, "archives");
-	}
-
-	public File getBackupRoot()
-	{
-		return new File(root, "backup");
-	}
-
-	public File getFileFromRoot(String fileName)
-	{
-		File rt = getRoot();
-		if (!rt.exists())
-			if (!rt.mkdir())
-				return null;
-		File f = new File(rt, fileName);
-		if (!f.exists())
-			return null;
-		return f;
-	}
-
-	public RemoteVersionList getVersionList()
-	{
-		return versionList;
-	}
-
-	public Timer getTimer()
-	{
-		return timer;
-	}
-
-	void onDestroy()
-	{
-
-	}
-
-	void onInit()
-	{
-
-		Logger.trace(root);
-		File configFile = getFileFromRoot("wheat.json");
-		JSONObject root;
-		if (configFile == null)
-			root = getDefaultConfig();
-		else try {root = IOUtils.toJson(configFile);}
-		catch (IOException e) {root = getDefaultConfig();}
-		this.loadJson(root);
-
-		MinecraftDownloaderBuilder.buildDefault().fetchRemoteVersionList(new CombinedDownloadCallback<RemoteVersionList>()
-		{
-			@Override
-			public <R> DownloadCallback<R> taskStart(DownloadTask<R> task) {return null;}
-
-			@Override
-			public void done(RemoteVersionList result)
-			{
-				versionList = result;
-			}
-
-			@Override
-			public void failed(Throwable e) {}
-
-			@Override
-			public void cancelled() {}
-		});
-	}
-
-	private void loadJson(JSONObject root)
-	{
-		this.loadMcHistory(root.getJSONArray("minecraft-history"));
-		this.loadJavaLoc(root.getJSONArray("java-history"));
-		JSONArray profiles = root.getJSONArray("profiles");
-		for (int i = 0; i < profiles.length(); i++)
-		{
-			LaunchProfile deserialize = LaunchProfile.SERIALIZER.deserialize(profiles.getJSONObject(i));
-			if (deserialize != null)
-				this.profileMap.put(deserialize.getName(), deserialize);
-		}
-		String selecting = root.getString("selecting");
-		Logger.trace("selecting profile");
-		this.selectLaunchProfile().setValue(profileMap.get(selecting));
-
-//		JSONObject repositories = root.getJSONObject("repositories");
-		////// These methods will be more generic...
-//		loadModLoc(repositories.getJSONObject("mods"));
-		/////
-	}
-
-	private void loadMcHistory(JSONArray arr)
-	{
-		for (int i = 0; i < arr.length(); i++)
-		{
-			File file = new File(arr.getString(i));
-			if (file.isFile())
-				javaHistory.add(new JavaEnvironment(file));
-		}
-	}
-
-	private void loadJavaLoc(JSONArray arr)
-	{
-		for (int i = 0; i < arr.length(); i++)
-		{
-			File file = new File(arr.getString(i));
-			if (file.isFile())
-				mcHistory.add(new MinecraftDirectory(file));
-		}
-	}
-
-	public void tryLaunch()
-	{
-		selectLaunchProfile().get().launch();
-	}
-
-	private JSONObject getDefaultConfig()
-	{
-		JSONObject root = new JSONObject();
-		JSONArray profiles = new JSONArray();
-
-		JSONObject profileSetting = new JSONObject();
-		profileSetting.put("name", "default");
-		profileSetting.put("minecraft", new File(".minecraft").getAbsolutePath());
-		profileSetting.put("java", JavaEnvironment.getCurrentJavaPath().getAbsolutePath());
-		profileSetting.put("memory", 512);
-		profileSetting.put("online-mode", "disable");
-
-		profiles.put(profileSetting);
-
-		JSONArray javas = new JSONArray();
-		javas.put(profileSetting.getString("java"));
-
-		root.put("profiles", profiles);
-		root.put("minecraft-history", new JSONArray());
-		root.put("java-history", javas);
-		root.put("selecting", "default");
-
-//		JSONObject repository = new JSONObject();
-//		root.put("repository", repository);
-
-		return root;
+		return executorService;
 	}
 }

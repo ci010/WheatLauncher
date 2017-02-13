@@ -1,69 +1,23 @@
 package net.wheatlauncher.utils;
 
 import javafx.beans.property.Property;
-import javafx.beans.value.ObservableValue;
 import javafx.beans.value.WritableValue;
-
-import java.util.StringJoiner;
 
 /**
  * @author ci010
  */
-public interface StrictProperty<T> extends Property<T>
+public interface StrictProperty<T> extends StatedProperty<T>
 {
-	ObservableValue<State> state();
-
 	Property<Validator<T>> validator();
 
-	Validator<Object> NON_NULL = (Validator<Object>) (writableValue, v) -> {
-		Logger.trace("try validate " + v);
+	Validator<Object> NON_NULL = (Validator<Object>) (writableValue, v) ->
+	{
 		if (v != null)
-			writableValue.setValue(State.of(EnumState.PASS));
-		else writableValue.setValue(State.of(EnumState.FAIL, "null"));
+			writableValue.setValue(State.of(State.Values.PASS));
+		else writableValue.setValue(State.of(State.Values.FAIL, "null"));
 	};
 
-
-	class State
-	{
-		private EnumState state;
-		private String cause;
-
-		public static State of(EnumState state, String... cause)
-		{
-			if (cause != null && cause.length > 0)
-			{
-				StringJoiner stringJoiner = new StringJoiner(".");
-				for (String s : cause)
-					stringJoiner.add(s);
-				return new State(state, stringJoiner.toString());
-			}
-			return new State(state, "");
-		}
-
-		private State(EnumState state, String cause)
-		{
-			this.state = state;
-			this.cause = cause;
-		}
-
-		public EnumState getState() {return state;}
-
-		public String getCause() {return cause;}
-	}
-
-	enum EnumState
-	{
-		FAIL, PENDING, PASS;
-
-		public boolean isPass() {return this == PASS;}
-
-		public EnumState and(EnumState state)
-		{
-			return this.ordinal() < state.ordinal() ? this : state;
-		}
-	}
-
-	State PASS = State.of(EnumState.PASS);
+	State PASS = State.of(State.Values.PASS);
 
 	interface Validator<T>
 	{

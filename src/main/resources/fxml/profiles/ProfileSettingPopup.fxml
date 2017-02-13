@@ -1,0 +1,72 @@
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<JFXPopup fx:id="profilePopup" xmlns:fx="http://javafx.com/fxml/1"
+          xmlns="http://javafx.com/javafx/2.2"
+          fx:controller="net.wheatlauncher.control.profiles.ControllerSettingProfile">
+    <StackPane fx:id="dialogHolder">
+        <JFXDialog fx:id="newProfileDialog" transitionType="CENTER">
+            <JFXDialogLayout>
+                <heading>
+                    <Label StackPane.alignment="CENTER" text="%profile.create"/>
+                </heading>
+                <body>
+                    <JFXTextField fx:id="newProfileTextField"
+                                  promptText="%profile.create.name" maxWidth="50"/>
+                </body>
+                <actions>
+                    <JFXButton fx:id="cancelNewProfile" styleClass="dialog-accept"
+                               text="%profile.cancel"/>
+                    <HBox prefWidth="20"/>
+                    <JFXButton fx:id="acceptNewProfile" styleClass="dialog-accept"
+                               onAction="#acceptCreate"
+                               text="%profile.accept"/>
+                </actions>
+            </JFXDialogLayout>
+        </JFXDialog>
+
+        <JFXDialog fx:id="renameProfileDialog" transitionType="CENTER">
+            <JFXDialogLayout maxWidth="210">
+                <heading>
+                    <Label StackPane.alignment="CENTER" text="%profile.rename"/>
+                </heading>
+                <body>
+                    <JFXTextField fx:id="renameProfileTextField" promptText="New Name" maxWidth="210"/>
+                </body>
+                <actions>
+                    <JFXButton fx:id="cancelRename" styleClass="dialog-accept"
+                               text="%profile.cancel"/>
+                    <HBox prefWidth="20"/>
+                    <JFXButton fx:id="acceptRename" styleClass="dialog-accept"
+                               onAction="#acceptRename"
+                               text="%profile.accept"/>
+                </actions>
+            </JFXDialogLayout>
+        </JFXDialog>
+
+        <JFXDialog fx:id="deleteProfileDialog">
+            <JFXDialogLayout>
+                <heading>
+                    <Label StackPane.alignment="CENTER" text="%profile.delete"></Label>
+                </heading>
+                <body>
+                    <Label text="%profile.delete.warning"/>
+                </body>
+                <actions>
+                    <JFXButton fx:id="cancelDelete" styleClass="dialog-accept">CANCEL
+                    </JFXButton>
+                    <HBox prefWidth="20"/>
+                    <JFXButton fx:id="acceptDelete" styleClass="dialog-accept" onAction="#acceptDelete">ACCEPT
+                    </JFXButton>
+                </actions>
+            </JFXDialogLayout>
+        </JFXDialog>
+    </StackPane>
+    <JFXListView fx:id="optionList" styleClass="options-list-view">
+        <Label fx:id="renameProfile" text="%profile.rename"/>
+        <Label fx:id="newProfile" text="%profile.create"/>
+        <Label fx:id="deleteProfile" text="%profile.delete"/>
+    </JFXListView>
+</JFXPopup>
+
+

@@ -1,0 +1,14 @@
+language: java
+before_install:
+ - chmod +x gradlew
+#install:
+# - ./gradlew check
+# - ./gradlew assemble
+jdk:
+  - oraclejdk8
+
+sudo: false
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer

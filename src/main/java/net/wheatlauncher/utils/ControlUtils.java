@@ -5,7 +5,7 @@ import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.StackPane;
-import net.wheatlauncher.gui.FXMLInnerController;
+import net.wheatlauncher.control.utils.FXMLInnerController;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Field;
@@ -27,7 +27,7 @@ public class ControlUtils
 				{
 					Object cont = field.get(o);
 					if (cont != null) setupController(cont, context);
-					else throw new RuntimeException("The inner controller is null.");
+					else throw new RuntimeException("The inner controller is null. "+o.getClass()+" "+field.getName());
 				}
 				catch (IllegalAccessException e)
 				{
@@ -47,7 +47,7 @@ public class ControlUtils
 				{
 					Object cont = field.get(o);
 					if (cont != null) setupController(cont, context);
-					else throw new RuntimeException("The inner controller is null.");
+					else throw new RuntimeException("The inner controller is null. "+ o.getClass());
 				}
 				catch (IllegalAccessException e)
 				{

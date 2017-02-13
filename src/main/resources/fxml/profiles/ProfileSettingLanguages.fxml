@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXTableView?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import net.launcher.control.MinecraftOptionButton?>
+<StackPane fx:id="root" alignment="TOP_CENTER" maxHeight="307.0" prefHeight="307.0" prefWidth="515.0"
+           style="-fx-padding:10; -fx-background-color:WHITE;" xmlns="http://javafx.com/javafx/8.0.111"
+           xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.wheatlauncher.control.profiles.ControllerLanguages">
+    <VBox spacing="10">
+        <JFXTableView fx:id="languageTable" columnsDraggable="false" prefHeight="300" prefWidth="200">
+            <columns>
+                <TableColumn fx:id="id" editable="false" prefWidth="100.0" resizable="false"
+                             text="%setting.languages.id"/>
+                <TableColumn fx:id="name" editable="false" prefWidth="100.0" resizable="false"
+                             text="%setting.languages.name"/>
+                <TableColumn fx:id="region" editable="false" prefWidth="100.0" resizable="false"
+                             text="%setting.languages.region"/>
+                <TableColumn fx:id="bidi" editable="false" prefWidth="100.0" resizable="false"
+                             text="%setting.languages.bidi"/>
+            </columns>
+        </JFXTableView>
+        <BorderPane>
+            <left>
+                <JFXTextField fx:id="search" prefWidth="160" maxWidth="160" alignment="CENTER"
+                              promptText="%language.search"/>
+
+            </left>
+            <center>
+                <MinecraftOptionButton fx:id="useUnicode" key="%language.unicode"/>
+            </center>
+            <right>
+                <JFXButton fx:id="confirm" text="%setting.languages.confirm" styleClass="options-button"
+                           style="-fx-pref-width:100;
+		-fx-max-width:100;"/>
+            </right>
+        </BorderPane>
+    </VBox>
+</StackPane>
