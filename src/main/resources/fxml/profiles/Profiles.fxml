@@ -8,12 +8,11 @@
            xmlns="http://javafx.com/javafx/2.2"
            fx:controller="net.wheatlauncher.control.profiles.ControllerProfiles"
            transitionType="CENTER" maxWidth="1000">
-    <VBox fx:id="root" minWidth="500" prefWidth="500" prefHeight="300"
+    <VBox minWidth="500" prefWidth="500" prefHeight="300"
           maxHeight="Infinity"
-          spacing="30" alignment="CENTER">
-        <!-- hgap="30" vgap="30"-->
-        <HBox spacing="30" maxWidth="1000">
-            <VBox spacing="10" alignment="TOP_CENTER"
+          spacing="20" alignment="CENTER">
+        <HBox spacing="100" maxWidth="1000" alignment="CENTER">
+            <VBox spacing="10" alignment="TOP_CENTER" prefWidth="175" maxWidth="175"
                   style="-fx-background-color:WHITE;">
                 <StackPane style="-fx-background-color:major-color; -fx-padding: 10">
                     <HBox alignment="CENTER" spacing="5" style="-fx-padding: 10">
@@ -22,12 +21,10 @@
                     </HBox>
                 </StackPane>
                 <StackPane style="-fx-padding:10">
-                    <ProfileTableSelector fx:id="profile" maxWidth="100" prefWidth="100"/>
-                    <!--<JFXComboBox fx:id="profile"
-                                 promptText="%profile" maxWidth="100"/>-->
+                    <ProfileTableSelector fx:id="profile" maxWidth="250" prefWidth="200"/>
                 </StackPane>
             </VBox>
-            <VBox alignment="CENTER" spacing="10"
+            <VBox alignment="CENTER" spacing="10" prefWidth="175" maxWidth="175"
                   style="-fx-background-color:WHITE;">
                 <StackPane style="-fx-background-color:major-color; -fx-padding: 10">
                     <Label text="%version"

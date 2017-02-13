@@ -7,9 +7,9 @@ import java.nio.file.Path;
 /**
  * @author ci010
  */
-class FetchUtils
+public class FetchUtils
 {
-	static void fetch(Path from, Path to, Repository.FetchOption option) throws IOException
+	public static void fetch(Path from, Path to, Repository.FetchOption option) throws IOException
 	{
 		if (option == null)
 			option = Repository.FetchOption.SYMBOL_LINK;

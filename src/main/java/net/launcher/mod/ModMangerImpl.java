@@ -7,8 +7,8 @@ import net.launcher.LaunchElementManager;
 import net.launcher.OptionLaunchElementManager;
 import net.launcher.game.forge.ForgeMod;
 import net.launcher.profile.LaunchProfile;
-import net.launcher.setting.GameSetting;
-import net.launcher.setting.GameSettingType;
+import net.launcher.setting.Setting;
+import net.launcher.setting.SettingType;
 import net.launcher.utils.resource.ArchiveRepository;
 import net.launcher.utils.resource.Repository;
 import org.to2mbn.jmccc.option.LaunchOption;
@@ -74,13 +74,13 @@ class ModMangerImpl extends OptionLaunchElementManager<ForgeMod, String[]> imple
 	}
 
 	@Override
-	protected GameSettingType.Option<String[]> getOption()
+	protected SettingType.Option<String[]> getOption()
 	{
-		return GameSettingMod.INSTANCE.MODS;
+		return SettingMod.INSTANCE.MODS;
 	}
 
 	@Override
-	protected void implementRuntimePath(LaunchProfile profile, Path path, GameSetting instance, LaunchOption option)
+	protected void implementRuntimePath(LaunchProfile profile, Path path, Setting instance, LaunchOption option)
 	{
 		ObservableList<ForgeMod> forgeMods = cache.get();
 		if (forgeMods == null)

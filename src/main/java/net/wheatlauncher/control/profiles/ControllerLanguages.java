@@ -1,25 +1,34 @@
 package net.wheatlauncher.control.profiles;
 
+import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTableView;
-import com.jfoenix.controls.RecursiveTreeItem;
-import com.jfoenix.controls.datamodels.treetable.RecursiveTreeObject;
+import com.jfoenix.controls.JFXTextField;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.layout.StackPane;
+import net.launcher.Bootstrap;
 import net.launcher.Logger;
+import net.launcher.control.MinecraftOptionButton;
 import net.launcher.game.Language;
+import net.launcher.profile.LaunchProfile;
+import net.launcher.profile.LaunchProfileManager;
+import net.launcher.version.MinecraftAssetsManager;
+import net.launcher.version.MinecraftVersion;
 import net.wheatlauncher.control.utils.ReloadableController;
 import net.wheatlauncher.control.utils.WindowsManager;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
+import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * @author ci010
@@ -29,76 +38,81 @@ public class ControllerLanguages implements ReloadableController
 	@FXMLViewFlowContext
 	public ViewFlowContext context;
 	public StackPane root;
-	public JFXTableView<LanguageCell> languageTable;
-	public TableColumn<LanguageCell, String> id;
-	public TableColumn<LanguageCell, String> useUnicode;
-	public TableColumn<LanguageCell, String> name;
-	public TableColumn<LanguageCell, String> region;
-	public TableColumn<LanguageCell, String> bidi;
+	public JFXTableView<Language> languageTable;
+	public TableColumn<Language, String> id;
+	public TableColumn<Language, String> name;
+	public TableColumn<Language, String> region;
+	public TableColumn<Language, String> bidi;
+
+	public JFXTextField search;
+	public MinecraftOptionButton useUnicode;
+	public JFXButton confirm;
 
 	@Override
 	public void reload()
 	{
-		try
-		{
-			updateLanguageList();
-		}
-		catch (IOException | NoSuchAlgorithmException e)
-		{
-			context.getRegisteredObject(WindowsManager.Page.class).displayError(e);
-		}
 	}
 
 	@Override
 	public void unload()
+	{}
+
+	private InvalidationListener refresh = observable -> refresh();
+
+	private ChangeListener<MinecraftVersion> listener = (observable, oldV, newV) ->
 	{
+		if (oldV != null) oldV.stateProperty().removeListener(refresh);
+		if (newV != null) newV.stateProperty().addListener(refresh);
+	};
 
-	}
+	private ObservableList<Language> languageLists;
 
-	static class LanguageCell extends RecursiveTreeObject<LanguageCell>
+	private void refresh()
 	{
-		private StringProperty id = new SimpleStringProperty(), name = new SimpleStringProperty(),
-				region = new SimpleStringProperty(), bidi = new SimpleStringProperty();
-
-		public LanguageCell(Language language)
-		{
-			this.id.set(language.getId());
-			this.name.set(language.getName());
-			this.region.set(language.getRegion());
-			this.bidi.set(Boolean.toString(language.isBidirectional()));
-		}
+		LaunchProfile selecting = Bootstrap.getCore().getProfileManager().selecting();
+		MinecraftAssetsManager assetsManager = Bootstrap.getCore().getAssetsManager();
+		MinecraftVersion version = assetsManager.getVersion(selecting.getVersion());
+		Logger.trace("refresh lang " + version);
+		if (version != null)
+			try
+			{
+				List<Language> languages = assetsManager.getRepository().getLanguages(version);
+				languageLists.setAll(languages);
+			}
+			catch (IOException e)
+			{
+				context.getRegisteredObject(WindowsManager.Page.class).displayError(e);
+			}
 	}
-
-	private ObservableList<LanguageCell> languageLists;
 
 	@PostConstruct
 	public void init()
 	{
-		languageLists = FXCollections.observableArrayList();
-		RecursiveTreeItem<LanguageCell> recursiveTreeItem = new RecursiveTreeItem<>(languageLists,
-				RecursiveTreeObject::getChildren);
-
 		Logger.trace("");
-		System.out.println(languageLists.isEmpty());
-		root.disableProperty().bind(Bindings.createBooleanBinding(() ->
-				languageLists.isEmpty(), languageLists));
-//		languageTable.setRoot(recursiveTreeItem);
+		languageLists = FXCollections.observableArrayList();
+		FilteredList<Language> filteredList = new FilteredList<>(languageLists);
+		filteredList.predicateProperty().bind(Bindings.createObjectBinding(() ->
+				(Predicate<Language>) language -> language.getId().contains(search.getText()) ||
+						language.getName().contains(search.getText()) ||
+						language.getRegion().contains(search.getText()), search.textProperty()));
+		SortedList<Language> sortedList = new SortedList<>(filteredList);
+		sortedList.comparatorProperty().bind(languageTable.comparatorProperty());
+		languageTable.setItems(sortedList);
+		id.setCellValueFactory(param -> Bindings.createStringBinding(() -> param.getValue().getId()));
+		region.setCellValueFactory(param -> Bindings.createStringBinding(() -> param.getValue().getRegion()));
+		name.setCellValueFactory(param -> Bindings.createStringBinding(() -> param.getValue().getName()));
+		bidi.setCellValueFactory(param -> Bindings.createStringBinding(() -> String.valueOf(param.getValue().isBidirectional())));
+		confirm.setOnAction(event ->
+		{
+			//toggle language
+		});
+		Bootstrap.getCore().getProfileManager().selectedProfileProperty().addListener((observable, oldV, newV) ->
+		{
+			LaunchProfileManager profileManager = Bootstrap.getCore().getProfileManager();
+			profileManager.getProfile(oldV).ifPresent(profile -> profile.versionBinding().removeListener(listener));
+			profileManager.getProfile(newV).ifPresent(profile -> profile.versionBinding().addListener(listener));
+		});
+		refresh();
 	}
 
-	private void updateLanguageList() throws IOException, NoSuchAlgorithmException
-	{
-//		languageLists.clear();
-//		LaunchProfile p = Bootstrap.getCore().getProfileManager().selecting();
-//		Version version = Versions.resolveVersion(p.getMinecraftLocation(), p.getVersion());
-//		if (version == null) return;
-//		Asset languageIndex = Versions.resolveAssets(p.getMinecraftLocation(), version).stream().filter(a -> a
-//				.getPath().equals("pack.mcmeta")).collect(Collectors.toList()).get(0);
-//		if (languageIndex.isValid(p.getMinecraftLocation()))
-//		{
-//			File asset = p.getMinecraftLocation().getAsset(languageIndex);
-//			JSONObject jsonObject = IOUtils.toJson(asset);
-//			Language[] languages = Language.deserializer().deserialize(jsonObject);
-//			languageLists.addAll(Arrays.stream(languages).map(LanguageCell::new).collect(Collectors.toList()));
-//		}
-	}
 }

@@ -1,6 +1,7 @@
 package net.wheatlauncher.internal.io;
 
 import javafx.beans.Observable;
+import net.launcher.Logger;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -69,6 +70,7 @@ public class IOGuardContextScheduled implements IOGuardContext
 	@Override
 	public void enqueue(IOTask task)
 	{
+		Logger.trace("enqueue " + task);
 		boolean merged = false;
 		for (IOTask ioTask : tasks)
 			if (ioTask.canMerge(task)) merged = true;

@@ -5,46 +5,46 @@ import javafx.beans.property.SimpleStringProperty;
 /**
  * @author ci010
  */
-public class OptionString extends GameSettingType.Option<String>
+public class OptionString extends SettingType.Option<String>
 {
 	private String string;
 
-	public OptionString(GameSettingType parent, String name, String string)
+	public OptionString(SettingType parent, String name, String string)
 	{
 		super(parent, name);
 		this.string = string;
 	}
 
 	@Override
-	public GameSettingProperty<String> getDefaultValue(GameSetting gameSetting)
+	public SettingProperty<String> getDefaultValue(Setting setting)
 	{
-		return new PropertyString(gameSetting, this.getName(), string, this);
+		return new PropertyString(setting, this.getName(), string, this);
 	}
 
 	@Override
-	public String deserialize(GameSetting gameSetting, String string)
+	public String deserialize(Setting setting, String string)
 	{
 		return string;
 	}
 
-	public static class PropertyString extends SimpleStringProperty implements GameSettingProperty<String>
+	public static class PropertyString extends SimpleStringProperty implements SettingProperty<String>
 	{
-		private GameSettingType.Option<String> option;
+		private SettingType.Option<String> option;
 
-		public PropertyString(GameSetting bean, String name, String initialValue, GameSettingType.Option<String> option)
+		public PropertyString(Setting bean, String name, String initialValue, SettingType.Option<String> option)
 		{
 			super(bean, name, initialValue);
 			this.option = option;
 		}
 
 		@Override
-		public GameSetting getBean()
+		public Setting getBean()
 		{
-			return (GameSetting) super.getBean();
+			return (Setting) super.getBean();
 		}
 
 		@Override
-		public GameSettingType.Option<String> getOption()
+		public SettingType.Option<String> getOption()
 		{
 			return option;
 		}

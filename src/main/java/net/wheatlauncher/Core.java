@@ -1,16 +1,13 @@
 package net.wheatlauncher;
 
-import net.launcher.AuthProfile;
-import net.launcher.LaunchCore;
-import net.launcher.LaunchElementManager;
-import net.launcher.Logger;
+import net.launcher.*;
 import net.launcher.game.ResourcePack;
 import net.launcher.game.forge.ForgeMod;
 import net.launcher.mod.ModManagerBuilder;
 import net.launcher.profile.LaunchProfileManager;
 import net.launcher.resourcepack.ResourcePackMangerBuilder;
-import net.launcher.version.IOGuardMinecraftVersionManager;
-import net.launcher.version.MinecraftVersionManager;
+import net.launcher.version.IOGuardMinecraftAssetsManager;
+import net.launcher.version.MinecraftAssetsManager;
 import net.wheatlauncher.internal.io.IOGuardAuth;
 import net.wheatlauncher.internal.io.IOGuardContext;
 import net.wheatlauncher.internal.io.IOGuardContextScheduled;
@@ -42,9 +39,10 @@ public class Core extends LaunchCore
 	private Path root;
 	private LaunchProfileManager profileManager;
 	private AuthProfile authProfile;
-	private MinecraftVersionManager versionManager;
+	private MinecraftAssetsManager versionManager;
 
 	private IOGuardContext ioContext;
+	private DownloadCenter downloadCenter;
 
 	private WorldSaveMaintainer maintainer;
 
@@ -86,9 +84,15 @@ public class Core extends LaunchCore
 	}
 
 	@Override
-	public MinecraftVersionManager getVersionManager()
+	public MinecraftAssetsManager getAssetsManager()
 	{
 		return versionManager;
+	}
+
+	@Override
+	public DownloadCenter getDownloadCenter()
+	{
+		return downloadCenter;
 	}
 
 	@Override
@@ -137,7 +141,7 @@ public class Core extends LaunchCore
 		this.initRoot();
 
 		this.maintainer = new WorldSaveMaintainer(root.resolve("saves"));
-
+		this.downloadCenter = new DownloadCenterImpl();
 		this.managers = new HashMap<>();
 		this.managers.put(ForgeMod.class, ModManagerBuilder.create(
 				this.getRoot().resolve("mods"),
@@ -153,10 +157,10 @@ public class Core extends LaunchCore
 		this.ioContext = IOGuardContextScheduled.Builder.create(this.root, executorService)
 				.register(LaunchProfileManager.class, new IOGuardProfile())
 				.register(AuthProfile.class, new IOGuardAuth())
-				.register(MinecraftVersionManager.class, new IOGuardMinecraftVersionManager())
+				.register(MinecraftAssetsManager.class, new IOGuardMinecraftAssetsManager())
 				.build();
 		this.authProfile = ioContext.load(AuthProfile.class);
-		this.versionManager = ioContext.load(MinecraftVersionManager.class);
+		this.versionManager = ioContext.load(MinecraftAssetsManager.class);
 		this.profileManager = ioContext.load(LaunchProfileManager.class);
 		this.versionManager.getRepository().update();
 

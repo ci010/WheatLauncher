@@ -8,7 +8,7 @@ import org.to2mbn.jmccc.option.LaunchOption;
  */
 public interface LaunchManager
 {
-	void onLaunch(LaunchOption option, LaunchProfile profile);
+	void onLaunch(LaunchOption option, LaunchProfile profile) throws Exception;
 
 	void onClose(LaunchOption option, LaunchProfile profile);
 }

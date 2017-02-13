@@ -5,13 +5,13 @@ import javafx.beans.property.SimpleIntegerProperty;
 /**
  * @author ci010
  */
-public class OptionInt extends GameSettingType.Option<Number>
+public class OptionInt extends SettingType.Option<Number>
 {
 	private int min, max;
 	private int defValue;
 	private int step = 1;
 
-	public OptionInt(GameSettingType parent, String name, int defaultV, int min, int max)
+	public OptionInt(SettingType parent, String name, int defaultV, int min, int max)
 	{
 		super(parent, name);
 		this.defValue = defaultV;
@@ -37,22 +37,22 @@ public class OptionInt extends GameSettingType.Option<Number>
 		return this;
 	}
 
-	public GameSettingProperty<Number> getDefaultValue(GameSetting gameSetting)
+	public SettingProperty<Number> getDefaultValue(Setting setting)
 	{
-		return new PropertyInt(gameSetting, this.getName(), defValue, this);
+		return new PropertyInt(setting, this.getName(), defValue, this);
 	}
 
 	@Override
-	public Number deserialize(GameSetting gameSetting, String s)
+	public Number deserialize(Setting setting, String s)
 	{
 		return Integer.valueOf(s);
 	}
 
-	public static class PropertyInt extends SimpleIntegerProperty implements GameSettingProperty<Number>
+	public static class PropertyInt extends SimpleIntegerProperty implements SettingProperty<Number>
 	{
 		private OptionInt option;
 
-		public PropertyInt(GameSetting bean, String name, int initialValue, OptionInt optionInt)
+		public PropertyInt(Setting bean, String name, int initialValue, OptionInt optionInt)
 		{
 			super(bean, name, initialValue);
 			this.option = optionInt;
@@ -67,13 +67,13 @@ public class OptionInt extends GameSettingType.Option<Number>
 		}
 
 		@Override
-		public GameSetting getBean()
+		public Setting getBean()
 		{
-			return (GameSetting) super.getBean();
+			return (Setting) super.getBean();
 		}
 
 		@Override
-		public GameSettingType.Option<Number> getOption() {return option;}
+		public SettingType.Option<Number> getOption() {return option;}
 	}
 
 }

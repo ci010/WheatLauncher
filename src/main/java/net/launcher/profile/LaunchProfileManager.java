@@ -1,5 +1,7 @@
 package net.launcher.profile;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -112,7 +114,12 @@ public class LaunchProfileManager
 
 	public ObservableList<LaunchProfile> getAllProfiles() {return this.profiles;}
 
-	public LaunchProfile selecting() {return getProfilesMap().get(getSelectedProfile());}
+	private ObjectBinding<LaunchProfile> selectingInstance = Bindings.createObjectBinding(() ->
+			getProfilesMap().get(getSelectedProfile()), selectedProfileProperty());
+
+	public ObjectBinding<LaunchProfile> selectingInstanceBinding() {return selectingInstance;}
+
+	public LaunchProfile selecting() {return selectingInstance.get();}
 
 	private void doCopy(LaunchProfile launchProfile, LaunchProfile copy)
 	{

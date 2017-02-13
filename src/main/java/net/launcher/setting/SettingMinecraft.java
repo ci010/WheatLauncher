@@ -15,14 +15,14 @@ import java.util.stream.Collectors;
 /**
  * @author ci010
  */
-public class GameSettingMinecraft extends GameSettingType
+public class SettingMinecraft extends SettingType
 {
-	public static final GameSettingMinecraft INSTANCE;
+	public static final SettingMinecraft INSTANCE;
 
 	static
 	{
-		GameSettingManager.register(GameSettingMinecraft.class);
-		INSTANCE = (GameSettingMinecraft) GameSettingManager.find("Minecraft").orElse(null);
+		SettingManager.register(SettingMinecraft.class);
+		INSTANCE = (SettingMinecraft) SettingManager.find("Minecraft").orElse(null);
 	}
 
 	public final OptionInt
@@ -78,13 +78,13 @@ public class GameSettingMinecraft extends GameSettingType
 	}
 
 	@Override
-	public GameSetting load(Path minecraftFolder) throws IOException
+	public Setting load(Path minecraftFolder) throws IOException
 	{
 		Path path = minecraftFolder.resolve("options.txt");
 		if (!Files.exists(path))
 			return defaultInstance();
 
-		GameSetting instance = defaultInstance();
+		Setting instance = defaultInstance();
 		Map<String, ? extends Option<?>> optionMap = getAllOption().stream()
 				.collect(Collectors.toMap(Option::getName, Function.identity()));
 
@@ -100,17 +100,13 @@ public class GameSettingMinecraft extends GameSettingType
 	}
 
 	@Override
-	public GameSetting defaultInstance()
+	public Setting defaultInstance()
 	{
-		List<GameSettingProperty<?>> properties = new ArrayList<>();
-		GameSetting instance = GameSetting.of(this, properties);
-		for (Option<?> option : all)
-			properties.add(option.getDefaultValue(instance));
-		return instance;
+		return Setting.of(this);
 	}
 
 	@Override
-	public void save(Path directory, GameSetting setting) throws IOException
+	public void save(Path directory, Setting setting) throws IOException
 	{
 		List<Option<?>> allOption = getAllOption();
 		Path path = directory.resolve("options.txt");

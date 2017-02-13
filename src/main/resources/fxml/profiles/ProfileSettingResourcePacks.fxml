@@ -7,21 +7,21 @@
            xmlns="http://javafx.com/javafx/2.2"
            fx:controller="net.wheatlauncher.control.profiles.ControllerResourcePackView">
     <VBox>
-        <HBox spacing="10" style="-fx-padding:10">
-            <VBox alignment="CENTER" style="-fx-background-color:WHITE;">
+        <HBox spacing="10" style="-fx-padding:10" maxWidth="Infinity">
+            <VBox alignment="CENTER" style="-fx-background-color:WHITE;" prefWidth="300">
                 <StackPane style=" -fx-padding:5;" styleClass="major">
                     <Label text="%setting.resourcepacks.available"
                            style="-fx-text-fill:WHITE;-fx-font-weight:BOLD;-fx-font-size:14;"
                            styleClass="column-header"/>
                 </StackPane>
-                <JFXListView fx:id="availableView" maxHeight="200"/>
+                <JFXListView fx:id="availableView" maxHeight="250" prefWidth="250"/>
             </VBox>
-            <VBox alignment="CENTER" style="-fx-background-color:WHITE;">
-                <StackPane style=" -fx-padding:5;" styleClass="major">
+            <VBox alignment="CENTER" style="-fx-background-color:WHITE;" prefWidth="300">
+                <StackPane style="-fx-padding:5;" styleClass="major">
                     <Label text="%setting.resourcepacks.selecting"
                            style="-fx-text-fill:WHITE;-fx-font-weight:BOLD;-fx-font-size:14;"/>
                 </StackPane>
-                <JFXListView fx:id="selectedView" maxHeight="200"/>
+                <JFXListView fx:id="selectedView" maxHeight="250" prefWidth="250"/>
             </VBox>
         </HBox>
         <HBox alignment="CENTER">

@@ -11,14 +11,19 @@ import java.util.TreeMap;
  */
 public class MinecraftVersion
 {
+	public enum State
+	{
+		DOWNLOADING, REMOTE, LOCAL
+	}
+
 	private StringProperty versionID = new SimpleStringProperty();
-	private BooleanProperty inStorage = new SimpleBooleanProperty();
+	private ObjectProperty<State> state = new SimpleObjectProperty<>(State.LOCAL);
 	private ObservableMap<String, Object> metadata = FXCollections.observableMap(new TreeMap<>());
 
-	public MinecraftVersion(String versionID, boolean inStorage)
+	public MinecraftVersion(String versionID, State inStorage)
 	{
 		this.versionID.set(versionID);
-		this.inStorage.set(inStorage);
+		state.set(inStorage);
 	}
 
 	public MinecraftVersion() {}
@@ -38,19 +43,20 @@ public class MinecraftVersion
 		this.versionID.set(versionID);
 	}
 
-	public boolean isInStorage()
+
+	public State getState()
 	{
-		return inStorage.get();
+		return state.get();
 	}
 
-	public ReadOnlyBooleanProperty inStorageProperty()
+	public ReadOnlyObjectProperty<State> stateProperty()
 	{
-		return inStorage;
+		return state;
 	}
 
-	void setInStorage(boolean inStorage)
+	void setState(State state)
 	{
-		this.inStorage.set(inStorage);
+		this.state.set(state);
 	}
 
 	public ObservableMap<String, Object> getMetadata() {return metadata;}

@@ -10,9 +10,9 @@ import net.launcher.control.MinecraftOptionButton;
 import net.launcher.control.MinecraftOptionMemory;
 import net.launcher.control.MinecraftOptionResolution;
 import net.launcher.control.MinecraftSlider;
-import net.launcher.setting.GameSettingMinecraft;
-import net.launcher.setting.GameSettingType;
 import net.launcher.setting.OptionInt;
+import net.launcher.setting.SettingMinecraft;
+import net.launcher.setting.SettingType;
 
 import javax.annotation.PostConstruct;
 import java.util.Arrays;
@@ -54,7 +54,7 @@ public class ControllerGameSetting
 //				() ->
 //				{
 //					LaunchProfile profile = Bootstrap.getCore().getProfileManager().selecting();
-//					return !profile.getGameSetting(GameSettingMinecraft.INSTANCE).isPresent();
+//					return !profile.getGameSetting(SettingMinecraft.INSTANCE).isPresent();
 //				}
 //				, Bindings.createObjectBinding(() -> Bootstrap.getCore().getProfileManager().selecting().versionProperty(),
 //						Bootstrap.getCore().getProfileManager().selectedProfileProperty())));
@@ -63,16 +63,16 @@ public class ControllerGameSetting
 //		missingFileIndicator.disableProperty().bind(Bindings.createBooleanBinding(() -> !container.isDisabled(),
 //				container.disabledProperty()));
 
-		setup(maxFPS, GameSettingMinecraft.INSTANCE.MAXFPS);
-		setup(renderDistance, GameSettingMinecraft.INSTANCE.RENDER_DISTANCE);
-		setup(entityShadow, GameSettingMinecraft.INSTANCE.ENTITY_SHADOWS);
-		setup(renderCloud, GameSettingMinecraft.INSTANCE.RENDER_CLOUDS);
-		setup(enableFBO, GameSettingMinecraft.INSTANCE.FBO_ENABLE);
-		setup(enableVBO, GameSettingMinecraft.INSTANCE.USE_VBO);
-		setup(graphic, GameSettingMinecraft.INSTANCE.GRAPHIC);
-		setup(mipmap, GameSettingMinecraft.INSTANCE.MIPMAP_LEVELS);
-		setup(particle, GameSettingMinecraft.INSTANCE.PARTICLES);
-		setup(ambientOcclusion, GameSettingMinecraft.INSTANCE.AMBIENT_OCCLUSION);
+		setup(maxFPS, SettingMinecraft.INSTANCE.MAXFPS);
+		setup(renderDistance, SettingMinecraft.INSTANCE.RENDER_DISTANCE);
+		setup(entityShadow, SettingMinecraft.INSTANCE.ENTITY_SHADOWS);
+		setup(renderCloud, SettingMinecraft.INSTANCE.RENDER_CLOUDS);
+		setup(enableFBO, SettingMinecraft.INSTANCE.FBO_ENABLE);
+		setup(enableVBO, SettingMinecraft.INSTANCE.USE_VBO);
+		setup(graphic, SettingMinecraft.INSTANCE.GRAPHIC);
+		setup(mipmap, SettingMinecraft.INSTANCE.MIPMAP_LEVELS);
+		setup(particle, SettingMinecraft.INSTANCE.PARTICLES);
+		setup(ambientOcclusion, SettingMinecraft.INSTANCE.AMBIENT_OCCLUSION);
 
 //		Bootstrap.getCore().getProfileManager().selecting().setMemory(memory.memoryProperty().get());
 	}
@@ -86,11 +86,11 @@ public class ControllerGameSetting
 		s.setSnapToTicks(true);
 	}
 
-	private void setup(MinecraftOptionButton button, GameSettingType.Option<Boolean> option)
+	private void setup(MinecraftOptionButton button, SettingType.Option<Boolean> option)
 	{
 		button.setOptions(Arrays.asList("true", "false"));
 		button.valueProperty().addListener((observable, oldValue, newValue) ->
-				Bootstrap.getCore().getProfileManager().selecting().getGameSetting(GameSettingMinecraft.INSTANCE)
+				Bootstrap.getCore().getProfileManager().selecting().getGameSetting(SettingMinecraft.INSTANCE)
 						.ifPresent(gameSettingInstance -> gameSettingInstance.getOption(option).setValue(Boolean.valueOf(newValue))));
 	}
 
@@ -101,13 +101,13 @@ public class ControllerGameSetting
 			arr[i] = String.valueOf((option.getMin() + i));
 		button.setOptions(Arrays.asList(arr));
 		button.valueProperty().addListener((observable, oldValue, newValue) ->
-				Bootstrap.getCore().getProfileManager().selecting().getGameSetting(GameSettingMinecraft.INSTANCE)
+				Bootstrap.getCore().getProfileManager().selecting().getGameSetting(SettingMinecraft.INSTANCE)
 						.ifPresent(gameSettingInstance -> gameSettingInstance.getOption(option).setValue(Integer.valueOf(newValue))));
 	}
 
 	public void createMinecraftGameSetting(ActionEvent event)
 	{
-//		Bootstrap.getCore().getProfileManager().selecting().addGameSetting(new GameSetting(GameSettingMinecraft
+//		Bootstrap.getCore().getProfileManager().selecting().addGameSetting(new Setting(SettingMinecraft
 //				.INSTANCE));
 	}
 }

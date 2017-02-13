@@ -38,7 +38,8 @@ public class ProfileSelectorTableContent extends StackPane
 		this.selector = skinnable;
 		this.header = createHeader();
 		this.body = createBody();
-		this.getChildren().addAll(new VBox(header, body));
+		VBox box = new VBox(header, body);
+		this.getChildren().addAll(box);
 		this.setOnMouseClicked(Event::consume);
 		this.getStyleClass().addAll("fx-mc-picker-container");
 		this.bindData();

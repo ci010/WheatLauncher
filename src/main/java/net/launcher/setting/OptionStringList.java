@@ -28,40 +28,40 @@ import java.util.stream.Stream;
 /**
  * @author ci010
  */
-public abstract class OptionStringList extends GameSettingType.Option<ObservableList<String>>
+public abstract class OptionStringList extends SettingType.Option<ObservableList<String>>
 {
-	public OptionStringList(GameSettingType parent, String name)
+	public OptionStringList(SettingType parent, String name)
 	{
 		super(parent, name);
 	}
 
 	@Override
-	public GameSettingProperty.List<String> getDefaultValue(GameSetting gameSetting)
+	public SettingProperty.List<String> getDefaultValue(Setting setting)
 	{
-		return new GameSettingPropertyList<>(gameSetting, getName(), FXCollections.observableArrayList(), this);
+		return new SettingPropertyList<>(setting, getName(), FXCollections.observableArrayList(), this);
 	}
 
 	@Override
-	public ObservableList<String> deserialize(GameSetting gameSetting, String s)
+	public ObservableList<String> deserialize(Setting setting, String s)
 	{
 		return FXCollections.observableArrayList();
 	}
 
 	protected abstract List<String> doDeserialize(String s);
 
-	public static class GameSettingPropertyList<T> extends GameSettingProperty.List<T> implements GameSettingProperty<ObservableList<T>>
+	public static class SettingPropertyList<T> extends SettingProperty.List<T> implements SettingProperty<ObservableList<T>>
 	{
-		private GameSettingType.Option<ObservableList<T>> option;
+		private SettingType.Option<ObservableList<T>> option;
 		private SimpleListProperty<T> delegate;
 
-		public GameSettingPropertyList(GameSetting instance, String name, ObservableList<T> es, GameSettingType.Option<ObservableList<T>> option)
+		public SettingPropertyList(Setting instance, String name, ObservableList<T> es, SettingType.Option<ObservableList<T>> option)
 		{
 			this.delegate = new SimpleListProperty<T>(instance, name, es);
 			this.option = option;
 		}
 
 		@Override
-		public GameSetting getBean() {return (GameSetting) delegate.getBean();}
+		public Setting getBean() {return (Setting) delegate.getBean();}
 
 		@Override
 		public String getName() {return delegate.getName();}
@@ -277,6 +277,6 @@ public abstract class OptionStringList extends GameSettingType.Option<Observable
 		public void forEach(Consumer<? super T> action) {delegate.forEach(action);}
 
 		@Override
-		public GameSettingType.Option<ObservableList<T>> getOption() {return option;}
+		public SettingType.Option<ObservableList<T>> getOption() {return option;}
 	}
 }

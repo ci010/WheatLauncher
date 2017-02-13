@@ -3,9 +3,9 @@ package net.launcher.version;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import net.launcher.game.Language;
 import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.ComparableVersion;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersion;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.CombinedDownloadCallback;
 import org.to2mbn.jmccc.version.Version;
 
 import java.io.IOException;
@@ -15,23 +15,28 @@ import java.util.TreeMap;
 /**
  * @author ci010
  */
-public class MinecraftVersionManager
+public class MinecraftAssetsManager
 {
 	private ObservableList<MinecraftVersion> versions = FXCollections.observableArrayList();
 	private ObservableMap<String, MinecraftVersion> map = FXCollections.observableMap(new TreeMap<>());
 
-	private VersionRepository repository;
+	private AssetsRepository repository;
 
-	public interface VersionRepository
+	public interface AssetsRepository
 	{
-		Version buildVersion(MinecraftVersion version);
+		Version buildVersion(MinecraftVersion version) throws IOException;
 
-		void fetchVersion(MinecraftVersion version, CombinedDownloadCallback<Version> callback);
+		void fetchVersion(MinecraftVersion version);
 
+		/**
+		 * Update the version cache from both local and remote
+		 */
 		void update() throws IOException;
+
+		List<Language> getLanguages(MinecraftVersion version) throws IOException;
 	}
 
-	MinecraftVersionManager(VersionRepository repository)
+	MinecraftAssetsManager(AssetsRepository repository)
 	{
 		this.repository = repository;
 	}
@@ -71,10 +76,11 @@ public class MinecraftVersionManager
 
 	public MinecraftVersion getVersion(String version)
 	{
+		if (version == null) return null;
 		return map.get(version);
 	}
 
 	public ObservableMap<String, MinecraftVersion> getMap() {return map;}
 
-	public VersionRepository getRepository() {return repository;}
+	public AssetsRepository getRepository() {return repository;}
 }

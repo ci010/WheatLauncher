@@ -1,14 +1,15 @@
 package net.wheatlauncher.internal.io;
 
 import javafx.collections.MapChangeListener;
+import net.launcher.Logger;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.profile.LaunchProfileManager;
 import net.launcher.profile.LaunchProfileManagerBuilder;
-import net.launcher.setting.GameSetting;
-import net.launcher.setting.GameSettingManager;
-import net.launcher.setting.GameSettingType;
+import net.launcher.setting.Setting;
+import net.launcher.setting.SettingManager;
+import net.launcher.setting.SettingType;
 import net.launcher.utils.DirUtils;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 
@@ -36,8 +37,9 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 
 	private NBT serialize(LaunchProfile profile)
 	{
-		return NBT.compound().put("name", profile.getDisplayName()).put("id", profile.getId()).put("memory", profile
-				.getMemory()).put("java", profile.getJavaEnvironment().getJavaPath().getAbsolutePath())
+		return NBT.compound().put("name", profile.getDisplayName()).put("id", profile.getId())
+				.put("memory", profile.getMemory())
+				.put("java", profile.getJavaEnvironment().getJavaPath().getAbsolutePath())
 				.put("resolution", profile.getResolution().toString())
 				.put("version", profile.getVersion());
 	}
@@ -85,14 +87,11 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 	@Override
 	public void forceSave() throws IOException
 	{
-		Path path = this.getContext().getRoot().resolve("profiles.dat");
 		LaunchProfileManager instance = this.getInstance();
 		if (instance == null) throw new IllegalStateException();
-
-		NBTCompound compound = NBT.compound();
-		compound.put("selecting", instance.getSelectedProfile());
-		compound.put("profiles", NBT.listStr(instance.getAllProfiles().stream().map(LaunchProfile::getId).collect(Collectors.toList())));
-		NBT.write(path, compound, false);
+		new SaveManager().performance(null);
+		for (LaunchProfile launchProfile : instance.getAllProfiles())
+			new SaveProfile(launchProfile).performance(null);
 	}
 
 	@Override
@@ -109,9 +108,9 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 			profilesRecord = read.get("profiles").asList().stream().map(NBT::asString).collect(Collectors.toList());
 		}
 
-		ArrayList<GameSettingType> list = new ArrayList<>(GameSettingManager.getAllSetting().values());
+		ArrayList<SettingType> list = new ArrayList<>(SettingManager.getAllSetting().values());
 		List<LaunchProfile> profilesList = new ArrayList<>();
-		Files.walkFileTree(getProfilesRoot(), Collections.emptySet(), 1, new SimpleFileVisitor<Path>()
+		Files.walkFileTree(getProfilesRoot(), Collections.emptySet(), 2, new SimpleFileVisitor<Path>()
 		{
 			@Override
 			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
@@ -120,9 +119,9 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 				if (!Files.exists(prof)) return super.preVisitDirectory(dir, attrs);
 				LaunchProfile deserialize = deserialize(NBT.read(prof, false));
 				profilesList.add(deserialize);
-				for (GameSettingType gameSettingType : list)
+				for (SettingType settingType : list)
 				{
-					GameSetting load = gameSettingType.load(dir);
+					Setting load = settingType.load(dir);
 					if (load != null) deserialize.addGameSetting(load);
 				}
 				return super.preVisitDirectory(dir, attrs);
@@ -162,8 +161,7 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 				.setDeleteGuard(this::onDeleteProfile)
 				.setCopyGuard(this::onCopyProfile)
 				.build();
-		manager.newProfile("default");
-		manager.setSelectedProfile("default");
+		manager.setSelectedProfile(manager.newProfile("default").getId());
 		return manager;
 	}
 
@@ -171,7 +169,7 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 	protected void deploy() throws IOException
 	{
 		LaunchProfileManager instance = this.getInstance();
-		Save save = new Save();
+		SaveManager save = new SaveManager();
 		this.getContext().registerSaveTask(save, instance.selectedProfileProperty(),
 				instance.getAllProfiles());
 		for (LaunchProfile profile : instance.getAllProfiles())
@@ -182,6 +180,7 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 					profile.resolutionProperty());
 		instance.getProfilesMap().addListener((MapChangeListener<String, LaunchProfile>) change ->
 		{
+			Logger.trace("value change");
 			LaunchProfile profile = change.getValueAdded();
 			if (profile != null)
 			{
@@ -201,7 +200,7 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 		SaveProfile(LaunchProfile profile) {this.profile = profile;}
 
 		@Override
-		public void performance(Path root) throws Exception
+		public void performance(Path root) throws IOException
 		{
 			Path profileDir = getProfileDir(profile.getId());
 			Path resolve = profileDir.resolve("profile.dat");
@@ -216,18 +215,25 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 		}
 	}
 
-	class Save implements IOGuardContext.IOTask
+	class SaveManager implements IOGuardContext.IOTask
 	{
 		@Override
-		public void performance(Path root) throws Exception
+		public void performance(Path root) throws IOException
 		{
-			forceSave();
+			Path path = getContext().getRoot().resolve("profiles.dat");
+			LaunchProfileManager instance = getInstance();
+			if (instance == null) throw new IllegalStateException();
+
+			NBTCompound compound = NBT.compound();
+			compound.put("selecting", instance.getSelectedProfile());
+			compound.put("profiles", NBT.listStr(instance.getAllProfiles().stream().map(LaunchProfile::getId).collect(Collectors.toList())));
+			NBT.write(path, compound, false);
 		}
 
 		@Override
 		public boolean canMerge(IOGuardContext.IOTask task)
 		{
-			return task == this || task instanceof Save;
+			return task == this || task instanceof SaveManager;
 		}
 	}
 }

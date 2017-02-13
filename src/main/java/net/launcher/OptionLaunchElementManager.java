@@ -4,9 +4,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import net.launcher.profile.LaunchProfile;
-import net.launcher.setting.GameSetting;
-import net.launcher.setting.GameSettingProperty;
-import net.launcher.setting.GameSettingType;
+import net.launcher.setting.Setting;
+import net.launcher.setting.SettingProperty;
+import net.launcher.setting.SettingType;
 import org.to2mbn.jmccc.option.LaunchOption;
 
 import java.lang.ref.WeakReference;
@@ -24,7 +24,7 @@ public abstract class OptionLaunchElementManager<T, O> implements LaunchElementM
 {
 	protected WeakReference<ObservableList<T>> cache;
 
-	protected abstract GameSettingType.Option<O> getOption();
+	protected abstract SettingType.Option<O> getOption();
 
 	@Override
 	public ObservableList<T> getIncludeElementContainer(LaunchProfile profile)
@@ -32,13 +32,13 @@ public abstract class OptionLaunchElementManager<T, O> implements LaunchElementM
 		Objects.requireNonNull(profile);
 		ObservableList<T> list = cache.get();
 		if (list != null) return list;
-		Optional<GameSetting> optional = profile.getGameSetting(getOption().getParent());
-		GameSetting setting;
+		Optional<Setting> optional = profile.getGameSetting(getOption().getParent());
+		Setting setting;
 		if (!optional.isPresent())
 			profile.addGameSetting(setting = getOption().getParent().defaultInstance());
 		else setting = optional.get();
 
-		GameSettingProperty<O> option = setting.getOption(getOption());
+		SettingProperty<O> option = setting.getOption(getOption());
 		list = FXCollections.observableArrayList(from(option.getValue()));
 		cache = new WeakReference<>(list);
 		list.addListener((ListChangeListener<T>) c -> option.setValue(to((List<T>) c.getList())));
@@ -55,11 +55,11 @@ public abstract class OptionLaunchElementManager<T, O> implements LaunchElementM
 	{
 		Objects.requireNonNull(option);
 		Objects.requireNonNull(profile);
-		GameSettingType.Option<O> goption = getOption();
-		Optional<GameSetting> gameSetting = profile.getGameSetting(goption.getParent());
+		SettingType.Option<O> goption = getOption();
+		Optional<Setting> gameSetting = profile.getGameSetting(goption.getParent());
 		if (gameSetting.isPresent())
 			implementRuntimePath(profile, option.getRuntimeDirectory().getRoot().toPath(), gameSetting.get(), option);
 	}
 
-	protected abstract void implementRuntimePath(LaunchProfile profile, Path path, GameSetting instance, LaunchOption option);
+	protected abstract void implementRuntimePath(LaunchProfile profile, Path path, Setting instance, LaunchOption option);
 }

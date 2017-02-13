@@ -2,7 +2,7 @@ package net.launcher;
 
 import net.launcher.profile.LaunchProfile;
 import net.launcher.profile.LaunchProfileManager;
-import net.launcher.version.MinecraftVersionManager;
+import net.launcher.version.MinecraftAssetsManager;
 import org.to2mbn.jmccc.launch.Launcher;
 import org.to2mbn.jmccc.launch.ProcessListener;
 import org.to2mbn.jmccc.option.LaunchOption;
@@ -25,7 +25,9 @@ public abstract class LaunchCore
 
 	public abstract AuthProfile getAuthProfile();
 
-	public abstract MinecraftVersionManager getVersionManager();
+	public abstract MinecraftAssetsManager getAssetsManager();
+
+	public abstract DownloadCenter getDownloadCenter();
 
 	public void launch() throws Exception
 	{

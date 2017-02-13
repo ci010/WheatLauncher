@@ -35,6 +35,32 @@ public class Tasks
 		catch (Exception e) {return Optional.empty();}
 	}
 
+	public static <T> Callback<T> after(Callback<T> callback, Callback<T> after)
+	{
+		return new Callback<T>()
+		{
+			@Override
+			public void done(T result)
+			{
+				callback.done(result);
+				after.done(result);
+			}
+
+			@Override
+			public void failed(Throwable e)
+			{
+				callback.failed(e); after.failed(e);
+			}
+
+			@Override
+			public void cancelled()
+			{
+				callback.cancelled();
+				after.cancelled();
+			}
+		};
+	}
+
 	public static <T> Callback<T> whatever(Runnable runnable)
 	{
 		return new CallbackAdapter<T>()

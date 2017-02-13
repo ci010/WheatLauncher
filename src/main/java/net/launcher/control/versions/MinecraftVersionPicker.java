@@ -14,10 +14,8 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import net.launcher.version.MinecraftVersion;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.CombinedDownloadCallback;
-import org.to2mbn.jmccc.version.Version;
 
-import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * @author ci010
@@ -67,19 +65,19 @@ public class MinecraftVersionPicker extends ComboBoxBase<MinecraftVersion>
 		this.requestUpdate.set(requestUpdate);
 	}
 
-	private ObjectProperty<BiConsumer<MinecraftVersion, CombinedDownloadCallback<Version>>> downloadRequest = new SimpleObjectProperty<>();
+	private ObjectProperty<Consumer<MinecraftVersion>> downloadRequest = new SimpleObjectProperty<>();
 
-	public BiConsumer<MinecraftVersion, CombinedDownloadCallback<Version>> getDownloadRequest()
+	public Consumer<MinecraftVersion> getDownloadRequest()
 	{
 		return downloadRequest.get();
 	}
 
-	public ObjectProperty<BiConsumer<MinecraftVersion, CombinedDownloadCallback<Version>>> downloadRequestProperty()
+	public ObjectProperty<Consumer<MinecraftVersion>> downloadRequestProperty()
 	{
 		return downloadRequest;
 	}
 
-	public void setDownloadRequest(BiConsumer<MinecraftVersion, CombinedDownloadCallback<Version>> downloadRequest)
+	public void setDownloadRequest(Consumer<MinecraftVersion> downloadRequest)
 	{
 		this.downloadRequest.set(downloadRequest);
 	}

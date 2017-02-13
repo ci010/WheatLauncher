@@ -99,23 +99,29 @@ public class MinecraftVersionDisplayContent extends StackPane
 
 	private JFXTableView<MinecraftVersion> buildTable()
 	{
-		TableColumn<MinecraftVersion, Icon> remote = new TableColumn<>("Status");
+		TableColumn<MinecraftVersion, Node> remote = new TableColumn<>("Status");
 		remote.setCellValueFactory(param -> Bindings.createObjectBinding(() ->
 		{
-			Icon icon;
-			if (param.getValue().isInStorage())
+			Node node;
+			switch (param.getValue().getState())
 			{
-				icon = new Icon("DRAWER");
-				icon.setTooltip(new Tooltip("Already in storage"));
+				case DOWNLOADING:
+					node = new JFXSpinner();
+					break;
+				case REMOTE:
+					Icon ic = new Icon("CLOUD");
+					ic.setTooltip(new Tooltip("Need to be downloaded"));
+					node = ic;
+					break;
+				default:
+				case LOCAL:
+					ic = new Icon("FOLDER");
+					ic.setTooltip(new Tooltip("Already in storage"));
+					node = ic;
+					break;
 			}
-			else
-			{
-				icon = new Icon("DOWNLOAD");
-				Tooltip tooltip = new Tooltip("Need to be downloaded");
-				icon.setTooltip(tooltip);
-			}
-			return icon;
-		}, param.getValue().inStorageProperty()));
+			return node;
+		}, param.getValue().stateProperty()));
 		remote.setMaxWidth(50);
 
 		TableColumn<MinecraftVersion, Node> version = new TableColumn<>("Version");
@@ -163,6 +169,7 @@ public class MinecraftVersionDisplayContent extends StackPane
 		updateTime.setCellValueFactory(param -> Bindings.createStringBinding(() ->
 		{
 			RemoteVersion ver = (RemoteVersion) param.getValue().getMetadata().get("remote");
+			if (ver == null) return "Unknown";
 			return ver.getUploadTime().toString();
 		}, param.getValue().getMetadata()));
 
@@ -170,6 +177,7 @@ public class MinecraftVersionDisplayContent extends StackPane
 		releaseTime.setCellValueFactory(param -> Bindings.createStringBinding(() ->
 		{
 			RemoteVersion ver = (RemoteVersion) param.getValue().getMetadata().get("remote");
+			if (ver == null) return "Unknown";
 			return ver.getReleaseTime().toString();
 		}, param.getValue().getMetadata()));
 
@@ -295,14 +303,29 @@ public class MinecraftVersionDisplayContent extends StackPane
 	}
 
 	private JFXDialog confirmDownload;
+	private JFXButton download, cancelDownload;
 
 	private JFXDialog getConfirmDownload()
 	{
 		if (confirmDownload == null)
 		{
 			JFXDialogLayout layout = new JFXDialogLayout();
-//			layout.setHeading(new Label());
+			layout.setHeading(new Label("Download Request"));
+			layout.setBody(new Label("The version files doesn't appear in local storage. We need download it."));
+			download = new JFXButton("download");
+			cancelDownload = new JFXButton("cancel");
+			layout.setActions(download, cancelDownload);
 			confirmDownload = new JFXDialog(this, layout, JFXDialog.DialogTransition.CENTER);
+
+			download.setOnAction(event ->
+			{
+				MinecraftVersion selectedItem = this.versionTable.getSelectionModel().getSelectedItem();
+				picker.getDownloadRequest().accept(selectedItem);
+				picker.setValue(selectedItem);
+				picker.hide();
+				confirmDownload.close();
+			});
+			cancelDownload.setOnAction(event -> confirmDownload.close());
 		}
 		return confirmDownload;
 	}
@@ -311,17 +334,17 @@ public class MinecraftVersionDisplayContent extends StackPane
 	{
 		MinecraftVersion selectedItem = this.versionTable.getSelectionModel().getSelectedItem();
 		if (selectedItem != null)
-		{
-			if (!selectedItem.isInStorage())
+			switch (selectedItem.getState())
 			{
-				picker.setValue(selectedItem);
-				picker.hide();
+				case REMOTE:
+					getConfirmDownload().show();
+					break;
+				case DOWNLOADING:
+				case LOCAL:
+					picker.setValue(selectedItem);
+					picker.hide();
+					break;
 			}
-			else
-			{
-
-			}
-		}
 	}
 
 	public void onShow()

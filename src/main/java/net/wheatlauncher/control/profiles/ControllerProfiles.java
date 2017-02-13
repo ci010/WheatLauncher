@@ -5,9 +5,8 @@ import com.jfoenix.controls.JFXTabPane;
 import io.datafx.controller.FXMLController;
 import io.datafx.controller.flow.context.FXMLViewFlowContext;
 import io.datafx.controller.flow.context.ViewFlowContext;
-import javafx.fxml.FXML;
+import javafx.application.Platform;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import net.launcher.Bootstrap;
 import net.launcher.Logger;
 import net.launcher.control.profile.base.ProfileTableSelector;
@@ -17,14 +16,10 @@ import net.launcher.version.MinecraftVersion;
 import net.wheatlauncher.control.utils.FXMLInnerController;
 import net.wheatlauncher.control.utils.ReloadableController;
 import net.wheatlauncher.control.utils.WindowsManager;
-import org.to2mbn.jmccc.option.MinecraftDirectory;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.attribute.FileTime;
 
 
 /**
@@ -61,9 +56,6 @@ public class ControllerProfiles implements ReloadableController
 	public StackPane modSetting;
 
 	/*root*/
-	@FXML
-	private VBox root;
-
 	public JFXDialog rootDialog;
 
 	@PostConstruct
@@ -83,18 +75,29 @@ public class ControllerProfiles implements ReloadableController
 
 	private void initVersion()
 	{
-		versions.setDataList(Bootstrap.getCore().getVersionManager().getVersions());
-		versions.setDownloadRequest(Bootstrap.getCore().getVersionManager().getRepository()::fetchVersion);
+		versions.setDataList(Bootstrap.getCore().getAssetsManager().getVersions());
+		versions.setDownloadRequest((version1) -> Bootstrap.getCore().getAssetsManager().getRepository().fetchVersion(version1));
 		versions.setRequestUpdate(() ->
-		{
-			try {Bootstrap.getCore().getVersionManager().getRepository().update();}
-			catch (IOException e) {flowContext.getRegisteredObject(WindowsManager.Page.class).displayError(e);}
-		});
+				Bootstrap.getCore().getService().submit(() ->
+				{
+					try {Bootstrap.getCore().getAssetsManager().getRepository().update();}
+					catch (IOException e)
+					{
+						Platform.runLater(() -> flowContext.getRegisteredObject(WindowsManager.Page.class).displayError(e));
+					}
+				}));
 		Bootstrap.getCore().getProfileManager().selectedProfileProperty().addListener(observable ->
 		{
 			String version = Bootstrap.getCore().getProfileManager().selecting().getVersion();
-			if (version != null) versions.setValue(Bootstrap.getCore().getVersionManager().getVersion(version));
+			if (version != null) versions.setValue(Bootstrap.getCore().getAssetsManager().getVersion(version));
 		});
+		LaunchProfile selecting = Bootstrap.getCore().getProfileManager().selecting();
+		if (selecting != null)
+		{
+			String version = selecting.getVersion();
+			if (version != null)
+				versions.setValue(Bootstrap.getCore().getAssetsManager().getVersion(version));
+		}
 		versions.valueProperty().addListener(observable ->
 		{
 			MinecraftVersion value = versions.getValue();
@@ -128,36 +131,5 @@ public class ControllerProfiles implements ReloadableController
 	@Override
 	public void unload()
 	{
-	}
-
-	private class SimpleFileWatcher implements Runnable
-	{
-		private FileTime last;
-		private Path sub;
-		private Runnable runnable;
-
-		public SimpleFileWatcher(Path sub, Runnable runnable)
-		{
-			this.sub = sub;
-			this.runnable = runnable;
-		}
-
-		@Override
-		public void run()
-		{
-			MinecraftDirectory minecraftLocation = Bootstrap.getCore().getProfileManager().selecting().getMinecraftLocation();
-
-			try
-			{
-				FileTime lastModifiedTime = Files.getLastModifiedTime(minecraftLocation.getRoot().toPath().resolve(sub));
-				if (last == null) last = lastModifiedTime;
-				else
-				{
-					if (last.compareTo(lastModifiedTime) < 0)
-						runnable.run();
-				}
-			}
-			catch (IOException e) {}
-		}
 	}
 }

@@ -1,10 +1,15 @@
 package net.launcher.profile;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-import net.launcher.setting.GameSetting;
-import net.launcher.setting.GameSettingType;
+import net.launcher.Bootstrap;
+import net.launcher.setting.Setting;
+import net.launcher.setting.SettingType;
+import net.launcher.version.MinecraftAssetsManager;
+import net.launcher.version.MinecraftVersion;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.option.WindowSize;
@@ -28,16 +33,19 @@ public class LaunchProfile
 	private final long createdDate;
 	private final Source source;
 
-	private ObjectProperty<LaunchProfile> parent = new SimpleObjectProperty<>();
+	private StringProperty parent = new SimpleStringProperty();
 
 	private StringProperty displayName = new SimpleStringProperty("");
 	private StringProperty version = new SimpleStringProperty();
-	private ObjectProperty<WindowSize> resolution = new SimpleObjectProperty<>(WindowSize.window(856, 482));
-	private IntegerProperty memory = new SimpleIntegerProperty(512);
-	private ObjectProperty<MinecraftDirectory> minecraftLocation = new SimpleObjectProperty<>(new MinecraftDirectory());
-	private ObjectProperty<JavaEnvironment> javaEnvironment = new SimpleObjectProperty<>(JavaEnvironment.current());
 
-	private ObservableMap<String, GameSetting> gameSettingInstanceMap = FXCollections.observableHashMap();
+	//launch arg
+	private ObjectProperty<WindowSize> resolution = new SimpleObjectProperty<>(WindowSize.window(856, 482));
+	private ObjectProperty<JavaEnvironment> javaEnvironment = new SimpleObjectProperty<>(JavaEnvironment.current());
+	private IntegerProperty memory = new SimpleIntegerProperty(512);
+
+	private ObjectProperty<MinecraftDirectory> minecraftLocation = new SimpleObjectProperty<>(new MinecraftDirectory());
+
+	private ObservableMap<String, Setting> gameSettingInstanceMap = FXCollections.observableHashMap();
 
 	public LaunchProfile(String id, long createdDate, Source source)
 	{
@@ -63,11 +71,11 @@ public class LaunchProfile
 				source);
 	}
 
-	public LaunchProfile getParent() {return parent.get();}
+	public String getParent() {return parent.get();}
 
-	public ObjectProperty<LaunchProfile> parentProperty() {return parent;}
+	public StringProperty parentProperty() {return parent;}
 
-	public void setParent(LaunchProfile parent) {this.parent.set(parent);}
+	public void setParent(String parent) {this.parent.set(parent);}
 
 	public String getDisplayName() {return displayName.get();}
 
@@ -80,6 +88,16 @@ public class LaunchProfile
 	public StringProperty versionProperty() {return version;}
 
 	public void setVersion(String version) {this.version.set(version);}
+
+	private ObjectBinding<MinecraftVersion> mcVersion = Bindings.createObjectBinding(() ->
+	{
+		MinecraftAssetsManager assetsManager = Bootstrap.getCore().getAssetsManager();
+		return assetsManager.getVersion(this.getVersion());
+	}, this.versionProperty());
+
+	public MinecraftVersion getMcVersion() {return mcVersion.get();}
+
+	public ObjectBinding<MinecraftVersion> versionBinding() {return mcVersion;}
 
 	public ReadOnlyObjectProperty<WindowSize> resolutionProperty()
 	{
@@ -134,26 +152,26 @@ public class LaunchProfile
 		this.javaEnvironment.set(javaEnvironment);
 	}
 
-	public ObservableMap<String, GameSetting> gameSettingsProperty()
+	public ObservableMap<String, Setting> gameSettingsProperty()
 	{
 		return gameSettingInstanceMap;
 	}
 
-	public Optional<GameSetting> getGameSetting(GameSettingType setting)
+	public Optional<Setting> getGameSetting(SettingType setting)
 	{
 		Objects.requireNonNull(setting);
 		String id = setting.getID();
 		return Optional.ofNullable(gameSettingInstanceMap.get(id));
 	}
 
-	public void addGameSetting(GameSetting setting)
+	public void addGameSetting(Setting setting)
 	{
 		Objects.requireNonNull(setting);
 		String id = setting.getGameSettingType().getID();
 		gameSettingInstanceMap.put(id, setting);
 	}
 
-	public Collection<GameSetting> getAllGameSettings()
+	public Collection<Setting> getAllGameSettings()
 	{
 		return gameSettingInstanceMap.values();
 	}
@@ -163,4 +181,16 @@ public class LaunchProfile
 	public long getCreatedDate() {return createdDate;}
 
 	public Source getSource() {return source;}
+
+	@Override
+	public String toString()
+	{
+		return "LaunchProfile{" +
+				"id='" + id + '\'' +
+				", createdDate=" + createdDate +
+				", source=" + source +
+				", displayName=" + displayName +
+				", version=" + version +
+				'}';
+	}
 }

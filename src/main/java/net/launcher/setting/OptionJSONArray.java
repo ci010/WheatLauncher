@@ -6,15 +6,15 @@ import org.to2mbn.jmccc.internal.org.json.JSONArray;
 /**
  * @author ci010
  */
-public class OptionJSONArray extends GameSettingType.Option<String[]>
+public class OptionJSONArray extends SettingType.Option<String[]>
 {
-	public OptionJSONArray(GameSettingType parent, String name)
+	public OptionJSONArray(SettingType parent, String name)
 	{
 		super(parent, name);
 	}
 
 	@Override
-	public String[] deserialize(GameSetting gameSetting, String s)
+	public String[] deserialize(Setting setting, String s)
 	{
 		JSONArray objects = new JSONArray(s);
 		String[] strings = new String[objects.length()];
@@ -30,35 +30,35 @@ public class OptionJSONArray extends GameSettingType.Option<String[]>
 	}
 
 	@Override
-	public GameSettingProperty<String[]> getDefaultValue(GameSetting gameSetting)
+	public SettingProperty<String[]> getDefaultValue(Setting setting)
 	{
-		return new PropertyString(gameSetting, this.getName(), new String[0], this);
+		return new PropertyString(setting, this.getName(), new String[0], this);
 	}
 
-	public static class PropertyString extends SimpleObjectProperty<String[]> implements GameSettingProperty<String[]>
+	public static class PropertyString extends SimpleObjectProperty<String[]> implements SettingProperty<String[]>
 	{
-		private GameSettingType.Option<String[]> option;
+		private SettingType.Option<String[]> option;
 
-		public PropertyString(GameSetting bean, String name, GameSettingType.Option<String[]> option)
+		public PropertyString(Setting bean, String name, SettingType.Option<String[]> option)
 		{
 			super(bean, name);
 			this.option = option;
 		}
 
-		public PropertyString(GameSetting bean, String name, String[] initialValue, GameSettingType.Option<String[]> option)
+		public PropertyString(Setting bean, String name, String[] initialValue, SettingType.Option<String[]> option)
 		{
 			super(bean, name, initialValue);
 			this.option = option;
 		}
 
 		@Override
-		public GameSetting getBean()
+		public Setting getBean()
 		{
-			return (GameSetting) super.getBean();
+			return (Setting) super.getBean();
 		}
 
 		@Override
-		public GameSettingType.Option<String[]> getOption()
+		public SettingType.Option<String[]> getOption()
 		{
 			return option;
 		}

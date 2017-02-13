@@ -53,9 +53,9 @@ class ArchiveRepositoryBase<T>
 		return service;
 	}
 
-	protected ArchiveRepositoryBase(Path root, ExecutorService service,
-									Deserializer<T, Path> parser,
-									BiSerializer<T, NBTCompound> archiveSerializer)
+	ArchiveRepositoryBase(Path root, ExecutorService service,
+						  Deserializer<T, Path> parser,
+						  BiSerializer<T, NBTCompound> archiveSerializer)
 	{
 		this.root = root;
 		this.service = service;
@@ -308,7 +308,7 @@ class ArchiveRepositoryBase<T>
 		}, call));
 	}
 
-	protected void saveResource(ArchiveRepository.Resource<T> resource) throws IOException
+	private void saveResource(ArchiveRepository.Resource<T> resource) throws IOException
 	{
 		NBTCompound compound = NBT.compound().put("type", resource.getType().toString()).put("hash", resource.getHash())
 				.put("data", archiveSerializer.serialize(resource.getContainData())).put("name", resource.getName());

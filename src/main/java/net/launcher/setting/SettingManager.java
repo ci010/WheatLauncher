@@ -9,19 +9,19 @@ import java.util.Optional;
 /**
  * @author ci010
  */
-public class GameSettingManager
+public class SettingManager
 {
-	private static Map<String, GameSettingType> gameSettingMap = new HashMap<>();
+	private static Map<String, SettingType> gameSettingMap = new HashMap<>();
 
-	public static Map<String, GameSettingType> getAllSetting() {return Collections.unmodifiableMap(gameSettingMap);}
+	public static Map<String, SettingType> getAllSetting() {return Collections.unmodifiableMap(gameSettingMap);}
 
-	public static Optional<GameSettingType> find(String id) {return Optional.ofNullable(gameSettingMap.get(id));}
+	public static Optional<SettingType> find(String id) {return Optional.ofNullable(gameSettingMap.get(id));}
 
-	public static void register(Class<? extends GameSettingType> settingClass)
+	public static void register(Class<? extends SettingType> settingClass)
 	{
 		try
 		{
-			GameSettingType gameSetting = settingClass.getDeclaredConstructor().newInstance();
+			SettingType gameSetting = settingClass.getDeclaredConstructor().newInstance();
 			String id = gameSetting.getID();
 			if (gameSettingMap.containsKey(id))
 				throw new IllegalArgumentException();

@@ -1,13 +1,14 @@
 package net.launcher.utils.resource;
 
 import javafx.collections.ObservableMap;
+import net.launcher.game.nbt.NBT;
+import net.launcher.game.nbt.NBTCompound;
 import net.launcher.utils.ProgressCallback;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Proxy;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.Future;
@@ -72,7 +73,7 @@ public interface ArchiveRepository<T> extends Repository<ArchiveRepository.Resou
 		private String hash;
 		private T containData;
 		private Object signature;
-		private String[] tags;
+		private NBTCompound compound;
 
 		public Resource(ResourceType type, String hash, T containData, Object signiture)
 		{
@@ -80,36 +81,25 @@ public interface ArchiveRepository<T> extends Repository<ArchiveRepository.Resou
 			this.hash = hash;
 			this.containData = containData;
 			this.signature = signiture;
-			this.tags = new String[16];
-			this.tags[0] = hash;
+			this.compound = NBT.compound();
+			this.compound.put("name", hash);
 		}
 
 		public Resource<T> setName(String name)
 		{
 			Objects.requireNonNull(name);
-			tags[0] = name;
+			compound.put("name", name);
 			return this;
 		}
 
-		public void addTag(String tag)
-		{
-		}
-
-		public void removeTag(String tag)
-		{
-		}
-
-		public String[] getTags() {return Arrays.copyOf(tags, 16);}
+		public NBTCompound getCompound() {return compound;}
 
 		public Object getSignature()
 		{
 			return signature;
 		}
 
-		public String getName()
-		{
-			return tags[0];
-		}
+		public String getName() {return compound.get("name").asString();}
 
 		public ResourceType getType()
 		{
@@ -144,8 +134,6 @@ public interface ArchiveRepository<T> extends Repository<ArchiveRepository.Resou
 					"type=" + type +
 					", hash='" + hash + '\'' +
 					", containData=" + containData +
-					", signature=" + signature +
-					", tags=" + Arrays.toString(tags) +
 					'}';
 		}
 
