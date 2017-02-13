@@ -33,4 +33,14 @@ public class ResourcePack
 	}
 
 	public static Path getImagePath(Path resourcePackPath) {return resourcePackPath.resolve("pack.png");}
+
+	@Override
+	public String toString()
+	{
+		return "ResourcePack{" +
+				"packName='" + packName + '\'' +
+				", description='" + description + '\'' +
+				", format=" + format +
+				'}';
+	}
 }
