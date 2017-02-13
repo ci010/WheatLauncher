@@ -43,7 +43,7 @@ public class Language
 	{
 		return (serialized, context) ->
 		{
-			JSONObject languages = serialized.getJSONObject("languages");
+			JSONObject languages = serialized.getJSONObject("language");
 			Language[] langs = new Language[languages.length()];
 			int i = 0;
 			for (String s : languages.keySet())
