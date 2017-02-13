@@ -1,14 +1,15 @@
 package net.launcher.resourcepack;
 
+import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.image.Image;
 import net.launcher.OptionLaunchElementManager;
 import net.launcher.game.ResourcePack;
 import net.launcher.profile.LaunchProfile;
-import net.launcher.setting.GameSetting;
-import net.launcher.setting.GameSettingMinecraft;
-import net.launcher.setting.GameSettingType;
+import net.launcher.setting.Setting;
+import net.launcher.setting.SettingMinecraft;
+import net.launcher.setting.SettingType;
 import net.launcher.utils.resource.ArchiveRepository;
 import net.launcher.utils.resource.Repository;
 import org.to2mbn.jmccc.option.LaunchOption;
@@ -31,22 +32,26 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	private ArchiveRepository<ResourcePack> archiveRepository;
 	private Map<String, ArchiveRepository.Resource<ResourcePack>> record = new HashMap<>();
 	private Map<LaunchOption, Repository.Delivery<ArchiveRepository.Resource<ResourcePack>>> launchCache = new HashMap<>();
+	private ObservableList<ResourcePack> resourcePacks;
 
 	ResourcePackManImpl(ArchiveRepository<ResourcePack> archiveRepository)
 	{
 		this.archiveRepository = archiveRepository;
-		archiveRepository.getResourceMap().forEach((k, v) -> record.put(v.getName(), v));
+		this.resourcePacks = FXCollections.observableArrayList();
+		archiveRepository.getResourceMap().forEach((k, v) -> record.put(v.getContainData().getPackName(), v));
 		archiveRepository.getResourceMap().addListener((MapChangeListener<String, ArchiveRepository.Resource<ResourcePack>>) change ->
 		{
 			if (change.wasAdded())
 			{
 				ArchiveRepository.Resource<ResourcePack> valueAdded = change.getValueAdded();
-				record.put(valueAdded.getName(), valueAdded);
+				record.put(valueAdded.getContainData().getPackName(), valueAdded);
+				resourcePacks.add(valueAdded.getContainData());
 			}
 			if (change.wasRemoved())
 			{
 				ArchiveRepository.Resource<ResourcePack> valueRemoved = change.getValueRemoved();
-				record.remove(valueRemoved.getName());
+				record.remove(valueRemoved.getContainData().getPackName());
+				resourcePacks.add(valueRemoved.getContainData());
 			}
 		});
 	}
@@ -54,14 +59,13 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	@Override
 	public ObservableList<ResourcePack> getAllElement()
 	{
-		return null;
-//		return archiveRepository.getResourceMap().entrySet().stream().map(e -> e.getValue().getContainData()).collect(Collectors.toSet());
+		return resourcePacks;
 	}
 
 	@Override
-	protected GameSettingType.Option<String[]> getOption()
+	protected SettingType.Option<String[]> getOption()
 	{
-		return GameSettingMinecraft.INSTANCE.RESOURCE_PACE;
+		return SettingMinecraft.INSTANCE.RESOURCE_PACE;
 	}
 
 	@Override
@@ -84,7 +88,7 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	}
 
 	@Override
-	protected void implementRuntimePath(LaunchProfile profile, Path path, GameSetting property, LaunchOption option)
+	protected void implementRuntimePath(LaunchProfile profile, Path path, Setting property, LaunchOption option)
 	{
 		String[] value = property.getOption(getOption()).getValue();
 		for (String aValue : value)
@@ -111,5 +115,11 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 				return new Image(stream);
 			}
 		return DEFAULT_IMG;
+	}
+
+	@Override
+	public ArchiveRepository<ResourcePack> getRepository()
+	{
+		return archiveRepository;
 	}
 }

@@ -3,17 +3,14 @@ package net.launcher.resourcepack;
 import net.launcher.LaunchElementManager;
 import net.launcher.game.ResourcePack;
 import net.launcher.game.nbt.NBT;
+import net.launcher.utils.NIOUtils;
 import net.launcher.utils.resource.ArchiveRepository;
 import net.launcher.utils.resource.Repositories;
 import net.launcher.utils.serial.BiSerializer;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.util.Builder;
-import org.to2mbn.jmccc.util.IOUtils;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.channels.SeekableByteChannel;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -61,7 +58,7 @@ public class ResourcePackMangerBuilder implements Builder<LaunchElementManager<R
 	}
 
 	@Override
-	public LaunchElementManager<ResourcePack> build()
+	public ResourcePackManager build()
 	{
 		return new ResourcePackManImpl(archiveRepository == null ? getArchiveRepository() : archiveRepository);
 	}
@@ -80,14 +77,15 @@ public class ResourcePackMangerBuilder implements Builder<LaunchElementManager<R
 					String name = raw.substring(0, raw.lastIndexOf('.')), descriptor = "";
 					int format = -1;
 					Path resolve = file.resolve("pack.mcmeta");
-					try (SeekableByteChannel channel = Files.newByteChannel(resolve))
+					try
 					{
-						byte[] bytes = new byte[(int) Files.size(resolve)];
-						ByteBuffer buffer = ByteBuffer.wrap(bytes);
-						channel.read(buffer);
-						JSONObject metaObj = new JSONObject(IOUtils.toString(bytes));
-						format = metaObj.optInt("pack_format", -1);
-						descriptor = metaObj.optString("description", "");
+						JSONObject metaObj = new JSONObject(NIOUtils.readToString(resolve));
+						JSONObject pack = metaObj.optJSONObject("pack");
+						if (pack != null)
+						{
+							format = pack.optInt("pack_format", -1);
+							descriptor = pack.optString("description", "");
+						}
 					}
 					catch (IOException e)
 					{
