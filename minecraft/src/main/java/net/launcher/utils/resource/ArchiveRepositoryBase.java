@@ -1,5 +1,6 @@
 package net.launcher.utils.resource;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import net.launcher.game.nbt.NBT;
@@ -118,7 +119,8 @@ class ArchiveRepositoryBase<T>
 		return new Resource<>(
 				ResourceType.valueOf(compound.get("type").asString()),
 				compound.get("hash").asString(),
-				archiveSerializer.deserialize(compound.get("data").asCompound()), sig);
+				archiveSerializer.deserialize(compound.get("data").asCompound()), sig,
+				compound.option("metadata").orElse(NBT.compound()).asCompound());
 	}
 
 	@Override
@@ -231,8 +233,11 @@ class ArchiveRepositoryBase<T>
 			for (String s : paths)
 			{
 				Resource<T> fetch = fetch(directory, s, option);
-				if (fetch != null)
-					treeSet.add(directory.resolve(s + fetch.getType().getSuffix()));
+				if (fetch == null)
+				{//TODO add suppressed
+					break;
+				}
+				treeSet.add(directory.resolve(s + fetch.getType().getSuffix()));
 			}
 			return null;
 		}), treeSet, service);
@@ -293,7 +298,8 @@ class ArchiveRepositoryBase<T>
 					if (deserialize == null) throw new IOException("Unable to parse the [" + file + "]!");
 					Resource<T> resource = new Resource<>(resourceType, md5,
 							deserialize, this).setName(simpleName);
-					this.archesMap.put(md5, resource);
+					Platform.runLater(() ->
+							this.archesMap.put(md5, resource));
 					call.updateProgress(2, 3, "saving");
 					this.saveResource(resource);
 					return resource;
@@ -310,8 +316,11 @@ class ArchiveRepositoryBase<T>
 
 	private void saveResource(ArchiveRepository.Resource<T> resource) throws IOException
 	{
-		NBTCompound compound = NBT.compound().put("type", resource.getType().toString()).put("hash", resource.getHash())
-				.put("data", archiveSerializer.serialize(resource.getContainData())).put("name", resource.getName());
+		NBTCompound compound = NBT.compound()
+				.put("type", resource.getType().toString())
+				.put("hash", resource.getHash())
+				.put("data", archiveSerializer.serialize(resource.getContainData()))
+				.put("metadata", resource.getCompound());
 		NBT.write(root.resolve(resource.getHash() + ".dat"), compound, true);
 	}
 

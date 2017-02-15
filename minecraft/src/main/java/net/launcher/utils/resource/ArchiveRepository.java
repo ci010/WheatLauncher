@@ -85,6 +85,15 @@ public interface ArchiveRepository<T> extends Repository<ArchiveRepository.Resou
 			this.compound.put("name", hash);
 		}
 
+		public Resource(ResourceType type, String hash, T containData, Object signiture, NBTCompound compound)
+		{
+			this.type = type;
+			this.hash = hash;
+			this.containData = containData;
+			this.signature = signiture;
+			this.compound = compound;
+		}
+
 		public Resource<T> setName(String name)
 		{
 			Objects.requireNonNull(name);
