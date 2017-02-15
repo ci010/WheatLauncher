@@ -25,7 +25,6 @@ import net.launcher.version.MinecraftVersion;
 import net.wheatlauncher.control.utils.ReloadableController;
 import net.wheatlauncher.control.utils.WindowsManager;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Predicate;
@@ -85,10 +84,9 @@ public class ControllerLanguages implements ReloadableController
 			}
 	}
 
-	@PostConstruct
-	public void init()
+	public void initialize()
 	{
-		Logger.trace("");
+		Logger.trace("Language Init");
 		languageLists = FXCollections.observableArrayList();
 		FilteredList<Language> filteredList = new FilteredList<>(languageLists);
 		filteredList.predicateProperty().bind(Bindings.createObjectBinding(() ->
@@ -114,5 +112,4 @@ public class ControllerLanguages implements ReloadableController
 		});
 		refresh();
 	}
-
 }

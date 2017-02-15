@@ -123,6 +123,10 @@ public class ControllerPreview implements ReloadableController
 		profileSettingDialog.setDialogContainer(flowContext.getRegisteredObject(StackPane.class));
 		profileSettingDialog.setContentHolderBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null,
 				null)));
+
+		settingDialog.setDialogContainer(flowContext.getRegisteredObject(StackPane.class));
+		settingDialog.setContentHolderBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null,
+				null)));
 	}
 
 	private void initSkin()

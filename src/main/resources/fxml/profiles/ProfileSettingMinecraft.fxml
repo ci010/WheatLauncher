@@ -12,20 +12,20 @@
             <MinecraftSlider fx:id="renderDistance" key="%renderDistance"/>
         </HBox>
         <HBox spacing="10" alignment="CENTER">
-            <MinecraftOptionButton fx:id="graphic" key="%fancyGraphics"/>
-            <MinecraftOptionButton fx:id="ambientOcclusion" key="%ao"/>
+            <MinecraftOptionButton fx:id="graphic" id="fancyGraphics" key="%fancyGraphics"/>
+            <MinecraftOptionButton fx:id="ambientOcclusion" id="ao" key="%ao"/>
         </HBox>
         <HBox spacing="10" alignment="CENTER">
-            <MinecraftOptionButton fx:id="mipmap" key="%mipmapLevels"/>
-            <MinecraftOptionButton fx:id="particle" key="%particles"/>
+            <MinecraftOptionButton fx:id="mipmap" id="mipmapLevels" key="%mipmapLevels"/>
+            <MinecraftOptionButton fx:id="particle" id="particles" key="%particles"/>
         </HBox>
         <HBox spacing="10" alignment="CENTER">
-            <MinecraftOptionButton fx:id="renderCloud" key="%renderClouds"/>
-            <MinecraftOptionButton fx:id="entityShadow" key="%entityShadows"/>
+            <MinecraftOptionButton fx:id="renderCloud" id="renderClouds" key="%renderClouds"/>
+            <MinecraftOptionButton fx:id="entityShadow" id="entityShadows" key="%entityShadows"/>
         </HBox>
         <HBox spacing="10" alignment="CENTER">
-            <MinecraftOptionButton fx:id="enableFBO" key="%fboEnable"/>
-            <MinecraftOptionButton fx:id="enableVBO" key="%useVbo"/>
+            <MinecraftOptionButton fx:id="enableFBO" id="fboEnable" key="%fboEnable"/>
+            <MinecraftOptionButton fx:id="enableVBO" id="useVbo" key="%useVbo"/>
         </HBox>
         <HBox spacing="10" alignment="CENTER">
             <MinecraftOptionMemory fx:id="memory" key="%setting.memory"/>

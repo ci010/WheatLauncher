@@ -43,7 +43,7 @@ public class ValidatorDelegate extends ValidatorBase
 		if (node instanceof TextInputControl)
 			control = (TextInputControl) node;
 		else if (node instanceof JFXComboBox)
-			control = ((JFXComboBox) node).getJFXEditor();
+			control = ((JFXComboBox) node).getEditor();
 		String text = control.getText();
 		try
 		{

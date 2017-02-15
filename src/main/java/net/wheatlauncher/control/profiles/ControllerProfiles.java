@@ -2,10 +2,6 @@ package net.wheatlauncher.control.profiles;
 
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTabPane;
-import io.datafx.controller.FXMLController;
-import io.datafx.controller.flow.context.FXMLViewFlowContext;
-import io.datafx.controller.flow.context.ViewFlowContext;
-import javafx.application.Platform;
 import javafx.scene.layout.StackPane;
 import net.launcher.Bootstrap;
 import net.launcher.Logger;
@@ -13,11 +9,9 @@ import net.launcher.control.profile.base.ProfileTableSelector;
 import net.launcher.control.versions.MinecraftVersionPicker;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.version.MinecraftVersion;
-import net.wheatlauncher.control.utils.FXMLInnerController;
 import net.wheatlauncher.control.utils.ReloadableController;
 import net.wheatlauncher.control.utils.WindowsManager;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.io.IOException;
 
@@ -25,12 +19,8 @@ import java.io.IOException;
 /**
  * @author ci010
  */
-@FXMLController("/fxml/profiles/Profiles.fxml")
 public class ControllerProfiles implements ReloadableController
 {
-	@FXMLViewFlowContext
-	private ViewFlowContext flowContext;
-
 	public ProfileTableSelector profile;
 
 	/*Version*/
@@ -39,27 +29,26 @@ public class ControllerProfiles implements ReloadableController
 	/*Sub-settings*/
 	public JFXTabPane optionsTab;
 
-	@FXMLInnerController
-	public ControllerGameSetting gameSettingController;
+	//	@FXMLInnerController
+//	public ControllerGameSetting gameSettingController;
 	public StackPane gameSetting;
 
-	@FXMLInnerController
-	public ControllerLanguages languageSettingController;
+	//	@FXMLInnerController
+//	public ControllerLanguages languageSettingController;
 	public StackPane languageSetting;
 
-	@FXMLInnerController
-	public ControllerResourcePackView resourcePackSettingController;
+	//	@FXMLInnerController
+//	public ControllerResourcePackView resourcePackSettingController;
 	public StackPane resourcePackSetting;
 
-	@FXMLInnerController
-	public ControllerModView modSettingController;
+	//	@FXMLInnerController
+//	public ControllerModView modSettingController;
 	public StackPane modSetting;
 
 	/*root*/
 	public JFXDialog rootDialog;
 
-	@PostConstruct
-	public void setup()
+	public void initialize()
 	{
 		Logger.trace("init");
 		rootDialog.setOverlayClose(true);
@@ -83,7 +72,8 @@ public class ControllerProfiles implements ReloadableController
 					try {Bootstrap.getCore().getAssetsManager().getRepository().update();}
 					catch (IOException e)
 					{
-						Platform.runLater(() -> flowContext.getRegisteredObject(WindowsManager.Page.class).displayError(e));
+						WindowsManager.displayError(versions.getScene(), e);
+//						Platform.runLater(() -> flowContext.getRegisteredObject(WindowsManager.Page.class).displayError(e));
 					}
 				}));
 		Bootstrap.getCore().getProfileManager().selectedProfileProperty().addListener(observable ->

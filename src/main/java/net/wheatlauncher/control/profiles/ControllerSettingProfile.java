@@ -14,7 +14,6 @@ import net.launcher.utils.StringUtils;
 import net.wheatlauncher.control.utils.ReloadableController;
 import net.wheatlauncher.control.utils.WindowsManager;
 
-import javax.annotation.PostConstruct;
 import java.util.Objects;
 
 /**
@@ -47,8 +46,7 @@ public class ControllerSettingProfile implements ReloadableController
 	@FXMLViewFlowContext
 	private ViewFlowContext context;
 
-	@PostConstruct
-	public void setupProfileOptionDialogs()
+	public void initialize()
 	{
 		Logger.trace("init");
 

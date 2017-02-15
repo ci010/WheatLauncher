@@ -19,21 +19,15 @@
             </JFXTableView>
         </VBox>
         <VBox spacing="10" style=" -fx-padding:10;" HBox.hgrow="ALWAYS">
-            <!--<top>-->
             <StackPane style="-fx-background-color:WHITE; -fx-padding:10">
                 <Label text="%mod.description"/>
             </StackPane>
-            <!--</top>-->
-            <!--<center>-->
             <VBox fx:id="descriptionBox" style="-fx-background-color:WHITE;" accessibleText="">
                 <Label fx:id="description"/>
             </VBox>
-            <!--</center>-->
-            <!--<bottom>-->
             <StackPane style="-fx-background-color:WHITE">
                 <JFXTextField fx:id="searchField" promptText="Search..." maxWidth="50" maxHeight="50"/>
             </StackPane>
-            <!--</bottom>-->
         </VBox>
     </HBox>
 </StackPane>

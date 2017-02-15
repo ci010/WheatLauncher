@@ -2,6 +2,7 @@ package net.launcher;
 
 import net.launcher.profile.LaunchProfile;
 import net.launcher.profile.LaunchProfileManager;
+import net.launcher.resourcepack.ResourcePackManager;
 import net.launcher.version.MinecraftAssetsManager;
 import org.to2mbn.jmccc.launch.Launcher;
 import org.to2mbn.jmccc.launch.ProcessListener;
@@ -28,6 +29,8 @@ public abstract class LaunchCore
 	public abstract MinecraftAssetsManager getAssetsManager();
 
 	public abstract DownloadCenter getDownloadCenter();
+
+	public abstract ResourcePackManager getResourcePackManager();
 
 	public void launch() throws Exception
 	{
@@ -69,6 +72,14 @@ public abstract class LaunchCore
 	public abstract void init() throws Exception;
 
 	public abstract void destroy() throws IOException;
+
+	public abstract <T> Optional<T> getComponent(Class<T> tClass);
+
+	public abstract <T> Optional<T> getComponent(Class<T> tClass, String id);
+
+	public abstract <T> void registerComponent(Class<? super T> clz, T o);
+
+	public abstract <T> void registerComponent(Class<? super T> clz, T o, String id);
 
 	public abstract ScheduledExecutorService getService();
 

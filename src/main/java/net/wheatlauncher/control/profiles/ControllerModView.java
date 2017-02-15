@@ -9,8 +9,6 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import net.launcher.game.forge.ForgeMod;
 
-import javax.annotation.PostConstruct;
-
 /**
  * @author ci010
  */
@@ -30,8 +28,7 @@ public class ControllerModView
 	public VBox descriptionBox;
 	public JFXButton details;
 
-	@PostConstruct
-	public void init()
+	public void initialize()
 	{
 
 	}

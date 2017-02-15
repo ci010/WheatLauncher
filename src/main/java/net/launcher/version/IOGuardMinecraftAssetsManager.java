@@ -1,10 +1,12 @@
 package net.launcher.version;
 
 import javafx.application.Platform;
+import javafx.scene.image.Image;
 import net.launcher.Bootstrap;
 import net.launcher.LaunchManager;
 import net.launcher.Logger;
 import net.launcher.game.Language;
+import net.launcher.game.WorldInfo;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
 import net.launcher.profile.LaunchProfile;
@@ -165,7 +167,12 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 			}
 		}
 		if (!versionList.isEmpty())
-			manager.register(versionList);
+			manager.refresh(versionList);
+		List<WorldInfo> infos = new ArrayList<>();
+		for (Path save : Files.walk(this.getContext().getRoot().resolve("saves"), 2)
+				.filter(path -> path.getFileName().toString().equals("level.dat")).collect(Collectors.toList()))
+			infos.add(WorldInfo.deserialize(save));
+		if (!infos.isEmpty()) manager.refreshWorld(infos);
 	}
 
 	@Override
@@ -185,6 +192,21 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 			try {Collections.addAll(languages, deserializer.deserialize(IOUtils.toJson(file)));}
 			catch (JSONException | IOException e) {e.printStackTrace();}
 		return languages;
+	}
+
+	@Override
+	public Image getIcon(WorldInfo worldInfo) throws IOException
+	{
+		return WorldInfo.getIcon(worldInfo, getContext().getRoot().resolve("saves"));
+	}
+
+	@Override
+	public void saveWorldInfo(WorldInfo worldInfo) throws IOException
+	{
+		Path saves = getContext().getRoot().resolve("saves").resolve(worldInfo.getFileName()).resolve("level.dat");
+		if (Files.exists(saves))
+			WorldInfo.WRITER.writeTo(worldInfo, NBT.read(saves, true).asCompound());
+		else throw new IOException();
 	}
 
 	private Set<String> locals = Collections.synchronizedSet(new TreeSet<>());

@@ -7,6 +7,7 @@ import io.datafx.controller.context.ViewContext;
 import io.datafx.controller.flow.*;
 import io.datafx.controller.flow.container.DefaultFlowContainer;
 import io.datafx.controller.flow.context.ViewFlowContext;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
@@ -177,6 +178,26 @@ public class WindowsManager
 		stage.setScene(scene);
 
 		return page;
+	}
+
+	public static void reportError(Scene scene, String message)
+	{
+		Platform.runLater(() -> displayError(scene, message));
+	}
+
+	public static void reportError(Scene scene, Throwable message)
+	{
+		Platform.runLater(() -> displayError(scene, message));
+	}
+
+	public static void displayError(Scene scene, String message)
+	{
+		new JFXSnackbar((Pane) scene.getRoot()).enqueue(new JFXSnackbar.SnackbarEvent(message));
+	}
+
+	public static void displayError(Scene scene, Throwable message)
+	{
+		new JFXSnackbar((Pane) scene.getRoot()).enqueue(new JFXSnackbar.SnackbarEvent(message.getMessage()));
 	}
 
 }

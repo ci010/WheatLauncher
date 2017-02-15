@@ -88,6 +88,11 @@ public class ControllerLogin
 		return item;
 	}
 
+	public void initialize()
+	{
+		Logger.trace("initialize");
+	}
+
 	@PostConstruct
 	public void init()
 	{

@@ -19,7 +19,6 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import net.wheatlauncher.control.utils.ReloadableController;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Random;
 
@@ -35,9 +34,8 @@ public class ControllerCurseModViewer implements ReloadableController
 	private Random random = new Random();
 	private List<StackPane> modinfos;
 
-	
-	@PostConstruct
-	public void init()
+
+	public void initialize()
 	{
 
 		int index = 0;

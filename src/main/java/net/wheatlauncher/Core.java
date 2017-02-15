@@ -5,6 +5,7 @@ import net.launcher.game.ResourcePack;
 import net.launcher.game.forge.ForgeMod;
 import net.launcher.mod.ModManagerBuilder;
 import net.launcher.profile.LaunchProfileManager;
+import net.launcher.resourcepack.ResourcePackManager;
 import net.launcher.resourcepack.ResourcePackMangerBuilder;
 import net.launcher.version.IOGuardMinecraftAssetsManager;
 import net.launcher.version.MinecraftAssetsManager;
@@ -40,6 +41,7 @@ public class Core extends LaunchCore
 	private LaunchProfileManager profileManager;
 	private AuthProfile authProfile;
 	private MinecraftAssetsManager versionManager;
+	private ResourcePackManager resourcePackManager;
 
 	private IOGuardContext ioContext;
 	private DownloadCenter downloadCenter;
@@ -96,6 +98,12 @@ public class Core extends LaunchCore
 	}
 
 	@Override
+	public ResourcePackManager getResourcePackManager()
+	{
+		return resourcePackManager;
+	}
+
+	@Override
 	protected LaunchOption buildOption()
 	{
 		return null;
@@ -141,17 +149,19 @@ public class Core extends LaunchCore
 		this.initRoot();
 
 		this.maintainer = new WorldSaveMaintainer(root.resolve("saves"));
+
 		this.downloadCenter = new DownloadCenterImpl();
 		this.managers = new HashMap<>();
+		Path mods = this.getRoot().resolve("mods");
+		Files.createDirectories(mods);
 		this.managers.put(ForgeMod.class, ModManagerBuilder.create(
-				this.getRoot().resolve("mods"),
+				mods,
 				this.executorService).build());
-		this.managers.put(ResourcePack.class, ResourcePackMangerBuilder.create(
-				this.getRoot().resolve("resourcepacks"),
+		Path resourcepacks = this.getRoot().resolve("resourcepacks");
+		Files.createDirectories(resourcepacks);
+		this.managers.put(ResourcePack.class, this.resourcePackManager = ResourcePackMangerBuilder.create(
+				resourcepacks,
 				this.executorService).build());
-
-		Optional<LaunchElementManager<ResourcePack>> optional = getElementManager(ResourcePack.class);
-		LaunchElementManager<ResourcePack> manager = optional.get();
 
 		//main module io start
 		this.ioContext = IOGuardContextScheduled.Builder.create(this.root, executorService)
@@ -164,6 +174,7 @@ public class Core extends LaunchCore
 		this.profileManager = ioContext.load(LaunchProfileManager.class);
 		this.versionManager.getRepository().update();
 
+		resourcePackManager.update();
 		//main module io end
 		assert profileManager.getSelectedProfile() != null;
 		assert profileManager.selecting() != null;
@@ -205,6 +216,30 @@ public class Core extends LaunchCore
 		}
 		executorService.shutdown();
 		Logger.trace("Shutdown");
+	}
+
+	@Override
+	public <T> Optional<T> getComponent(Class<T> tClass)
+	{
+		return null;
+	}
+
+	@Override
+	public <T> Optional<T> getComponent(Class<T> tClass, String id)
+	{
+		return null;
+	}
+
+	@Override
+	public <T> void registerComponent(Class<? super T> clz, T o)
+	{
+
+	}
+
+	@Override
+	public <T> void registerComponent(Class<? super T> clz, T o, String id)
+	{
+
 	}
 
 	@Override

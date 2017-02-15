@@ -5,8 +5,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import net.launcher.DownloadCenter;
 
-import javax.annotation.PostConstruct;
-
 /**
  * @author ci010
  */
@@ -17,8 +15,7 @@ public class ControllerDownload
 	public JFXTableView<DownloadCenter.TaskInfo> taskTable;
 	public Label downloadID;
 
-	@PostConstruct
-	public void init()
+	public void initialize()
 	{
 
 	}

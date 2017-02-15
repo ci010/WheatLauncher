@@ -3,7 +3,9 @@ package net.launcher.version;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.scene.image.Image;
 import net.launcher.game.Language;
+import net.launcher.game.WorldInfo;
 import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.ComparableVersion;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersion;
 import org.to2mbn.jmccc.version.Version;
@@ -18,6 +20,7 @@ import java.util.TreeMap;
 public class MinecraftAssetsManager
 {
 	private ObservableList<MinecraftVersion> versions = FXCollections.observableArrayList();
+	private ObservableList<WorldInfo> worldInfos = FXCollections.observableArrayList();
 	private ObservableMap<String, MinecraftVersion> map = FXCollections.observableMap(new TreeMap<>());
 
 	private AssetsRepository repository;
@@ -34,6 +37,10 @@ public class MinecraftAssetsManager
 		void update() throws IOException;
 
 		List<Language> getLanguages(MinecraftVersion version) throws IOException;
+
+		Image getIcon(WorldInfo worldInfo) throws IOException;
+
+		void saveWorldInfo(WorldInfo worldInfo) throws IOException;
 	}
 
 	MinecraftAssetsManager(AssetsRepository repository)
@@ -43,9 +50,32 @@ public class MinecraftAssetsManager
 
 	public ObservableList<MinecraftVersion> getVersions() {return versions;}
 
-	void register(List<MinecraftVersion> versions)
+	public ObservableList<WorldInfo> getWorldInfos() {return worldInfos;}
+
+	public boolean contains(String version)
 	{
-		this.versions.addAll(versions);
+		return getVersion(version) != null;
+	}
+
+	public MinecraftVersion getVersion(String version)
+	{
+		if (version == null) return null;
+		return map.get(version);
+	}
+
+	public ObservableMap<String, MinecraftVersion> getMap() {return map;}
+
+	public AssetsRepository getRepository() {return repository;}
+
+	void refreshWorld(List<WorldInfo> worldInfos)
+	{
+		this.worldInfos.setAll(worldInfos);
+	}
+
+	void refresh(List<MinecraftVersion> versions)
+	{
+		this.versions.setAll(versions);
+		this.map.clear();
 		for (MinecraftVersion version : versions)
 			this.map.put(version.getVersionID(), version);
 		this.versions.sort((o1, o2) ->
@@ -68,19 +98,4 @@ public class MinecraftAssetsManager
 			return new ComparableVersion(v1).compareTo(new ComparableVersion(v2));
 		});
 	}
-
-	public boolean contains(String version)
-	{
-		return getVersion(version) != null;
-	}
-
-	public MinecraftVersion getVersion(String version)
-	{
-		if (version == null) return null;
-		return map.get(version);
-	}
-
-	public ObservableMap<String, MinecraftVersion> getMap() {return map;}
-
-	public AssetsRepository getRepository() {return repository;}
 }

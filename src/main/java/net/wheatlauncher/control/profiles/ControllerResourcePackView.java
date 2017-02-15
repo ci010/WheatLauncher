@@ -25,7 +25,6 @@ import net.launcher.resourcepack.ResourcePackManager;
 import net.launcher.utils.Tasks;
 import net.wheatlauncher.control.utils.ReloadableController;
 
-import javax.annotation.PostConstruct;
 import java.util.Optional;
 
 /**
@@ -43,8 +42,7 @@ public class ControllerResourcePackView implements ReloadableController
 
 	private ResourcePackManager manager;
 
-	@PostConstruct
-	public void init()
+	public void initialize()
 	{
 		ApplicationContext.getInstance().getRegisteredObject(ResourcePackManager.class.toString());
 		Optional<LaunchElementManager<ResourcePack>> elementManager = Bootstrap.getCore().getElementManager(ResourcePack.class);

@@ -17,7 +17,6 @@ import net.launcher.Logger;
 import net.launcher.profile.LaunchProfile;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 
 /**
@@ -36,7 +35,6 @@ public class ControllerCommonSetting
 	//1024x768 common
 
 
-
 	public JFXTextField minecraftLocation;
 	public JFXButton browsMinecraft;
 	public JFXTextField javaLocation;
@@ -50,8 +48,7 @@ public class ControllerCommonSetting
 	@FXMLViewFlowContext
 	private ViewFlowContext flowContext;
 
-	@PostConstruct
-	public void init()
+	public void initialize()
 	{
 		Logger.trace("init");
 		LaunchProfile profile = Bootstrap.getCore().getProfileManager().selecting();
@@ -104,36 +101,12 @@ public class ControllerCommonSetting
 		{
 			LaunchProfile p = Bootstrap.getCore().getProfileManager().selecting();
 
-//			memory.valueProperty().set(Bootstrap.getCore().getProfileManager().selecting().getMemory());
-			int v = 0;
-//			for (Map.Entry<Integer, WindowSize> entry : stageToResolution.entrySet())
-//				if (p.getResolution().equals(entry.getValue()))
-//					v = entry.getKey();
-//			resolution.valueProperty().set(v);
-//
-//			minecraftLocation.textProperty().bind(Bindings.createStringBinding(() -> Bootstrap.getCore().getProfileManager().selecting()
-//							.getMinecraftLocation().getRoot().getAbsolutePath(),
-//					(Observable) Bootstrap.getCore().getProfileManager().selecting()));
 			javaLocation.textProperty().bind(Bindings.createStringBinding(() -> Bootstrap.getCore().getProfileManager().selecting().
 					getJavaEnvironment().getJavaPath().getAbsolutePath(), (Observable) Bootstrap.getCore().getProfileManager().selecting()));
 		});
 
 
-//		browsMinecraft.setOnMouseClicked(event ->
-//		{
-//			DirectoryChooser chooser = new DirectoryChooser();
-//			chooser.setInitialDirectory(new File("").getAbsoluteFile());
-//			chooser.setTitle("Choose Minecraft root(.minecraft)");
-//			Stage stage = (Stage) flowContext.getRegisteredObject("Stage");
-//			File choose = chooser.showDialog(stage);
-//			if (choose == null)
-//				return;
-//			if (choose.isDirectory())
-//			{
-//				MinecraftDirectory directory = new MinecraftDirectory(choose);
-//				Bootstrap.getCore().getProfileManager().selecting().setMinecraftLocation(directory);
-//			}
-//		});
+//		browsMinecraft.sd
 
 		browsJava.setOnMouseClicked(event ->
 		{

@@ -3,8 +3,8 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
-<StackPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
-           fx:controller="net.wheatlauncher.control.settings.ControllerDownload">
+<StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
+           xmlns="http://javafx.com/javafx/2.2" fx:controller="net.wheatlauncher.control.settings.ControllerDownload">
     <HBox>
         <Label text="%download.id"/>
         <Label fx:id="downloadID"/>
