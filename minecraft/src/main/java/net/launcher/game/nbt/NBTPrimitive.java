@@ -69,8 +69,6 @@ public class NBTPrimitive extends NBT
 	@Override
 	public String toString()
 	{
-		return "NBTPrimitive{" +
-				"v=" + v +
-				'}';
+		return String.valueOf(v);
 	}
 }

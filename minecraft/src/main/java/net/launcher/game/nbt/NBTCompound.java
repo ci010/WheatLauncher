@@ -142,8 +142,6 @@ public class NBTCompound extends NBT
 	@Override
 	public String toString()
 	{
-		return "NBTCompound{" +
-				"map=" + map +
-				'}';
+		return String.valueOf(map);
 	}
 }

@@ -13,6 +13,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import net.launcher.control.ResourcePackCell;
 import net.launcher.game.ResourcePack;
 import net.launcher.utils.resource.ArchiveRepository;
 import net.wheatlauncher.MainApplication;
@@ -38,7 +39,6 @@ public class ResourcePackManagerTest extends Application
 		Files.createDirectories(resolve);
 		ResourcePackMangerBuilder test = ResourcePackMangerBuilder.create(resolve, Executors.newCachedThreadPool());
 		ResourcePackManager build = test.build();
-		ArchiveRepository.Resource<ResourcePack> resource = build.getRepository().importFile(Paths.get("D:\\Storage\\Download\\Faithful 1.11.2-rv3.zip"), null).get();
 	}
 
 	public static void main(String[] args) {launch(args);}
@@ -52,7 +52,7 @@ public class ResourcePackManagerTest extends Application
 		ResourcePackMangerBuilder test = ResourcePackMangerBuilder.create(resolve, service);
 		ResourcePackManager build = test.build();
 
-		ArchiveRepository<ResourcePack> repo = build.getRepository();
+		ArchiveRepository<ResourcePack> repo = test.getArchiveRepository();
 		repo.update().get();
 		String next = repo.getAllVisiblePaths().iterator().next();
 		ArchiveRepository.Resource<ResourcePack> resourcePackResource = repo.getResourceMap().get(next);
@@ -63,8 +63,10 @@ public class ResourcePackManagerTest extends Application
 
 		for (int i = 0; i < 5; i++)
 		{
-			StackPane pane = createPane(containData, build.getIcon(containData), true);
-			container.getChildren().add(pane);
+			ResourcePackCell ce = new ResourcePackCell();
+			ce.setValue(containData);
+			ce.setImage(build.getIcon(containData));
+			container.getChildren().add(ce);
 		}
 		StackPane root = new StackPane(container);
 		Scene scene = new Scene(root, 512, 380);
