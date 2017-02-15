@@ -6,9 +6,11 @@ import net.launcher.game.nbt.NBTCompound;
 import net.launcher.utils.serial.Deserializer;
 import net.launcher.utils.serial.SerializedWriter;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Collections;
 
 /**
  * @author ci010
@@ -121,26 +123,35 @@ public class WorldInfo
 		this.spawnZ = spawnZ;
 	}
 
-	public static Image getIcon(WorldInfo info, File saveDir) throws FileNotFoundException
+	public static Image getIcon(WorldInfo info, Path saveDir) throws FileNotFoundException
 	{
-		return new Image(new FileInputStream(new File(saveDir, info.getFileName() + "/icon.png")));
+		return new Image(new FileInputStream(saveDir.resolve(info.getFileName()).resolve("icon.png").toFile()));
+	}
+
+	public static WorldInfo deserialize(Path levelFile) throws IOException
+	{
+		String fileName = levelFile.getParent().getFileName().toString();
+		return SERIALIZER.deserialize(NBT.read(levelFile, true).asCompound(), Collections.singletonMap("fileName",
+				fileName));
 	}
 
 	public static Deserializer<WorldInfo, NBTCompound> SERIALIZER = (compound, context) ->
 	{
-		long lastPlayed1 = compound.get("LastPlayed").asPrimitive().asLong();
-		long sizeOnDisk = compound.get("SizeOnDisk").asPrimitive().asLong();
-		String levelName = compound.get("LevelName").asPrimitive().asString();
-		boolean hardcore = compound.get("hardcore").asPrimitive().asBool();
-		GameType gameType1 = GameType.getByID(compound.get("GameType").asPrimitive().asInt());
-		boolean allowCommands = compound.option("allowCommands").orElse(NBT.bool(gameType1 == GameType.CREATIVE))
+		compound = compound.get("Data").asCompound();
+		long lastPlayed1 = compound.get("LastPlayed").asLong();
+		long sizeOnDisk = compound.get("SizeOnDisk").asLong();
+		String levelName = compound.get("LevelName").asString();
+		boolean hardcore = compound.get("hardcore").asBool();
+		GameType gameType = GameType.getByID(compound.get("GameType").asPrimitive().asInt());
+		boolean allowCommands = compound.option("allowCommands").orElse(NBT.bool(gameType == GameType.CREATIVE))
 				.asPrimitive().asBool();
 		int spawnX1 = compound.get("SpawnX").asPrimitive().asInt();
 		int spawnY1 = compound.get("SpawnY").asPrimitive().asInt();
 		int spawnZ1 = compound.get("SpawnZ").asPrimitive().asInt();
 		String fileName1 = (String) context.get("fileName");
 		if (fileName1 == null) fileName1 = "";
-		return new WorldInfo(fileName1, levelName, sizeOnDisk, lastPlayed1, gameType1, hardcore, allowCommands, spawnX1,
+
+		return new WorldInfo(fileName1, levelName, sizeOnDisk, lastPlayed1, gameType, hardcore, allowCommands, spawnX1,
 				spawnY1, spawnZ1);
 	};
 
