@@ -1,7 +1,6 @@
 package moe.mickey.minecraft.skin.fx;
 
 
-import javafx.scene.image.Image;
 import javafx.scene.shape.Mesh;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.TriangleMesh;
@@ -9,7 +8,6 @@ import javafx.scene.shape.TriangleMesh;
 import java.util.Arrays;
 
 public class SkinCube extends MeshView {
-
 	public static class Model extends TriangleMesh {
 
 		public Model(float width, float height, float depth, float scaleX, float scaleY, float startX, float startY, boolean isSlim) {
@@ -97,19 +95,15 @@ public class SkinCube extends MeshView {
 			}
 
 			int[] ints = new int[faces.length + copy.length];
-			for (int i = 0; i < faces.length; i++)
-				ints[i] = faces[i];
-			for (int i = 0; i < copy.length; i++)
-				ints[i + faces.length] = copy[i];
+			System.arraycopy(faces, 0, ints, 0, faces.length);
+			System.arraycopy(copy, 0, ints, faces.length, copy.length);
 			return ints;
-//			return Arrays.addAll(faces, copy);
 		}
 
 	}
 
 	private double width, height, depth;
 	private boolean isSlim;
-	private Image skin;
 	private Mesh model;
 
 	public SkinCube(float width, float height, float depth, float scaleX, float scaleY, float startX, float startY, float enlarge, boolean isSlim) {

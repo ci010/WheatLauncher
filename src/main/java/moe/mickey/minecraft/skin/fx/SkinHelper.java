@@ -1,25 +1,26 @@
 package moe.mickey.minecraft.skin.fx;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
 public interface SkinHelper {
-	
-	public static class PixelCopyer {
+
+	class PixelCopy
+	{
 		
 		protected Image srcImage;
 		protected WritableImage newImage;
-		
-		public PixelCopyer(Image srcImage, WritableImage newImage) {
+
+		public PixelCopy(Image srcImage, WritableImage newImage)
+		{
 			this.srcImage = srcImage;
 			this.newImage = newImage;
 		}
@@ -63,22 +64,25 @@ public interface SkinHelper {
 		}
 
 	}
-	
-	public static boolean isNoRequest(Image image) {
+
+	static boolean isNoRequest(Image image)
+	{
 		return image.getRequestedWidth() == 0 && image.getRequestedHeight() == 0;
 	}
-	
-	public static boolean isSkin(Image image) {
+
+	static boolean isSkin(Image image)
+	{
 		return image.getWidth() % 64 == 0 && image.getWidth() / 64 > 0 &&
 				(image.getHeight() == image.getWidth() / 2 || image.getHeight() == image.getWidth());
 	}
-	
-	public static Image x32Tox64(Image srcSkin) {
+
+	static Image x32Tox64(Image srcSkin)
+	{
 		if (srcSkin.getHeight() == 64)
 			return srcSkin;
 		
 		WritableImage newSkin = new WritableImage((int) srcSkin.getWidth(), (int) srcSkin.getHeight() * 2);
-		PixelCopyer copyer = new PixelCopyer(srcSkin, newSkin);
+		PixelCopy copyer = new PixelCopy(srcSkin, newSkin);
 		// HEAD & HAT
 		copyer.copy(0 / 64F, 0 / 32F, 0 / 64F, 0 / 64F, 64 / 64F, 16 / 32F);
 		// LEFT-LEG
@@ -94,8 +98,9 @@ public interface SkinHelper {
 		
 		return newSkin;
 	}
-	
-	static void x32Tox64(PixelCopyer copyer, float srcX, float srcY, float toX, float toY, float width, float height, float depth) {
+
+	static void x32Tox64(PixelCopy copyer, float srcX, float srcY, float toX, float toY, float width, float height, float depth)
+	{
 		// TOP
 		copyer.copy(srcX + depth, srcY, toX + depth, toY, width, depth * 2, true, false);
 		// BOTTOM
@@ -109,8 +114,9 @@ public interface SkinHelper {
 		// BACK
 		copyer.copy(srcX + width + depth * 2, srcY + depth * 2, toX + width + depth * 2, toY + depth, width, height, true, false);
 	}
-	
-	public static Image enlarge(Image srcSkin, int multiple) {
+
+	static Image enlarge(Image srcSkin, int multiple)
+	{
 		WritableImage newSkin = new WritableImage((int) srcSkin.getWidth() * multiple, (int) srcSkin.getHeight() * multiple);
 		PixelReader reader = srcSkin.getPixelReader();
 		PixelWriter writer = newSkin.getPixelWriter();
@@ -125,8 +131,9 @@ public interface SkinHelper {
 		
 		return newSkin;
 	}
-	
-	public static void saveToFile(Image image, File output) {
+
+	static void saveToFile(Image image, File output)
+	{
 		BufferedImage buffer = SwingFXUtils.fromFXImage(image, null);
 		try {
 			ImageIO.write(buffer, "png", output);
