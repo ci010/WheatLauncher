@@ -10,6 +10,7 @@ import java.nio.file.Path;
  */
 public interface IOGuardContext
 {
+
 	void saveAll() throws Exception;
 
 	void loadAll() throws IOException;
@@ -31,6 +32,6 @@ public interface IOGuardContext
 	{
 		void performance(Path root) throws Exception;
 
-		default boolean canMerge(IOTask task) {return task.getClass().equals(this.getClass());}
+		default boolean isEquivalence(IOTask task) {return task.getClass().equals(this.getClass());}
 	}
 }

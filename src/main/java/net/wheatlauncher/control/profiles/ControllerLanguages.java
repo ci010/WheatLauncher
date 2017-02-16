@@ -3,8 +3,6 @@ package net.wheatlauncher.control.profiles;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTableView;
 import com.jfoenix.controls.JFXTextField;
-import io.datafx.controller.flow.context.FXMLViewFlowContext;
-import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
@@ -14,7 +12,6 @@ import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.control.TableColumn;
 import javafx.scene.layout.StackPane;
-import net.launcher.Bootstrap;
 import net.launcher.Logger;
 import net.launcher.control.MinecraftOptionButton;
 import net.launcher.game.Language;
@@ -22,8 +19,8 @@ import net.launcher.profile.LaunchProfile;
 import net.launcher.profile.LaunchProfileManager;
 import net.launcher.version.MinecraftAssetsManager;
 import net.launcher.version.MinecraftVersion;
+import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.control.utils.ReloadableController;
-import net.wheatlauncher.control.utils.WindowsManager;
 
 import java.io.IOException;
 import java.util.List;
@@ -34,8 +31,6 @@ import java.util.function.Predicate;
  */
 public class ControllerLanguages implements ReloadableController
 {
-	@FXMLViewFlowContext
-	public ViewFlowContext context;
 	public StackPane root;
 	public JFXTableView<Language> languageTable;
 	public TableColumn<Language, String> id;
@@ -68,8 +63,8 @@ public class ControllerLanguages implements ReloadableController
 
 	private void refresh()
 	{
-		LaunchProfile selecting = Bootstrap.getCore().getProfileManager().selecting();
-		MinecraftAssetsManager assetsManager = Bootstrap.getCore().getAssetsManager();
+		LaunchProfile selecting = MainApplication.getCore().getProfileManager().selecting();
+		MinecraftAssetsManager assetsManager = MainApplication.getCore().getAssetsManager();
 		MinecraftVersion version = assetsManager.getVersion(selecting.getVersion());
 		Logger.trace("refresh lang " + version);
 		if (version != null)
@@ -80,7 +75,7 @@ public class ControllerLanguages implements ReloadableController
 			}
 			catch (IOException e)
 			{
-				context.getRegisteredObject(WindowsManager.Page.class).displayError(e);
+				MainApplication.displayError(languageTable.getScene(), e);
 			}
 	}
 
@@ -104,9 +99,9 @@ public class ControllerLanguages implements ReloadableController
 		{
 			//toggle language
 		});
-		Bootstrap.getCore().getProfileManager().selectedProfileProperty().addListener((observable, oldV, newV) ->
+		MainApplication.getCore().getProfileManager().selectedProfileProperty().addListener((observable, oldV, newV) ->
 		{
-			LaunchProfileManager profileManager = Bootstrap.getCore().getProfileManager();
+			LaunchProfileManager profileManager = MainApplication.getCore().getProfileManager();
 			profileManager.getProfile(oldV).ifPresent(profile -> profile.versionBinding().removeListener(listener));
 			profileManager.getProfile(newV).ifPresent(profile -> profile.versionBinding().addListener(listener));
 		});

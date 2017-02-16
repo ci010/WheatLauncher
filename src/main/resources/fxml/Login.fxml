@@ -5,7 +5,8 @@
 <?import javafx.scene.layout.*?>
 <?import net.wheatlauncher.control.utils.ValidatorDelegate?>
 <StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
-           styleClass="jfx-container" onKeyPressed="#onGlobalKeyPressed">
+           styleClass="jfx-container" onKeyPressed="#onGlobalKeyPressed"
+           fx:controller="net.wheatlauncher.control.ControllerLogin">
     <VBox fx:id="box" maxWidth="400" maxHeight="400" spacing="15" alignment="CENTER"
           style="-fx-padding:10 0 0 0;"
           onMouseClicked="#onClick">
@@ -20,7 +21,7 @@
             </JFXTextField>
         </HBox>
         <HBox spacing="10" style="-fx-padding: 10 0 10 50;">
-            <JFXPasswordField id="password" promptText="Password" labelFloat="true"
+            <JFXPasswordField fx:id="password" promptText="Password" labelFloat="true"
                               onKeyPressed="#switchOnlineMode" styleClass="login-field">
                 <validators>
                     <ValidatorDelegate fx:id="passwordValid"/>

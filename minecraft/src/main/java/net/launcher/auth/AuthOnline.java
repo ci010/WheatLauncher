@@ -18,18 +18,18 @@ public class AuthOnline implements Authorize
 	public void validateUserName(String name)
 	{
 		if (StringUtils.isEmpty(name))
-			throw new NullPointerException();
+			throw new NullPointerException("online.account.null");
 		else if (!Patterns.EMAIL.matcher(name).matches())
-			throw new IllegalArgumentException("auth.username.email");
+			throw new IllegalArgumentException("online.account.invalid");
 	}
 
 	@Override
 	public void validatePassword(String password)
 	{
 		if (StringUtils.isEmpty(password))
-			throw new NullPointerException();
+			throw new NullPointerException("online.password.null");
 		else if (password.length() < 6)
-			throw new IllegalArgumentException("auth.password.length");
+			throw new IllegalArgumentException("online.password.invalid");
 	}
 
 

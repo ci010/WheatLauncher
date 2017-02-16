@@ -8,6 +8,8 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
 
 /**
@@ -19,6 +21,7 @@ public class IOGuardContextScheduled implements IOGuardContext
 	private Map<Class, IOGuard> ioGuards;
 	private ScheduledExecutorService service;
 	private List<IOTask> tasks = Collections.synchronizedList(new LinkedList<>());
+	private Lock lock = new ReentrantLock();
 
 	private IOGuardContextScheduled(Path root, Map<Class, IOGuard> ioGuards, ScheduledExecutorService service)
 	{
@@ -70,11 +73,16 @@ public class IOGuardContextScheduled implements IOGuardContext
 	@Override
 	public void enqueue(IOTask task)
 	{
-		Logger.trace("enqueue " + task);
-		boolean merged = false;
+		Logger.trace("listen " + task);
+		lock.tryLock();
 		for (IOTask ioTask : tasks)
-			if (ioTask.canMerge(task)) merged = true;
-		if (!merged) tasks.add(task);
+			if (ioTask.isEquivalence(task))
+			{
+				lock.unlock();
+				return;
+			}
+		tasks.add(task);
+		lock.unlock();
 	}
 
 	@Override
@@ -156,9 +164,10 @@ public class IOGuardContextScheduled implements IOGuardContext
 				ioGuard.init(context);
 			service.scheduleAtFixedRate(() ->
 			{
-				LinkedList<IOTask> copy = new LinkedList<>();
-				copy.addAll(context.tasks);//I know this is not thread safe... but, just leave it now....
+				context.lock.tryLock();
+				LinkedList<IOTask> copy = new LinkedList<>(context.tasks);
 				context.tasks.clear();
+				context.lock.unlock();
 				while (!copy.isEmpty())
 				{
 					IOTask task = copy.remove(0);

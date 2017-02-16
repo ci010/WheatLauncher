@@ -6,6 +6,7 @@
 <?import moe.mickey.minecraft.skin.fx.SkinCanvas?>
 <?import net.wheatlauncher.control.utils.ColorTransitionButton?>
 <BorderPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
+            fx:controller="net.wheatlauncher.control.ControllerPreview"
             style="-fx-padding:5,5">
     <left>
         <VBox fx:id="leftBox" prefWidth="200" maxWidth="400" spacing="20" alignment="CENTER"
@@ -53,7 +54,7 @@
     <right>
         <StackPane fx:id="rightBox" prefWidth="400" alignment="BOTTOM_RIGHT"
                    style="-fx-padding:15,10;">
-            <ColorTransitionButton fx:id="launch" buttonType="RAISED" text="LAUNCH" style="-fx-padding:0,100,0,100"
+            <ColorTransitionButton fx:id="launch" buttonType="RAISED" text="%launch" style="-fx-padding:0,100,0,100"
                                    styleClass="mics-button"
                                    hoverColor="crimson"
                                    prefWidth="120"

@@ -1,6 +1,8 @@
 package net.wheatlauncher;
 
+import javafx.stage.Stage;
 import net.launcher.*;
+import net.launcher.api.LauncherContext;
 import net.launcher.game.ResourcePack;
 import net.launcher.game.forge.ForgeMod;
 import net.launcher.mod.ModManagerBuilder;
@@ -17,12 +19,10 @@ import org.to2mbn.jmccc.launch.Launcher;
 import org.to2mbn.jmccc.launch.LauncherBuilder;
 import org.to2mbn.jmccc.launch.ProcessListener;
 import org.to2mbn.jmccc.option.LaunchOption;
-import org.to2mbn.jmccc.util.Platform;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +33,7 @@ import java.util.concurrent.ScheduledExecutorService;
 /**
  * @author ci010
  */
-public class Core extends LaunchCore
+public class Core extends LaunchCore implements LauncherContext
 {
 	private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(4);
 
@@ -71,6 +71,12 @@ public class Core extends LaunchCore
 	public <T> Optional<LaunchElementManager<T>> getElementManager(Class<T> clz)
 	{
 		return Optional.ofNullable(managers.get(clz));
+	}
+
+	@Override
+	public TaskCenter getTaskCenter()
+	{
+		return null;
 	}
 
 	@Override
@@ -142,22 +148,25 @@ public class Core extends LaunchCore
 	}
 
 	@Override
-	public void init() throws Exception
+	public void init(Path root, Stage stage) throws Exception
 	{
 		Logger.trace("Start to init");
 
-		this.initRoot();
+		if (!Files.exists(root))
+			Files.createDirectories(root);
+		this.root = root;
+		Files.createDirectories(getProfilesRoot());
 
-		this.maintainer = new WorldSaveMaintainer(root.resolve("saves"));
+		this.maintainer = new WorldSaveMaintainer(this.root.resolve("saves"));
 
 		this.downloadCenter = new DownloadCenterImpl();
 		this.managers = new HashMap<>();
+
 		Path mods = this.getRoot().resolve("mods");
 		Files.createDirectories(mods);
-		this.managers.put(ForgeMod.class, ModManagerBuilder.create(
-				mods,
-				this.executorService).build());
+		this.managers.put(ForgeMod.class, ModManagerBuilder.create(mods, this.executorService).build());
 		Path resourcepacks = this.getRoot().resolve("resourcepacks");
+
 		Files.createDirectories(resourcepacks);
 		this.managers.put(ResourcePack.class, this.resourcePackManager = ResourcePackMangerBuilder.create(
 				resourcepacks,
@@ -180,30 +189,6 @@ public class Core extends LaunchCore
 		assert profileManager.selecting() != null;
 
 		Logger.trace("Complete init");
-	}
-
-	private void initRoot() throws IOException
-	{
-		Path root;
-		switch (Platform.CURRENT)
-		{
-			case WINDOWS:
-				String appdata = System.getenv("APPDATA");
-				root = Paths.get(appdata == null ? System.getProperty("user.home", ".") : appdata, ".launcher/");
-				break;
-			case LINUX:
-				root = Paths.get(System.getProperty("user.home", "."), ".launcher/");
-				break;
-			case OSX:
-				root = Paths.get("Library/Application Support/launcher/");
-				break;
-			default:
-				root = Paths.get(System.getProperty("user.home", ".") + "/");
-		}
-		if (!Files.exists(root))
-			Files.createDirectories(root);
-		this.root = root;
-		Files.createDirectories(getProfilesRoot());
 	}
 
 	@Override
@@ -239,7 +224,6 @@ public class Core extends LaunchCore
 	@Override
 	public <T> void registerComponent(Class<? super T> clz, T o, String id)
 	{
-
 	}
 
 	@Override

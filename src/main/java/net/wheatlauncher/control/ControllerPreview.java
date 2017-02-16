@@ -3,10 +3,6 @@ package net.wheatlauncher.control;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.effects.JFXDepthManager;
-import io.datafx.controller.FXMLController;
-import io.datafx.controller.flow.FlowException;
-import io.datafx.controller.flow.context.FXMLViewFlowContext;
-import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.animation.Animation;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
@@ -21,36 +17,28 @@ import javafx.scene.paint.Color;
 import moe.mickey.minecraft.skin.fx.SkinCanvas;
 import moe.mickey.minecraft.skin.fx.animation.SkinAniRunning;
 import net.launcher.AuthProfile;
-import net.launcher.Bootstrap;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.utils.StringUtils;
-import net.wheatlauncher.control.profiles.ControllerProfiles;
-import net.wheatlauncher.control.settings.ControllerSetting;
+import net.launcher.utils.Tasks;
+import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.control.utils.AnimationRotate;
-import net.wheatlauncher.control.utils.FXMLInnerController;
-import net.wheatlauncher.control.utils.ReloadableController;
-import net.wheatlauncher.control.utils.WindowsManager;
 import org.to2mbn.jmccc.auth.AuthInfo;
-import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.Texture;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.TextureType;
 import org.to2mbn.jmccc.util.UUIDUtils;
 
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * @author ci010
  */
-@FXMLController("/fxml/Preview.fxml")
-public class ControllerPreview implements ReloadableController
+public class ControllerPreview
 {
 	public JFXDialog rootDialog;
-	@FXMLViewFlowContext
-	private ViewFlowContext flowContext;
 
 	/*controls*/
 	@FXML
@@ -74,35 +62,32 @@ public class ControllerPreview implements ReloadableController
 
 	/*dialog*/
 	public JFXDialog profileSettingDialog;
-	@FXMLInnerController
-	public ControllerProfiles profileSettingDialogController;
 
 	public JFXDialog settingDialog;
-	@FXMLInnerController
-	public ControllerSetting settingDialogController;
 
-	@PostConstruct
-	public void init() throws FlowException
+	public void initialize() throws Exception
 	{
 		JFXDepthManager.setDepth(leftBox, 3);
 		animation = new AnimationRotate(canvas);
 		canvas.getAnimationPlayer().addSkinAnimation(new SkinAniRunning(100, 100, 30, canvas));
 		JFXDepthManager.setDepth(player.getParent(), 2);
 
-		LaunchProfile selecting = Bootstrap.getCore().getProfileManager().selecting();
+		LaunchProfile selecting = MainApplication.getCore().getProfileManager().selecting();
 		if (selecting != null)
 			profileName.setText(selecting.getDisplayName());
-		Bootstrap.getCore().getProfileManager().selectedProfileProperty().addListener(observable ->
+		MainApplication.getCore().getProfileManager().selectedProfileProperty().addListener(observable ->
 				profileName.textProperty().bind(Bindings.createStringBinding(() ->
-								Bootstrap.getCore().getProfileManager().selecting().getDisplayName(),
-						Bootstrap.getCore().getProfileManager().selectedProfileProperty())));
+								MainApplication.getCore().getProfileManager().selecting().getDisplayName(),
+						MainApplication.getCore().getProfileManager().selectedProfileProperty())));
 		player.textProperty().bind(Bindings.createStringBinding(() ->
 				{
-					if (Bootstrap.getCore().getAuthProfile().getCache() != null)
-						return Bootstrap.getCore().getAuthProfile().getCache().getUsername();
+					if (MainApplication.getCore().getAuthProfile().getCache() != null)
+						return MainApplication.getCore().getAuthProfile().getCache().getUsername();
 					return StringUtils.EMPTY;
 				},
-				Bootstrap.getCore().getAuthProfile().cacheProperty()));
+				MainApplication.getCore().getAuthProfile().cacheProperty()));
+		initDialog();
+		initSkin();
 	}
 
 	@PreDestroy
@@ -117,68 +102,65 @@ public class ControllerPreview implements ReloadableController
 		root.getChildren().remove(profileSettingDialog);
 		root.getChildren().remove(settingDialog);
 
-		profileSettingDialog.setOnDialogOpened(e -> profileSettingDialogController.reload());
-		profileSettingDialog.setOnDialogClosed(e -> profileSettingDialogController.unload());
-
-		profileSettingDialog.setDialogContainer(flowContext.getRegisteredObject(StackPane.class));
+		profileSettingDialog.setDialogContainer(((StackPane) root.getParent()));
 		profileSettingDialog.setContentHolderBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null,
 				null)));
 
-		settingDialog.setDialogContainer(flowContext.getRegisteredObject(StackPane.class));
+		settingDialog.setDialogContainer((StackPane) root.getParent());
 		settingDialog.setContentHolderBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null,
 				null)));
 	}
 
 	private void initSkin()
 	{
-		try
+		MainApplication.getCore().getAuthProfile().cacheProperty().addListener(observable ->
 		{
-			AuthProfile module = Bootstrap.getCore().getAuthProfile();
-			AuthInfo auth = module.getCache();
-			if (auth == null)
-				throw new IllegalStateException();
-			ProfileService profileService = module.getAuthorize().createProfileService();
-			Map<TextureType, Texture> textures = profileService.getTextures(
-					profileService.getGameProfile(UUIDUtils.toUUID(auth.getUUID())));
-			if (textures.isEmpty()) defaultSkin();
-			else
+			try
 			{
-				Texture texture = textures.get(TextureType.SKIN);
-				Bootstrap.getCore().getService().submit(() ->
+				AuthProfile module = MainApplication.getCore().getAuthProfile();
+				AuthInfo auth = module.getCache();
+				if (auth == null)
 				{
-					try
-					{
-						String model = texture.getMetadata().get("model");
-						Image image = new Image(texture.openStream());
-						Platform.runLater(() -> canvas.setSkin(image, model != null && model.equals("slim")));
-					}
-					catch (IOException e) {defaultSkin();}
-				});
+					defaultSkin();
+					return;
+				}
+				ProfileService profileService = module.getAuthorize().createProfileService();
+				Map<TextureType, Texture> textures = profileService.getTextures(
+						profileService.getGameProfile(UUIDUtils.toUUID(auth.getUUID())));
+				if (textures.isEmpty()) defaultSkin();
+				else
+				{
+					Texture texture = textures.get(TextureType.SKIN);
+					MainApplication.getCore().getService().submit(() ->
+							Platform.runLater(() ->
+							{
+								canvas.setSkin(Tasks.optional(() -> new Image(texture.openStream())).orElse(SkinCanvas.STEVE),
+										Optional.ofNullable(texture.getMetadata().get("model")).orElse("steve").equals("slim"));
+								animation.play();
+							}));
+				}
 			}
-		}
-		catch (AuthenticationException e) {defaultSkin();}
+			catch (Exception e) {defaultSkin();}
+		});
 
-		animation.play();
 	}
 
 	private void defaultSkin()
 	{
 		canvas.setSkin(SkinCanvas.STEVE, false);//TODO add random to other skin
+		animation.play();
 	}
 
 	public void onSwitchPlayer(ActionEvent event)
 	{
-		flowContext.getRegisteredObject(WindowsManager.Page.class).switchPage(ControllerLogin.class);
+		((Consumer) root.getScene().getUserData()).accept("LOGIN");
 	}
 
-	public void popupProfileSetting(ActionEvent event)
-	{
-		profileSettingDialog.show(flowContext.getRegisteredObject(StackPane.class));
-	}
+	public void popupProfileSetting(ActionEvent event) {profileSettingDialog.show(((StackPane) root.getParent()));}
 
 	public void popupSetting(ActionEvent event)
 	{
-		settingDialog.show(flowContext.getRegisteredObject(StackPane.class));
+		settingDialog.show(((StackPane) root.getParent()));
 	}
 
 	@FXML
@@ -187,10 +169,9 @@ public class ControllerPreview implements ReloadableController
 	@FXML
 	private void onClose(MouseEvent event) {if (event.getButton() == MouseButton.PRIMARY) Platform.exit();}
 
-	@Override
 	public void reload()
 	{
-		AuthProfile module = Bootstrap.getCore().getAuthProfile();
+		AuthProfile module = MainApplication.getCore().getAuthProfile();
 		assert module.getCache() != null;
 		assert module.getAuthorize() != null;
 		assert module.getAccount() != null;
@@ -198,7 +179,6 @@ public class ControllerPreview implements ReloadableController
 		initDialog();
 	}
 
-	@Override
 	public void unload()
 	{
 		profileSettingDialog.close();

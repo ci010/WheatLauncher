@@ -1,9 +1,6 @@
 package net.wheatlauncher.control;
 
 import com.jfoenix.controls.*;
-import io.datafx.controller.FXMLController;
-import io.datafx.controller.flow.context.FXMLViewFlowContext;
-import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
@@ -20,32 +17,25 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import net.launcher.AuthProfile;
-import net.launcher.Bootstrap;
 import net.launcher.Logger;
 import net.launcher.auth.Authorize;
 import net.launcher.auth.AuthorizeFactory;
 import net.launcher.utils.Tasks;
-import net.wheatlauncher.control.utils.ReloadableController;
+import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.control.utils.ValidatorDelegate;
-import net.wheatlauncher.control.utils.WindowsManager;
-import net.wheatlauncher.utils.LanguageMap;
 import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
 
 import javax.annotation.PostConstruct;
 import java.net.UnknownHostException;
+import java.util.ResourceBundle;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
  * @author ci010
  */
-@FXMLController(value = "/fxml/Login.fxml", title = "Simple Launcher")
 public class ControllerLogin
-		implements ReloadableController
 {
-	@FXMLViewFlowContext
-	private ViewFlowContext flowContext;
-
-	/*MainApplication controls*/
 	@FXML
 	private JFXTextField account;
 
@@ -76,6 +66,7 @@ public class ControllerLogin
 
 	private ContextMenu accountMenu;
 	private boolean shouldEnter;
+	public Runnable requestSwitch;
 
 	private MenuItem createItem(String s)
 	{
@@ -88,13 +79,10 @@ public class ControllerLogin
 		return item;
 	}
 
-	public void initialize()
-	{
-		Logger.trace("initialize");
-	}
+	public ResourceBundle resources;
 
 	@PostConstruct
-	public void init()
+	public void initialize()
 	{
 		Logger.trace("init");
 
@@ -113,13 +101,13 @@ public class ControllerLogin
 			}
 		};
 		accountMenu = new ContextMenu();
-		account.setText(Bootstrap.getCore().getAuthProfile().getAccount());
+		account.setText(MainApplication.getCore().getAuthProfile().getAccount());
 		account.textProperty().addListener((observable, oldValue, newValue) ->
 		{
 			if (account.getText().length() == 0)
 				accountMenu.hide();
 			else
-				accountMenu.getItems().setAll(Bootstrap.getCore().getAuthProfile().getHistoryList().stream().filter(s -> s.startsWith(newValue))
+				accountMenu.getItems().setAll(MainApplication.getCore().getAuthProfile().getHistoryList().stream().filter(s -> s.startsWith(newValue))
 						.map(this::createItem).collect(Collectors.toList()));
 		});
 
@@ -132,31 +120,21 @@ public class ControllerLogin
 		password.setOnKeyReleased(fireLogin);
 
 		accountValid.delegateProperty().bind(Bindings.createObjectBinding(() ->
-						Bootstrap.getCore().getAuthProfile().getAuthorize()::validateUserName,
-				Bootstrap.getCore().getAuthProfile().authorizeProperty()));
+						MainApplication.getCore().getAuthProfile().getAuthorize()::validateUserName,
+				MainApplication.getCore().getAuthProfile().authorizeProperty()));
 		passwordValid.delegateProperty().bind(Bindings.createObjectBinding(() ->
-						Bootstrap.getCore().getAuthProfile().getAuthorize()::validatePassword,
-				Bootstrap.getCore().getAuthProfile().authorizeProperty()));
-
-//		account.getJFXEditor().textProperty().addListener(observable ->
-//		{
-//			JFXTextField f = (JFXTextField) account.jfxEditorProperty().get();
-//			if (f.validate())
-//				Bootstrap.getCore().getAuthProfile().setAccount(account.getJFXEditor().getText());
-//		});
-//		account.itemsProperty().bind(Bindings.createObjectBinding(() ->
-//						Bootstrap.getCore().getAuthProfile().getHistoryList(),
-//				Bootstrap.getCore().getAuthProfile().authorizeProperty()));
+						MainApplication.getCore().getAuthProfile().getAuthorize()::validatePassword,
+				MainApplication.getCore().getAuthProfile().authorizeProperty()));
 
 		account.textProperty().addListener(observable ->
 		{
-			if (account.validate()) Bootstrap.getCore().getAuthProfile().setAccount(account.getText());
+			if (account.validate()) MainApplication.getCore().getAuthProfile().setAccount(account.getText());
 		});
 		password.textProperty().addListener(observable ->
 		{
 			if (password.isDisable())
 				return;
-			if (password.validate()) Bootstrap.getCore().getAuthProfile().setPassword(password.getText());
+			if (password.validate()) MainApplication.getCore().getAuthProfile().setPassword(password.getText());
 		});
 
 		login.disableProperty().bind(Bindings.createBooleanBinding(() ->
@@ -165,7 +143,7 @@ public class ControllerLogin
 				account.textProperty(),
 				password.textProperty(), password.disableProperty()));
 
-		AuthProfile authModule = Bootstrap.getCore().getAuthProfile();
+		AuthProfile authModule = MainApplication.getCore().getAuthProfile();
 		//set up online forge
 		Authorize selected = authModule.getAuthorize();
 		if (selected == AuthorizeFactory.ONLINE)
@@ -176,7 +154,7 @@ public class ControllerLogin
 
 		onlineMode.selectedProperty().addListener((observable, o, n) ->
 		{
-			AuthProfile module = Bootstrap.getCore().getAuthProfile();
+			AuthProfile module = MainApplication.getCore().getAuthProfile();
 			module.setAuthorize(n ? AuthorizeFactory.ONLINE : AuthorizeFactory.OFFLINE);
 			account.setText("");
 			account.resetValidation();
@@ -185,20 +163,20 @@ public class ControllerLogin
 		}); //Common
 
 		password.disableProperty().bind(Bindings.createBooleanBinding(() ->
-						Bootstrap.getCore().getAuthProfile().getAuthorize() == AuthorizeFactory.OFFLINE,
-				Bootstrap.getCore().getAuthProfile().authorizeProperty()));
+						MainApplication.getCore().getAuthProfile().getAuthorize() == AuthorizeFactory.OFFLINE,
+				MainApplication.getCore().getAuthProfile().authorizeProperty()));
 
 		account.promptTextProperty().bind(Bindings.createStringBinding(() ->
 		{
-			String id = Authorize.getID(Bootstrap.getCore().getAuthProfile().getAuthorize());
-			return LanguageMap.INSTANCE.translate(id + ".account");
-		}, Bootstrap.getCore().getAuthProfile().authorizeProperty()));
+			String id = Authorize.getID(MainApplication.getCore().getAuthProfile().getAuthorize());
+			return resources.getString(id + ".account");
+		}, MainApplication.getCore().getAuthProfile().authorizeProperty()));
 
 		password.promptTextProperty().bind(Bindings.createStringBinding(() ->
 		{
-			String id = Authorize.getID(Bootstrap.getCore().getAuthProfile().getAuthorize());
-			return LanguageMap.INSTANCE.translate(id + ".password");
-		}, Bootstrap.getCore().getAuthProfile().authorizeProperty()));
+			String id = Authorize.getID(MainApplication.getCore().getAuthProfile().getAuthorize());
+			return resources.getString(id + ".password");
+		}, MainApplication.getCore().getAuthProfile().authorizeProperty()));
 		Logger.trace("onWatch listener to core's launch profile");
 	}
 
@@ -207,16 +185,16 @@ public class ControllerLogin
 		btnPane.getChildren().remove(login);
 		btnPane.getChildren().add(spinner);
 		onlineMode.setDisable(true);
-		Bootstrap.getCore().getService().submit(Tasks.builder(() ->
+		MainApplication.getCore().getService().submit(Tasks.builder(() ->
 		{
-			AuthProfile module = Bootstrap.getCore().getAuthProfile();
+			AuthProfile module = MainApplication.getCore().getAuthProfile();
 			return module.getAuthorize().auth(module.getAccount(), module.getPassword());
 		}).setDone((result) -> Platform.runLater(() ->
 		{
-			Bootstrap.getCore().getAuthProfile().setCache(result);
+			MainApplication.getCore().getAuthProfile().setCache(result);
 			btnPane.getChildren().remove(spinner);
 			btnPane.getChildren().add(login);
-			switchToPreview();
+			((Consumer) root.getScene().getUserData()).accept("PREVIEW");
 			onlineMode.setDisable(false);
 		})).setException((e) ->
 				Platform.runLater(() ->
@@ -224,23 +202,18 @@ public class ControllerLogin
 					Throwable ex = e.getCause() == null ? e : e.getCause();
 					if (ex instanceof RemoteAuthenticationException)
 						if (ex.getMessage().equals("ForbiddenOperationException: Invalid credentials. Invalid username or password."))
-							flowContext.getRegisteredObject(WindowsManager.Page.class).displayError("login.invalid.credentials");
+							MainApplication.displayError(root.getScene(), "login.invalid.credentials");
 						else
-							flowContext.getRegisteredObject(WindowsManager.Page.class).displayError(e);
+							MainApplication.displayError(root.getScene(), e);
 					else if (ex.getCause() instanceof UnknownHostException)
-						flowContext.getRegisteredObject(WindowsManager.Page.class).displayError("login.network.error");
+						MainApplication.displayError(root.getScene(), "login.network.error");
 					else
-						flowContext.getRegisteredObject(WindowsManager.Page.class).displayError(e);
+						MainApplication.displayError(root.getScene(), e);
 					btnPane.getChildren().remove(spinner);
 					btnPane.getChildren().add(login);
 					onlineMode.setDisable(false);
 				})).build());
 
-	}
-
-	private void switchToPreview()
-	{
-		flowContext.getRegisteredObject(WindowsManager.Page.class).switchPage("ControllerPreview");
 	}
 
 	@FXML
@@ -250,17 +223,6 @@ public class ControllerLogin
 			box.requestFocus();
 	}
 
-	@Override
-	public void reload()
-	{
-
-	}
-
-	@Override
-	public void unload()
-	{
-
-	}
 
 	public void switchOnlineMode(KeyEvent event)
 	{

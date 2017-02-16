@@ -12,11 +12,10 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.VBox;
-import net.launcher.Bootstrap;
 import net.launcher.Logger;
 import net.launcher.control.ImageCell;
 import net.launcher.game.WorldInfo;
-import net.wheatlauncher.control.utils.WindowsManager;
+import net.wheatlauncher.MainApplication;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -34,7 +33,7 @@ public class ControllerMap
 	public void initialize()
 	{
 		Logger.trace("init map");
-		FilteredList<WorldInfo> filteredList = new FilteredList<>(Bootstrap.getCore().getAssetsManager().getWorldInfos());
+		FilteredList<WorldInfo> filteredList = new FilteredList<>(MainApplication.getCore().getAssetsManager().getWorldInfos());
 		filteredList.predicateProperty().bind(Bindings.createObjectBinding(() -> (Predicate<WorldInfo>) worldInfo ->
 				worldInfo.getFileName().contains(search.getText()) ||
 						worldInfo.getDisplayName().contains(search.getText()), search.textProperty()));
@@ -48,8 +47,11 @@ public class ControllerMap
 				super.updateItem(item, empty);
 				if (item == null || empty) return;
 				WorldInfoCell worldInfoCell = new WorldInfoCell(item);
-				try {worldInfoCell.setImage(Bootstrap.getCore().getAssetsManager().getRepository().getIcon(item));}
-				catch (Exception e) { WindowsManager.displayError(maps.getScene(), e);}
+				try
+				{
+					worldInfoCell.setImage(MainApplication.getCore().getAssetsManager().getRepository().getIcon(item));
+				}
+				catch (Exception e) { MainApplication.displayError(maps.getScene(), e);}
 				this.setGraphic(worldInfoCell);
 			}
 		});

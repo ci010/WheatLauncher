@@ -2,8 +2,7 @@ package net.launcher.version;
 
 import javafx.application.Platform;
 import javafx.scene.image.Image;
-import net.launcher.Bootstrap;
-import net.launcher.LaunchManager;
+import net.launcher.LaunchHandler;
 import net.launcher.Logger;
 import net.launcher.game.Language;
 import net.launcher.game.WorldInfo;
@@ -13,6 +12,7 @@ import net.launcher.profile.LaunchProfile;
 import net.launcher.utils.resource.FetchUtils;
 import net.launcher.utils.resource.Repository;
 import net.launcher.utils.serial.Deserializer;
+import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.internal.io.IOGuard;
 import net.wheatlauncher.internal.io.IOGuardContext;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
@@ -43,7 +43,7 @@ import java.util.stream.Collectors;
  * @author ci010
  */
 public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManager>
-		implements MinecraftAssetsManager.AssetsRepository, LaunchManager
+		implements MinecraftAssetsManager.AssetsRepository, LaunchHandler
 {
 	@Override
 	public void forceSave() throws IOException
@@ -92,7 +92,7 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 		if (version.getState() == MinecraftVersion.State.LOCAL) return;
 		version.setState(MinecraftVersion.State.DOWNLOADING);
 		MinecraftDirectory minecraftDirectory = new MinecraftDirectory(getContext().getRoot().toFile());
-		MinecraftDownloader downloader = Bootstrap.getCore().getDownloadCenter().listenDownloader("minecraft.game", MinecraftDownloaderBuilder.buildDefault());
+		MinecraftDownloader downloader = MainApplication.getCore().getDownloadCenter().listenDownloader("minecraft.game", MinecraftDownloaderBuilder.buildDefault());
 		downloader.downloadIncrementally(minecraftDirectory, version.getVersionID(), new CallbackAdapter<Version>()
 		{
 			@Override
@@ -284,7 +284,7 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 		}
 
 		@Override
-		public boolean canMerge(IOGuardContext.IOTask task) {return task == this || task instanceof SaveTask;}
+		public boolean isEquivalence(IOGuardContext.IOTask task) {return task == this || task instanceof SaveTask;}
 
 	}
 

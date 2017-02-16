@@ -25,22 +25,15 @@ public abstract class IOGuard<T>
 	public final void init(IOGuardContext context)
 	{
 		Objects.requireNonNull(context);
-		if (this.context != null)
-			throw new IllegalStateException();
+		if (this.context != null) throw new IllegalStateException();
 		this.context = context;
 	}
 
 	public final T load() throws IOException
 	{
 		T load;
-		try
-		{
-			load = loadInstance();
-		}
-		catch (Exception e)
-		{
-			load = defaultInstance();
-		}
+		try {load = loadInstance();}
+		catch (Exception e) {load = defaultInstance();}
 		reference = new WeakReference<>(load);
 		deploy();
 		return load;

@@ -6,7 +6,7 @@ import org.to2mbn.jmccc.option.LaunchOption;
 /**
  * @author ci010
  */
-public interface LaunchManager
+public interface LaunchHandler
 {
 	void onLaunch(LaunchOption option, LaunchProfile profile) throws Exception;
 

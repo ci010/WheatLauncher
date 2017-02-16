@@ -5,7 +5,6 @@ import com.jfoenix.effects.JFXDepthManager;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import net.launcher.Bootstrap;
 import net.launcher.control.MinecraftOptionButton;
 import net.launcher.control.MinecraftOptionMemory;
 import net.launcher.control.MinecraftOptionResolution;
@@ -13,6 +12,7 @@ import net.launcher.control.MinecraftSlider;
 import net.launcher.setting.OptionInt;
 import net.launcher.setting.SettingMinecraft;
 import net.launcher.setting.SettingType;
+import net.wheatlauncher.MainApplication;
 
 import java.util.Arrays;
 import java.util.ResourceBundle;
@@ -79,7 +79,7 @@ public class ControllerGameSetting
 		button.setOptions(Arrays.asList(resources.getString(button.getId() + ".true"),
 				resources.getString(button.getId() + ".false")));
 		button.valueProperty().addListener((observable, oldValue, newValue) ->
-				Bootstrap.getCore().getProfileManager().selecting().getGameSetting(SettingMinecraft.INSTANCE)
+				MainApplication.getCore().getProfileManager().selecting().getGameSetting(SettingMinecraft.INSTANCE)
 						.ifPresent(gameSettingInstance -> gameSettingInstance.getOption(option).setValue(Boolean.valueOf(newValue))));
 	}
 
@@ -90,7 +90,7 @@ public class ControllerGameSetting
 			arr[i] = resources.getString(button.getId() + "." + String.valueOf((option.getMin() + i)));
 		button.setOptions(Arrays.asList(arr));
 		button.valueProperty().addListener((observable, oldValue, newValue) ->
-				Bootstrap.getCore().getProfileManager().selecting().getGameSetting(SettingMinecraft.INSTANCE)
+				MainApplication.getCore().getProfileManager().selecting().getGameSetting(SettingMinecraft.INSTANCE)
 						.ifPresent(gameSettingInstance -> gameSettingInstance.getOption(option).setValue(Integer.valueOf(newValue))));
 	}
 

@@ -1,10 +1,11 @@
 <?import de.jensd.fx.fontawesome.Icon?>
 <?import javafx.scene.layout.StackPane?>
 <?import net.wheatlauncher.control.utils.ColorTransitionButton?>
-<StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
+<StackPane xmlns:fx="http://javafx.com/fxml/1"
            xmlns="http://javafx.com/javafx/2.2"
            alignment="TOP_RIGHT"
-           style="-fx-padding:0,0,10,10; -fx-background-color:WHITESMOKE; -fx-border-color:TOMATO;">
+           style="-fx-padding:0,0,10,10; -fx-background-color:WHITESMOKE; -fx-border-color:TOMATO;"
+           fx:controller="net.wheatlauncher.control.ControllerMain">
     <ColorTransitionButton fx:id="close" prefHeight="40" prefWidth="40"
                            hoverColor="red" transitionDuration="200ms" style="-fx-background-radius:0"
                            onAction="#onClose">

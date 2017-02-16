@@ -9,12 +9,11 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.SelectionMode;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import net.launcher.Bootstrap;
 import net.launcher.Logger;
 import net.launcher.control.ResourcePackCell;
 import net.launcher.game.ResourcePack;
 import net.launcher.resourcepack.ResourcePackManager;
-import net.wheatlauncher.control.utils.WindowsManager;
+import net.wheatlauncher.MainApplication;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +35,7 @@ public class ControllerResourcePack
 	{
 		Logger.trace("resource packs setting init");
 		resourcePacks.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-		FilteredList<ResourcePack> resourcePacks = new FilteredList<>(Bootstrap.getCore().getResourcePackManager().getAllElement());
+		FilteredList<ResourcePack> resourcePacks = new FilteredList<>(MainApplication.getCore().getResourcePackManager().getAllElement());
 		resourcePacks.predicateProperty().bind(Bindings.createObjectBinding(() ->
 				(Predicate<ResourcePack>) resourcePack -> resourcePack.getPackName().contains(search.getText()) ||
 						resourcePack.getDescription().contains(search.getText()), search.textProperty()));
@@ -49,10 +48,10 @@ public class ControllerResourcePack
 				if (item == null || empty) {super.updateItem(item, empty); return;}
 				ResourcePackCell ce = new ResourcePackCell();
 				ce.setValue(item);
-				try {ce.setImage(Bootstrap.getCore().getResourcePackManager().getIcon(item));}
+				try {ce.setImage(MainApplication.getCore().getResourcePackManager().getIcon(item));}
 				catch (IOException e)
 				{
-					WindowsManager.displayError(ControllerResourcePack.this.resourcePacks.getScene(), e);
+					MainApplication.displayError(ControllerResourcePack.this.resourcePacks.getScene(), e);
 				}
 				this.setGraphic(ce);
 				super.updateItem(item, empty);
@@ -67,7 +66,7 @@ public class ControllerResourcePack
 			List<File> files = fileChooser.showOpenMultipleDialog(importBtn.getScene().getWindow());
 			if (files != null && !files.isEmpty())
 				for (File file : files)
-					Bootstrap.getCore().getResourcePackManager().importResourcePack(file.toPath(), null);
+					MainApplication.getCore().getResourcePackManager().importResourcePack(file.toPath(), null);
 		});
 		exportBtn.disableProperty().bind(Bindings.createBooleanBinding(() -> this.resourcePacks.getSelectionModel()
 				.isEmpty(), this.resourcePacks.getSelectionModel().selectedItemProperty()));
@@ -76,7 +75,7 @@ public class ControllerResourcePack
 			DirectoryChooser fileChooser = new DirectoryChooser();
 			fileChooser.setTitle("Select save location");
 			File file = fileChooser.showDialog(exportBtn.getScene().getWindow());
-			ResourcePackManager manager = Bootstrap.getCore().getResourcePackManager();
+			ResourcePackManager manager = MainApplication.getCore().getResourcePackManager();
 			manager.exportResourcePack(file.toPath(), this.resourcePacks.getSelectionModel().getSelectedItems());
 		});
 	}

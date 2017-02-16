@@ -39,9 +39,6 @@
         <JFXTabPane fx:id="optionsTab" prefWidth="500" tabMinHeight="60"
                     minHeight="300"
                     tabMaxHeight="100" tabMaxWidth="Infinity" maxHeight="300">
-            <!--<Tab text="%setting.common">-->
-            <!--<fx:include fx:id="commonSetting" source="ProfileSettingCommon.fxml"/>-->
-            <!--</Tab>-->
             <Tab text="%setting.minecraft" fx:id="mcTab">
                 <fx:include fx:id="gameSetting" source="ProfileSettingMinecraft.fxml"/>
             </Tab>

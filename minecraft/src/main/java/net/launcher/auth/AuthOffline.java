@@ -24,7 +24,7 @@ public class AuthOffline implements Authorize
 	public void validateUserName(String name)
 	{
 		if (StringUtils.isEmpty(name))
-			throw new IllegalArgumentException("auth.offline.empty");
+			throw new IllegalArgumentException("offline.account.null");
 	}
 
 	@Override

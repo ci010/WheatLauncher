@@ -5,7 +5,6 @@ import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.effects.JFXDepthManager;
 import de.jensd.fx.fontawesome.Icon;
-import io.datafx.controller.context.ApplicationContext;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
@@ -16,13 +15,13 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import net.launcher.Bootstrap;
 import net.launcher.LaunchElementManager;
 import net.launcher.Logger;
 import net.launcher.game.ResourcePack;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.resourcepack.ResourcePackManager;
 import net.launcher.utils.Tasks;
+import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.control.utils.ReloadableController;
 
 import java.util.Optional;
@@ -44,8 +43,7 @@ public class ControllerResourcePackView implements ReloadableController
 
 	public void initialize()
 	{
-		ApplicationContext.getInstance().getRegisteredObject(ResourcePackManager.class.toString());
-		Optional<LaunchElementManager<ResourcePack>> elementManager = Bootstrap.getCore().getElementManager(ResourcePack.class);
+		Optional<LaunchElementManager<ResourcePack>> elementManager = MainApplication.getCore().getElementManager(ResourcePack.class);
 		if (!elementManager.isPresent()) {this.root.setDisable(true); return;}
 		manager = (ResourcePackManager) elementManager.get();
 
@@ -92,7 +90,7 @@ public class ControllerResourcePackView implements ReloadableController
 
 	public void refresh(ActionEvent event)
 	{
-		LaunchProfile selectedProfile = Bootstrap.getCore().getProfileManager().selecting();
+		LaunchProfile selectedProfile = MainApplication.getCore().getProfileManager().selecting();
 //		List<ResourcePack> selected = manager.getAllIncludedElement(selectedProfile);
 //		Set<ResourcePack> remain = manager.getAllElement();
 //		remain.removeAll(selected);

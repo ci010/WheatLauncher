@@ -208,7 +208,7 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 		}
 
 		@Override
-		public boolean canMerge(IOGuardContext.IOTask task)
+		public boolean isEquivalence(IOGuardContext.IOTask task)
 		{
 			return task == this ||
 					(task instanceof SaveProfile && Objects.equals(((SaveProfile) task).profile, profile));
@@ -231,7 +231,7 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 		}
 
 		@Override
-		public boolean canMerge(IOGuardContext.IOTask task)
+		public boolean isEquivalence(IOGuardContext.IOTask task)
 		{
 			return task == this || task instanceof SaveManager;
 		}

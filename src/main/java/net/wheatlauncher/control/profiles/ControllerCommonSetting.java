@@ -3,8 +3,6 @@ package net.wheatlauncher.control.profiles;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.controls.JFXTextField;
-import io.datafx.controller.flow.context.FXMLViewFlowContext;
-import io.datafx.controller.flow.context.ViewFlowContext;
 import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.StringProperty;
@@ -12,9 +10,9 @@ import javafx.beans.value.ChangeListener;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import net.launcher.Bootstrap;
 import net.launcher.Logger;
 import net.launcher.profile.LaunchProfile;
+import net.wheatlauncher.MainApplication;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 
 import java.io.File;
@@ -45,13 +43,10 @@ public class ControllerCommonSetting
 
 	public VBox root;
 
-	@FXMLViewFlowContext
-	private ViewFlowContext flowContext;
-
 	public void initialize()
 	{
 		Logger.trace("init");
-		LaunchProfile profile = Bootstrap.getCore().getProfileManager().selecting();
+		LaunchProfile profile = MainApplication.getCore().getProfileManager().selecting();
 		ChangeListener<String> stringChangeListener = (observable, oldValue, newValue) ->
 		{
 			if (!newValue.matches("\\d*"))
@@ -94,15 +89,15 @@ public class ControllerCommonSetting
 //						.getMinecraftLocation().getRoot().getAbsolutePath(),
 //				Bootstrap.getCore().getProfileManager().selecting().minecraftLocationProperty()));
 		javaLocation.textProperty().bind(Bindings.createStringBinding(() ->
-						Bootstrap.getCore().getProfileManager().selecting().getJavaEnvironment().getJavaPath().getAbsolutePath(),
-				Bootstrap.getCore().getProfileManager().selecting().javaEnvironmentProperty()));
+						MainApplication.getCore().getProfileManager().selecting().getJavaEnvironment().getJavaPath().getAbsolutePath(),
+				MainApplication.getCore().getProfileManager().selecting().javaEnvironmentProperty()));
 
-		Bootstrap.getCore().getProfileManager().selectedProfileProperty().addListener(o ->
+		MainApplication.getCore().getProfileManager().selectedProfileProperty().addListener(o ->
 		{
-			LaunchProfile p = Bootstrap.getCore().getProfileManager().selecting();
+			LaunchProfile p = MainApplication.getCore().getProfileManager().selecting();
 
-			javaLocation.textProperty().bind(Bindings.createStringBinding(() -> Bootstrap.getCore().getProfileManager().selecting().
-					getJavaEnvironment().getJavaPath().getAbsolutePath(), (Observable) Bootstrap.getCore().getProfileManager().selecting()));
+			javaLocation.textProperty().bind(Bindings.createStringBinding(() -> MainApplication.getCore().getProfileManager().selecting().
+					getJavaEnvironment().getJavaPath().getAbsolutePath(), (Observable) MainApplication.getCore().getProfileManager().selecting()));
 		});
 
 
@@ -116,7 +111,7 @@ public class ControllerCommonSetting
 			chooser.getExtensionFilters().add(extensionFilter);
 			chooser.setInitialFileName("java.exe");
 			chooser.setInitialDirectory(new File(System.getProperty("java.home"), "bin"));
-			Stage stage = (Stage) flowContext.getRegisteredObject("Stage");
+			Stage stage = (Stage) browsJava.getScene().getWindow();
 			File choose = chooser.showOpenDialog(stage);
 			if (choose == null)
 				return;
@@ -124,7 +119,7 @@ public class ControllerCommonSetting
 			if (choose.isFile() && choose.getName().equals("java.exe"))
 			{
 				JavaEnvironment javaEnvironment = new JavaEnvironment(choose);
-				Bootstrap.getCore().getProfileManager().selecting().setJavaEnvironment(javaEnvironment);
+				MainApplication.getCore().getProfileManager().selecting().setJavaEnvironment(javaEnvironment);
 			}
 		});
 	}

@@ -7,7 +7,7 @@ import org.to2mbn.jmccc.option.LaunchOption;
 /**
  * @author ci010
  */
-public interface LaunchElementManager<T> extends LaunchManager
+public interface LaunchElementManager<T> extends LaunchHandler
 {
 	ObservableList<T> getAllElement();
 

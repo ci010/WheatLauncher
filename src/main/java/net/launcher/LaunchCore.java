@@ -1,5 +1,6 @@
 package net.launcher;
 
+import javafx.stage.Stage;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.profile.LaunchProfileManager;
 import net.launcher.resourcepack.ResourcePackManager;
@@ -9,6 +10,7 @@ import org.to2mbn.jmccc.launch.ProcessListener;
 import org.to2mbn.jmccc.option.LaunchOption;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
@@ -21,6 +23,8 @@ public abstract class LaunchCore
 	public abstract Collection<LaunchElementManager> getAllElementsManagers();
 
 	public abstract <T> Optional<LaunchElementManager<T>> getElementManager(Class<T> clz);
+
+	public abstract TaskCenter getTaskCenter();
 
 	public abstract LaunchProfileManager getProfileManager();
 
@@ -69,7 +73,7 @@ public abstract class LaunchCore
 
 	protected abstract ProcessListener getProcessListener();
 
-	public abstract void init() throws Exception;
+	public abstract void init(Path root, Stage stage) throws Exception;
 
 	public abstract void destroy() throws IOException;
 

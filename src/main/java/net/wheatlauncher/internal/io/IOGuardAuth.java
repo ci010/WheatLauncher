@@ -75,7 +75,7 @@ public class IOGuardAuth extends IOGuard<AuthProfile>
 		public void performance(Path root) throws Exception {forceSave();}
 
 		@Override
-		public boolean canMerge(IOGuardContext.IOTask task)
+		public boolean isEquivalence(IOGuardContext.IOTask task)
 		{
 			return task == this || task instanceof Save;
 		}
