@@ -1,10 +1,12 @@
 package net.launcher;
 
 import javafx.stage.Stage;
+import net.launcher.assets.MinecraftAssetsManager;
+import net.launcher.assets.MinecraftWorldManager;
+import net.launcher.mod.ModManager;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.profile.LaunchProfileManager;
 import net.launcher.resourcepack.ResourcePackManager;
-import net.launcher.version.MinecraftAssetsManager;
 import org.to2mbn.jmccc.launch.Launcher;
 import org.to2mbn.jmccc.launch.ProcessListener;
 import org.to2mbn.jmccc.option.LaunchOption;
@@ -32,9 +34,13 @@ public abstract class LaunchCore
 
 	public abstract MinecraftAssetsManager getAssetsManager();
 
-	public abstract DownloadCenter getDownloadCenter();
+	public abstract MinecraftWorldManager getWorldManager();
 
 	public abstract ResourcePackManager getResourcePackManager();
+
+	public abstract DownloadCenter getDownloadCenter();
+
+	public abstract ModManager getModManager();
 
 	public void launch() throws Exception
 	{

@@ -9,6 +9,7 @@ import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import net.launcher.game.ResourcePack;
@@ -19,6 +20,12 @@ import net.launcher.game.ResourcePack;
 public class MovableResourcePackCell extends ResourcePackCell
 {
 	private BooleanProperty left = new SimpleBooleanProperty();
+
+	public MovableResourcePackCell(ResourcePack resourcePack, Image image)
+	{
+		super(resourcePack, image);
+		init();
+	}
 
 	public boolean getLeft()
 	{

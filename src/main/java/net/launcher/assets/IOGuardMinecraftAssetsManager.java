@@ -1,11 +1,14 @@
-package net.launcher.version;
+package net.launcher.assets;
 
 import javafx.application.Platform;
-import javafx.scene.image.Image;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
+import javafx.concurrent.Task;
 import net.launcher.LaunchHandler;
 import net.launcher.Logger;
 import net.launcher.game.Language;
-import net.launcher.game.WorldInfo;
+import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.ComparableVersion;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
 import net.launcher.profile.LaunchProfile;
@@ -16,7 +19,6 @@ import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.internal.io.IOGuard;
 import net.wheatlauncher.internal.io.IOGuardContext;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
-import org.to2mbn.jmccc.internal.org.json.JSONException;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.mcdownloader.MinecraftDownloader;
 import org.to2mbn.jmccc.mcdownloader.MinecraftDownloaderBuilder;
@@ -43,8 +45,11 @@ import java.util.stream.Collectors;
  * @author ci010
  */
 public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManager>
-		implements MinecraftAssetsManager.AssetsRepository, LaunchHandler
+		implements MinecraftAssetsManagerImpl.AssetsRepository, LaunchHandler
 {
+	private ObservableList<MinecraftVersion> versions = FXCollections.observableArrayList();
+	private ObservableMap<String, MinecraftVersion> versionMap = FXCollections.observableMap(new TreeMap<>());
+
 	@Override
 	public void forceSave() throws IOException
 	{
@@ -61,13 +66,14 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 		NBTCompound compound = NBT.read(data, false).asCompound();
 		this.lastModified = compound.get("lastModified").asString();
 		this.cache = readVersionList(compound.get("cache").asCompound());
-		return new MinecraftAssetsManager(this);
+		//refreshVersion info
+		return new MinecraftAssetsManagerImpl(versions, versionMap, this);
 	}
 
 	@Override
 	public MinecraftAssetsManager defaultInstance()
 	{
-		return new MinecraftAssetsManager(this);
+		return new MinecraftAssetsManagerImpl(versions, versionMap, this);
 	}
 
 	@Override
@@ -75,6 +81,7 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 	{
 		MinecraftAssetsManager instance = this.getInstance();
 		getContext().registerSaveTask(new SaveTask(), instance.getVersions());
+
 	}
 
 	@Override
@@ -86,127 +93,162 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 	}
 
 	@Override
-	public void fetchVersion(MinecraftVersion version)
+	public Task<MinecraftVersion> fetchVersion(MinecraftVersion version)
 	{
-		if (version == null) return;
-		if (version.getState() == MinecraftVersion.State.LOCAL) return;
-		version.setState(MinecraftVersion.State.DOWNLOADING);
-		MinecraftDirectory minecraftDirectory = new MinecraftDirectory(getContext().getRoot().toFile());
-		MinecraftDownloader downloader = MainApplication.getCore().getDownloadCenter().listenDownloader("minecraft.game", MinecraftDownloaderBuilder.buildDefault());
-		downloader.downloadIncrementally(minecraftDirectory, version.getVersionID(), new CallbackAdapter<Version>()
+		Objects.requireNonNull(version);
+		return new Task<MinecraftVersion>()
 		{
 			@Override
-			public void failed(Throwable e)
+			protected MinecraftVersion call() throws Exception
 			{
+				if (version.getState() == MinecraftVersion.State.LOCAL) return version;
 				Platform.runLater(() ->
-						version.setState(MinecraftVersion.State.REMOTE));
-				e.printStackTrace();
-			}
-
-			@Override
-			public void cancelled()
-			{
-				Platform.runLater(() ->
-						version.setState(MinecraftVersion.State.REMOTE));
-				Logger.trace("download version cancelled+" + version.getVersionID());
-			}
-
-			@Override
-			public void done(Version result)
-			{
-				Platform.runLater(() ->
+						version.setState(MinecraftVersion.State.DOWNLOADING));
+				MinecraftDirectory minecraftDirectory = new MinecraftDirectory(getContext().getRoot().toFile());
+				MinecraftDownloader downloader = MainApplication.getCore().getDownloadCenter().listenDownloader("minecraft.game", MinecraftDownloaderBuilder.buildDefault());
+				downloader.downloadIncrementally(minecraftDirectory, version.getVersionID(), new CallbackAdapter<Version>()
 				{
-					Logger.trace("download version compete+" + version.getVersionID());
-					version.setState(MinecraftVersion.State.LOCAL);
-					locals.add(version.getVersionID());
-				});
+					@Override
+					public void failed(Throwable e)
+					{
+						Platform.runLater(() -> version.setState(MinecraftVersion.State.REMOTE));
+						e.printStackTrace();
+					}
+
+					@Override
+					public void cancelled()
+					{
+						Platform.runLater(() -> version.setState(MinecraftVersion.State.REMOTE));
+						Logger.trace("download version cancelled+" + version.getVersionID());
+					}
+
+					@Override
+					public void done(Version result)
+					{
+						Platform.runLater(() ->
+						{
+							Logger.trace("download version compete+" + version.getVersionID());
+							version.setState(MinecraftVersion.State.LOCAL);
+							locals.add(version.getVersionID());
+						});
+					}
+				}).get();
+				return version;
 			}
-		});
+		};
 	}
 
 	@Override
-	public void update() throws IOException
+	public Task<Void> refreshVersion()
 	{
-		MinecraftAssetsManager manager = getInstance();
-		List<MinecraftVersion> versionList = new ArrayList<>();
-
-		boolean localChange = updateLocal();
-		if (localChange)
-			for (String version : locals)
-			{
-				MinecraftVersion contained = manager.getVersion(version);
-				if (contained != null)
-				{
-					contained.setState(MinecraftVersion.State.LOCAL);
-					continue;
-				}
-				MinecraftVersion v = new MinecraftVersion(version, MinecraftVersion.State.LOCAL);
-				if (cache != null)
-				{
-					RemoteVersion remote = cache.getVersions().get(version);
-					if (remote != null) v.getMetadata().put("remote", remote);
-				}
-				versionList.add(v);
-			}
-		boolean remoteChange = updateRemoteVersion();
-		if (!remoteChange)
+		return new Task<Void>()
 		{
-			for (String version : cache.getVersions().keySet().stream().filter(s -> !locals.contains(s)).collect(Collectors.toList()))
+			@Override
+			protected Void call() throws Exception
 			{
-				MinecraftVersion contained = manager.getVersion(version);
-				if (contained != null)
+				MinecraftAssetsManagerImpl manager = (MinecraftAssetsManagerImpl) getInstance();
+				List<MinecraftVersion> versionList = new ArrayList<>();
+
+				boolean localChange = updateLocal();
+				if (localChange)
+					for (String version : locals)
+					{
+						MinecraftVersion contained = manager.getVersion(version);
+						if (contained != null)
+						{
+							contained.setState(MinecraftVersion.State.LOCAL);
+							continue;
+						}
+						MinecraftVersion v = new MinecraftVersion(version, MinecraftVersion.State.LOCAL);
+						if (cache != null)
+						{
+							RemoteVersion remote = cache.getVersions().get(version);
+							if (remote != null) v.getMetadata().put("remote", remote);
+						}
+						versionList.add(v);
+					}
+				boolean remoteChange = updateRemoteVersion();
+				if (!remoteChange)
 				{
-					if (contained.getState() == MinecraftVersion.State.LOCAL)
-						contained.setState(MinecraftVersion.State.REMOTE);
-					continue;
+					for (String version : cache.getVersions().keySet().stream().filter(s -> !locals.contains(s)).collect(Collectors.toList()))
+					{
+						MinecraftVersion contained = manager.getVersion(version);
+						if (contained != null)
+						{
+							if (contained.getState() == MinecraftVersion.State.LOCAL)
+								contained.setState(MinecraftVersion.State.REMOTE);
+							continue;
+						}
+						MinecraftVersion v = new MinecraftVersion(version, MinecraftVersion.State.REMOTE);
+						RemoteVersion remote = cache.getVersions().get(version);
+						v.getMetadata().put("remote", remote);
+						versionList.add(v);
+					}
 				}
-				MinecraftVersion v = new MinecraftVersion(version, MinecraftVersion.State.REMOTE);
-				RemoteVersion remote = cache.getVersions().get(version);
-				v.getMetadata().put("remote", remote);
-				versionList.add(v);
+				if (!versionList.isEmpty())
+				{
+					versions.setAll(versionList);
+					versionMap.clear();
+					for (MinecraftVersion version : versions)
+						versionMap.put(version.getVersionID(), version);
+					versions.sort((o1, o2) ->
+					{
+						Object remote1 = o1.getMetadata().get("remote");
+						Object remote2 = o2.getMetadata().get("remote");
+						if (remote1 != null && remote2 != null)
+						{
+							RemoteVersion ver1 = (RemoteVersion) remote1;
+							RemoteVersion ver2 = (RemoteVersion) remote2;
+							return ver2.getReleaseTime().compareTo(ver1.getReleaseTime());
+						}
+						String v1 = o2.getVersionID(), v2 = o1.getVersionID();
+						if (!Character.isDigit(v1.charAt(0)))
+							if (!Character.isDigit(v2.charAt(0))) return v1.compareTo(v2);
+							else return -1;
+						if (!Character.isDigit(v1.charAt(2)))
+							if (!Character.isDigit(v2.charAt(2))) return v1.compareTo(v2);
+							else return -1;
+						return new ComparableVersion(v1).compareTo(new ComparableVersion(v2));
+					});
+				}
+
+				return null;
 			}
-		}
-		if (!versionList.isEmpty())
-			manager.refresh(versionList);
-		List<WorldInfo> infos = new ArrayList<>();
-		for (Path save : Files.walk(this.getContext().getRoot().resolve("saves"), 2)
-				.filter(path -> path.getFileName().toString().equals("level.dat")).collect(Collectors.toList()))
-			infos.add(WorldInfo.deserialize(save));
-		if (!infos.isEmpty()) manager.refreshWorld(infos);
+		};
 	}
 
 	@Override
-	public List<Language> getLanguages(MinecraftVersion version) throws IOException
+	public Task<Language[]> getLanguages(MinecraftVersion version)
 	{
-		if (version == null) return Collections.emptyList();
-		MinecraftDirectory root = new MinecraftDirectory(getContext().getRoot().toFile());
-		Version v = Versions.resolveVersion(root, version.getVersionID());
-		Set<Asset> assets = Versions.resolveAssets(root, v);
-		if (assets == null) return Collections.emptyList();
-		List<File> collect = assets
-				.stream().filter(asset -> asset.getVirtualPath().endsWith("pack.mcmeta"))
-				.map(root::getAsset).collect(Collectors.toList());
-		List<Language> languages = new ArrayList<>();
-		Deserializer<Language[], JSONObject> deserializer = Language.deserializer();
-		for (File file : collect)
-			try {Collections.addAll(languages, deserializer.deserialize(IOUtils.toJson(file)));}
-			catch (JSONException | IOException e) {e.printStackTrace();}
-		return languages;
+		return new Task<Language[]>()
+		{
+			@Override
+			protected Language[] call() throws Exception
+			{
+				if (version == null) return new Language[0];
+				MinecraftDirectory root = new MinecraftDirectory(getContext().getRoot().toFile());
+				Version v = Versions.resolveVersion(root, version.getVersionID());
+				Set<Asset> assets = Versions.resolveAssets(root, v);
+				if (assets == null) return new Language[0];
+				List<File> collect = assets
+						.stream().filter(asset -> asset.getVirtualPath().endsWith("pack.mcmeta"))
+						.map(root::getAsset).collect(Collectors.toList());
+				Deserializer<Language[], JSONObject> deserializer = Language.deserializer();
+				return deserializer.deserialize(IOUtils.toJson(collect.get(0)));
+			}
+		};
 	}
 
 	@Override
-	public Image getIcon(WorldInfo worldInfo) throws IOException
+	public Task<Void> importMinecraft(MinecraftDirectory directory)
 	{
-		return WorldInfo.getIcon(worldInfo, getContext().getRoot().resolve("saves"));
+		return null;
 	}
 
 	@Override
-	public void saveWorldInfo(WorldInfo worldInfo) throws IOException
+	public Task<Void> exportVersion(MinecraftVersion version, Path target)
 	{
-		Path saves = getContext().getRoot().resolve("saves").resolve(worldInfo.getFileName()).resolve("level.dat");
-		if (Files.exists(saves))
-			WorldInfo.WRITER.writeTo(worldInfo, NBT.read(saves, true).asCompound());
-		else throw new IOException();
+		return null;
 	}
 
 	private Set<String> locals = Collections.synchronizedSet(new TreeSet<>());

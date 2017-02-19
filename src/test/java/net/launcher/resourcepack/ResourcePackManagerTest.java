@@ -63,7 +63,7 @@ public class ResourcePackManagerTest extends Application
 
 		for (int i = 0; i < 5; i++)
 		{
-			ResourcePackCell ce = new ResourcePackCell();
+			ResourcePackCell ce = new ResourcePackCell(null, null);
 			ce.setValue(containData);
 			ce.setImage(build.getIcon(containData));
 			container.getChildren().add(ce);

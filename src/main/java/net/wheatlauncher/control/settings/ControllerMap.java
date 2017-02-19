@@ -11,12 +11,16 @@ import javafx.collections.transformation.FilteredList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
+import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import net.launcher.Logger;
 import net.launcher.control.ImageCell;
 import net.launcher.game.WorldInfo;
 import net.wheatlauncher.MainApplication;
 
+import java.io.File;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -33,7 +37,7 @@ public class ControllerMap
 	public void initialize()
 	{
 		Logger.trace("init map");
-		FilteredList<WorldInfo> filteredList = new FilteredList<>(MainApplication.getCore().getAssetsManager().getWorldInfos());
+		FilteredList<WorldInfo> filteredList = new FilteredList<>(MainApplication.getCore().getWorldManager().getWorldInfos());
 		filteredList.predicateProperty().bind(Bindings.createObjectBinding(() -> (Predicate<WorldInfo>) worldInfo ->
 				worldInfo.getFileName().contains(search.getText()) ||
 						worldInfo.getDisplayName().contains(search.getText()), search.textProperty()));
@@ -46,25 +50,46 @@ public class ControllerMap
 			{
 				super.updateItem(item, empty);
 				if (item == null || empty) return;
-				WorldInfoCell worldInfoCell = new WorldInfoCell(item);
+				WorldInfoCell worldInfoCell = new WorldInfoCell(item, null);
+
 				try
 				{
-					worldInfoCell.setImage(MainApplication.getCore().getAssetsManager().getRepository().getIcon(item));
+					worldInfoCell.setImage(MainApplication.getCore().getWorldManager().getWorldIcon(item));
 				}
 				catch (Exception e) { MainApplication.displayError(maps.getScene(), e);}
 				this.setGraphic(worldInfoCell);
 			}
 		});
+
+		importBtn.setOnAction(event ->
+		{
+			DirectoryChooser chooser = new DirectoryChooser();
+			chooser.setTitle(resources.getString("map.import"));
+			File file = chooser.showDialog(importBtn.getScene().getWindow());
+			MainApplication.getCore().getTaskCenter().runTask(MainApplication.getCore().getWorldManager().importMap(file.toPath()));
+		});
+		exportBtn.disableProperty().bind(Bindings.createBooleanBinding(() -> maps.getSelectionModel().isEmpty(), maps
+				.getSelectionModel().selectedIndexProperty()));
+		exportBtn.setOnAction(event ->
+		{
+			WorldInfo selectedItem = maps.getSelectionModel().getSelectedItem();
+			String fileName = selectedItem.getFileName();
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.setInitialFileName(fileName);
+			File file = fileChooser.showSaveDialog(exportBtn.getScene().getWindow());
+			MainApplication.getCore().getTaskCenter().runTask(MainApplication.getCore().getWorldManager().exportMap(
+					maps.getSelectionModel().getSelectedItem(),
+					file.toPath()));
+		});
 	}
 
 	public class WorldInfoCell extends ImageCell<WorldInfo> implements Observable
 	{
-		private WorldInfo worldInfo;
 		private List<InvalidationListener> list;
 
-		public WorldInfoCell(WorldInfo worldInfo)
+		public WorldInfoCell(WorldInfo worldInfo, Image image)
 		{
-			this.worldInfo = worldInfo;
+			super(worldInfo, image);
 			change();
 		}
 
@@ -92,19 +117,19 @@ public class ControllerMap
 
 			name.textProperty().bind(Bindings.createStringBinding(() ->
 					{
-						if (worldInfo == null) return "";
-						return worldInfo.getDisplayName();
+						if (getValue() == null) return "";
+						return getValue().getDisplayName();
 					}, this
 			));
 			fileInfo.textProperty().bind(Bindings.createStringBinding(() ->
 			{
-				if (worldInfo == null) return "";
-				return worldInfo.getFileName() +
-						" (" + new Date(worldInfo.getLastPlayed()) + ")";
+				if (getValue() == null) return "";
+				return getValue().getFileName() +
+						" (" + new Date(getValue().getLastPlayed()) + ")";
 			}, this));
 			mode.textProperty().bind(Bindings.createStringBinding(() ->
 			{
-				WorldInfo value = worldInfo;
+				WorldInfo value = getValue();
 				if (value == null) return "";
 				StringJoiner joiner = new StringJoiner(", ");
 				joiner.add(value.getGameType().name());

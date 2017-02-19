@@ -1,9 +1,9 @@
 package net.launcher.control;
 
 import javafx.beans.binding.Bindings;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import net.launcher.game.ResourcePack;
 
@@ -12,27 +12,27 @@ import net.launcher.game.ResourcePack;
  */
 public class ResourcePackCell extends ImageCell<ResourcePack>
 {
+	public ResourcePackCell(ResourcePack resourcePack, Image image)
+	{
+		super(resourcePack, image);
+		this.setIconHeight(48);
+		this.setIconWidth(48);
+		this.imageContainer.setMaxSize(48, 48);
+	}
+
 	@Override
 	protected Node buildContent()
 	{
 		Label name = new Label();
 		name.setStyle("-fx-font-weight: BOLD;-fx-font-size:14px;");
-		name.textProperty().bind(Bindings.createStringBinding(() ->
-		{
-			ResourcePack resourcePack = getValue();
-			if (resourcePack != null) return resourcePack.getPackName();
-			return "Unknown";
-		}, valueProperty()));
+		name.textProperty().bind(Bindings.createStringBinding(() -> (getValue() != null ? getValue().getPackName() : ""),
+				valueProperty()));
 		Label description = new Label();
-		description.textProperty().bind(Bindings.createStringBinding(() ->
-		{
-			ResourcePack resourcePack = getValue();
-			if (resourcePack != null) return resourcePack.getDescription();
-			return "Unknown";
-		}, valueProperty()));
+		description.setWrapText(true);
+		description.textProperty().bind(Bindings.createStringBinding(() -> (getValue() != null ? getValue().getDescription() : ""),
+				valueProperty()));
 		VBox content = new VBox(name, description);
-		content.setSpacing(10);
-		content.setPadding(new Insets(10));
+		content.setSpacing(5);
 		return content;
 	}
 }

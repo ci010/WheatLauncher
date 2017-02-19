@@ -1,16 +1,26 @@
 package net.wheatlauncher;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.property.Property;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.stage.Stage;
 import net.launcher.*;
 import net.launcher.api.LauncherContext;
+import net.launcher.assets.IOGuardMinecraftAssetsManager;
+import net.launcher.assets.IOGuardMinecraftWorldManager;
+import net.launcher.assets.MinecraftAssetsManager;
+import net.launcher.assets.MinecraftWorldManager;
 import net.launcher.game.ResourcePack;
 import net.launcher.game.forge.ForgeMod;
+import net.launcher.mod.ModManager;
 import net.launcher.mod.ModManagerBuilder;
 import net.launcher.profile.LaunchProfileManager;
 import net.launcher.resourcepack.ResourcePackManager;
 import net.launcher.resourcepack.ResourcePackMangerBuilder;
-import net.launcher.version.IOGuardMinecraftAssetsManager;
-import net.launcher.version.MinecraftAssetsManager;
 import net.wheatlauncher.internal.io.IOGuardAuth;
 import net.wheatlauncher.internal.io.IOGuardContext;
 import net.wheatlauncher.internal.io.IOGuardContextScheduled;
@@ -23,30 +33,28 @@ import org.to2mbn.jmccc.option.LaunchOption;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * @author ci010
  */
-public class Core extends LaunchCore implements LauncherContext
+public class Core extends LaunchCore implements LauncherContext, TaskCenter
 {
 	private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(4);
 
 	private Path root;
 	private LaunchProfileManager profileManager;
 	private AuthProfile authProfile;
-	private MinecraftAssetsManager versionManager;
-	private ResourcePackManager resourcePackManager;
 
-	private IOGuardContext ioContext;
+	private MinecraftAssetsManager assetsManager;
+	private ModManager modManager;
+	private ResourcePackManager resourcePackManager;
+	private MinecraftWorldManager worldManager;
 	private DownloadCenter downloadCenter;
 
-	private WorldSaveMaintainer maintainer;
+	private IOGuardContext ioContext;
 
 	private Map<Class, LaunchElementManager> managers;
 
@@ -74,10 +82,7 @@ public class Core extends LaunchCore implements LauncherContext
 	}
 
 	@Override
-	public TaskCenter getTaskCenter()
-	{
-		return null;
-	}
+	public TaskCenter getTaskCenter() {return this;}
 
 	@Override
 	public LaunchProfileManager getProfileManager()
@@ -94,14 +99,20 @@ public class Core extends LaunchCore implements LauncherContext
 	@Override
 	public MinecraftAssetsManager getAssetsManager()
 	{
-		return versionManager;
+		return assetsManager;
 	}
 
 	@Override
-	public DownloadCenter getDownloadCenter()
+	public MinecraftWorldManager getWorldManager() {return worldManager;}
+
+	@Override
+	public ModManager getModManager()
 	{
-		return downloadCenter;
+		return modManager;
 	}
+
+	@Override
+	public DownloadCenter getDownloadCenter() {return downloadCenter;}
 
 	@Override
 	public ResourcePackManager getResourcePackManager()
@@ -157,33 +168,35 @@ public class Core extends LaunchCore implements LauncherContext
 		this.root = root;
 		Files.createDirectories(getProfilesRoot());
 
-		this.maintainer = new WorldSaveMaintainer(this.root.resolve("saves"));
-
 		this.downloadCenter = new DownloadCenterImpl();
 		this.managers = new HashMap<>();
 
 		Path mods = this.getRoot().resolve("mods");
 		Files.createDirectories(mods);
-		this.managers.put(ForgeMod.class, ModManagerBuilder.create(mods, this.executorService).build());
-		Path resourcepacks = this.getRoot().resolve("resourcepacks");
+		this.managers.put(ForgeMod.class, modManager = ModManagerBuilder.create(mods, this.executorService).build());
+		Path resPacks = this.getRoot().resolve("resourcepacks");
 
-		Files.createDirectories(resourcepacks);
-		this.managers.put(ResourcePack.class, this.resourcePackManager = ResourcePackMangerBuilder.create(
-				resourcepacks,
-				this.executorService).build());
+		Files.createDirectories(resPacks);
+		this.managers.put(ResourcePack.class, this.resourcePackManager =
+				ResourcePackMangerBuilder.create(resPacks, this.executorService)
+						.build());
 
 		//main module io start
 		this.ioContext = IOGuardContextScheduled.Builder.create(this.root, executorService)
 				.register(LaunchProfileManager.class, new IOGuardProfile())
 				.register(AuthProfile.class, new IOGuardAuth())
 				.register(MinecraftAssetsManager.class, new IOGuardMinecraftAssetsManager())
+				.register(MinecraftWorldManager.class, new IOGuardMinecraftWorldManager())
 				.build();
 		this.authProfile = ioContext.load(AuthProfile.class);
-		this.versionManager = ioContext.load(MinecraftAssetsManager.class);
+		this.assetsManager = ioContext.load(MinecraftAssetsManager.class);
 		this.profileManager = ioContext.load(LaunchProfileManager.class);
-		this.versionManager.getRepository().update();
+		this.worldManager = ioContext.load(MinecraftWorldManager.class);
+
+		this.assetsManager.getRepository().refreshVersion();
 
 		resourcePackManager.update();
+		modManager.update();
 		//main module io end
 		assert profileManager.getSelectedProfile() != null;
 		assert profileManager.selecting() != null;
@@ -236,5 +249,66 @@ public class Core extends LaunchCore implements LauncherContext
 	public ScheduledExecutorService getService(String id)
 	{
 		return executorService;
+	}
+
+	private ObservableList<Worker<?>> workers = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
+	private ObservableList<Throwable> errors = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
+
+	@Override
+	public void runTask(Task<?> tTask)
+	{
+		if (tTask == null) return;
+		workers.add(tTask);
+		tTask.workDoneProperty().addListener(workerListener);
+		tTask.addEventHandler(WorkerStateEvent.WORKER_STATE_FAILED, event -> reportError(event.getSource().getException()));
+		executorService.submit(tTask);
+	}
+
+	@Override
+	public void runTasks(Collection<Task<?>> tasks)
+	{
+		if (tasks == null || tasks.isEmpty()) return;
+		workers.addAll(tasks);
+		for (Task<?> task : tasks)
+		{
+			task.workDoneProperty().addListener(workerListener);
+			task.addEventHandler(WorkerStateEvent.WORKER_STATE_FAILED, event -> reportError(event.getSource().getException()));
+		}
+		for (Task<?> task : tasks) executorService.submit(task);
+	}
+
+	@Override
+	public void reportError(Throwable throwable)
+	{
+		Objects.requireNonNull(throwable);
+		errors.add(throwable);
+	}
+
+	private InvalidationListener workerListener = new InvalidationListener()
+	{
+		@Override
+		public void invalidated(javafx.beans.Observable observable)
+		{
+			Worker worker = (Worker) ((Property) observable).getBean();
+			if (worker == null) return;
+			if (workers.remove(worker))
+			{
+				Throwable exception = worker.getException();
+				if (exception != null) reportError(exception);
+				observable.removeListener(this);
+			}
+		}
+	};
+
+	@Override
+	public ObservableList<Throwable> getAllErrors()
+	{
+		return errors;
+	}
+
+	@Override
+	public ObservableList<Worker<?>> getAllRunningWorkers()
+	{
+		return workers;
 	}
 }

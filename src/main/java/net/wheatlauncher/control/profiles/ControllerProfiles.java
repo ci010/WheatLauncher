@@ -4,14 +4,13 @@ import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTabPane;
 import javafx.scene.layout.StackPane;
 import net.launcher.Logger;
+import net.launcher.assets.MinecraftVersion;
 import net.launcher.control.profile.base.ProfileTableSelector;
 import net.launcher.control.versions.MinecraftVersionPicker;
 import net.launcher.profile.LaunchProfile;
-import net.launcher.version.MinecraftVersion;
 import net.wheatlauncher.MainApplication;
 
 import javax.annotation.PreDestroy;
-import java.io.IOException;
 
 
 /**
@@ -53,16 +52,8 @@ public class ControllerProfiles
 	{
 		versions.setDataList(MainApplication.getCore().getAssetsManager().getVersions());
 		versions.setDownloadRequest((version1) -> MainApplication.getCore().getAssetsManager().getRepository().fetchVersion(version1));
-		versions.setRequestUpdate(() ->
-				MainApplication.getCore().getService().submit(() ->
-				{
-					try {MainApplication.getCore().getAssetsManager().getRepository().update();}
-					catch (IOException e)
-					{
-						MainApplication.displayError(versions.getScene(), e);
-//						Platform.runLater(() -> flowContext.getRegisteredObject(WindowsManager.Page.class).displayError(e));
-					}
-				}));
+		versions.setRequestUpdate(() -> MainApplication.getCore().getTaskCenter().runTask(MainApplication.getCore().getAssetsManager().getRepository().refreshVersion()));
+
 		MainApplication.getCore().getProfileManager().selectedProfileProperty().addListener(observable ->
 		{
 			String version = MainApplication.getCore().getProfileManager().selecting().getVersion();

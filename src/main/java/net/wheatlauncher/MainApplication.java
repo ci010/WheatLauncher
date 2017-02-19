@@ -31,8 +31,8 @@ import java.util.function.Consumer;
 public class MainApplication extends Application
 {
 	private static LaunchCore current;
-	private static ReentrantLock lock = new ReentrantLock();
-	private static Path repositoryLocation;
+	private ReentrantLock lock = new ReentrantLock();
+	private Path repositoryLocation;
 
 	public static void main(String[] args)
 	{
@@ -67,12 +67,12 @@ public class MainApplication extends Application
 		return root.resolve(".launcher");
 	}
 
-	public static void preinit() throws Exception
+	private void preinit() throws Exception
 	{
 		repositoryLocation = loadLocation();
 	}
 
-	private static void boost(Class<? extends LaunchCore> clz, Stage stage) throws Exception
+	private void boost(Class<? extends LaunchCore> clz, Stage stage) throws Exception
 	{
 		lock.lock();
 		if (current != null)
@@ -86,7 +86,7 @@ public class MainApplication extends Application
 		lock.unlock();
 	}
 
-	private static void destroy() throws Exception
+	private void destroy() throws Exception
 	{
 		lock.lock();
 		if (current == null)
@@ -132,8 +132,10 @@ public class MainApplication extends Application
 	public void start(final Stage stage) throws Exception
 	{
 		preinit();
+		Exception suppressed;
 		try {boost(Core.class, stage);}
-		catch (Exception e) {}
+		catch (Exception e) {}//TODO well... i forgot that the throwing exception will break the flow... maybe get
+		// rid of this design....
 
 		ResourceBundle lang;
 		try {lang = ResourceBundle.getBundle("lang", Locale.getDefault());}

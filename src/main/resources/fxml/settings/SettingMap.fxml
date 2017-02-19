@@ -8,8 +8,8 @@
       alignment="CENTER" spacing="10">
     <JFXListView fx:id="maps" prefHeight="300" prefWidth="400"/>
     <HBox spacing="10" alignment="CENTER">
-        <JFXButton fx:id="importBtn" text="Import" styleClass="options-button" style="-fx-max-width:150"/>
+        <JFXButton fx:id="importBtn" text="%import" styleClass="options-button" style="-fx-max-width:150"/>
         <JFXTextField fx:id="search" promptText="search..."/>
-        <JFXButton fx:id="exportBtn" text="Export" styleClass="options-button" style="-fx-max-width:150"/>
+        <JFXButton fx:id="exportBtn" text="%export" styleClass="options-button" style="-fx-max-width:150"/>
     </HBox>
 </VBox>

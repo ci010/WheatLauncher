@@ -75,7 +75,7 @@
     -fx-font-size: 14px;
     -fx-text-fill: BLACK;
     -fx-background-color:#ffffc6;
-    -fx-button-target-color:TOMATO;
+    -fx-button-target-color:mics-color;
     -fx-background-radius:10;
 }
 
@@ -263,7 +263,7 @@
 }
 .mics-button{
 	-fx-background-color:WHITE;
-	-fx-text-fill:TOMATO;
+	-fx-text-fill:mics-color;
 }
 .options-button{
 		-fx-button-type: RAISED;
@@ -363,47 +363,3 @@
 	/*-fx-focus-color: WHEAT;*/
 	-fx-unfocus-color: #D34336;
 }
-
-
-
-/* The main scrollbar **track** CSS class  */
-.jfx-list-view .scroll-bar:horizontal .track,
-.jfx-list-view .scroll-bar:vertical .track{
-	-fx-background-color:transparent;
-	-fx-border-color:transparent;
-	-fx-background-radius: 0em;
-	-fx-border-radius:2em;
-}
-
-/* The increment and decrement button CSS class of scrollbar */
-.jfx-list-view .scroll-bar:horizontal .increment-button ,
-.jfx-list-view .scroll-bar:horizontal .decrement-button {
-    -fx-background-color:transparent;
-	-fx-background-radius: 0em;
-	-fx-padding:0 0 10 0;
-}
-
-/* The increment and decrement button CSS class of scrollbar */
-
-.jfx-list-view .scroll-bar:vertical .increment-button ,
-.jfx-list-view .scroll-bar:vertical .decrement-button {
-    -fx-background-color:transparent;
-	-fx-background-radius: 0em;
-	-fx-padding:0 10 0 0;
-
-}
-
-.jfx-list-view  .scroll-bar .increment-arrow,
-.jfx-list-view  .scroll-bar .decrement-arrow{
-	-fx-shape:" ";
-	-fx-padding:0;
-}
-
-/* The main scrollbar **thumb** CSS class which we drag every time (movable) */
-.jfx-list-view .scroll-bar:horizontal .thumb,
-.jfx-list-view .scroll-bar:vertical .thumb {
-    -fx-background-color:derive(black,90%);
-	-fx-background-insets: 2, 0, 0;
-	-fx-background-radius: 2em;
-}
-

@@ -5,9 +5,15 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.LongProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.concurrent.Task;
+import org.to2mbn.jmccc.mcdownloader.MinecraftDownloadOption;
 import org.to2mbn.jmccc.mcdownloader.MinecraftDownloader;
+import org.to2mbn.jmccc.mcdownloader.download.combine.CombinedDownloadTask;
+import org.to2mbn.jmccc.mcdownloader.download.tasks.DownloadTask;
 import org.to2mbn.jmccc.mcdownloader.provider.forge.ForgeVersion;
 import org.to2mbn.jmccc.mcdownloader.provider.liteloader.LiteloaderVersion;
+import org.to2mbn.jmccc.option.MinecraftDirectory;
+import org.to2mbn.jmccc.version.Version;
 
 import java.util.Objects;
 
@@ -32,6 +38,16 @@ public interface DownloadCenter
 	 * @return The listened downloader
 	 */
 	MinecraftDownloader listenDownloader(String name, MinecraftDownloader downloader);
+
+	Task<Version> downloadVersion(MinecraftDirectory dir, String version, MinecraftDownloadOption... options);
+
+	<T> Task<T> download(CombinedDownloadTask<T> task);
+
+	<T> Task<T> download(CombinedDownloadTask<T> task, int tries);
+
+	<T> Task<T> download(DownloadTask<T> task);
+
+	<T> Task<T> download(DownloadTask<T> task, int tries);
 
 	ObservableMap<String, ObservableList<TaskInfo>> getListenedDownloaderMap();
 

@@ -30,14 +30,17 @@ public abstract class OptionLaunchElementManager<T, O> implements LaunchElementM
 	public ObservableList<T> getIncludeElementContainer(LaunchProfile profile)
 	{
 		Objects.requireNonNull(profile);
-		ObservableList<T> list = cache.get();
-		if (list != null) return list;
-		Optional<Setting> optional = profile.getGameSetting(getOption().getParent());
+		ObservableList<T> list;
 		Setting setting;
+		if (cache != null)
+		{
+			list = cache.get();
+			if (list != null) return list;
+		}
+		Optional<Setting> optional = profile.getGameSetting(getOption().getParent());
 		if (!optional.isPresent())
 			profile.addGameSetting(setting = getOption().getParent().defaultInstance());
 		else setting = optional.get();
-
 		SettingProperty<O> option = setting.getOption(getOption());
 		list = FXCollections.observableArrayList(from(option.getValue()));
 		cache = new WeakReference<>(list);

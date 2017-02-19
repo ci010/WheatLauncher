@@ -10,26 +10,25 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
 import javafx.scene.control.TableColumn;
 import javafx.scene.layout.StackPane;
 import net.launcher.Logger;
+import net.launcher.assets.MinecraftAssetsManager;
+import net.launcher.assets.MinecraftVersion;
 import net.launcher.control.MinecraftOptionButton;
 import net.launcher.game.Language;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.profile.LaunchProfileManager;
-import net.launcher.version.MinecraftAssetsManager;
-import net.launcher.version.MinecraftVersion;
 import net.wheatlauncher.MainApplication;
-import net.wheatlauncher.control.utils.ReloadableController;
 
-import java.io.IOException;
-import java.util.List;
 import java.util.function.Predicate;
 
 /**
  * @author ci010
  */
-public class ControllerLanguages implements ReloadableController
+public class ControllerLanguages
 {
 	public StackPane root;
 	public JFXTableView<Language> languageTable;
@@ -41,15 +40,6 @@ public class ControllerLanguages implements ReloadableController
 	public JFXTextField search;
 	public MinecraftOptionButton useUnicode;
 	public JFXButton confirm;
-
-	@Override
-	public void reload()
-	{
-	}
-
-	@Override
-	public void unload()
-	{}
 
 	private InvalidationListener refresh = observable -> refresh();
 
@@ -68,15 +58,15 @@ public class ControllerLanguages implements ReloadableController
 		MinecraftVersion version = assetsManager.getVersion(selecting.getVersion());
 		Logger.trace("refresh lang " + version);
 		if (version != null)
-			try
+		{
+			Task<Language[]> task = assetsManager.getRepository().getLanguages(version);
+			task.setOnSucceeded(event ->
 			{
-				List<Language> languages = assetsManager.getRepository().getLanguages(version);
-				languageLists.setAll(languages);
-			}
-			catch (IOException e)
-			{
-				MainApplication.displayError(languageTable.getScene(), e);
-			}
+				Worker<Language[]> source = event.getSource();
+				languageLists.setAll(source.getValue());
+			});
+			MainApplication.getCore().getTaskCenter().runTask(task);
+		}
 	}
 
 	public void initialize()

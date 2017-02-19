@@ -1,7 +1,8 @@
+<?import com.jfoenix.controls.JFXSnackbar?>
 <?import de.jensd.fx.fontawesome.Icon?>
 <?import javafx.scene.layout.StackPane?>
 <?import net.wheatlauncher.control.utils.ColorTransitionButton?>
-<StackPane xmlns:fx="http://javafx.com/fxml/1"
+<StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
            xmlns="http://javafx.com/javafx/2.2"
            alignment="TOP_RIGHT"
            style="-fx-padding:0,0,10,10; -fx-background-color:WHITESMOKE; -fx-border-color:TOMATO;"
@@ -13,4 +14,5 @@
             <Icon awesomeIcon="CLOSE" scaleX="1.3" scaleY="1.3" style="-fx-font-family:FontAwesome;"/>
         </graphic>
     </ColorTransitionButton>
+    <JFXSnackbar fx:id="bar"/>
 </StackPane>

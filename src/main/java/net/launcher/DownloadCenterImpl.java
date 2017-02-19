@@ -5,6 +5,7 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.concurrent.Task;
 import org.to2mbn.jmccc.mcdownloader.CacheOption;
 import org.to2mbn.jmccc.mcdownloader.MinecraftDownloadOption;
 import org.to2mbn.jmccc.mcdownloader.MinecraftDownloader;
@@ -183,6 +184,36 @@ public class DownloadCenterImpl implements DownloadCenter
 		ObservableList<TaskInfo> objects = FXCollections.observableArrayList();
 		downloadMap.put(name, objects);
 		return new DownloaderWrapper(name, downloader, objects);
+	}
+
+	@Override
+	public Task<Version> downloadVersion(MinecraftDirectory dir, String version, MinecraftDownloadOption... options)
+	{
+		return null;
+	}
+
+	@Override
+	public <T> Task<T> download(CombinedDownloadTask<T> task)
+	{
+		return null;
+	}
+
+	@Override
+	public <T> Task<T> download(CombinedDownloadTask<T> task, int tries)
+	{
+		return null;
+	}
+
+	@Override
+	public <T> Task<T> download(DownloadTask<T> task)
+	{
+		return null;
+	}
+
+	@Override
+	public <T> Task<T> download(DownloadTask<T> task, int tries)
+	{
+		return null;
 	}
 
 	@Override

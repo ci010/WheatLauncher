@@ -13,7 +13,7 @@ import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
-import net.launcher.version.MinecraftVersion;
+import net.launcher.assets.MinecraftVersion;
 
 import java.util.function.Consumer;
 

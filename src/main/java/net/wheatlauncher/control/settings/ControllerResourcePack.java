@@ -16,7 +16,6 @@ import net.launcher.resourcepack.ResourcePackManager;
 import net.wheatlauncher.MainApplication;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -45,16 +44,10 @@ public class ControllerResourcePack
 			@Override
 			protected void updateItem(ResourcePack item, boolean empty)
 			{
-				if (item == null || empty) {super.updateItem(item, empty); return;}
-				ResourcePackCell ce = new ResourcePackCell();
-				ce.setValue(item);
-				try {ce.setImage(MainApplication.getCore().getResourcePackManager().getIcon(item));}
-				catch (IOException e)
-				{
-					MainApplication.displayError(ControllerResourcePack.this.resourcePacks.getScene(), e);
-				}
-				this.setGraphic(ce);
 				super.updateItem(item, empty);
+				if (item == null || empty) setGraphic(null);
+				else
+					this.setGraphic(new ResourcePackCell(item, MainApplication.getCore().getResourcePackManager().getIcon(item)));
 			}
 		});
 		importBtn.setOnAction(event ->
@@ -66,7 +59,8 @@ public class ControllerResourcePack
 			List<File> files = fileChooser.showOpenMultipleDialog(importBtn.getScene().getWindow());
 			if (files != null && !files.isEmpty())
 				for (File file : files)
-					MainApplication.getCore().getResourcePackManager().importResourcePack(file.toPath(), null);
+					MainApplication.getCore().getTaskCenter().runTask(MainApplication.getCore().getResourcePackManager()
+							.importResourcePack(file.toPath()));
 		});
 		exportBtn.disableProperty().bind(Bindings.createBooleanBinding(() -> this.resourcePacks.getSelectionModel()
 				.isEmpty(), this.resourcePacks.getSelectionModel().selectedItemProperty()));
@@ -76,7 +70,8 @@ public class ControllerResourcePack
 			fileChooser.setTitle("Select save location");
 			File file = fileChooser.showDialog(exportBtn.getScene().getWindow());
 			ResourcePackManager manager = MainApplication.getCore().getResourcePackManager();
-			manager.exportResourcePack(file.toPath(), this.resourcePacks.getSelectionModel().getSelectedItems());
+			MainApplication.getCore().getTaskCenter().runTask(manager.exportResourcePack(file.toPath(), this
+					.resourcePacks.getSelectionModel().getSelectedItems()));
 		});
 	}
 }

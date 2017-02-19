@@ -1,12 +1,7 @@
 package net.launcher.mod;
 
-import javafx.collections.ObservableMap;
 import net.launcher.LaunchElementManager;
 import net.launcher.game.forge.ForgeMod;
-import net.launcher.services.curseforge.CurseForgeProject;
-import net.launcher.services.curseforge.CurseForgeProjectType;
-import net.launcher.services.curseforge.CurseForgeService;
-import net.launcher.services.curseforge.CurseForgeServices;
 import net.launcher.utils.DirUtils;
 import net.launcher.utils.resource.ArchiveRepository;
 import net.launcher.utils.resource.Repository;
@@ -19,7 +14,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -97,9 +92,9 @@ public class ModManagerBuilderTest
 			System.out.println(allVisiblePath);
 		}
 
-		for (ArchiveRepository.Resource<ForgeMod[]> resource1 : archiveRepository.getResourceMap().values())
-			for (ForgeMod forgeMod : resource1.getContainData())
-				System.out.println(forgeMod.getKey());
+//		for (ArchiveRepository.Resource<ForgeMod[]> resource1 : archiveRepository.getResourceMap().values())
+//			for (ForgeMod forgeMod : resource1.getContainData())
+//				System.out.println(forgeMod.getKey());
 	}
 
 	@Test
@@ -145,46 +140,46 @@ public class ModManagerBuilderTest
 //		inventorytweaks:1.61-58-a1fd884
 //		mantle:1.1.4
 //		journeymap:1.11.2-5.4.3
-		ModManagerBuilder builder = ModManagerBuilder.create(root,
-				Executors.newCachedThreadPool());
-		archiveRepository = builder.getArchiveRepository();
-		build = builder.build();
-		archiveRepository.update().get();
-		ObservableMap<String, ArchiveRepository.Resource<ForgeMod[]>> resourceMap = archiveRepository.getResourceMap();
-		Optional<List<ForgeMod>> reduce = resourceMap.values().stream().map(ArchiveRepository.Resource::getContainData).map(Arrays::asList).reduce((forgeMods, forgeMods2) ->
-		{
-			ArrayList<ForgeMod> forgeMods1 = new ArrayList<>(forgeMods);
-			forgeMods1.addAll(forgeMods2);
-			return forgeMods1;
-		});
-		CurseForgeService curseForgeService = CurseForgeServices.newService(CurseForgeProjectType.Mods);
-		List<ForgeMod> forgeMods = reduce.get();
-		for (ForgeMod forgeMod : forgeMods)
-		{
-			CurseForgeService.Cache<CurseForgeProject> search = curseForgeService.search(forgeMod.getModId());
-			List<CurseForgeProject> cache = search.getCache();
-			if (cache.isEmpty())
-			{
-				System.out.println(forgeMod.getModId() + " is empty!");
-				System.out.println("------------------------------------");
-			}
-			else
-			{
-				for (CurseForgeProject curseForgeProject : cache)
-				{
-					if (curseForgeProject.getProjectType() != CurseForgeProjectType.Mods) continue;
-
-					if (match(forgeMod.getKey(), curseForgeProject))
-					{
-						System.out.println("------------------------------------");
-						System.out.println("match!");
-						System.out.println(forgeMod);
-						System.out.println(curseForgeProject);
-						System.out.println("------------------------------------");
-					}
-				}
-			}
-		}
+//		ModManagerBuilder builder = ModManagerBuilder.create(root,
+//				Executors.newCachedThreadPool());
+//		archiveRepository = builder.getArchiveRepository();
+//		build = builder.build();
+//		archiveRepository.update().get();
+//		ObservableMap<String, ArchiveRepository.Resource<ForgeMod[]>> resourceMap = archiveRepository.getResourceMap();
+//		Optional<List<ForgeMod>> reduce = resourceMap.values().stream().map(ArchiveRepository.Resource::getContainData).map(Arrays::asList).reduce((forgeMods, forgeMods2) ->
+//		{
+//			ArrayList<ForgeMod> forgeMods1 = new ArrayList<>(forgeMods);
+//			forgeMods1.addAll(forgeMods2);
+//			return forgeMods1;
+//		});
+//		CurseForgeService curseForgeService = CurseForgeServices.newService(CurseForgeProjectType.Mods);
+//		List<ForgeMod> forgeMods = reduce.get();
+//		for (ForgeMod forgeMod : forgeMods)
+//		{
+//			CurseForgeService.Cache<CurseForgeProject> search = curseForgeService.search(forgeMod.getModId());
+//			List<CurseForgeProject> cache = search.getCache();
+//			if (cache.isEmpty())
+//			{
+//				System.out.println(forgeMod.getModId() + " is empty!");
+//				System.out.println("------------------------------------");
+//			}
+//			else
+//			{
+//				for (CurseForgeProject curseForgeProject : cache)
+//				{
+//					if (curseForgeProject.getProjectType() != CurseForgeProjectType.Mods) continue;
+//
+//					if (match(forgeMod.getKey(), curseForgeProject))
+//					{
+//						System.out.println("------------------------------------");
+//						System.out.println("match!");
+//						System.out.println(forgeMod);
+//						System.out.println(curseForgeProject);
+//						System.out.println("------------------------------------");
+//					}
+//				}
+//			}
+//		}
 	}
 
 //	private boolean matchVersion(ForgeMod.Key key, CurseForgeService service,CurseForgeProject project)
@@ -192,16 +187,16 @@ public class ModManagerBuilderTest
 //
 //	}
 
-	private boolean match(ForgeMod.Key key, CurseForgeProject project)
-	{
-		String modid = key.getModid();
-		String name = project.getName();
-		if (modid.equals(name)) return true;
-		if (modid.equals(name.toLowerCase())) return true;
-		String reduce = name.replace(" ", "").toLowerCase();
-		if (modid.equals(reduce)) return true;
-		System.out.println(reduce);
-		return false;
-	}
+//	private boolean match(ForgeMod.Key key, CurseForgeProject project)
+//	{
+//		String modid = key.getModid();
+//		String name = project.getName();
+//		if (modid.equals(name)) return true;
+//		if (modid.equals(name.toLowerCase())) return true;
+//		String reduce = name.replace(" ", "").toLowerCase();
+//		if (modid.equals(reduce)) return true;
+//		System.out.println(reduce);
+//		return false;
+////	}
 
 }

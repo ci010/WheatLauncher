@@ -2,8 +2,8 @@ package net.launcher.control.versions;
 
 import javafx.scene.Node;
 import javafx.util.StringConverter;
+import net.launcher.assets.MinecraftVersion;
 import net.launcher.control.ComboBoxSkinSimple;
-import net.launcher.version.MinecraftVersion;
 
 /**
  * @author ci010

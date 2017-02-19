@@ -48,9 +48,9 @@ public class ModManagerBuilder implements Builder<LaunchElementManager<ForgeMod>
 	}
 
 	@Override
-	public LaunchElementManager<ForgeMod> build()
+	public ModManager build()
 	{
-		return new ModMangerImpl(archiveRepository == null ? getArchiveRepository() : archiveRepository);
+		return new ModManagerImpl(archiveRepository == null ? getArchiveRepository() : archiveRepository);
 	}
 
 	public ArchiveRepository<ForgeMod[]> getArchiveRepository()

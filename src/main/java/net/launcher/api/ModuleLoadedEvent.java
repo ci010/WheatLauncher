@@ -2,8 +2,8 @@ package net.launcher.api;
 
 import javafx.event.EventType;
 import net.launcher.AuthProfile;
+import net.launcher.assets.MinecraftAssetsManager;
 import net.launcher.profile.LaunchProfileManager;
-import net.launcher.version.MinecraftAssetsManager;
 
 /**
  * @author ci010

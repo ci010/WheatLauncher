@@ -6,6 +6,9 @@ import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.effects.JFXDepthManager;
 import de.jensd.fx.fontawesome.Icon;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -17,29 +20,34 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import net.launcher.LaunchElementManager;
 import net.launcher.Logger;
+import net.launcher.control.ResourcePackCell;
 import net.launcher.game.ResourcePack;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.resourcepack.ResourcePackManager;
-import net.launcher.utils.Tasks;
 import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.control.utils.ReloadableController;
 
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * @author ci010
  */
-public class ControllerResourcePackView implements ReloadableController
+public class ControllerProfileResourcePack implements ReloadableController
 {
 	public StackPane root;
 	public JFXListView<ResourcePack> availableView;
 	public JFXListView<ResourcePack> selectedView;
 	//
 	public JFXButton manage;
-	public JFXTextField searchAvailable;
 	public JFXTextField searchSelecting;
 
 	private ResourcePackManager manager;
+
+	private ListProperty<ResourcePack> selected = new SimpleListProperty<>();
+
+	private Predicate<ResourcePack> resourcePackPredicate = resourcePack -> resourcePack.getPackName().contains(searchSelecting.getText()) || resourcePack.getDescription()
+			.contains(searchSelecting.getText());
 
 	public void initialize()
 	{
@@ -55,10 +63,21 @@ public class ControllerResourcePackView implements ReloadableController
 			if (node != selectedView)
 				JFXDepthManager.setDepth(node, 1);
 
-//		ObservableList<ResourcePack> enabledResourcePacks = manager.getEnabledResourcePacks();
-//		selectedView.setItems(manager.getEnabledResourcePacks());
-//		availableView.setItems(new FilteredList<>(manager.getEnabledResourcePacks(),
-//				resourcePack -> manager.getEnabledResourcePacks().contains(resourcePack)));
+		selected.bind(Bindings.createObjectBinding(() ->
+						manager.getIncludeElementContainer(MainApplication.getCore().getProfileManager().selecting()),
+				MainApplication.getCore().getProfileManager().selectedProfileProperty()));
+
+		FilteredList<ResourcePack> selectedRes = new FilteredList<>(selected);
+		selectedRes.predicateProperty().bind(Bindings.createObjectBinding(() -> resourcePackPredicate, searchSelecting.textProperty()));
+		selectedView.setItems(selectedRes);
+
+		FilteredList<ResourcePack> allRes = new FilteredList<>(manager.getAllElement(),
+				resourcePack -> !selected.contains(resourcePack));
+		allRes.predicateProperty().bind(Bindings.createObjectBinding(() -> resourcePackPredicate
+						.and(resourcePack -> !selected.contains(resourcePack)),
+				searchSelecting.textProperty()));
+		availableView.setItems(allRes);
+
 		availableView.getParent().disableProperty().bind(Bindings.createBooleanBinding(() -> availableView.getItems().isEmpty(),
 				availableView.getItems()));
 		selectedView.getParent().disableProperty().bind(Bindings.createBooleanBinding(() -> selectedView.getItems().isEmpty(),
@@ -71,7 +90,9 @@ public class ControllerResourcePackView implements ReloadableController
 					{
 						super.updateItem(item, empty);
 						if (!empty && item != null)
-							Tasks.optional(() -> manager.getIcon(item)).ifPresent(img -> setGraphic(createPane(item, img, true)));
+							setGraphic(new ResourcePackCell(item, manager.getIcon(item)));
+						else
+							setGraphic(null);
 					}
 				});
 		selectedView.setCellFactory(param ->
@@ -82,8 +103,9 @@ public class ControllerResourcePackView implements ReloadableController
 					{
 						super.updateItem(item, empty);
 						if (!empty && item != null)
-							Tasks.optional(() -> manager.getIcon(item)).ifPresent(img -> setGraphic(createPane(item,
-									img, false)));
+							setGraphic(new ResourcePackCell(item, manager.getIcon(item)));
+						else
+							setGraphic(null);
 					}
 				});
 	}

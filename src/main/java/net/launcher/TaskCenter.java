@@ -1,26 +1,23 @@
 package net.launcher;
 
 import javafx.collections.ObservableList;
-import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 
-import java.util.concurrent.Callable;
+import java.util.Collection;
 
 /**
  * @author ci010
  */
 public interface TaskCenter
 {
-	<T> Task<T> wrap(Callable<T> callable);
+	void runTask(Task<?> tTask);
 
-	<T> Task<T> run(Callable<T> callable);
+	void runTasks(Collection<Task<?>> tasks);
 
 	void reportError(Throwable throwable);
 
-	void listen(Worker<?> worker);
+	ObservableList<Throwable> getAllErrors();
 
 	ObservableList<Worker<?>> getAllRunningWorkers();
-
-	ObservableList<Service<?>> getAllRunningServices();
 }

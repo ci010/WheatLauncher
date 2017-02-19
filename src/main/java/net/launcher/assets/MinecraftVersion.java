@@ -1,4 +1,4 @@
-package net.launcher.version;
+package net.launcher.assets;
 
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -42,7 +42,6 @@ public class MinecraftVersion
 	{
 		this.versionID.set(versionID);
 	}
-
 
 	public State getState()
 	{

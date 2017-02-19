@@ -10,12 +10,6 @@
         <JFXListView fx:id="options" prefWidth="150" maxHeight="400" style="-jfx-expanded:TRUE;" verticalGap="10"
                      styleClass="option-list">
             <Label id="settings" text="Launcher Settings"/>
-            <!--<JFXListView fx:id="resourcePackSubList" styleClass="sublist">-->
-            <!--<groupnode>-->
-            <!--<Label text="ResourcePacks"/>-->
-            <!--</groupnode>-->
-            <!--<Label id="resourcePackCurse" text="Online Resource Packs"/>-->
-            <!--</JFXListView>-->
             <Label id="resourceManager" text="Resource Packs"/>
             <Label id="modManager" text="Mods"/>
             <Label id="modPack" text="Modspacks"/>
@@ -23,12 +17,14 @@
             <Label id="downloadCenter" text="Downloads"/>
         </JFXListView>
         <StackPane fx:id="container" prefWidth="400" prefHeight="500">
+            <fx:include id="settings" source="SettingLauncher.fxml"/>
             <fx:include id="modManager" source="SettingMod.fxml"/>
-            <fx:include id="resourcePackCurse" source="SettingCurseForgeResourcePack.fxml"/>
             <fx:include id="resourceManager" source="SettingResourcePack.fxml"/>
             <fx:include id="map" source="SettingMap.fxml"/>
             <fx:include id="modPack" source="SettingModPack.fxml"/>
             <fx:include id="downloadCenter" source="DownloadCenter.fxml"/>
+
+            <fx:include id="resourcePackCurse" source="SettingCurseForgeResourcePack.fxml"/>
         </StackPane>
     </HBox>
 </JFXDialog>

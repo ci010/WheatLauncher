@@ -3,6 +3,7 @@ package net.launcher.resourcepack;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 import net.launcher.OptionLaunchElementManager;
 import net.launcher.game.ResourcePack;
@@ -13,10 +14,8 @@ import net.launcher.setting.SettingType;
 import net.launcher.utils.ProgressCallback;
 import net.launcher.utils.resource.ArchiveRepository;
 import net.launcher.utils.resource.Repository;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 import org.to2mbn.jmccc.option.LaunchOption;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.*;
@@ -112,14 +111,16 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 
 
 	@Override
-	public Image getIcon(ResourcePack resourcePack) throws IOException
+	public Image getIcon(ResourcePack resourcePack)
 	{
+		Objects.requireNonNull(resourcePack);
 		ArchiveRepository.Resource<ResourcePack> packResource = nameToResource.get(resourcePack.getPackName());
 		if (packResource != null)
 			try (InputStream stream = archiveRepository.openStream(packResource, "pack.png"))
 			{
 				return new Image(stream);
 			}
+			catch (Exception e) {return DEFAULT_IMG;}
 		return DEFAULT_IMG;
 	}
 
@@ -130,42 +131,60 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	}
 
 	@Override
-	public void importResourcePack(Path resourcePack, Callback<ResourcePack> callback)
+	public Task<ResourcePack> importResourcePack(Path resourcePack)
 	{
-		archiveRepository.importFile(resourcePack, new ProgressCallback<ArchiveRepository.Resource<ResourcePack>>()
+		return new Task<ResourcePack>()
 		{
 			@Override
-			public void updateProgress(long done, long total, String message)
+			protected ResourcePack call() throws Exception
 			{
+				return archiveRepository.importFile(resourcePack, new ProgressCallback<ArchiveRepository
+						.Resource<ResourcePack>>()
+				{
 
-			}
+					@Override
+					public void done(ArchiveRepository.Resource<ResourcePack> result)
+					{
 
-			@Override
-			public void done(ArchiveRepository.Resource<ResourcePack> result)
-			{
-				callback.done(result.getContainData());
-			}
+					}
 
-			@Override
-			public void failed(Throwable e)
-			{
-				callback.failed(e);
-			}
+					@Override
+					public void failed(Throwable e)
+					{
 
-			@Override
-			public void cancelled()
-			{
-				callback.cancelled();
+					}
+
+					@Override
+					public void cancelled()
+					{
+
+					}
+
+					@Override
+					public void updateProgress(long done, long total, String message)
+					{
+
+					}
+				}).get().getContainData();
 			}
-		});
+		};
+
 	}
 
 	@Override
-	public void exportResourcePack(Path path, Collection<ResourcePack> pack)
+	public Task<Void> exportResourcePack(Path path, Collection<ResourcePack> pack)
 	{
 		Objects.requireNonNull(path);
 		Objects.requireNonNull(pack);
-		archiveRepository.fetchAllResources(path, pack.stream().map(ResourcePack::getPackName).map(nameToResource::get).map(ArchiveRepository
-				.Resource::getName).collect(Collectors.toList()), Repository.FetchOption.COPY);
+		return new Task<Void>()
+		{
+			@Override
+			protected Void call() throws Exception
+			{
+				archiveRepository.fetchAllResources(path, pack.stream().map(ResourcePack::getPackName).map(nameToResource::get).map(ArchiveRepository
+						.Resource::getName).collect(Collectors.toList()), Repository.FetchOption.COPY);
+				return null;
+			}
+		};
 	}
 }

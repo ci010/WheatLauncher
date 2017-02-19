@@ -1,6 +1,7 @@
 <?import com.jfoenix.controls.JFXColorPicker?>
 <?import javafx.scene.layout.FlowPane?>
-<FlowPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
-          xmlns="http://javafx.com/javafx/2.2">
+<FlowPane xmlns:fx="http://javafx.com/fxml/1"
+          xmlns="http://javafx.com/javafx/2.2" maxWidth="400" maxHeight="400"
+          fx:controller="net.wheatlauncher.control.settings.ControllerLauncherSetting">
     <JFXColorPicker fx:id="colorPicker"/>
 </FlowPane>

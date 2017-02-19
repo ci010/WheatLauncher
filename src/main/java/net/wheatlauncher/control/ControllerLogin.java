@@ -66,7 +66,6 @@ public class ControllerLogin
 
 	private ContextMenu accountMenu;
 	private boolean shouldEnter;
-	public Runnable requestSwitch;
 
 	private MenuItem createItem(String s)
 	{

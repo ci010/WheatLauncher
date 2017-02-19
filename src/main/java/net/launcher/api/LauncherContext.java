@@ -4,9 +4,9 @@ import net.launcher.AuthProfile;
 import net.launcher.DownloadCenter;
 import net.launcher.LaunchElementManager;
 import net.launcher.TaskCenter;
+import net.launcher.assets.MinecraftAssetsManager;
 import net.launcher.profile.LaunchProfileManager;
 import net.launcher.resourcepack.ResourcePackManager;
-import net.launcher.version.MinecraftAssetsManager;
 
 import java.util.Collection;
 import java.util.Optional;

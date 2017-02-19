@@ -9,10 +9,10 @@
     <VBox alignment="CENTER" spacing="10">
         <JFXListView fx:id="resourcePacks" prefHeight="300" prefWidth="400"/>
         <HBox alignment="CENTER" spacing="10">
-            <JFXButton fx:id="importBtn" text="%setting.resourcepacks.import" styleClass="options-button"
+            <JFXButton fx:id="importBtn" text="%import" styleClass="options-button"
                        style="-fx-max-width:150"/>
             <JFXTextField fx:id="search" promptText="Search Resource Packs..."/>
-            <JFXButton fx:id="exportBtn" text="%setting.resourcepacks.export" styleClass="options-button"
+            <JFXButton fx:id="exportBtn" text="%export" styleClass="options-button"
                        style="-fx-max-width:150"/>
         </HBox>
     </VBox>

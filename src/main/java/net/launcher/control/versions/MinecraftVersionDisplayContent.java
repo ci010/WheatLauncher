@@ -18,8 +18,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import net.launcher.assets.MinecraftVersion;
 import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.ComparableVersion;
-import net.launcher.version.MinecraftVersion;
 import net.wheatlauncher.utils.LanguageMap;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersion;
 

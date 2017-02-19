@@ -4,7 +4,6 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -16,7 +15,7 @@ import javafx.scene.layout.StackPane;
  */
 public abstract class ImageCell<T> extends HBox
 {
-	private ImageView icon = new ImageView();
+	protected ImageView icon = new ImageView();
 	protected StackPane imageContainer;
 
 	private ObjectProperty<Image> image = icon.imageProperty();
@@ -91,21 +90,27 @@ public abstract class ImageCell<T> extends HBox
 		init();
 	}
 
+	public ImageCell(T value, Image image)
+	{
+		this.setValue(value); this.setImage(image);
+		init();
+	}
+
 	protected abstract Node buildContent();
 
 	protected void init()
 	{
-		imageContainer = new StackPane();
-		imageContainer.setMaxSize(64, 64);
 		icon.setFitHeight(64);
 		icon.setFitWidth(64);
+
+		imageContainer = new StackPane();
+		imageContainer.setMaxSize(64, 64);
+		imageContainer.getChildren().addAll(icon);
+
 		iconWidth.addListener(observable -> icon.setFitWidth(iconWidth.get()));
 		iconHeight.addListener(observable -> icon.setFitHeight(iconHeight.get()));
 
-		imageContainer.getChildren().addAll(icon);
-
 		this.getChildren().addAll(imageContainer, buildContent());
-		this.setSpacing(10);
-		this.setPadding(new Insets(10));
+		this.setSpacing(5);
 	}
 }

@@ -6,6 +6,7 @@ import com.jfoenix.effects.JFXDepthManager;
 import javafx.animation.Animation;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -131,13 +132,17 @@ public class ControllerPreview
 				else
 				{
 					Texture texture = textures.get(TextureType.SKIN);
-					MainApplication.getCore().getService().submit(() ->
-							Platform.runLater(() ->
-							{
-								canvas.setSkin(Tasks.optional(() -> new Image(texture.openStream())).orElse(SkinCanvas.STEVE),
-										Optional.ofNullable(texture.getMetadata().get("model")).orElse("steve").equals("slim"));
-								animation.play();
-							}));
+					MainApplication.getCore().getTaskCenter().runTask(new Task<Void>()
+					{
+						@Override
+						protected Void call() throws Exception
+						{
+							canvas.setSkin(Tasks.optional(() -> new Image(texture.openStream())).orElse(SkinCanvas.STEVE),
+									Optional.ofNullable(texture.getMetadata().get("model")).orElse("steve").equals("slim"));
+							animation.play();
+							return null;
+						}
+					});
 				}
 			}
 			catch (Exception e) {defaultSkin();}
