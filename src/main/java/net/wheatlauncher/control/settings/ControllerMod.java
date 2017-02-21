@@ -56,10 +56,11 @@ public class ControllerMod
 		mods.setCellFactory(param -> new ListCell<ForgeMod>()
 		{
 			@Override
-			protected void updateItem(ForgeMod item, boolean empty)
+			public void updateItem(ForgeMod item, boolean empty)
 			{
 				super.updateItem(item, empty);
-				if (item == null || empty) return;
+				if (item == null || empty)
+					return;
 				try
 				{
 					this.setGraphic(new ModCell(item, MainApplication.getCore().getModManager().getLogo(item)));

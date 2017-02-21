@@ -108,6 +108,13 @@ public class MainApplication extends Application
 	private Pane loginPage;
 	private Pane previewPage;
 
+	private static ResourceBundle bundle;
+
+	public static ResourceBundle getLanguageBundle()
+	{
+		return bundle;
+	}
+
 	public static void reportError(Scene scene, String message)
 	{
 		javafx.application.Platform.runLater(() -> displayError(scene, message));
@@ -140,9 +147,9 @@ public class MainApplication extends Application
 		ResourceBundle lang;
 		try {lang = ResourceBundle.getBundle("lang", Locale.getDefault());}
 		catch (Exception e) {lang = ResourceBundle.getBundle("lang", Locale.ENGLISH);}
-
+		bundle = lang;
 		FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/fxml/Main.fxml"), lang);
-		Pane root = fxmlLoader.load();
+		StackPane root = fxmlLoader.load();
 		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/fxml/Login.fxml"), lang);
 		loginPage = fxmlLoader.load();
 		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/fxml/Preview.fxml"), lang);
@@ -167,7 +174,6 @@ public class MainApplication extends Application
 		});
 		Scene scene = new Scene(root, 800, 550);
 		scene.setUserData((Consumer<Object>) o -> switchTo(o.toString()));
-		scene.getStylesheets().add(MainApplication.class.getResource("/css/jfoenix-main-demo.css").toExternalForm());
 		scene.getStylesheets().add(MainApplication.class.getResource("/css/common.css").toExternalForm());
 		stage.setScene(scene);
 		stage.show();

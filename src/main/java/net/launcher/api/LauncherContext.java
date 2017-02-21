@@ -1,10 +1,10 @@
 package net.launcher.api;
 
-import net.launcher.AuthProfile;
 import net.launcher.DownloadCenter;
 import net.launcher.LaunchElementManager;
 import net.launcher.TaskCenter;
 import net.launcher.assets.MinecraftAssetsManager;
+import net.launcher.auth.AuthManager;
 import net.launcher.profile.LaunchProfileManager;
 import net.launcher.resourcepack.ResourcePackManager;
 
@@ -25,7 +25,7 @@ public interface LauncherContext
 
 	LaunchProfileManager getProfileManager();
 
-	AuthProfile getAuthProfile();
+	AuthManager getAuthManager();
 
 	MinecraftAssetsManager getAssetsManager();
 

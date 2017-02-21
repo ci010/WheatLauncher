@@ -18,7 +18,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import net.launcher.LaunchElementManager;
 import net.launcher.Logger;
 import net.launcher.control.ResourcePackCell;
 import net.launcher.game.ResourcePack;
@@ -26,9 +25,6 @@ import net.launcher.profile.LaunchProfile;
 import net.launcher.resourcepack.ResourcePackManager;
 import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.control.utils.ReloadableController;
-
-import java.util.Optional;
-import java.util.function.Predicate;
 
 /**
  * @author ci010
@@ -45,15 +41,13 @@ public class ControllerProfileResourcePack implements ReloadableController
 	private ResourcePackManager manager;
 
 	private ListProperty<ResourcePack> selected = new SimpleListProperty<>();
-
-	private Predicate<ResourcePack> resourcePackPredicate = resourcePack -> resourcePack.getPackName().contains(searchSelecting.getText()) || resourcePack.getDescription()
-			.contains(searchSelecting.getText());
+//
+//	private Predicate<ResourcePack> resourcePackPredicate = resourcePack -> resourcePack.getPackName().contains(searchSelecting.getText()) || resourcePack.getDescription()
+//			.contains(searchSelecting.getText());
 
 	public void initialize()
 	{
-		Optional<LaunchElementManager<ResourcePack>> elementManager = MainApplication.getCore().getElementManager(ResourcePack.class);
-		if (!elementManager.isPresent()) {this.root.setDisable(true); return;}
-		manager = (ResourcePackManager) elementManager.get();
+		manager = MainApplication.getCore().getResourcePackManager();
 
 		for (Node node : availableView.getParent().getChildrenUnmodifiable())
 			if (node != availableView)
@@ -68,14 +62,14 @@ public class ControllerProfileResourcePack implements ReloadableController
 				MainApplication.getCore().getProfileManager().selectedProfileProperty()));
 
 		FilteredList<ResourcePack> selectedRes = new FilteredList<>(selected);
-		selectedRes.predicateProperty().bind(Bindings.createObjectBinding(() -> resourcePackPredicate, searchSelecting.textProperty()));
+//		selectedRes.predicateProperty().bind(Bindings.createObjectBinding(() -> resourcePackPredicate, searchSelecting.textProperty()));
 		selectedView.setItems(selectedRes);
 
 		FilteredList<ResourcePack> allRes = new FilteredList<>(manager.getAllElement(),
 				resourcePack -> !selected.contains(resourcePack));
-		allRes.predicateProperty().bind(Bindings.createObjectBinding(() -> resourcePackPredicate
-						.and(resourcePack -> !selected.contains(resourcePack)),
-				searchSelecting.textProperty()));
+//		allRes.predicateProperty().bind(Bindings.createObjectBinding(() -> resourcePackPredicate
+//						.and(resourcePack -> !selected.contains(resourcePack)),
+//				searchSelecting.textProperty()));
 		availableView.setItems(allRes);
 
 		availableView.getParent().disableProperty().bind(Bindings.createBooleanBinding(() -> availableView.getItems().isEmpty(),

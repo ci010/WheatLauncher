@@ -1,0 +1,28 @@
+<?import com.jfoenix.controls.JFXTabPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      xmlns="http://javafx.com/javafx/2.2" fx:controller="net.wheatlauncher.control.ControllerPreviewWindow"
+      style="-fx-background-color:GREY;" prefWidth="400" prefHeight="300" spacing="10">
+    <JFXTabPane>
+        <Tab text="News">
+            <StackPane/>
+        </Tab>
+        <Tab text="Servers">
+            <StackPane/>
+        </Tab>
+    </JFXTabPane>
+    <!--<BorderPane style="-fx-padding:10; -fx-background-color:GREY;">-->
+    <!--<left>-->
+    <!--<Icon awesomeIcon="ANGLE_LEFT"/>-->
+    <!--</left>-->
+    <!--<center>-->
+    <!--<Label text="TEST" styleClass="header-minor"/>-->
+    <!--</center>-->
+    <!--<right>-->
+    <!--<Icon awesomeIcon="ANGLE_RIGHT"/>-->
+    <!--</right>-->
+    <!--</BorderPane>-->
+    <!--<JFXListView fx:id="servers" style="-fx-background-color:WHITE;"/>-->
+</VBox>

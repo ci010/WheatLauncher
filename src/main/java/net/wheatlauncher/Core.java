@@ -14,14 +14,16 @@ import net.launcher.assets.IOGuardMinecraftAssetsManager;
 import net.launcher.assets.IOGuardMinecraftWorldManager;
 import net.launcher.assets.MinecraftAssetsManager;
 import net.launcher.assets.MinecraftWorldManager;
+import net.launcher.auth.AuthManager;
+import net.launcher.auth.IOGuardAuth;
 import net.launcher.game.ResourcePack;
 import net.launcher.game.forge.ForgeMod;
 import net.launcher.mod.ModManager;
 import net.launcher.mod.ModManagerBuilder;
+import net.launcher.profile.LaunchProfile;
 import net.launcher.profile.LaunchProfileManager;
 import net.launcher.resourcepack.ResourcePackManager;
 import net.launcher.resourcepack.ResourcePackMangerBuilder;
-import net.wheatlauncher.internal.io.IOGuardAuth;
 import net.wheatlauncher.internal.io.IOGuardContext;
 import net.wheatlauncher.internal.io.IOGuardContextScheduled;
 import net.wheatlauncher.internal.io.IOGuardProfile;
@@ -36,6 +38,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.function.Function;
 
 /**
  * @author ci010
@@ -46,7 +49,7 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter
 
 	private Path root;
 	private LaunchProfileManager profileManager;
-	private AuthProfile authProfile;
+	private AuthManager authProfile;
 
 	private MinecraftAssetsManager assetsManager;
 	private ModManager modManager;
@@ -55,6 +58,8 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter
 	private DownloadCenter downloadCenter;
 
 	private IOGuardContext ioContext;
+
+	private List<Function<LaunchOption, LaunchOption>> launchOptionChain;
 
 	private Map<Class, LaunchElementManager> managers;
 
@@ -91,7 +96,7 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter
 	}
 
 	@Override
-	public AuthProfile getAuthProfile()
+	public AuthManager getAuthManager()
 	{
 		return authProfile;
 	}
@@ -121,9 +126,12 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter
 	}
 
 	@Override
-	protected LaunchOption buildOption()
+	protected LaunchOption buildOption(LaunchProfile selected) throws IOException
 	{
-		return null;
+		LaunchOption option = null;
+		for (Function<LaunchOption, LaunchOption> chain : launchOptionChain)
+			option = chain.apply(option);
+		return option;
 	}
 
 	@Override
@@ -184,19 +192,21 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter
 		//main module io start
 		this.ioContext = IOGuardContextScheduled.Builder.create(this.root, executorService)
 				.register(LaunchProfileManager.class, new IOGuardProfile())
-				.register(AuthProfile.class, new IOGuardAuth())
+				.register(AuthManager.class, new IOGuardAuth())
 				.register(MinecraftAssetsManager.class, new IOGuardMinecraftAssetsManager())
 				.register(MinecraftWorldManager.class, new IOGuardMinecraftWorldManager())
 				.build();
-		this.authProfile = ioContext.load(AuthProfile.class);
-		this.assetsManager = ioContext.load(MinecraftAssetsManager.class);
+		this.authProfile = ioContext.load(AuthManager.class);
 		this.profileManager = ioContext.load(LaunchProfileManager.class);
+
+		this.assetsManager = ioContext.load(MinecraftAssetsManager.class);
 		this.worldManager = ioContext.load(MinecraftWorldManager.class);
 
 		this.assetsManager.getRepository().refreshVersion();
 
 		resourcePackManager.update();
 		modManager.update();
+		runTask(assetsManager.getRepository().refreshVersion());
 		//main module io end
 		assert profileManager.getSelectedProfile() != null;
 		assert profileManager.selecting() != null;

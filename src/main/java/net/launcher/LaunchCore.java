@@ -3,6 +3,7 @@ package net.launcher;
 import javafx.stage.Stage;
 import net.launcher.assets.MinecraftAssetsManager;
 import net.launcher.assets.MinecraftWorldManager;
+import net.launcher.auth.AuthManager;
 import net.launcher.mod.ModManager;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.profile.LaunchProfileManager;
@@ -30,7 +31,7 @@ public abstract class LaunchCore
 
 	public abstract LaunchProfileManager getProfileManager();
 
-	public abstract AuthProfile getAuthProfile();
+	public abstract AuthManager getAuthManager();
 
 	public abstract MinecraftAssetsManager getAssetsManager();
 
@@ -45,12 +46,11 @@ public abstract class LaunchCore
 	public void launch() throws Exception
 	{
 		final LaunchProfile selected = getProfileManager().selecting();
-		LaunchOption option = buildOption();
-		for (LaunchElementManager manager : getAllElementsManagers())
-			manager.onLaunch(option, selected);
+		LaunchOption option = buildOption(selected);
+		for (LaunchElementManager manager : getAllElementsManagers()) manager.onLaunch(option, selected);
 		Launcher launcher = buildLauncher();
 		ProcessListener listener = getProcessListener();
-		launcher.launch(option, new ProcessListener()
+		Process launch = launcher.launch(option, new ProcessListener()
 		{
 			@Override
 			public void onLog(String log)
@@ -67,13 +67,14 @@ public abstract class LaunchCore
 			@Override
 			public void onExit(int code)
 			{
+				listener.onExit(code);
 				for (LaunchElementManager manager : getAllElementsManagers())
 					manager.onClose(option, selected);
 			}
 		});
 	}
 
-	protected abstract LaunchOption buildOption();
+	protected abstract LaunchOption buildOption(LaunchProfile selected) throws IOException;
 
 	protected abstract Launcher buildLauncher();
 

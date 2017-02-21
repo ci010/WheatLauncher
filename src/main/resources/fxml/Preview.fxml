@@ -52,13 +52,16 @@
         </VBox>
     </left>
     <right>
-        <StackPane fx:id="rightBox" prefWidth="400" alignment="BOTTOM_RIGHT"
+        <StackPane fx:id="rightBox" prefWidth="500" alignment="BOTTOM_RIGHT"
                    style="-fx-padding:15,10;">
-            <ColorTransitionButton fx:id="launch" buttonType="RAISED" text="%launch" style="-fx-padding:0,100,0,100"
+            <fx:include fx:id="window" source="PreviewWindow.fxml"
+                        style="-fx-padding:60 80 140 0;"/>
+            <ColorTransitionButton fx:id="launch" buttonType="RAISED" text="%launch" style="-fx-padding:0,120,0,120"
                                    styleClass="mics-button"
                                    hoverColor="crimson"
-                                   prefWidth="120"
-                                   prefHeight="60"/>
+                                   prefWidth="150"
+                                   onAction="#launch"
+                                   prefHeight="70"/>
         </StackPane>
     </right>
     <fx:include fx:id="settingDialog" source="settings/Setting.fxml"/>

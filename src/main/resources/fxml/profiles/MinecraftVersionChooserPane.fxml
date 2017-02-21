@@ -1,0 +1,73 @@
+<?import com.jfoenix.controls.*?>
+<?import de.jensd.fx.fontawesome.Icon?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
+           xmlns="http://javafx.com/javafx/2.2" style="-fx-padding:10" styleClass="fx-mc-picker-container"
+           fx:controller="net.wheatlauncher.control.mics.ControllerMinecraftVersionChooserPane">
+    <JFXDialog fx:id="confirmDownload" transitionType="CENTER">
+        <JFXDialogLayout>
+            <heading>
+                <Label text="%version.download.request"/>
+            </heading>
+            <body>
+                <Label text="%version.download.body"/>
+            </body>
+            <actions>
+                <JFXButton text="%version.download" onAction="#requestDownload"/>
+                <JFXButton text="%cancel" onAction="#cancelDownload"/>
+            </actions>
+        </JFXDialogLayout>
+    </JFXDialog>
+    <VBox spacing="10">
+        <VBox styleClass="jfx-layout-heading title" style="-fx-padding:10">
+            <HBox styleClass="spinner" style="-fx-background-color:transparent" alignment="CENTER_LEFT">
+                <Label fx:id="version" styleClass="spinner-label"
+                       style="-fx-text-fill:WHITE; -fx-font-weight:BOLD; -fx-font-family:Roboto; -fx-font-size:32;"/>
+            </HBox>
+            <BorderPane style="-fx-background-color:transparent" styleClass="spinner">
+                <left>
+                    <Label fx:id="releaseTime"
+                           style="-fx-text-fill:rgb(255, 255, 255, 0.67); -fx-font-size:14; -fx-font-weight:BOLD; -fx-font-family:Roboto;"/>
+                </left>
+                <right>
+                    <Label fx:id="releaseType"
+                           style="-fx-text-fill:rgb(255, 255, 255, 0.67); -fx-font-size:14; -fx-font-weight:BOLD; -fx-font-family:Roboto;"/>
+                </right>
+            </BorderPane>
+        </VBox>
+        <JFXTableView fx:id="versionTable" fixedSize="true" columnsDraggable="false">
+            <columns>
+                <TableColumn fx:id="remote" text="%version.status" maxWidth="50" editable="false" resizable="false"/>
+                <TableColumn fx:id="versionCol" text="%version" sortType="DESCENDING" editable="false"
+                             resizable="false"/>
+                <TableColumn fx:id="updateTime" text="%version.updateTime" editable="false" resizable="false"/>
+                <TableColumn fx:id="releaseTimeCol" text="%version.releaseTime" editable="false" resizable="false"/>
+            </columns>
+        </JFXTableView>
+        <BorderPane>
+            <left>
+                <HBox>
+                    <JFXRippler onMouseReleased="#refresh">
+                        <Icon awesomeIcon="REFRESH" styleClass="icon"/>
+                    </JFXRippler>
+                    <JFXToggleNode fx:id="showAlpha">
+                        <tooltip>
+                            <Tooltip text="%version.showAlpha"/>
+                        </tooltip>
+                        <Icon awesomeIcon="GAVEL" styleClass="icon"/>
+                    </JFXToggleNode>
+                </HBox>
+            </left>
+            <center>
+                <JFXTextField fx:id="filter" promptText="%search" focusColor="tomato" styleClass="search-field"
+                              style="-fx-background-color:transparent;"/>
+            </center>
+            <right>
+                <JFXRippler onMouseReleased="#onConfirm">
+                    <Icon awesomeIcon="CHECK" styleClass="icon"/>
+                </JFXRippler>
+            </right>
+        </BorderPane>
+    </VBox>
+</StackPane>

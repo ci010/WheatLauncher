@@ -1,0 +1,51 @@
+<?import com.jfoenix.controls.*?>
+<?import de.jensd.fx.fontawesome.Icon?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<StackPane xmlns:fx="http://javafx.com/fxml/1"
+           xmlns="http://javafx.com/javafx/2.2"
+           styleClass="fx-mc-picker-container"
+           fx:controller="net.wheatlauncher.control.mics.ControllerProfileChooserPane">
+    <VBox>
+        <VBox styleClass="jfx-layout-heading title" style="-fx-padding:10">
+            <Label fx:id="profileName" styleClass="header-major"/>
+            <BorderPane>
+                <left>
+                    <Label styleClass="header-minor"/>
+                </left>
+                <right>
+                    <Label fx:id="version" styleClass="header-minor"/>
+                </right>
+            </BorderPane>
+        </VBox>
+        <VBox style="-fx-padding:10;" spacing="10">
+            <JFXTableView fx:id="profileTable" editable="true" maxHeight="300" fixedSize="true"
+                          columnsDraggable="false">
+                <columns>
+                    <TableColumn fx:id="name" text="%profile.name" onEditCommit="#rename" resizable="false"/>
+                    <TableColumn fx:id="mcVersion" text="%version" resizable="false"/>
+                </columns>
+            </JFXTableView>
+            <BorderPane>
+                <left>
+                    <HBox>
+                        <JFXRippler onMouseReleased="#delete">
+                            <Icon awesomeIcon="CLOSE" styleClass="icon"/>
+                        </JFXRippler>
+                        <JFXRippler onMouseReleased="#add">
+                            <Icon awesomeIcon="PLUS" styleClass="icon"/>
+                        </JFXRippler>
+                    </HBox>
+                </left>
+                <center>
+                    <JFXTextField fx:id="filter" promptText="%search" styleClass="search-field"/>
+                </center>
+                <right>
+                    <JFXRippler onMouseReleased="#confirm">
+                        <Icon awesomeIcon="CHECK" styleClass="icon"/>
+                    </JFXRippler>
+                </right>
+            </BorderPane>
+        </VBox>
+    </VBox>
+</StackPane>

@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 /**
  * @author ci010
@@ -84,20 +85,10 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, String[]> impl
 	@Override
 	protected void implementRuntimePath(LaunchProfile profile, Path path, Setting instance, LaunchOption option)
 	{
-		ObservableList<ForgeMod> forgeMods = cache.get();
-		if (forgeMods == null)
-		{
-			String[] value = instance.getOption(getOption()).getValue();
-			if (value != null)
-				for (String aValue : value)
-					deliveryCache.put(option,
-							archiveResource.fetchResource(path.resolve("mods"), hashMap.get(aValue),
-									Repository.FetchOption.SYMBOL_LINK));
-		}
-		else
-		{
-//			deliveryCache.put(option, )
-		}
+		ObservableList<ForgeMod> includeElementContainer = getIncludeElementContainer(profile);
+		includeElementContainer.stream().map(mod -> hashMap.get(getModKey(mod))).collect(Collectors.toSet()).forEach(
+				s -> deliveryCache.put(option, archiveResource.fetchResource(path.resolve("mods"), s, Repository.FetchOption.HARD_LINK))
+		);
 	}
 
 	@Override

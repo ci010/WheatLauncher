@@ -1,11 +1,13 @@
 package net.wheatlauncher.control;
 
-import com.jfoenix.controls.*;
+import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXPasswordField;
+import com.jfoenix.controls.JFXSpinner;
+import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.control.ContextMenu;
@@ -16,10 +18,10 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import net.launcher.AuthProfile;
 import net.launcher.Logger;
+import net.launcher.auth.AuthManager;
 import net.launcher.auth.Authorize;
-import net.launcher.auth.AuthorizeFactory;
+import net.launcher.control.OnlineModeSwitch;
 import net.launcher.utils.Tasks;
 import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.control.utils.ValidatorDelegate;
@@ -43,7 +45,7 @@ public class ControllerLogin
 	private JFXPasswordField password;
 
 	@FXML
-	private JFXToggleNode onlineMode = new JFXToggleNode();
+	private OnlineModeSwitch onlineMode;
 
 	@FXML
 	private JFXButton login;
@@ -65,18 +67,6 @@ public class ControllerLogin
 	private StackPane root;
 
 	private ContextMenu accountMenu;
-	private boolean shouldEnter;
-
-	private MenuItem createItem(String s)
-	{
-		MenuItem item = new MenuItem(s);
-		item.setOnAction(event ->
-		{
-			account.setText(item.getText());
-			shouldEnter = false;
-		});
-		return item;
-	}
 
 	public ResourceBundle resources;
 
@@ -87,26 +77,29 @@ public class ControllerLogin
 
 		btnPane.getChildren().remove(spinner);//remove the spinner
 
-		EventHandler<? super KeyEvent> fireLogin = event ->
+		onlineMode.getSelectionModel().selectedIndexProperty().addListener(observable ->
 		{
-			if (event.getCode() == KeyCode.ENTER)
-			{
-				if (!shouldEnter)
-				{
-					shouldEnter = true;
-					return;
-				}
-				login.fire();
-			}
-		};
+			account.setText("");
+			account.resetValidation();
+			password.setText("");
+			password.resetValidation();
+		});
+		onlineMode.isOfflineProperty().addListener(observable ->
+		{
+			account.setText("");
+			account.resetValidation();
+			password.setText("");
+			password.resetValidation();
+		});
 		accountMenu = new ContextMenu();
-		account.setText(MainApplication.getCore().getAuthProfile().getAccount());
+		account.setText(MainApplication.getCore().getAuthManager().getAccount());
 		account.textProperty().addListener((observable, oldValue, newValue) ->
 		{
 			if (account.getText().length() == 0)
 				accountMenu.hide();
 			else
-				accountMenu.getItems().setAll(MainApplication.getCore().getAuthProfile().getHistoryList().stream().filter(s -> s.startsWith(newValue))
+				accountMenu.getItems().setAll(MainApplication.getCore().getAuthManager().
+						getHistoryList().stream().filter(s -> s.startsWith(newValue))
 						.map(this::createItem).collect(Collectors.toList()));
 		});
 
@@ -115,67 +108,46 @@ public class ControllerLogin
 			if (accountMenu.getItems().isEmpty()) accountMenu.hide();
 			else if (!accountMenu.isShowing()) accountMenu.show(account, Side.BOTTOM, 0, 0);
 		});
-		account.setOnKeyReleased(fireLogin);
-		password.setOnKeyReleased(fireLogin);
 
 		accountValid.delegateProperty().bind(Bindings.createObjectBinding(() ->
-						MainApplication.getCore().getAuthProfile().getAuthorize()::validateUserName,
-				MainApplication.getCore().getAuthProfile().authorizeProperty()));
+						MainApplication.getCore().getAuthManager().getAuthorizeInstance()::validateUserName,
+				MainApplication.getCore().getAuthManager().authorizeProperty()));
 		passwordValid.delegateProperty().bind(Bindings.createObjectBinding(() ->
-						MainApplication.getCore().getAuthProfile().getAuthorize()::validatePassword,
-				MainApplication.getCore().getAuthProfile().authorizeProperty()));
+						MainApplication.getCore().getAuthManager().getAuthorizeInstance()::validatePassword,
+				MainApplication.getCore().getAuthManager().authorizeProperty()));
 
 		account.textProperty().addListener(observable ->
 		{
-			if (account.validate()) MainApplication.getCore().getAuthProfile().setAccount(account.getText());
+			if (account.validate()) MainApplication.getCore().getAuthManager().setAccount(account.getText());
 		});
 		password.textProperty().addListener(observable ->
 		{
 			if (password.isDisable())
 				return;
-			if (password.validate()) MainApplication.getCore().getAuthProfile().setPassword(password.getText());
+			if (password.validate()) MainApplication.getCore().getAuthManager().setPassword(password.getText());
 		});
 
 		login.disableProperty().bind(Bindings.createBooleanBinding(() ->
 						accountValid.hasErrorsProperty().get() ||
 								(passwordValid.hasErrorsProperty().get() && !password.isDisable()),
-				account.textProperty(),
-				password.textProperty(), password.disableProperty()));
+				account.textProperty(), password.textProperty(), password.disableProperty()));
 
-		AuthProfile authModule = MainApplication.getCore().getAuthProfile();
-		//set up online forge
-		Authorize selected = authModule.getAuthorize();
-		if (selected == AuthorizeFactory.ONLINE)
-			onlineMode.selectedProperty().setValue(true);
-		else if (selected == AuthorizeFactory.OFFLINE)
-			onlineMode.selectedProperty().setValue(false);
-		else onlineMode.setDisable(true);
-
-		onlineMode.selectedProperty().addListener((observable, o, n) ->
-		{
-			AuthProfile module = MainApplication.getCore().getAuthProfile();
-			module.setAuthorize(n ? AuthorizeFactory.ONLINE : AuthorizeFactory.OFFLINE);
-			account.setText("");
-			account.resetValidation();
-			password.setText("");
-			password.resetValidation();
-		}); //Common
 
 		password.disableProperty().bind(Bindings.createBooleanBinding(() ->
-						MainApplication.getCore().getAuthProfile().getAuthorize() == AuthorizeFactory.OFFLINE,
-				MainApplication.getCore().getAuthProfile().authorizeProperty()));
+						MainApplication.getCore().getAuthManager().isOffline(),
+				MainApplication.getCore().getAuthManager().authorizeInstanceProperty()));
 
 		account.promptTextProperty().bind(Bindings.createStringBinding(() ->
 		{
-			String id = Authorize.getID(MainApplication.getCore().getAuthProfile().getAuthorize());
+			String id = Authorize.getID(MainApplication.getCore().getAuthManager().getAuthorizeInstance());
 			return resources.getString(id + ".account");
-		}, MainApplication.getCore().getAuthProfile().authorizeProperty()));
+		}, MainApplication.getCore().getAuthManager().authorizeInstanceProperty()));
 
 		password.promptTextProperty().bind(Bindings.createStringBinding(() ->
 		{
-			String id = Authorize.getID(MainApplication.getCore().getAuthProfile().getAuthorize());
+			String id = Authorize.getID(MainApplication.getCore().getAuthManager().getAuthorizeInstance());
 			return resources.getString(id + ".password");
-		}, MainApplication.getCore().getAuthProfile().authorizeProperty()));
+		}, MainApplication.getCore().getAuthManager().authorizeInstanceProperty()));
 		Logger.trace("onWatch listener to core's launch profile");
 	}
 
@@ -183,18 +155,17 @@ public class ControllerLogin
 	{
 		btnPane.getChildren().remove(login);
 		btnPane.getChildren().add(spinner);
-		onlineMode.setDisable(true);
+//		onlineMode.setDisable(true);
 		MainApplication.getCore().getService().submit(Tasks.builder(() ->
 		{
-			AuthProfile module = MainApplication.getCore().getAuthProfile();
-			return module.getAuthorize().auth(module.getAccount(), module.getPassword());
+			AuthManager module = MainApplication.getCore().getAuthManager();
+			return module.getAuthorizeInstance().auth(module.getAccount(), module.getPassword());
 		}).setDone((result) -> Platform.runLater(() ->
 		{
-			MainApplication.getCore().getAuthProfile().setCache(result);
+			MainApplication.getCore().getAuthManager().setCache(result);
 			btnPane.getChildren().remove(spinner);
 			btnPane.getChildren().add(login);
 			((Consumer) root.getScene().getUserData()).accept("PREVIEW");
-			onlineMode.setDisable(false);
 		})).setException((e) ->
 				Platform.runLater(() ->
 				{
@@ -210,7 +181,6 @@ public class ControllerLogin
 						MainApplication.displayError(root.getScene(), e);
 					btnPane.getChildren().remove(spinner);
 					btnPane.getChildren().add(login);
-					onlineMode.setDisable(false);
 				})).build());
 
 	}
@@ -226,11 +196,42 @@ public class ControllerLogin
 	public void switchOnlineMode(KeyEvent event)
 	{
 		if (event.isShiftDown() && event.isControlDown() && event.getCode() == KeyCode.TAB)
-			onlineMode.fire();
+			onlineMode.setIsOffline(!onlineMode.isOffline());
 	}
 
 	public void onGlobalKeyPressed(KeyEvent event)
 	{
 		switchOnlineMode(event);
+	}
+
+	private boolean shouldEnter;
+
+	public void toggleLogin(KeyEvent keyEvent)
+	{
+		if (keyEvent.getCode() == KeyCode.ENTER)
+		{
+			if (!shouldEnter)
+			{
+				shouldEnter = true;
+				return;
+			}
+			login.fire();
+		}
+	}
+
+	private MenuItem createItem(String s)
+	{
+		MenuItem item = new MenuItem(s);
+		item.setOnAction(event ->
+		{
+			account.setText(item.getText());
+			shouldEnter = false;
+		});
+		return item;
+	}
+
+	public void openPopup()
+	{
+
 	}
 }

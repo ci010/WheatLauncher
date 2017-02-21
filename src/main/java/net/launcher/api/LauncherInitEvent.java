@@ -6,6 +6,7 @@ import net.launcher.auth.Authorize;
 import net.wheatlauncher.internal.io.IOGuard;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -21,6 +22,10 @@ public class LauncherInitEvent extends Event
 	private Map<String, Authorize> authorizeMap = new HashMap<>();
 
 	public LauncherInitEvent(EventType<? extends LauncherInitEvent> eventType) {super(eventType);}
+
+	public Map<Class, IOGuard> getRegisteredIO() {return Collections.unmodifiableMap(registeredIO);}
+
+	public Map<String, Authorize> getAuthorizeMap() {return Collections.unmodifiableMap(authorizeMap);}
 
 	public boolean registerAuth(Class<? extends Authorize> authClass)
 	{

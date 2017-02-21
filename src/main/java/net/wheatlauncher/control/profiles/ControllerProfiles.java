@@ -3,12 +3,14 @@ package net.wheatlauncher.control.profiles;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTabPane;
 import javafx.scene.layout.StackPane;
+import javafx.util.StringConverter;
 import net.launcher.Logger;
 import net.launcher.assets.MinecraftVersion;
-import net.launcher.control.profile.base.ProfileTableSelector;
-import net.launcher.control.versions.MinecraftVersionPicker;
+import net.launcher.control.ComboBoxDelegate;
 import net.launcher.profile.LaunchProfile;
 import net.wheatlauncher.MainApplication;
+import net.wheatlauncher.control.mics.ControllerMinecraftVersionChooserPane;
+import net.wheatlauncher.control.mics.ControllerProfileChooserPane;
 
 import javax.annotation.PreDestroy;
 
@@ -18,9 +20,9 @@ import javax.annotation.PreDestroy;
  */
 public class ControllerProfiles
 {
-	public ProfileTableSelector profile;
+	public ComboBoxDelegate<LaunchProfile> profile;
 
-	public MinecraftVersionPicker versions;
+	public ComboBoxDelegate<MinecraftVersion> versions;
 
 	public JFXTabPane optionsTab;
 
@@ -33,6 +35,11 @@ public class ControllerProfiles
 	public StackPane modSetting;
 
 	public JFXDialog rootDialog;
+	public StackPane versionChooser;
+	public ControllerMinecraftVersionChooserPane versionChooserController;
+	public StackPane profileChooser;
+	public ControllerProfileChooserPane profileChooserController;
+
 
 	public void initialize()
 	{
@@ -40,6 +47,8 @@ public class ControllerProfiles
 		rootDialog.setOverlayClose(true);
 		initVersion();
 		initProfile();
+		versionChooserController.initialize(versions, () -> (StackPane) rootDialog.getScene().getRoot());
+		profileChooserController.initialize(profile);
 	}
 
 	@PreDestroy
@@ -50,10 +59,38 @@ public class ControllerProfiles
 
 	private void initVersion()
 	{
-		versions.setDataList(MainApplication.getCore().getAssetsManager().getVersions());
-		versions.setDownloadRequest((version1) -> MainApplication.getCore().getAssetsManager().getRepository().fetchVersion(version1));
-		versions.setRequestUpdate(() -> MainApplication.getCore().getTaskCenter().runTask(MainApplication.getCore().getAssetsManager().getRepository().refreshVersion()));
+		versions.setStringConverter(new StringConverter<MinecraftVersion>()
+		{
+			@Override
+			public String toString(MinecraftVersion object)
+			{
+				if (object != null)
+					return object.toString();
+				return "";
+			}
 
+			@Override
+			public MinecraftVersion fromString(String string)
+			{
+				return null;
+			}
+		});
+		profile.setStringConverter(new StringConverter<LaunchProfile>()
+		{
+			@Override
+			public String toString(LaunchProfile object)
+			{
+				if (object != null)
+					return object.getDisplayName();
+				return "";
+			}
+
+			@Override
+			public LaunchProfile fromString(String string)
+			{
+				return null;
+			}
+		});
 		MainApplication.getCore().getProfileManager().selectedProfileProperty().addListener(observable ->
 		{
 			String version = MainApplication.getCore().getProfileManager().selecting().getVersion();
@@ -76,13 +113,13 @@ public class ControllerProfiles
 
 	private void initProfile()
 	{
-		profile.setProfiles(MainApplication.getCore().getProfileManager().getAllProfiles());
-		profile.setProfileFactory(param -> MainApplication.getCore().getProfileManager().newProfile(param));
-		profile.setRemoveCallback(param ->
-		{
-			MainApplication.getCore().getProfileManager().deleteProfile(param.getId());
-			return null;
-		});
+//		profile.setProfiles(MainApplication.getCore().getProfileManager().getAllProfiles());
+//		profile.setProfileFactory(param -> MainApplication.getCore().getProfileManager().newProfile(param));
+//		profile.setRemoveCallback(param ->
+//		{
+//			MainApplication.getCore().getProfileManager().deleteProfile(param.getId());
+//			return null;
+//		});
 		LaunchProfile selecting = MainApplication.getCore().getProfileManager().selecting();
 		if (selecting != null)
 			profile.setValue(selecting);

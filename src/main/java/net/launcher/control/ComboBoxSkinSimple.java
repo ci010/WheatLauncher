@@ -58,8 +58,7 @@ public abstract class ComboBoxSkinSimple<T> extends ComboBoxPopupControl<T>
 			caller = Thread.currentThread().getStackTrace()[3];
 		boolean parentListenerCall = caller.getMethodName().contains("lambda") && caller.getClassName().equals("com.sun.javafx.scene.control.skin.ComboBoxPopupControl");
 		if (parentListenerCall) return null;
-		if (textField == null)
-			createEditor();
+		if (textField == null) createEditor();
 		return textField;
 	}
 

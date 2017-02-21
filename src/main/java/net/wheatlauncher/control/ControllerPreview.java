@@ -9,6 +9,7 @@ import javafx.beans.binding.Bindings;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseButton;
@@ -17,7 +18,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import moe.mickey.minecraft.skin.fx.SkinCanvas;
 import moe.mickey.minecraft.skin.fx.animation.SkinAniRunning;
-import net.launcher.AuthProfile;
+import net.launcher.auth.AuthManager;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.utils.StringUtils;
 import net.launcher.utils.Tasks;
@@ -29,7 +30,6 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.texture.Texture;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.TextureType;
 import org.to2mbn.jmccc.util.UUIDUtils;
 
-import javax.annotation.PreDestroy;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -40,6 +40,7 @@ import java.util.function.Consumer;
 public class ControllerPreview
 {
 	public JFXDialog rootDialog;
+	public Parent window;
 
 	/*controls*/
 	@FXML
@@ -72,7 +73,7 @@ public class ControllerPreview
 		animation = new AnimationRotate(canvas);
 		canvas.getAnimationPlayer().addSkinAnimation(new SkinAniRunning(100, 100, 30, canvas));
 		JFXDepthManager.setDepth(player.getParent(), 2);
-
+		JFXDepthManager.setDepth(window, 2);
 		LaunchProfile selecting = MainApplication.getCore().getProfileManager().selecting();
 		if (selecting != null)
 			profileName.setText(selecting.getDisplayName());
@@ -82,20 +83,13 @@ public class ControllerPreview
 						MainApplication.getCore().getProfileManager().selectedProfileProperty())));
 		player.textProperty().bind(Bindings.createStringBinding(() ->
 				{
-					if (MainApplication.getCore().getAuthProfile().getCache() != null)
-						return MainApplication.getCore().getAuthProfile().getCache().getUsername();
+					if (MainApplication.getCore().getAuthManager().getCache() != null)
+						return MainApplication.getCore().getAuthManager().getCache().getUsername();
 					return StringUtils.EMPTY;
 				},
-				MainApplication.getCore().getAuthProfile().cacheProperty()));
+				MainApplication.getCore().getAuthManager().cacheProperty()));
 		initDialog();
 		initSkin();
-	}
-
-	@PreDestroy
-	public void distroy()
-	{
-		profileSettingDialog.close();
-		animation.stop();
 	}
 
 	private void initDialog()
@@ -114,18 +108,18 @@ public class ControllerPreview
 
 	private void initSkin()
 	{
-		MainApplication.getCore().getAuthProfile().cacheProperty().addListener(observable ->
+		MainApplication.getCore().getAuthManager().cacheProperty().addListener(observable ->
 		{
 			try
 			{
-				AuthProfile module = MainApplication.getCore().getAuthProfile();
+				AuthManager module = MainApplication.getCore().getAuthManager();
 				AuthInfo auth = module.getCache();
 				if (auth == null)
 				{
 					defaultSkin();
 					return;
 				}
-				ProfileService profileService = module.getAuthorize().createProfileService();
+				ProfileService profileService = module.getAuthorizeInstance().createProfileService();
 				Map<TextureType, Texture> textures = profileService.getTextures(
 						profileService.getGameProfile(UUIDUtils.toUUID(auth.getUUID())));
 				if (textures.isEmpty()) defaultSkin();
@@ -176,9 +170,9 @@ public class ControllerPreview
 
 	public void reload()
 	{
-		AuthProfile module = MainApplication.getCore().getAuthProfile();
+		AuthManager module = MainApplication.getCore().getAuthManager();
 		assert module.getCache() != null;
-		assert module.getAuthorize() != null;
+		assert module.getAuthorizeInstance() != null;
 		assert module.getAccount() != null;
 		initSkin();
 		initDialog();
@@ -188,5 +182,10 @@ public class ControllerPreview
 	{
 		profileSettingDialog.close();
 		animation.stop();
+	}
+
+	public void launch(ActionEvent actionEvent) throws Exception
+	{
+		MainApplication.getCore().launch();
 	}
 }

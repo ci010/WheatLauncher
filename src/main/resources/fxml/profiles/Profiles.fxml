@@ -2,8 +2,7 @@
 <?import com.jfoenix.controls.JFXTabPane?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import net.launcher.control.profile.base.ProfileTableSelector?>
-<?import net.launcher.control.versions.MinecraftVersionPicker?>
+<?import net.launcher.control.ComboBoxDelegate?>
 <JFXDialog fx:id="rootDialog" xmlns:fx="http://javafx.com/fxml/1"
            xmlns="http://javafx.com/javafx/2.2"
            fx:controller="net.wheatlauncher.control.profiles.ControllerProfiles"
@@ -21,7 +20,11 @@
                     </HBox>
                 </StackPane>
                 <StackPane style="-fx-padding:10">
-                    <ProfileTableSelector fx:id="profile" maxWidth="250" prefWidth="200"/>
+                    <ComboBoxDelegate fx:id="profile" styleClass="profile-picker" maxWidth="250" prefWidth="200"
+                                      style="-fx-background-color:TRANSPARENT;">
+                        <fx:include fx:id="profileChooser" source="MinecraftProfileChooserPane.fxml"/>
+                    </ComboBoxDelegate>
+                    <!--<ProfileTableSelector fx:id="profile" maxWidth="250" prefWidth="200"/>-->
                 </StackPane>
             </VBox>
             <VBox alignment="CENTER" spacing="10" prefWidth="175" maxWidth="175"
@@ -31,7 +34,10 @@
                            style="-fx-font-size:16; -fx-font-weight:BOLD; -fx-text-fill:WHITE; -fx-padding: 10"/>
                 </StackPane>
                 <StackPane style="-fx-padding:10;-fx-max-width:250;" maxWidth="250">
-                    <MinecraftVersionPicker fx:id="versions" promptText="Version" prefWidth="250" maxWidth="250"/>
+                    <ComboBoxDelegate fx:id="versions" promptText="%version" prefWidth="250" maxWidth="250"
+                                      styleClass="version-picker" style="-fx-background-color:TRANSPARENT;">
+                        <fx:include fx:id="versionChooser" source="MinecraftVersionChooserPane.fxml"/>
+                    </ComboBoxDelegate>
                 </StackPane>
             </VBox>
         </HBox>

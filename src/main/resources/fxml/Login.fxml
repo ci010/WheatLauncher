@@ -1,8 +1,10 @@
-<?import com.jfoenix.controls.*?>
-<?import de.jensd.fx.fontawesome.Icon?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXPasswordField?>
+<?import com.jfoenix.controls.JFXSpinner?>
+<?import com.jfoenix.controls.JFXTextField?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.*?>
+<?import net.launcher.control.OnlineModeSwitch?>
 <?import net.wheatlauncher.control.utils.ValidatorDelegate?>
 <StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
            styleClass="jfx-container" onKeyPressed="#onGlobalKeyPressed"
@@ -10,11 +12,13 @@
     <VBox fx:id="box" maxWidth="400" maxHeight="400" spacing="15" alignment="CENTER"
           style="-fx-padding:10 0 0 0;"
           onMouseClicked="#onClick">
-        <HBox alignment="CENTER">
-            <Label styleClass="title-label">LOGIN</Label>
-        </HBox>
+        <Label styleClass="title-label">Minecraft</Label>
+
+        <!-- <VBox spacing="20" alignment="CENTER" style="-fx-padding:10,0,0,10" maxWidth="300" maxHeight="70">
+         </VBox>-->
         <HBox spacing="10" style="-fx-padding: 0 0 10 50;">
-            <JFXTextField fx:id="account" onKeyPressed="#switchOnlineMode" styleClass="login-field">
+            <JFXTextField fx:id="account" onKeyPressed="#switchOnlineMode" styleClass="login-field"
+                          onKeyReleased="#toggleLogin">
                 <validators>
                     <ValidatorDelegate fx:id="accountValid"/>
                 </validators>
@@ -22,18 +26,13 @@
         </HBox>
         <HBox spacing="10" style="-fx-padding: 10 0 10 50;">
             <JFXPasswordField fx:id="password" promptText="Password" labelFloat="true"
+                              onKeyReleased="#toggleLogin"
                               onKeyPressed="#switchOnlineMode" styleClass="login-field">
                 <validators>
                     <ValidatorDelegate fx:id="passwordValid"/>
                 </validators>
             </JFXPasswordField>
-            <JFXToggleNode fx:id="onlineMode" scaleY="0.8" scaleX="0.8" selectedColor="wheat"
-                           onKeyPressed="#switchOnlineMode">
-                <Icon awesomeIcon="GLOBE" size="2em" styleClass="icon"/>
-                <tooltip>
-                    <Tooltip text="%online.mode"/>
-                </tooltip>
-            </JFXToggleNode>
+            <OnlineModeSwitch fx:id="onlineMode" styleClass="online-switch" focusColor="tomato"/>
         </HBox>
         <StackPane fx:id="btnPane">
             <JFXSpinner fx:id="spinner" style="-fx-radius:16" styleClass="materialDesign-purple, first-spinner"
