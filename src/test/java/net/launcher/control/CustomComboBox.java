@@ -157,8 +157,8 @@ public class CustomComboBox extends Application
 		test.items.addAll("test");
 		pane.getChildren().addAll(test);
 		Scene scene = new Scene(pane, 800, 500);//old 512 380  542, 380
-		scene.getStylesheets().add(MainApplication.class.getResource("/css/jfoenix-main-demo.css").toExternalForm());
-		scene.getStylesheets().add(MainApplication.class.getResource("/css/common.css").toExternalForm());
+		scene.getStylesheets().add(MainApplication.class.getResource("/assets/css/jfoenix-main-demo.css").toExternalForm());
+		scene.getStylesheets().add(MainApplication.class.getResource("/assets/css/common.css").toExternalForm());
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}

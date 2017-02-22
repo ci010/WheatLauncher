@@ -127,8 +127,8 @@ public class MinecraftVersionManagerTest extends Application
 		container.getChildren().add(new HBox(jfxTextField, button));
 		root.setContent(container);
 		Scene scene = new Scene(root, 512, 380);
-		scene.getStylesheets().add(MainApplication.class.getResource("/css/jfoenix-main-demo.css").toExternalForm());
-		scene.getStylesheets().add(MainApplication.class.getResource("/css/common.css").toExternalForm());
+		scene.getStylesheets().add(MainApplication.class.getResource("/assets/css/jfoenix-main-demo.css").toExternalForm());
+		scene.getStylesheets().add(MainApplication.class.getResource("/assets/css/common.css").toExternalForm());
 		primaryStage.setScene(scene);
 		primaryStage.show();
 

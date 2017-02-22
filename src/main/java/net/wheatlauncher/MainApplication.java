@@ -145,14 +145,14 @@ public class MainApplication extends Application
 		// rid of this design....
 
 		ResourceBundle lang;
-		try {lang = ResourceBundle.getBundle("lang", Locale.getDefault());}
-		catch (Exception e) {lang = ResourceBundle.getBundle("lang", Locale.ENGLISH);}
+		try {lang = ResourceBundle.getBundle("assets.lang.lang", Locale.getDefault());}
+		catch (Exception e) {lang = ResourceBundle.getBundle("assets.lang.lang", Locale.ENGLISH);}
 		bundle = lang;
-		FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/fxml/Main.fxml"), lang);
+		FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Main.fxml"), lang);
 		StackPane root = fxmlLoader.load();
-		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/fxml/Login.fxml"), lang);
+		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Login.fxml"), lang);
 		loginPage = fxmlLoader.load();
-		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/fxml/Preview.fxml"), lang);
+		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Preview.fxml"), lang);
 		previewPage = fxmlLoader.load();
 
 		StackPane base = new StackPane(loginPage);
@@ -174,7 +174,7 @@ public class MainApplication extends Application
 		});
 		Scene scene = new Scene(root, 800, 550);
 		scene.setUserData((Consumer<Object>) o -> switchTo(o.toString()));
-		scene.getStylesheets().add(MainApplication.class.getResource("/css/common.css").toExternalForm());
+		scene.getStylesheets().add(MainApplication.class.getResource("/assets/css/common.css").toExternalForm());
 		stage.setScene(scene);
 		stage.show();
 	}

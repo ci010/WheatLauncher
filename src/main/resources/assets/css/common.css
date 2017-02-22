@@ -1,11 +1,11 @@
 @font-face {
     font-family: Minecrafter;
-    src: url('/fonts/Minecrafter.Reg.ttf');
+    src: url('/assets/fonts/Minecrafter.Reg.ttf');
 }
 
 @font-face {
     font-family: Minecrafter Alt;
-    src: url('/fonts/Minecrafter.Alt.ttf');
+    src: url('/assets/fonts/Minecrafter.Alt.ttf');
 }
 
 * {

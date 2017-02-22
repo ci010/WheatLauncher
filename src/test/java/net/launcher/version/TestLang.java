@@ -27,8 +27,8 @@ public class TestLang extends Application
 		assets.stream().filter(asset -> asset.getVirtualPath().endsWith(".lang"))
 				.filter(asset -> asset.getVirtualPath().startsWith("minecraft/lang")).forEach(System.out::println);
 //		Scene scene = new Scene(root, 512, 380);
-//		scene.getStylesheets().add(MainApplication.class.getResource("/css/jfoenix-main-demo.css").toExternalForm());
-//		scene.getStylesheets().add(MainApplication.class.getResource("/css/common.css").toExternalForm());
+//		scene.getStylesheets().add(MainApplication.class.getResource("/assets.css/jfoenix-main-demo.assets.css").toExternalForm());
+//		scene.getStylesheets().add(MainApplication.class.getResource("/assets.css/common.assets.css").toExternalForm());
 //		primaryStage.setScene(scene);
 //		primaryStage.show();
 	}

@@ -43,8 +43,8 @@ public class JFXDrawerTest extends Application
 		button.setOnAction(e -> stack.toggle(drawer));
 
 		final Scene scene = new Scene(stack, 512, 380);
-		scene.getStylesheets().add(MainApplication.class.getResource("/css/jfoenix-main-demo.css").toExternalForm());
-		scene.getStylesheets().add(MainApplication.class.getResource("/css/common.css").toExternalForm());
+		scene.getStylesheets().add(MainApplication.class.getResource("/assets/css/jfoenix-main-demo.css").toExternalForm());
+		scene.getStylesheets().add(MainApplication.class.getResource("/assets/css/common.css").toExternalForm());
 		primaryStage.setScene(scene);
 		primaryStage.show();
 	}

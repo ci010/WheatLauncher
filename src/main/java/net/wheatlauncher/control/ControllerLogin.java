@@ -7,6 +7,7 @@ import com.jfoenix.controls.JFXTextField;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
@@ -77,20 +78,20 @@ public class ControllerLogin
 
 		btnPane.getChildren().remove(spinner);//remove the spinner
 
-		onlineMode.getSelectionModel().selectedIndexProperty().addListener(observable ->
+		InvalidationListener listener = observable ->
 		{
-			account.setText("");
-			account.resetValidation();
-			password.setText("");
-			password.resetValidation();
-		});
-		onlineMode.isOfflineProperty().addListener(observable ->
-		{
-			account.setText("");
-			account.resetValidation();
-			password.setText("");
-			password.resetValidation();
-		});
+			String account;
+			ObservableList<String> historyList = MainApplication.getCore().getAuthManager().getHistoryList();
+			if (historyList == null || historyList.isEmpty()) account = "";
+			else account = historyList.get(0);
+
+			this.account.setText(account);
+			this.account.resetValidation();
+			this.password.setText("");
+			this.password.resetValidation();
+		};
+		onlineMode.getSelectionModel().selectedIndexProperty().addListener(listener);
+		onlineMode.isOfflineProperty().addListener(listener);
 		accountMenu = new ContextMenu();
 		account.setText(MainApplication.getCore().getAuthManager().getAccount());
 		account.textProperty().addListener((observable, oldValue, newValue) ->

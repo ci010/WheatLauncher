@@ -9,11 +9,11 @@
     <HBox spacing="10" alignment="CENTER">
         <JFXListView fx:id="options" prefWidth="150" maxHeight="400" style="-jfx-expanded:TRUE;" verticalGap="10"
                      styleClass="option-list">
-            <Label id="settings" text="Launcher Settings"/>
-            <Label id="resourceManager" text="Resource Packs"/>
-            <Label id="modManager" text="Mods"/>
-            <Label id="modPack" text="Modspacks"/>
-            <Label id="map" text="Maps"/>
+            <Label id="settings" text="%setting.launcher"/>
+            <Label id="resourceManager" text="%setting.resourcepacks"/>
+            <Label id="modManager" text="%setting.mods"/>
+            <Label id="modPack" text="%setting.modpacks"/>
+            <Label id="map" text="%setting.maps"/>
             <Label id="downloadCenter" text="Downloads"/>
         </JFXListView>
         <StackPane fx:id="container" prefWidth="400" prefHeight="500">
@@ -23,8 +23,7 @@
             <fx:include id="map" source="SettingMap.fxml"/>
             <fx:include id="modPack" source="SettingModPack.fxml"/>
             <fx:include id="downloadCenter" source="DownloadCenter.fxml"/>
-
-            <fx:include id="resourcePackCurse" source="SettingCurseForgeResourcePack.fxml"/>
+            <!--<fx:include id="resourcePackCurse" source="SettingCurseForgeResourcePack.fxml"/>-->
         </StackPane>
     </HBox>
 </JFXDialog>

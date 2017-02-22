@@ -20,8 +20,8 @@ public class WebViewTest extends Application
 		System.out.println(webEngine.getUserStyleSheetLocation());
 		webEngine.load("http://www.mcbbs.net");
 		final Scene scene = new Scene(browser, 1000, 600);
-		scene.getStylesheets().add(MainApplication.class.getResource("/css/jfoenix-main-demo.css").toExternalForm());
-		scene.getStylesheets().add(MainApplication.class.getResource("/css/common.css").toExternalForm());
+		scene.getStylesheets().add(MainApplication.class.getResource("/assets/css/jfoenix-main-demo.css").toExternalForm());
+		scene.getStylesheets().add(MainApplication.class.getResource("/assets/css/common.css").toExternalForm());
 		stage.setScene(scene);
 		stage.show();
 	}

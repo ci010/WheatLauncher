@@ -6,7 +6,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.Node;
 import javafx.scene.control.TextInputControl;
-import net.wheatlauncher.utils.LanguageMap;
+import net.wheatlauncher.MainApplication;
 
 import java.util.Objects;
 
@@ -52,7 +52,7 @@ public class ValidatorDelegate extends ValidatorBase
 		}
 		catch (Exception e)
 		{
-			message.set(LanguageMap.INSTANCE.translate(e.getMessage()));
+			message.set(MainApplication.getLanguageBundle().getString(e.getMessage()));
 			hasErrors.set(true);
 		}
 	}
