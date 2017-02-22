@@ -7,7 +7,6 @@ import net.launcher.game.ResourcePack;
 
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.concurrent.Future;
 
 /**
  * @author ci010
@@ -16,7 +15,7 @@ public interface ResourcePackManager extends LaunchElementManager<ResourcePack>
 {
 	Image getIcon(ResourcePack resourcePack);
 
-	Future<?> update();
+	Task<?> update();
 
 	Task<ResourcePack> importResourcePack(Path resourcePack);
 

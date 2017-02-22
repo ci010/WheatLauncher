@@ -201,11 +201,11 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter
 		this.assetsManager = ioContext.load(MinecraftAssetsManager.class);
 		this.worldManager = ioContext.load(MinecraftWorldManager.class);
 
-		this.assetsManager.getRepository().refreshVersion();
-
-		resourcePackManager.update();
-		modManager.update();
 		runTask(assetsManager.getRepository().refreshVersion());
+		runTask(resourcePackManager.update());
+		runTask(modManager.update());
+		runTask(assetsManager.getRepository().refreshVersion());
+		
 		//main module io end
 		assert profileManager.getSelectedProfile() != null;
 		assert profileManager.selecting() != null;

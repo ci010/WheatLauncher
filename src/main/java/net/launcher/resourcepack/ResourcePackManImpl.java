@@ -20,7 +20,6 @@ import org.to2mbn.jmccc.option.LaunchOption;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
@@ -126,7 +125,7 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	}
 
 	@Override
-	public Future<?> update()
+	public Task<?> update()
 	{
 		return archiveRepository.update();
 	}

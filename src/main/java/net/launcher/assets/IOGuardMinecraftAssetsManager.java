@@ -150,68 +150,71 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 				List<MinecraftVersion> versionList = new ArrayList<>();
 
 				boolean localChange = updateLocal();
-				if (localChange)
-					for (String version : locals)
-					{
-						MinecraftVersion contained = manager.getVersion(version);
-						if (contained != null)
-						{
-							contained.setState(MinecraftVersion.State.LOCAL);
-							continue;
-						}
-						MinecraftVersion v = new MinecraftVersion(version, MinecraftVersion.State.LOCAL);
-						if (cache != null)
-						{
-							RemoteVersion remote = cache.getVersions().get(version);
-							if (remote != null) v.getMetadata().put("remote", remote);
-						}
-						versionList.add(v);
-					}
 				boolean remoteChange = updateRemoteVersion();
-				if (!remoteChange)
-				{
-					for (String version : cache.getVersions().keySet().stream().filter(s -> !locals.contains(s)).collect(Collectors.toList()))
-					{
-						MinecraftVersion contained = manager.getVersion(version);
-						if (contained != null)
-						{
-							if (contained.getState() == MinecraftVersion.State.LOCAL)
-								contained.setState(MinecraftVersion.State.REMOTE);
-							continue;
-						}
-						MinecraftVersion v = new MinecraftVersion(version, MinecraftVersion.State.REMOTE);
-						RemoteVersion remote = cache.getVersions().get(version);
-						v.getMetadata().put("remote", remote);
-						versionList.add(v);
-					}
-				}
-				if (!versionList.isEmpty())
-				{
-					versions.setAll(versionList);
-					versionMap.clear();
-					for (MinecraftVersion version : versions)
-						versionMap.put(version.getVersionID(), version);
-					versions.sort((o1, o2) ->
-					{
-						Object remote1 = o1.getMetadata().get("remote");
-						Object remote2 = o2.getMetadata().get("remote");
-						if (remote1 != null && remote2 != null)
-						{
-							RemoteVersion ver1 = (RemoteVersion) remote1;
-							RemoteVersion ver2 = (RemoteVersion) remote2;
-							return ver2.getReleaseTime().compareTo(ver1.getReleaseTime());
-						}
-						String v1 = o2.getVersionID(), v2 = o1.getVersionID();
-						if (!Character.isDigit(v1.charAt(0)))
-							if (!Character.isDigit(v2.charAt(0))) return v1.compareTo(v2);
-							else return -1;
-						if (!Character.isDigit(v1.charAt(2)))
-							if (!Character.isDigit(v2.charAt(2))) return v1.compareTo(v2);
-							else return -1;
-						return new ComparableVersion(v1).compareTo(new ComparableVersion(v2));
-					});
-				}
 
+				Platform.runLater(() ->
+				{
+					if (localChange)
+						for (String version : locals)
+						{
+							MinecraftVersion contained = manager.getVersion(version);
+							if (contained != null)
+							{
+								contained.setState(MinecraftVersion.State.LOCAL);
+								continue;
+							}
+							MinecraftVersion v = new MinecraftVersion(version, MinecraftVersion.State.LOCAL);
+							if (cache != null)
+							{
+								RemoteVersion remote = cache.getVersions().get(version);
+								if (remote != null) v.getMetadata().put("remote", remote);
+							}
+							versionList.add(v);
+						}
+					if (!remoteChange)
+					{
+						for (String version : cache.getVersions().keySet().stream().filter(s -> !locals.contains(s)).collect(Collectors.toList()))
+						{
+							MinecraftVersion contained = manager.getVersion(version);
+							if (contained != null)
+							{
+								if (contained.getState() == MinecraftVersion.State.LOCAL)
+									contained.setState(MinecraftVersion.State.REMOTE);
+								continue;
+							}
+							MinecraftVersion v = new MinecraftVersion(version, MinecraftVersion.State.REMOTE);
+							RemoteVersion remote = cache.getVersions().get(version);
+							v.getMetadata().put("remote", remote);
+							versionList.add(v);
+						}
+					}
+					if (!versionList.isEmpty())
+					{
+						versions.setAll(versionList);
+						versionMap.clear();
+						for (MinecraftVersion version : versions)
+							versionMap.put(version.getVersionID(), version);
+						versions.sort((o1, o2) ->
+						{
+							Object remote1 = o1.getMetadata().get("remote");
+							Object remote2 = o2.getMetadata().get("remote");
+							if (remote1 != null && remote2 != null)
+							{
+								RemoteVersion ver1 = (RemoteVersion) remote1;
+								RemoteVersion ver2 = (RemoteVersion) remote2;
+								return ver2.getReleaseTime().compareTo(ver1.getReleaseTime());
+							}
+							String v1 = o2.getVersionID(), v2 = o1.getVersionID();
+							if (!Character.isDigit(v1.charAt(0)))
+								if (!Character.isDigit(v2.charAt(0))) return v1.compareTo(v2);
+								else return -1;
+							if (!Character.isDigit(v1.charAt(2)))
+								if (!Character.isDigit(v2.charAt(2))) return v1.compareTo(v2);
+								else return -1;
+							return new ComparableVersion(v1).compareTo(new ComparableVersion(v2));
+						});
+					}
+				});
 				return null;
 			}
 		};
