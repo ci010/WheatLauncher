@@ -68,6 +68,7 @@ public class ControllerProfileChooserPane
 			public void validateValue() throws Exception
 			{
 				String value = getValue();
+				System.out.println("   " + value);
 				if (value == null || value.equals(""))
 					throw new IllegalArgumentException("Value cannot be null");
 				boolean valid = false;
@@ -78,6 +79,8 @@ public class ControllerProfileChooserPane
 					throw new IllegalArgumentException("Value cannot be empty!");
 			}
 		}));
+		name.setCellValueFactory(param ->
+				param.getValue().displayNameProperty());
 		mcVersion.setCellValueFactory(param -> Bindings.createStringBinding(() ->
 		{
 			String version = param.getValue().getVersion();

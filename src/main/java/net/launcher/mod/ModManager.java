@@ -7,7 +7,6 @@ import net.launcher.game.forge.ForgeMod;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.concurrent.Future;
 
 /**
  * @author ci010
@@ -20,5 +19,5 @@ public interface ModManager extends LaunchElementManager<ForgeMod>
 
 	Task<Void> exportMod(Path path, ForgeMod mod);
 
-	Future<?> update();
+	Task<?> update();
 }

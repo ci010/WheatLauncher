@@ -5,7 +5,7 @@ import net.launcher.game.ResourcePack;
 import net.launcher.game.nbt.NBT;
 import net.launcher.utils.NIOUtils;
 import net.launcher.utils.resource.ArchiveRepository;
-import net.launcher.utils.resource.Repositories;
+import net.launcher.utils.resource.LocalArchiveRepository;
 import net.launcher.utils.serial.BiSerializer;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.util.Builder;
@@ -65,12 +65,7 @@ public class ResourcePackMangerBuilder implements Builder<LaunchElementManager<R
 
 	public ArchiveRepository<ResourcePack> getArchiveRepository()
 	{
-		return Repositories.newArchiveRepositoryBuilder(root, service,
-				BiSerializer.combine(
-						(data, context) ->
-								NBT.compound().put("name", data.getPackName()).put("description",
-										data.getDescription()).put("format", data.packFormat()),
-						(serialized, context) -> new ResourcePack(serialized.get("name").asString(), serialized.get("description").asString(), serialized.get("format").asInt())),
+		return new LocalArchiveRepository<>(root,
 				(file, context) ->
 				{
 					String raw = context.get("fileName").toString();
@@ -93,7 +88,12 @@ public class ResourcePackMangerBuilder implements Builder<LaunchElementManager<R
 						exceptionHandler.accept(e);
 					}
 					return new ResourcePack(name, descriptor, format);
-				})
-				.build();
+				},
+				BiSerializer.combine(
+						(data, context) ->
+								NBT.compound().put("name", data.getPackName()).put("description",
+										data.getDescription()).put("format", data.packFormat()),
+						(serialized, context) -> new ResourcePack(serialized.get("name").asString(), serialized.get("description").asString(), serialized.get("format").asInt()))
+		);
 	}
 }

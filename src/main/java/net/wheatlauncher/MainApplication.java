@@ -8,8 +8,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.util.Callback;
 import net.launcher.LaunchCore;
-import net.launcher.Logger;
 import net.launcher.control.DefaultTransitions;
 import net.launcher.control.SceneTransitionHandler;
 import net.launcher.utils.NIOUtils;
@@ -24,6 +24,9 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
  * @author ci010
@@ -31,6 +34,8 @@ import java.util.function.Consumer;
 public class MainApplication extends Application
 {
 	private static LaunchCore current;
+	private static Logger logger;
+
 	private ReentrantLock lock = new ReentrantLock();
 	private Path repositoryLocation;
 
@@ -70,6 +75,11 @@ public class MainApplication extends Application
 	private void preinit() throws Exception
 	{
 		repositoryLocation = loadLocation();
+		logger = Logger.getLogger("ARML");
+		Files.createDirectories(repositoryLocation.resolve("logs"));
+		FileHandler logs = new FileHandler(repositoryLocation.resolve("logs").resolve("main.log").toAbsolutePath().toString());
+		logs.setFormatter(new SimpleFormatter());
+		logger.addHandler(logs);
 	}
 
 	private void boost(Class<? extends LaunchCore> clz, Stage stage) throws Exception
@@ -115,6 +125,11 @@ public class MainApplication extends Application
 		return bundle;
 	}
 
+	public static Logger getLogger()
+	{
+		return logger;
+	}
+
 	public static void reportError(Scene scene, String message)
 	{
 		javafx.application.Platform.runLater(() -> displayError(scene, message));
@@ -148,11 +163,25 @@ public class MainApplication extends Application
 		try {lang = ResourceBundle.getBundle("assets.lang.lang", Locale.getDefault());}
 		catch (Exception e) {lang = ResourceBundle.getBundle("assets.lang.lang", Locale.ENGLISH);}
 		bundle = lang;
-		FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Main.fxml"), lang);
+		Callback<Class<?>, Object> controllerFactory = param ->
+		{
+			try
+			{
+				logger.info("Instantiate " + param.getSimpleName());
+				return param.newInstance();
+			}
+			catch (InstantiationException | IllegalAccessException e)
+			{
+				e.printStackTrace();
+			}
+			return null;
+		};
+		FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Main.fxml"), lang
+				, null, controllerFactory);
 		StackPane root = fxmlLoader.load();
-		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Login.fxml"), lang);
+		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Login.fxml"), lang, null, controllerFactory);
 		loginPage = fxmlLoader.load();
-		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Preview.fxml"), lang);
+		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Preview.fxml"), lang, null, controllerFactory);
 		previewPage = fxmlLoader.load();
 
 		StackPane base = new StackPane(loginPage);
@@ -196,6 +225,6 @@ public class MainApplication extends Application
 	public void stop() throws Exception
 	{
 		destroy();
-		Logger.trace("stop");
+		logger.info("stop");
 	}
 }

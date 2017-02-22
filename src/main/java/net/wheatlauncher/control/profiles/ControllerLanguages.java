@@ -56,7 +56,7 @@ public class ControllerLanguages
 		LaunchProfile selecting = MainApplication.getCore().getProfileManager().selecting();
 		MinecraftAssetsManager assetsManager = MainApplication.getCore().getAssetsManager();
 		MinecraftVersion version = assetsManager.getVersion(selecting.getVersion());
-		Logger.trace("refresh lang " + version);
+		MainApplication.getLogger().info("refresh lang " + version);
 		if (version != null)
 		{
 			Task<Language[]> task = assetsManager.getRepository().getLanguages(version);

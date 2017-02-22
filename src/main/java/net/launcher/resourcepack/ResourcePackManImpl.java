@@ -11,9 +11,10 @@ import net.launcher.profile.LaunchProfile;
 import net.launcher.setting.Setting;
 import net.launcher.setting.SettingMinecraft;
 import net.launcher.setting.SettingType;
-import net.launcher.utils.ProgressCallback;
 import net.launcher.utils.resource.ArchiveRepository;
-import net.launcher.utils.resource.Repository;
+import net.launcher.utils.resource.Delivery;
+import net.launcher.utils.resource.FetchOption;
+import net.launcher.utils.resource.Resource;
 import org.to2mbn.jmccc.option.LaunchOption;
 
 import java.io.InputStream;
@@ -30,10 +31,10 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	private static Image DEFAULT_IMG = new Image(ResourcePackManImpl.class.getResourceAsStream("/pack.png"));
 
 	private ArchiveRepository<ResourcePack> archiveRepository;
-	private Map<String, ArchiveRepository.Resource<ResourcePack>> nameToResource = new HashMap<>();
+	private Map<String, Resource<ResourcePack>> nameToResource = new HashMap<>();
 	private ObservableList<ResourcePack> resourcePacks;
 
-	private Map<LaunchOption, Repository.Delivery<ArchiveRepository.Resource<ResourcePack>>> launchCache = new HashMap<>();
+	private Map<LaunchOption, Delivery<Resource<ResourcePack>>> launchCache = new HashMap<>();
 
 	ResourcePackManImpl(ArchiveRepository<ResourcePack> archiveRepository)
 	{
@@ -44,17 +45,17 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 			nameToResource.put(v.getContainData().getPackName(), v);
 			resourcePacks.add(v.getContainData());
 		});
-		archiveRepository.getResourceMap().addListener((MapChangeListener<String, ArchiveRepository.Resource<ResourcePack>>) change ->
+		archiveRepository.getResourceMap().addListener((MapChangeListener<String, Resource<ResourcePack>>) change ->
 		{
 			if (change.wasAdded())
 			{
-				ArchiveRepository.Resource<ResourcePack> valueAdded = change.getValueAdded();
+				Resource<ResourcePack> valueAdded = change.getValueAdded();
 				nameToResource.put(valueAdded.getContainData().getPackName(), valueAdded);
 				resourcePacks.add(valueAdded.getContainData());
 			}
 			if (change.wasRemoved())
 			{
-				ArchiveRepository.Resource<ResourcePack> valueRemoved = change.getValueRemoved();
+				Resource<ResourcePack> valueRemoved = change.getValueRemoved();
 				nameToResource.remove(valueRemoved.getContainData().getPackName());
 				resourcePacks.add(valueRemoved.getContainData());
 			}
@@ -79,7 +80,7 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 		List<ResourcePack> list = new ArrayList<>(value.length);
 		for (String s : value)
 		{
-			ArchiveRepository.Resource<ResourcePack> resourcePackResource = nameToResource.get(s);
+			Resource<ResourcePack> resourcePackResource = nameToResource.get(s);
 			if (resourcePackResource != null)
 				list.add(resourcePackResource.getContainData());
 		}
@@ -95,18 +96,18 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	@Override
 	protected void implementRuntimePath(LaunchProfile profile, Path path, Setting property, LaunchOption option)
 	{
-		String[] value = property.getOption(getOption()).getValue();
-		for (String aValue : value)
-			launchCache.put(option, archiveRepository.fetchResource(path, nameToResource.get(aValue).getHash(),
-					Repository.FetchOption.SYMBOL_LINK));
+//		String[] value = property.getOption(getOption()).getValue();
+//		for (String aValue : value)
+//			launchCache.put(option, archiveRepository.fetchResource(path, nameToResource.get(aValue).getHash(),
+//					ArchiveRepository.FetchOption.SYMBOL_LINK));
 	}
 
 	@Override
 	public void onClose(LaunchOption option, LaunchProfile profile)
 	{
-		Repository.Delivery<ArchiveRepository.Resource<ResourcePack>> resourceDelivery = launchCache.get(option);
-		if (resourceDelivery != null)
-			resourceDelivery.markRelease();
+//		Repository.Delivery<ArchiveRepository.Resource<ResourcePack>> resourceDelivery = launchCache.get(option);
+//		if (resourceDelivery != null)
+//			resourceDelivery.markRelease();
 	}
 
 
@@ -114,7 +115,7 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	public Image getIcon(ResourcePack resourcePack)
 	{
 		Objects.requireNonNull(resourcePack);
-		ArchiveRepository.Resource<ResourcePack> packResource = nameToResource.get(resourcePack.getPackName());
+		Resource<ResourcePack> packResource = nameToResource.get(resourcePack.getPackName());
 		if (packResource != null)
 			try (InputStream stream = archiveRepository.openStream(packResource, "pack.png"))
 			{
@@ -138,34 +139,7 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 			@Override
 			protected ResourcePack call() throws Exception
 			{
-				return archiveRepository.importFile(resourcePack, new ProgressCallback<ArchiveRepository
-						.Resource<ResourcePack>>()
-				{
-
-					@Override
-					public void done(ArchiveRepository.Resource<ResourcePack> result)
-					{
-
-					}
-
-					@Override
-					public void failed(Throwable e)
-					{
-
-					}
-
-					@Override
-					public void cancelled()
-					{
-
-					}
-
-					@Override
-					public void updateProgress(long done, long total, String message)
-					{
-
-					}
-				}).get().getContainData();
+				return archiveRepository.importResource(resourcePack).get().getContainData();
 			}
 		};
 
@@ -181,8 +155,8 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 			@Override
 			protected Void call() throws Exception
 			{
-				archiveRepository.fetchAllResources(path, pack.stream().map(ResourcePack::getPackName).map(nameToResource::get).map(ArchiveRepository
-						.Resource::getName).collect(Collectors.toList()), Repository.FetchOption.COPY);
+				archiveRepository.fetchAllResource(path, pack.stream().map(ResourcePack::getPackName).map(nameToResource::get).map
+						(Resource::getName).collect(Collectors.toList()), FetchOption.COPY);
 				return null;
 			}
 		};

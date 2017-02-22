@@ -12,8 +12,8 @@ import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
 import net.launcher.profile.LaunchProfile;
+import net.launcher.utils.resource.FetchOption;
 import net.launcher.utils.resource.FetchUtils;
-import net.launcher.utils.resource.Repository;
 import net.launcher.utils.serial.Deserializer;
 import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.internal.io.IOGuard;
@@ -300,12 +300,12 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 		to = option.getMinecraftDirectory().getAssets().toPath();
 		from = root.getAssets().toPath();
 		Files.deleteIfExists(to);
-		FetchUtils.fetch(from, to, Repository.FetchOption.HARD_LINK);
+		FetchUtils.fetch(from, to, FetchOption.HARD_LINK);
 
 		to = option.getMinecraftDirectory().getLibraries().toPath();
 		from = root.getLibraries().toPath();
 		Files.deleteIfExists(to);
-		FetchUtils.fetch(from, to, Repository.FetchOption.HARD_LINK);
+		FetchUtils.fetch(from, to, FetchOption.HARD_LINK);
 	}
 
 	@Override

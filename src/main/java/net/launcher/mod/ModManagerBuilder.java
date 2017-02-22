@@ -8,7 +8,7 @@ import net.launcher.game.forge.ForgeModParser;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
 import net.launcher.utils.resource.ArchiveRepository;
-import net.launcher.utils.resource.Repositories;
+import net.launcher.utils.resource.LocalArchiveRepository;
 import net.launcher.utils.serial.BiSerializer;
 import org.to2mbn.jmccc.util.Builder;
 
@@ -16,7 +16,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 /**
@@ -24,21 +23,18 @@ import java.util.stream.Collectors;
  */
 public class ModManagerBuilder implements Builder<LaunchElementManager<ForgeMod>>
 {
-	public static ModManagerBuilder create(Path root, ExecutorService service)
+	public static ModManagerBuilder create(Path root)
 	{
 		Objects.requireNonNull(root);
-		Objects.requireNonNull(service);
-		return new ModManagerBuilder(root, service);
+		return new ModManagerBuilder(root);
 	}
 
-	private ModManagerBuilder(Path root, ExecutorService service)
+	private ModManagerBuilder(Path root)
 	{
 		this.root = root;
-		this.service = service;
 	}
 
 	private Path root;
-	private ExecutorService service;
 	private ArchiveRepository<ForgeMod[]> archiveRepository;
 
 	public ModManagerBuilder setArchiveRepository(ArchiveRepository<ForgeMod[]> archiveRepository)
@@ -114,8 +110,8 @@ public class ModManagerBuilder implements Builder<LaunchElementManager<ForgeMod>
 				}
 				return mods;
 			});
-			return archiveRepository = Repositories.newArchiveRepositoryBuilder(root, service, combine, ForgeModParser.defaultModDeserializer())
-					.build();
+			return archiveRepository = new LocalArchiveRepository<>(root, ForgeModParser
+					.defaultModDeserializer(), combine);
 		}
 		return archiveRepository;
 	}

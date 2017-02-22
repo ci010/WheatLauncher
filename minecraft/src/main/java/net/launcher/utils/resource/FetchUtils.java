@@ -9,10 +9,10 @@ import java.nio.file.Path;
  */
 public class FetchUtils
 {
-	public static void fetch(Path from, Path to, Repository.FetchOption option) throws IOException
+	public static void fetch(Path from, Path to, FetchOption option) throws IOException
 	{
 		if (option == null)
-			option = Repository.FetchOption.SYMBOL_LINK;
+			option = FetchOption.SYMBOL_LINK;
 		if (Files.exists(to)) return;
 		switch (option)
 		{

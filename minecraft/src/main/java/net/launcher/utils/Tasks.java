@@ -2,7 +2,6 @@ package net.launcher.utils;
 
 
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
-import org.to2mbn.jmccc.mcdownloader.download.concurrent.CallbackAdapter;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -14,6 +13,14 @@ import java.util.function.Consumer;
  */
 public class Tasks
 {
+	public static <T> Optional<T> optional(Callable<T> callable)
+	{
+		Objects.requireNonNull(callable);
+		try {return Optional.ofNullable(callable.call());}
+		catch (Exception e) {return Optional.empty();}
+	}
+
+
 	public interface TaskBuilder<T> extends javafx.util.Builder<Callable<T>>
 	{
 		TaskBuilder<T> setDone(Consumer<T> done);
@@ -26,55 +33,6 @@ public class Tasks
 	public static <T> TaskBuilder<T> builder(Callable<T> callable)
 	{
 		return new TaskBuilderImpl<>(callable);
-	}
-
-	public static <T> Optional<T> optional(Callable<T> callable)
-	{
-		Objects.requireNonNull(callable);
-		try {return Optional.ofNullable(callable.call());}
-		catch (Exception e) {return Optional.empty();}
-	}
-
-	public static <T> Callback<T> after(Callback<T> callback, Callback<T> after)
-	{
-		return new Callback<T>()
-		{
-			@Override
-			public void done(T result)
-			{
-				callback.done(result);
-				after.done(result);
-			}
-
-			@Override
-			public void failed(Throwable e)
-			{
-				callback.failed(e); after.failed(e);
-			}
-
-			@Override
-			public void cancelled()
-			{
-				callback.cancelled();
-				after.cancelled();
-			}
-		};
-	}
-
-	public static <T> Callback<T> whatever(Runnable runnable)
-	{
-		return new CallbackAdapter<T>()
-		{
-			@Override
-			public void done(T result) {runnable.run();}
-
-			@Override
-			public void failed(Throwable e)
-			{runnable.run();}
-
-			@Override
-			public void cancelled() {runnable.run();}
-		};
 	}
 
 	public static <T> Callable<T> wrap(Callable<T> callable, Callback<T> callback)
@@ -94,30 +52,6 @@ public class Tasks
 			{
 				back.failed(e);
 				throw e;
-			}
-		};
-	}
-
-	public static <T> CallbackAdapter<T> adept(Callback<T> callback)
-	{
-		return new CallbackAdapter<T>()
-		{
-			@Override
-			public void done(T result)
-			{
-				callback.done(result);
-			}
-
-			@Override
-			public void failed(Throwable e)
-			{
-				callback.failed(e);
-			}
-
-			@Override
-			public void cancelled()
-			{
-				callback.cancelled();
 			}
 		};
 	}

@@ -169,7 +169,7 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter
 	@Override
 	public void init(Path root, Stage stage) throws Exception
 	{
-		Logger.trace("Start to init");
+		MainApplication.getLogger().info("Start to init");
 
 		if (!Files.exists(root))
 			Files.createDirectories(root);
@@ -181,7 +181,7 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter
 
 		Path mods = this.getRoot().resolve("mods");
 		Files.createDirectories(mods);
-		this.managers.put(ForgeMod.class, modManager = ModManagerBuilder.create(mods, this.executorService).build());
+		this.managers.put(ForgeMod.class, modManager = ModManagerBuilder.create(mods).build());
 		Path resPacks = this.getRoot().resolve("resourcepacks");
 
 		Files.createDirectories(resPacks);
@@ -198,7 +198,6 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter
 				.build();
 		this.authProfile = ioContext.load(AuthManager.class);
 		this.profileManager = ioContext.load(LaunchProfileManager.class);
-
 		this.assetsManager = ioContext.load(MinecraftAssetsManager.class);
 		this.worldManager = ioContext.load(MinecraftWorldManager.class);
 
@@ -210,8 +209,7 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter
 		//main module io end
 		assert profileManager.getSelectedProfile() != null;
 		assert profileManager.selecting() != null;
-
-		Logger.trace("Complete init");
+		MainApplication.getLogger().info("Complete init");
 	}
 
 	@Override
@@ -223,7 +221,7 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter
 			e.printStackTrace();
 		}
 		executorService.shutdown();
-		Logger.trace("Shutdown");
+		MainApplication.getLogger().info("Shutdown");
 	}
 
 	@Override

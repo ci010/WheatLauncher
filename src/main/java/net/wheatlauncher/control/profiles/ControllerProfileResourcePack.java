@@ -18,7 +18,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import net.launcher.Logger;
 import net.launcher.control.ResourcePackCell;
 import net.launcher.game.ResourcePack;
 import net.launcher.profile.LaunchProfile;
@@ -118,7 +117,7 @@ public class ControllerProfileResourcePack implements ReloadableController
 	@Override
 	public void reload()
 	{
-		Logger.trace("reload");
+		MainApplication.getLogger().info("reload");
 //		available.setCellValueFactory(createCallback(true));
 //		selected.setCellValueFactory(createCallback(false));
 //		refresh(null);

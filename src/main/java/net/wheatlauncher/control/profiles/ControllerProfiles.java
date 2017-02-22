@@ -12,8 +12,6 @@ import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.control.mics.ControllerMinecraftVersionChooserPane;
 import net.wheatlauncher.control.mics.ControllerProfileChooserPane;
 
-import javax.annotation.PreDestroy;
-
 
 /**
  * @author ci010
@@ -21,7 +19,6 @@ import javax.annotation.PreDestroy;
 public class ControllerProfiles
 {
 	public ComboBoxDelegate<LaunchProfile> profile;
-
 	public ComboBoxDelegate<MinecraftVersion> versions;
 
 	public JFXTabPane optionsTab;
@@ -40,21 +37,15 @@ public class ControllerProfiles
 	public StackPane profileChooser;
 	public ControllerProfileChooserPane profileChooserController;
 
-
 	public void initialize()
 	{
 		Logger.trace("init");
 		rootDialog.setOverlayClose(true);
+		versions.setOnShown(event -> versionChooserController.onShow());
 		initVersion();
 		initProfile();
 		versionChooserController.initialize(versions, () -> (StackPane) rootDialog.getScene().getRoot());
 		profileChooserController.initialize(profile);
-	}
-
-	@PreDestroy
-	public void distroy()
-	{
-		Logger.trace("destroy");
 	}
 
 	private void initVersion()
@@ -113,13 +104,6 @@ public class ControllerProfiles
 
 	private void initProfile()
 	{
-//		profile.setProfiles(MainApplication.getCore().getProfileManager().getAllProfiles());
-//		profile.setProfileFactory(param -> MainApplication.getCore().getProfileManager().newProfile(param));
-//		profile.setRemoveCallback(param ->
-//		{
-//			MainApplication.getCore().getProfileManager().deleteProfile(param.getId());
-//			return null;
-//		});
 		LaunchProfile selecting = MainApplication.getCore().getProfileManager().selecting();
 		if (selecting != null)
 			profile.setValue(selecting);

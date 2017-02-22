@@ -13,9 +13,6 @@
           style="-fx-padding:10 0 0 0;"
           onMouseClicked="#onClick">
         <Label styleClass="title-label">Minecraft</Label>
-
-        <!-- <VBox spacing="20" alignment="CENTER" style="-fx-padding:10,0,0,10" maxWidth="300" maxHeight="70">
-         </VBox>-->
         <HBox spacing="10" style="-fx-padding: 0 0 10 50;">
             <JFXTextField fx:id="account" onKeyPressed="#switchOnlineMode" styleClass="login-field"
                           onKeyReleased="#toggleLogin">
