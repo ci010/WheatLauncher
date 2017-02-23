@@ -14,16 +14,19 @@ import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.scene.control.TableColumn;
 import javafx.scene.layout.StackPane;
-import net.launcher.Logger;
 import net.launcher.assets.MinecraftAssetsManager;
 import net.launcher.assets.MinecraftVersion;
 import net.launcher.control.MinecraftOptionButton;
 import net.launcher.game.Language;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.profile.LaunchProfileManager;
+import net.launcher.setting.SettingMinecraft;
 import net.wheatlauncher.MainApplication;
 
+import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * @author ci010
@@ -50,13 +53,13 @@ public class ControllerLanguages
 	};
 
 	private ObservableList<Language> languageLists;
+	private Map<String, Language> lookup;
 
 	private void refresh()
 	{
 		LaunchProfile selecting = MainApplication.getCore().getProfileManager().selecting();
 		MinecraftAssetsManager assetsManager = MainApplication.getCore().getAssetsManager();
 		MinecraftVersion version = assetsManager.getVersion(selecting.getVersion());
-		MainApplication.getLogger().info("refresh lang " + version);
 		if (version != null)
 		{
 			Task<Language[]> task = assetsManager.getRepository().getLanguages(version);
@@ -64,6 +67,13 @@ public class ControllerLanguages
 			{
 				Worker<Language[]> source = event.getSource();
 				languageLists.setAll(source.getValue());
+				lookup = languageLists.stream().collect(Collectors.toMap(Language::getId, Function.identity()));
+				Language language = selecting.getGameSetting(SettingMinecraft.INSTANCE)
+						.map(s -> s.getOption(SettingMinecraft.INSTANCE.LANGUAGE))
+						.map(lookup::get)
+						.orElse(lookup.get("en_us"));
+				languageTable.getSelectionModel().select(language);
+				languageTable.scrollTo(language);
 			});
 			MainApplication.getCore().getTaskCenter().runTask(task);
 		}
@@ -71,7 +81,6 @@ public class ControllerLanguages
 
 	public void initialize()
 	{
-		Logger.trace("Language Init");
 		languageLists = FXCollections.observableArrayList();
 		FilteredList<Language> filteredList = new FilteredList<>(languageLists);
 		filteredList.predicateProperty().bind(Bindings.createObjectBinding(() ->
@@ -86,9 +95,9 @@ public class ControllerLanguages
 		name.setCellValueFactory(param -> Bindings.createStringBinding(() -> param.getValue().getName()));
 		bidi.setCellValueFactory(param -> Bindings.createStringBinding(() -> String.valueOf(param.getValue().isBidirectional())));
 		confirm.setOnAction(event ->
-		{
-			//toggle language
-		});
+				MainApplication.getCore().getProfileManager().selecting().getGameSetting(SettingMinecraft.INSTANCE)
+						.map(setting -> setting.getOption(SettingMinecraft.INSTANCE.LANGUAGE)).ifPresent(property ->
+						property.setValue(languageTable.getSelectionModel().getSelectedItem().getId())));
 		MainApplication.getCore().getProfileManager().selectedProfileProperty().addListener((observable, oldV, newV) ->
 		{
 			LaunchProfileManager profileManager = MainApplication.getCore().getProfileManager();

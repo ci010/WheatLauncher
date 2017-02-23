@@ -3,7 +3,6 @@ package net.launcher.auth;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import net.launcher.Logger;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
 import net.wheatlauncher.internal.io.IOGuard;
@@ -36,7 +35,6 @@ public class IOGuardAuth extends IOGuard<AuthManager>
 	@Override
 	public AuthManager loadInstance() throws IOException
 	{
-		Logger.trace("start to load auth instance");
 		Path path = getContext().getRoot().resolve("auth.dat");
 		NBTCompound compound = NBT.read(path, false).asCompound();
 		String account = compound.get("account").asString("");

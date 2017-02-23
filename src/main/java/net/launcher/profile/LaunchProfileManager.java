@@ -85,15 +85,6 @@ public class LaunchProfileManager
 		return copy;
 	}
 
-//	public LaunchProfile importProfile(LaunchProfile profile)
-//	{
-//		LaunchProfile imported = new LaunchProfile(LaunchProfile.Source.IMPORTED);
-//		copyConsumer.accept(profile, imported);
-//		doCopy(profile, imported);
-//		map.put(imported.getId(), imported);
-//		return imported;
-//	}
-
 	public void deleteProfile(String id)
 	{
 		Objects.requireNonNull(id);

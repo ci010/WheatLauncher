@@ -1,5 +1,6 @@
 package net.launcher.assets;
 
+import com.sun.javafx.application.PlatformImpl;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -139,55 +140,53 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 	}
 
 	@Override
-	public Task<Void> refreshVersion()
+	public Task<List<MinecraftVersion>> refreshVersion()
 	{
-		return new Task<Void>()
+		return new Task<List<MinecraftVersion>>()
 		{
 			@Override
-			protected Void call() throws Exception
+			protected List<MinecraftVersion> call() throws Exception
 			{
-				MinecraftAssetsManagerImpl manager = (MinecraftAssetsManagerImpl) getInstance();
-				List<MinecraftVersion> versionList = new ArrayList<>();
-
 				boolean localChange = updateLocal();
 				boolean remoteChange = updateRemoteVersion();
-
-				Platform.runLater(() ->
-				{
-					if (localChange)
-						for (String version : locals)
-						{
-							MinecraftVersion contained = manager.getVersion(version);
-							if (contained != null)
-							{
-								contained.setState(MinecraftVersion.State.LOCAL);
-								continue;
-							}
-							MinecraftVersion v = new MinecraftVersion(version, MinecraftVersion.State.LOCAL);
-							if (cache != null)
-							{
-								RemoteVersion remote = cache.getVersions().get(version);
-								if (remote != null) v.getMetadata().put("remote", remote);
-							}
-							versionList.add(v);
-						}
-					if (!remoteChange)
+				MinecraftAssetsManagerImpl manager = (MinecraftAssetsManagerImpl) getInstance();
+				List<MinecraftVersion> versionList = new ArrayList<>();
+				if (localChange)
+					for (String version : locals)
 					{
-						for (String version : cache.getVersions().keySet().stream().filter(s -> !locals.contains(s)).collect(Collectors.toList()))
+						MinecraftVersion contained = manager.getVersion(version);
+						if (contained != null)
 						{
-							MinecraftVersion contained = manager.getVersion(version);
-							if (contained != null)
-							{
-								if (contained.getState() == MinecraftVersion.State.LOCAL)
-									contained.setState(MinecraftVersion.State.REMOTE);
-								continue;
-							}
-							MinecraftVersion v = new MinecraftVersion(version, MinecraftVersion.State.REMOTE);
-							RemoteVersion remote = cache.getVersions().get(version);
-							v.getMetadata().put("remote", remote);
-							versionList.add(v);
+							contained.setState(MinecraftVersion.State.LOCAL);
+							continue;
 						}
+						MinecraftVersion v = new MinecraftVersion(version, MinecraftVersion.State.LOCAL);
+						if (cache != null)
+						{
+							RemoteVersion remote = cache.getVersions().get(version);
+							if (remote != null) v.getMetadata().put("remote", remote);
+						}
+						versionList.add(v);
 					}
+				if (!remoteChange)
+				{
+					for (String version : cache.getVersions().keySet().stream().filter(s -> !locals.contains(s)).collect(Collectors.toList()))
+					{
+						MinecraftVersion contained = manager.getVersion(version);
+						if (contained != null)
+						{
+							if (contained.getState() == MinecraftVersion.State.LOCAL)
+								contained.setState(MinecraftVersion.State.REMOTE);
+							continue;
+						}
+						MinecraftVersion v = new MinecraftVersion(version, MinecraftVersion.State.REMOTE);
+						RemoteVersion remote = cache.getVersions().get(version);
+						v.getMetadata().put("remote", remote);
+						versionList.add(v);
+					}
+				}
+				Runnable task = () ->
+				{
 					if (!versionList.isEmpty())
 					{
 						versions.setAll(versionList);
@@ -214,8 +213,11 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 							return new ComparableVersion(v1).compareTo(new ComparableVersion(v2));
 						});
 					}
-				});
-				return null;
+				};
+				if (Platform.isFxApplicationThread())
+					task.run();
+				else PlatformImpl.runAndWait(task);
+				return versionList;
 			}
 		};
 	}

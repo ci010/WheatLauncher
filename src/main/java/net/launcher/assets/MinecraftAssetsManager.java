@@ -8,6 +8,7 @@ import org.to2mbn.jmccc.version.Version;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 
 /**
  * The manager that handle the common centralized assets of Minecraft
@@ -60,7 +61,7 @@ public interface MinecraftAssetsManager
 		/**
 		 * Update the version cache from both local and remote
 		 */
-		Task<Void> refreshVersion();
+		Task<List<MinecraftVersion>> refreshVersion();
 
 		Task<Language[]> getLanguages(MinecraftVersion version);
 

@@ -11,7 +11,7 @@ public class Language
 	private String name, id, region;
 	private boolean bidirectional;
 
-	public Language(String name, String id, String region, boolean bidirectional)
+	public Language(String id, String name, String region, boolean bidirectional)
 	{
 		this.name = name;
 		this.id = id;

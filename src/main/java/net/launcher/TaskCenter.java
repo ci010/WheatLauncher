@@ -11,7 +11,7 @@ import java.util.Collection;
  */
 public interface TaskCenter
 {
-	void runTask(Task<?> tTask);
+	Task<?> runTask(Task<?> tTask);
 
 	void runTasks(Collection<Task<?>> tasks);
 

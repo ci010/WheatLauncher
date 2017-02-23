@@ -201,11 +201,10 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter
 		this.assetsManager = ioContext.load(MinecraftAssetsManager.class);
 		this.worldManager = ioContext.load(MinecraftWorldManager.class);
 
-		runTask(assetsManager.getRepository().refreshVersion());
-		runTask(resourcePackManager.update());
-		runTask(modManager.update());
-		runTask(assetsManager.getRepository().refreshVersion());
-		
+		assetsManager.getRepository().refreshVersion().run();
+		resourcePackManager.update().run();
+		modManager.update().run();
+
 		//main module io end
 		assert profileManager.getSelectedProfile() != null;
 		assert profileManager.selecting() != null;
@@ -263,13 +262,14 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter
 	private ObservableList<Throwable> errors = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
 
 	@Override
-	public void runTask(Task<?> tTask)
+	public Task<?> runTask(Task<?> tTask)
 	{
-		if (tTask == null) return;
+		if (tTask == null) return tTask;
 		workers.add(tTask);
 		tTask.workDoneProperty().addListener(workerListener);
 		tTask.addEventHandler(WorkerStateEvent.WORKER_STATE_FAILED, event -> reportError(event.getSource().getException()));
 		executorService.submit(tTask);
+		return tTask;
 	}
 
 	@Override

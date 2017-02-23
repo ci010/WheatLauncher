@@ -8,7 +8,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Callback;
 import net.launcher.LaunchCore;
 import net.launcher.control.DefaultTransitions;
 import net.launcher.control.SceneTransitionHandler;
@@ -163,25 +162,11 @@ public class MainApplication extends Application
 		try {lang = ResourceBundle.getBundle("assets.lang.lang", Locale.getDefault());}
 		catch (Exception e) {lang = ResourceBundle.getBundle("assets.lang.lang", Locale.ENGLISH);}
 		bundle = lang;
-		Callback<Class<?>, Object> controllerFactory = param ->
-		{
-			try
-			{
-				logger.info("Instantiate " + param.getSimpleName());
-				return param.newInstance();
-			}
-			catch (InstantiationException | IllegalAccessException e)
-			{
-				e.printStackTrace();
-			}
-			return null;
-		};
-		FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Main.fxml"), lang
-				, null, controllerFactory);
+		FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Main.fxml"), lang);
 		StackPane root = fxmlLoader.load();
-		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Login.fxml"), lang, null, controllerFactory);
+		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Login.fxml"), lang);
 		loginPage = fxmlLoader.load();
-		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Preview.fxml"), lang, null, controllerFactory);
+		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Preview.fxml"), lang);
 		previewPage = fxmlLoader.load();
 
 		StackPane base = new StackPane(loginPage);

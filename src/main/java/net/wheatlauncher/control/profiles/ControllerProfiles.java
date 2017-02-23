@@ -90,9 +90,9 @@ public class ControllerProfiles
 		LaunchProfile selecting = MainApplication.getCore().getProfileManager().selecting();
 		if (selecting != null)
 		{
-			String version = selecting.getVersion();
-			if (version != null)
-				versions.setValue(MainApplication.getCore().getAssetsManager().getVersion(version));
+			MinecraftVersion mcVersion = selecting.getMcVersion();
+			if (mcVersion != null)
+				versions.setValue(mcVersion);
 		}
 		versions.valueProperty().addListener(observable ->
 		{
