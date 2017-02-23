@@ -15,9 +15,9 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
+import net.launcher.api.ARML;
 import net.launcher.control.ImageCell;
 import net.launcher.game.forge.ForgeMod;
-import net.wheatlauncher.MainApplication;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class ControllerMod
 
 	public void initialize()
 	{
-		FilteredList<ForgeMod> modList = new FilteredList<>(MainApplication.getCore().getModManager().getAllElement());
+		FilteredList<ForgeMod> modList = new FilteredList<>(ARML.core().getModManager().getAllElement());
 		modList.predicateProperty().bind(Bindings.createObjectBinding(() -> textPredicate,
 				search.textProperty()));
 		mods.setItems(modList);
@@ -63,7 +63,7 @@ public class ControllerMod
 					return;
 				try
 				{
-					this.setGraphic(new ModCell(item, MainApplication.getCore().getModManager().getLogo(item)));
+					this.setGraphic(new ModCell(item, ARML.core().getModManager().getLogo(item)));
 				}
 				catch (IOException e)
 				{
@@ -81,7 +81,7 @@ public class ControllerMod
 		if (files != null)
 		{
 			for (File file : files)
-				MainApplication.getCore().getTaskCenter().runTask(MainApplication.getCore().getModManager()
+				ARML.core().getTaskCenter().runTask(ARML.core().getModManager()
 						.importMod(file.toPath()));
 		}
 	}
@@ -97,8 +97,8 @@ public class ControllerMod
 			File f = chooser.showDialog(mods.getScene().getWindow());
 			if (f == null) return;
 			Path path = f.toPath();
-			MainApplication.getCore().getTaskCenter().runTasks(selectedItems.stream().map(mod ->
-					MainApplication.getCore().getModManager().exportMod(path, mod)).collect(Collectors.toList()));
+			ARML.core().getTaskCenter().runTasks(selectedItems.stream().map(mod ->
+					ARML.core().getModManager().exportMod(path, mod)).collect(Collectors.toList()));
 		}
 		else
 		{
@@ -107,7 +107,7 @@ public class ControllerMod
 			File f = fileChooser.showSaveDialog(mods.getScene().getWindow());
 			if (f == null) return;
 			Path file = f.toPath();
-			MainApplication.getCore().getTaskCenter().runTask(MainApplication.getCore().getModManager().exportMod
+			ARML.core().getTaskCenter().runTask(ARML.core().getModManager().exportMod
 					(file, selectedItems.get(0)));
 		}
 	}

@@ -1,14 +1,13 @@
 package net.launcher.api;
 
 import net.launcher.DownloadCenter;
-import net.launcher.LaunchElementManager;
-import net.launcher.TaskCenter;
 import net.launcher.assets.MinecraftAssetsManager;
+import net.launcher.assets.MinecraftWorldManager;
 import net.launcher.auth.AuthManager;
+import net.launcher.mod.ModManager;
 import net.launcher.profile.LaunchProfileManager;
 import net.launcher.resourcepack.ResourcePackManager;
 
-import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -17,10 +16,6 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public interface LauncherContext
 {
-	Collection<LaunchElementManager> getAllElementsManagers();
-
-	<T> Optional<LaunchElementManager<T>> getElementManager(Class<T> clz);
-
 	TaskCenter getTaskCenter();
 
 	LaunchProfileManager getProfileManager();
@@ -32,6 +27,10 @@ public interface LauncherContext
 	DownloadCenter getDownloadCenter();
 
 	ResourcePackManager getResourcePackManager();
+
+	MinecraftWorldManager getWorldManager();
+
+	ModManager getModManager();
 
 	<T> Optional<T> getComponent(Class<T> tClass);
 

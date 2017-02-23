@@ -5,9 +5,9 @@ import javafx.beans.InvalidationListener;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBoxBase;
 import javafx.util.StringConverter;
+import net.launcher.api.ARML;
 import net.launcher.control.ComboBoxSkinSimple;
 import net.launcher.profile.LaunchProfile;
-import net.wheatlauncher.MainApplication;
 
 /**
  * @author ci010
@@ -69,7 +69,7 @@ public class ProfileSelectorComplexSkin extends ComboBoxSkinSimple<LaunchProfile
 			@Override
 			public LaunchProfile fromString(String string)
 			{
-				return MainApplication.getCore().getProfileManager().selecting();
+				return ARML.core().getProfileManager().selecting();
 			}
 		};
 	}

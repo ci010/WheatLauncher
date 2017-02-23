@@ -5,7 +5,7 @@
 <VBox xmlns:fx="http://javafx.com/fxml/1"
       xmlns="http://javafx.com/javafx/2.2" fx:controller="net.wheatlauncher.control.ControllerPreviewWindow"
       style="-fx-background-color:GREY;" prefWidth="400" prefHeight="300" spacing="10">
-    <JFXTabPane>
+    <JFXTabPane minHeight="300" maxHeight="300" prefWidth="500" tabMinHeight="60">
         <Tab text="News">
             <StackPane/>
         </Tab>
@@ -13,16 +13,4 @@
             <StackPane/>
         </Tab>
     </JFXTabPane>
-    <!--<BorderPane style="-fx-padding:10; -fx-background-color:GREY;">-->
-    <!--<left>-->
-    <!--<Icon awesomeIcon="ANGLE_LEFT"/>-->
-    <!--</left>-->
-    <!--<center>-->
-    <!--<Label text="TEST" styleClass="header-minor"/>-->
-    <!--</center>-->
-    <!--<right>-->
-    <!--<Icon awesomeIcon="ANGLE_RIGHT"/>-->
-    <!--</right>-->
-    <!--</BorderPane>-->
-    <!--<JFXListView fx:id="servers" style="-fx-background-color:WHITE;"/>-->
 </VBox>

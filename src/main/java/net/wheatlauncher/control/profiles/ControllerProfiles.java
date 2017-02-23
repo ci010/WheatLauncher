@@ -4,11 +4,10 @@ import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTabPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.StringConverter;
-import net.launcher.Logger;
+import net.launcher.api.ARML;
 import net.launcher.assets.MinecraftVersion;
 import net.launcher.control.ComboBoxDelegate;
 import net.launcher.profile.LaunchProfile;
-import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.control.mics.ControllerMinecraftVersionChooserPane;
 import net.wheatlauncher.control.mics.ControllerProfileChooserPane;
 
@@ -39,7 +38,6 @@ public class ControllerProfiles
 
 	public void initialize()
 	{
-		Logger.trace("init");
 		rootDialog.setOverlayClose(true);
 		versions.setOnShown(event -> versionChooserController.onShow());
 		initVersion();
@@ -82,12 +80,12 @@ public class ControllerProfiles
 				return null;
 			}
 		});
-		MainApplication.getCore().getProfileManager().selectedProfileProperty().addListener(observable ->
+		ARML.core().getProfileManager().selectedProfileProperty().addListener(observable ->
 		{
-			String version = MainApplication.getCore().getProfileManager().selecting().getVersion();
-			if (version != null) versions.setValue(MainApplication.getCore().getAssetsManager().getVersion(version));
+			String version = ARML.core().getProfileManager().selecting().getVersion();
+			if (version != null) versions.setValue(ARML.core().getAssetsManager().getVersion(version));
 		});
-		LaunchProfile selecting = MainApplication.getCore().getProfileManager().selecting();
+		LaunchProfile selecting = ARML.core().getProfileManager().selecting();
 		if (selecting != null)
 		{
 			MinecraftVersion mcVersion = selecting.getMcVersion();
@@ -98,16 +96,18 @@ public class ControllerProfiles
 		{
 			MinecraftVersion value = versions.getValue();
 			if (value != null)
-				MainApplication.getCore().getProfileManager().selecting().setVersion(value.getVersionID());
+				ARML.core().getProfileManager().selecting().setVersion(value.getVersionID());
 		});
 	}
 
 	private void initProfile()
 	{
-		LaunchProfile selecting = MainApplication.getCore().getProfileManager().selecting();
-		if (selecting != null)
-			profile.setValue(selecting);
+		LaunchProfile selecting = ARML.core().getProfileManager().selecting();
+		if (selecting != null) profile.setValue(selecting);
 		profile.valueProperty().addListener(observable ->
-				MainApplication.getCore().getProfileManager().setSelectedProfile(profile.getValue().getId()));
+		{
+			if (profile.getValue() != null)
+				ARML.core().getProfileManager().setSelectedProfile(profile.getValue().getId());
+		});
 	}
 }

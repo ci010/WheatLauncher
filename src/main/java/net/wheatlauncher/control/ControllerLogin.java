@@ -19,7 +19,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import net.launcher.Logger;
+import net.launcher.api.ARML;
 import net.launcher.auth.AuthManager;
 import net.launcher.auth.Authorize;
 import net.launcher.control.OnlineModeSwitch;
@@ -28,7 +28,6 @@ import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.control.utils.ValidatorDelegate;
 import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
 
-import javax.annotation.PostConstruct;
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
@@ -51,13 +50,11 @@ public class ControllerLogin
 	@FXML
 	private JFXButton login;
 
-	/*Side controls*/
 	@FXML
 	private JFXSpinner spinner;
 
 	public ValidatorDelegate accountValid, passwordValid;
 
-	/*Controls parents*/
 	@FXML
 	private VBox box;
 
@@ -71,17 +68,14 @@ public class ControllerLogin
 
 	public ResourceBundle resources;
 
-	@PostConstruct
 	public void initialize()
 	{
-		Logger.trace("init");
-
 		btnPane.getChildren().remove(spinner);//remove the spinner
 
 		InvalidationListener listener = observable ->
 		{
 			String account;
-			ObservableList<String> historyList = MainApplication.getCore().getAuthManager().getHistoryList();
+			ObservableList<String> historyList = ARML.core().getAuthManager().getHistoryList();
 			if (historyList == null || historyList.isEmpty()) account = "";
 			else account = historyList.get(0);
 
@@ -93,13 +87,13 @@ public class ControllerLogin
 		onlineMode.getSelectionModel().selectedIndexProperty().addListener(listener);
 		onlineMode.isOfflineProperty().addListener(listener);
 		accountMenu = new ContextMenu();
-		account.setText(MainApplication.getCore().getAuthManager().getAccount());
+		account.setText(ARML.core().getAuthManager().getAccount());
 		account.textProperty().addListener((observable, oldValue, newValue) ->
 		{
 			if (account.getText().length() == 0)
 				accountMenu.hide();
 			else
-				accountMenu.getItems().setAll(MainApplication.getCore().getAuthManager().
+				accountMenu.getItems().setAll(ARML.core().getAuthManager().
 						getHistoryList().stream().filter(s -> s.startsWith(newValue))
 						.map(this::createItem).collect(Collectors.toList()));
 		});
@@ -111,21 +105,21 @@ public class ControllerLogin
 		});
 
 		accountValid.delegateProperty().bind(Bindings.createObjectBinding(() ->
-						MainApplication.getCore().getAuthManager().getAuthorizeInstance()::validateUserName,
-				MainApplication.getCore().getAuthManager().authorizeProperty()));
+						ARML.core().getAuthManager().getAuthorizeInstance()::validateUserName,
+				ARML.core().getAuthManager().authorizeProperty()));
 		passwordValid.delegateProperty().bind(Bindings.createObjectBinding(() ->
-						MainApplication.getCore().getAuthManager().getAuthorizeInstance()::validatePassword,
-				MainApplication.getCore().getAuthManager().authorizeProperty()));
+						ARML.core().getAuthManager().getAuthorizeInstance()::validatePassword,
+				ARML.core().getAuthManager().authorizeProperty()));
 
 		account.textProperty().addListener(observable ->
 		{
-			if (account.validate()) MainApplication.getCore().getAuthManager().setAccount(account.getText());
+			if (account.validate()) ARML.core().getAuthManager().setAccount(account.getText());
 		});
 		password.textProperty().addListener(observable ->
 		{
 			if (password.isDisable())
 				return;
-			if (password.validate()) MainApplication.getCore().getAuthManager().setPassword(password.getText());
+			if (password.validate()) ARML.core().getAuthManager().setPassword(password.getText());
 		});
 
 		login.disableProperty().bind(Bindings.createBooleanBinding(() ->
@@ -135,21 +129,20 @@ public class ControllerLogin
 
 
 		password.disableProperty().bind(Bindings.createBooleanBinding(() ->
-						MainApplication.getCore().getAuthManager().isOffline(),
-				MainApplication.getCore().getAuthManager().authorizeInstanceProperty()));
+						ARML.core().getAuthManager().isOffline(),
+				ARML.core().getAuthManager().authorizeInstanceProperty()));
 
 		account.promptTextProperty().bind(Bindings.createStringBinding(() ->
 		{
-			String id = Authorize.getID(MainApplication.getCore().getAuthManager().getAuthorizeInstance());
+			String id = Authorize.getID(ARML.core().getAuthManager().getAuthorizeInstance());
 			return resources.getString(id + ".account");
-		}, MainApplication.getCore().getAuthManager().authorizeInstanceProperty()));
+		}, ARML.core().getAuthManager().authorizeInstanceProperty()));
 
 		password.promptTextProperty().bind(Bindings.createStringBinding(() ->
 		{
-			String id = Authorize.getID(MainApplication.getCore().getAuthManager().getAuthorizeInstance());
+			String id = Authorize.getID(ARML.core().getAuthManager().getAuthorizeInstance());
 			return resources.getString(id + ".password");
-		}, MainApplication.getCore().getAuthManager().authorizeInstanceProperty()));
-		Logger.trace("onWatch listener to core's launch profile");
+		}, ARML.core().getAuthManager().authorizeInstanceProperty()));
 	}
 
 	public void login(ActionEvent event)
@@ -157,13 +150,13 @@ public class ControllerLogin
 		btnPane.getChildren().remove(login);
 		btnPane.getChildren().add(spinner);
 //		onlineMode.setDisable(true);
-		MainApplication.getCore().getService().submit(Tasks.builder(() ->
+		ARML.core().getService().submit(Tasks.builder(() ->
 		{
-			AuthManager module = MainApplication.getCore().getAuthManager();
+			AuthManager module = ARML.core().getAuthManager();
 			return module.getAuthorizeInstance().auth(module.getAccount(), module.getPassword());
 		}).setDone((result) -> Platform.runLater(() ->
 		{
-			MainApplication.getCore().getAuthManager().setCache(result);
+			ARML.core().getAuthManager().setCache(result);
 			btnPane.getChildren().remove(spinner);
 			btnPane.getChildren().add(login);
 			((Consumer) root.getScene().getUserData()).accept("PREVIEW");
@@ -229,10 +222,5 @@ public class ControllerLogin
 			shouldEnter = false;
 		});
 		return item;
-	}
-
-	public void openPopup()
-	{
-
 	}
 }

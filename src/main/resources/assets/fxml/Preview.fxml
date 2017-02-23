@@ -18,7 +18,7 @@
             </StackPane>
             <SkinCanvas fx:id="canvas" width="150" height="250" depth="4"/>
             <HBox spacing="10" alignment="CENTER">
-                <JFXButton fx:id="setting" buttonType="RAISED"
+                <JFXButton buttonType="RAISED"
                            styleClass="minor-button"
                            style="-fx-background-color:WHITE"
                            onAction="#popupSetting">
@@ -37,7 +37,7 @@
                         <Tooltip text="%tooltip.switchprofile"/>
                     </tooltip>
                 </JFXButton>
-                <JFXButton fx:id="switchPlayer" maxHeight="10" buttonType="RAISED"
+                <JFXButton maxHeight="10" buttonType="RAISED"
                            styleClass="minor-button"
                            style="-fx-background-color:WHITE"
                            onAction="#onSwitchPlayer">
@@ -52,11 +52,11 @@
         </VBox>
     </left>
     <right>
-        <StackPane fx:id="rightBox" prefWidth="500" alignment="BOTTOM_RIGHT"
+        <StackPane prefWidth="500" alignment="BOTTOM_RIGHT"
                    style="-fx-padding:15,10;">
             <fx:include fx:id="window" source="PreviewWindow.fxml"
                         style="-fx-padding:60 80 140 0;"/>
-            <ColorTransitionButton fx:id="launch" buttonType="RAISED" text="%launch" style="-fx-padding:0,120,0,120"
+            <ColorTransitionButton buttonType="RAISED" text="%launch" style="-fx-padding:0,120,0,120"
                                    styleClass="mics-button"
                                    hoverColor="crimson"
                                    prefWidth="150"

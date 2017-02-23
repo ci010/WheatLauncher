@@ -8,7 +8,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import net.launcher.FXEventBus;
 import net.launcher.LaunchCore;
+import net.launcher.api.EventBus;
 import net.launcher.control.DefaultTransitions;
 import net.launcher.control.SceneTransitionHandler;
 import net.launcher.utils.NIOUtils;
@@ -19,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Consumer;
@@ -37,6 +38,7 @@ public class MainApplication extends Application
 
 	private ReentrantLock lock = new ReentrantLock();
 	private Path repositoryLocation;
+	private static EventBus bus;
 
 	public static void main(String[] args)
 	{
@@ -79,6 +81,7 @@ public class MainApplication extends Application
 		FileHandler logs = new FileHandler(repositoryLocation.resolve("logs").resolve("main.log").toAbsolutePath().toString());
 		logs.setFormatter(new SimpleFormatter());
 		logger.addHandler(logs);
+		bus = new FXEventBus();
 	}
 
 	private void boost(Class<? extends LaunchCore> clz, Stage stage) throws Exception
@@ -105,12 +108,6 @@ public class MainApplication extends Application
 		lock.unlock();
 	}
 
-	public static LaunchCore getCore()
-	{
-		Objects.requireNonNull(current);
-		return current;
-	}
-
 	private SceneTransitionHandler handler;
 	private double xOffset = 0;
 	private double yOffset = 0;
@@ -122,11 +119,6 @@ public class MainApplication extends Application
 	public static ResourceBundle getLanguageBundle()
 	{
 		return bundle;
-	}
-
-	public static Logger getLogger()
-	{
-		return logger;
 	}
 
 	public static void reportError(Scene scene, String message)

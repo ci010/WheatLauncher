@@ -1,7 +1,6 @@
 package net.wheatlauncher.internal.io;
 
 import javafx.collections.MapChangeListener;
-import net.launcher.Logger;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
 import net.launcher.profile.LaunchProfile;
@@ -180,7 +179,6 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 					profile.resolutionProperty());
 		instance.getProfilesMap().addListener((MapChangeListener<String, LaunchProfile>) change ->
 		{
-			Logger.trace("value change");
 			LaunchProfile profile = change.getValueAdded();
 			if (profile != null)
 			{

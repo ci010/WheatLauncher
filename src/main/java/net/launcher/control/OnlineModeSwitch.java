@@ -9,7 +9,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Skin;
 import javafx.scene.paint.Color;
-import net.wheatlauncher.MainApplication;
+import net.launcher.api.ARML;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,18 +22,18 @@ public class OnlineModeSwitch extends JFXComboBox<String>
 	private BooleanProperty isOffline = new SimpleBooleanProperty();
 
 	{
-		getItems().addAll(MainApplication.getCore().getAuthManager().getAuthorizeMap().keySet());
+		getItems().addAll(ARML.core().getAuthManager().getAuthorizeMap().keySet());
 		getSelectionModel().select(0);
 		getSelectionModel().selectedItemProperty().addListener(observable ->
 		{
 			isOffline.set(false);
-			MainApplication.getCore().getAuthManager().setAuthorize(getValue());
+			ARML.core().getAuthManager().setAuthorize(getValue());
 		});
 		isOffline.addListener(observable ->
 		{
 			boolean offline = isOffline();
-			if (offline) MainApplication.getCore().getAuthManager().setNoAuthorize();
-			else MainApplication.getCore().getAuthManager().setAuthorize(this.getValue());
+			if (offline) ARML.core().getAuthManager().setNoAuthorize();
+			else ARML.core().getAuthManager().setAuthorize(this.getValue());
 		});
 	}
 
@@ -85,7 +85,7 @@ public class OnlineModeSwitch extends JFXComboBox<String>
 				node.setGraphic(globe);
 				node.setPrefWidth(50);
 				isOffline.bindBidirectional(node.selectedProperty());
-				node.setSelected(MainApplication.getCore().getAuthManager().isOffline());
+				node.setSelected(ARML.core().getAuthManager().isOffline());
 				displayNode = node;
 				displayNode.getStyleClass().add("date-picker-display-node");
 			}

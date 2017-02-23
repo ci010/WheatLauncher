@@ -1,6 +1,7 @@
 package net.launcher;
 
 import javafx.stage.Stage;
+import net.launcher.api.TaskCenter;
 import net.launcher.assets.MinecraftAssetsManager;
 import net.launcher.assets.MinecraftWorldManager;
 import net.launcher.auth.AuthManager;
@@ -14,7 +15,6 @@ import org.to2mbn.jmccc.option.LaunchOption;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -23,10 +23,6 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 public abstract class LaunchCore
 {
-	public abstract Collection<LaunchElementManager> getAllElementsManagers();
-
-	public abstract <T> Optional<LaunchElementManager<T>> getElementManager(Class<T> clz);
-
 	public abstract TaskCenter getTaskCenter();
 
 	public abstract LaunchProfileManager getProfileManager();
@@ -47,7 +43,7 @@ public abstract class LaunchCore
 	{
 		final LaunchProfile selected = getProfileManager().selecting();
 		LaunchOption option = buildOption(selected);
-		for (LaunchElementManager manager : getAllElementsManagers()) manager.onLaunch(option, selected);
+//		for (LaunchElementManager manager : getAllElementsManagers()) manager.onLaunch(option, selected);
 		Launcher launcher = buildLauncher();
 		ProcessListener listener = getProcessListener();
 		Process launch = launcher.launch(option, new ProcessListener()
@@ -68,8 +64,8 @@ public abstract class LaunchCore
 			public void onExit(int code)
 			{
 				listener.onExit(code);
-				for (LaunchElementManager manager : getAllElementsManagers())
-					manager.onClose(option, selected);
+//				for (LaunchElementManager manager : getAllElementsManagers())
+//					manager.onClose(option, selected);
 			}
 		});
 	}

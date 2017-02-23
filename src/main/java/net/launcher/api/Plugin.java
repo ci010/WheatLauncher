@@ -1,6 +1,7 @@
 package net.launcher.api;
 
-import net.launcher.Logger;
+
+import java.util.logging.Logger;
 
 /**
  * @author ci010

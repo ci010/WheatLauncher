@@ -18,11 +18,11 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import net.launcher.api.ARML;
 import net.launcher.control.ResourcePackCell;
 import net.launcher.game.ResourcePack;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.resourcepack.ResourcePackManager;
-import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.control.utils.ReloadableController;
 
 /**
@@ -46,7 +46,7 @@ public class ControllerProfileResourcePack implements ReloadableController
 
 	public void initialize()
 	{
-		manager = MainApplication.getCore().getResourcePackManager();
+		manager = ARML.core().getResourcePackManager();
 
 		for (Node node : availableView.getParent().getChildrenUnmodifiable())
 			if (node != availableView)
@@ -57,8 +57,8 @@ public class ControllerProfileResourcePack implements ReloadableController
 				JFXDepthManager.setDepth(node, 1);
 
 		selected.bind(Bindings.createObjectBinding(() ->
-						manager.getIncludeElementContainer(MainApplication.getCore().getProfileManager().selecting()),
-				MainApplication.getCore().getProfileManager().selectedProfileProperty()));
+						manager.getIncludeElementContainer(ARML.core().getProfileManager().selecting()),
+				ARML.core().getProfileManager().selectedProfileProperty()));
 
 		FilteredList<ResourcePack> selectedRes = new FilteredList<>(selected);
 //		selectedRes.predicateProperty().bind(Bindings.createObjectBinding(() -> resourcePackPredicate, searchSelecting.textProperty()));
@@ -105,7 +105,7 @@ public class ControllerProfileResourcePack implements ReloadableController
 
 	public void refresh(ActionEvent event)
 	{
-		LaunchProfile selectedProfile = MainApplication.getCore().getProfileManager().selecting();
+		LaunchProfile selectedProfile = ARML.core().getProfileManager().selecting();
 //		List<ResourcePack> selected = manager.getAllIncludedElement(selectedProfile);
 //		Set<ResourcePack> remain = manager.getAllElement();
 //		remain.removeAll(selected);
@@ -117,7 +117,7 @@ public class ControllerProfileResourcePack implements ReloadableController
 	@Override
 	public void reload()
 	{
-		MainApplication.getLogger().info("reload");
+		ARML.logger().info("reload");
 //		available.setCellValueFactory(createCallback(true));
 //		selected.setCellValueFactory(createCallback(false));
 //		refresh(null);

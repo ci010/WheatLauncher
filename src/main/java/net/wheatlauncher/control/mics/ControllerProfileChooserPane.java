@@ -10,6 +10,7 @@ import javafx.collections.transformation.SortedList;
 import javafx.scene.control.ComboBoxBase;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
+import net.launcher.api.ARML;
 import net.launcher.profile.LaunchProfile;
 import net.wheatlauncher.MainApplication;
 
@@ -34,7 +35,7 @@ public class ControllerProfileChooserPane
 	{
 		this.selector = selector;
 		FilteredList<LaunchProfile> filteredList =
-				new FilteredList<>(MainApplication.getCore().getProfileManager().getAllProfiles());
+				new FilteredList<>(ARML.core().getProfileManager().getAllProfiles());
 		filteredList.predicateProperty().bind(Bindings.createObjectBinding(() -> (profile) ->
 		{
 			String text = filter.getText();
@@ -92,14 +93,21 @@ public class ControllerProfileChooserPane
 
 	public void add()
 	{
-		MainApplication.getCore().getProfileManager().newProfile(resources.getString("untitled"));
+		ARML.core().getProfileManager().newProfile(resources.getString("untitled"));
 		profileTable.edit(profileTable.getItems().size() - 1, name);
 	}
 
 	public void delete()
 	{
-		MainApplication.getCore().getProfileManager().deleteProfile(
-				profileTable.getSelectionModel().getSelectedItem().getId());
+		try
+		{
+			ARML.core().getProfileManager().deleteProfile(
+					profileTable.getSelectionModel().getSelectedItem().getId());
+		}
+		catch (Exception e)
+		{
+			MainApplication.displayError(profileTable.getScene(), e);
+		}
 	}
 
 	public void rename(TableColumn.CellEditEvent<LaunchProfile, String> event)

@@ -5,11 +5,11 @@ import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
+import net.launcher.api.ARML;
 import net.launcher.assets.MinecraftAssetsManager;
 import net.launcher.assets.MinecraftVersion;
 import net.launcher.setting.Setting;
 import net.launcher.setting.SettingType;
-import net.wheatlauncher.MainApplication;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.option.WindowSize;
@@ -91,7 +91,7 @@ public class LaunchProfile
 
 	private ObjectBinding<MinecraftVersion> mcVersion = Bindings.createObjectBinding(() ->
 	{
-		MinecraftAssetsManager assetsManager = MainApplication.getCore().getAssetsManager();
+		MinecraftAssetsManager assetsManager = ARML.core().getAssetsManager();
 		return assetsManager.getVersion(this.getVersion());
 	}, this.versionProperty());
 

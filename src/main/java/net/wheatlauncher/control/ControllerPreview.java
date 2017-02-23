@@ -18,11 +18,11 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import moe.mickey.minecraft.skin.fx.SkinCanvas;
 import moe.mickey.minecraft.skin.fx.animation.SkinAniRunning;
+import net.launcher.api.ARML;
 import net.launcher.auth.AuthManager;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.utils.StringUtils;
 import net.launcher.utils.Tasks;
-import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.control.utils.AnimationRotate;
 import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
@@ -39,14 +39,11 @@ import java.util.function.Consumer;
  */
 public class ControllerPreview
 {
-	public JFXDialog rootDialog;
 	public Parent window;
 
 	/*controls*/
 	@FXML
-	private JFXButton setting, switchPlayer;
-	@FXML
-	private JFXButton launch, profileName;
+	private JFXButton profileName;
 	@FXML
 	private Label player;
 	private Animation animation;
@@ -59,8 +56,6 @@ public class ControllerPreview
 
 	@FXML
 	private VBox leftBox;
-	@FXML
-	private StackPane rightBox;
 
 	/*dialog*/
 	public JFXDialog profileSettingDialog;
@@ -74,20 +69,20 @@ public class ControllerPreview
 		canvas.getAnimationPlayer().addSkinAnimation(new SkinAniRunning(100, 100, 30, canvas));
 		JFXDepthManager.setDepth(player.getParent(), 2);
 		JFXDepthManager.setDepth(window, 2);
-		LaunchProfile selecting = MainApplication.getCore().getProfileManager().selecting();
+		LaunchProfile selecting = ARML.core().getProfileManager().selecting();
 		if (selecting != null)
 			profileName.setText(selecting.getDisplayName());
-		MainApplication.getCore().getProfileManager().selectedProfileProperty().addListener(observable ->
+		ARML.core().getProfileManager().selectedProfileProperty().addListener(observable ->
 				profileName.textProperty().bind(Bindings.createStringBinding(() ->
-								MainApplication.getCore().getProfileManager().selecting().getDisplayName(),
-						MainApplication.getCore().getProfileManager().selectedProfileProperty())));
+								ARML.core().getProfileManager().selecting().getDisplayName(),
+						ARML.core().getProfileManager().selectedProfileProperty())));
 		player.textProperty().bind(Bindings.createStringBinding(() ->
 				{
-					if (MainApplication.getCore().getAuthManager().getCache() != null)
-						return MainApplication.getCore().getAuthManager().getCache().getUsername();
+					if (ARML.core().getAuthManager().getCache() != null)
+						return ARML.core().getAuthManager().getCache().getUsername();
 					return StringUtils.EMPTY;
 				},
-				MainApplication.getCore().getAuthManager().cacheProperty()));
+				ARML.core().getAuthManager().cacheProperty()));
 		initDialog();
 		initSkin();
 	}
@@ -108,11 +103,11 @@ public class ControllerPreview
 
 	private void initSkin()
 	{
-		MainApplication.getCore().getAuthManager().cacheProperty().addListener(observable ->
+		ARML.core().getAuthManager().cacheProperty().addListener(observable ->
 		{
 			try
 			{
-				AuthManager module = MainApplication.getCore().getAuthManager();
+				AuthManager module = ARML.core().getAuthManager();
 				AuthInfo auth = module.getCache();
 				if (auth == null)
 				{
@@ -126,7 +121,7 @@ public class ControllerPreview
 				else
 				{
 					Texture texture = textures.get(TextureType.SKIN);
-					MainApplication.getCore().getTaskCenter().runTask(new Task<Void>()
+					ARML.core().getTaskCenter().runTask(new Task<Void>()
 					{
 						@Override
 						protected Void call() throws Exception
@@ -170,7 +165,7 @@ public class ControllerPreview
 
 	public void reload()
 	{
-		AuthManager module = MainApplication.getCore().getAuthManager();
+		AuthManager module = ARML.core().getAuthManager();
 		assert module.getCache() != null;
 		assert module.getAuthorizeInstance() != null;
 		assert module.getAccount() != null;
@@ -186,6 +181,6 @@ public class ControllerPreview
 
 	public void launch(ActionEvent actionEvent) throws Exception
 	{
-		MainApplication.getCore().launch();
+//		ARML.core().launch();
 	}
 }

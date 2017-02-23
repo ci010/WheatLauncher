@@ -14,6 +14,7 @@ import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.scene.control.TableColumn;
 import javafx.scene.layout.StackPane;
+import net.launcher.api.ARML;
 import net.launcher.assets.MinecraftAssetsManager;
 import net.launcher.assets.MinecraftVersion;
 import net.launcher.control.MinecraftOptionButton;
@@ -21,7 +22,6 @@ import net.launcher.game.Language;
 import net.launcher.profile.LaunchProfile;
 import net.launcher.profile.LaunchProfileManager;
 import net.launcher.setting.SettingMinecraft;
-import net.wheatlauncher.MainApplication;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -57,8 +57,11 @@ public class ControllerLanguages
 
 	private void refresh()
 	{
-		LaunchProfile selecting = MainApplication.getCore().getProfileManager().selecting();
-		MinecraftAssetsManager assetsManager = MainApplication.getCore().getAssetsManager();
+		ARML.logger().info("try to refresh lang");
+		System.out.println("try to refresh lang");
+
+		LaunchProfile selecting = ARML.core().getProfileManager().selecting();
+		MinecraftAssetsManager assetsManager = ARML.core().getAssetsManager();
 		MinecraftVersion version = assetsManager.getVersion(selecting.getVersion());
 		if (version != null)
 		{
@@ -75,7 +78,7 @@ public class ControllerLanguages
 				languageTable.getSelectionModel().select(language);
 				languageTable.scrollTo(language);
 			});
-			MainApplication.getCore().getTaskCenter().runTask(task);
+			ARML.core().getTaskCenter().runTask(task);
 		}
 	}
 
@@ -95,12 +98,12 @@ public class ControllerLanguages
 		name.setCellValueFactory(param -> Bindings.createStringBinding(() -> param.getValue().getName()));
 		bidi.setCellValueFactory(param -> Bindings.createStringBinding(() -> String.valueOf(param.getValue().isBidirectional())));
 		confirm.setOnAction(event ->
-				MainApplication.getCore().getProfileManager().selecting().getGameSetting(SettingMinecraft.INSTANCE)
+				ARML.core().getProfileManager().selecting().getGameSetting(SettingMinecraft.INSTANCE)
 						.map(setting -> setting.getOption(SettingMinecraft.INSTANCE.LANGUAGE)).ifPresent(property ->
 						property.setValue(languageTable.getSelectionModel().getSelectedItem().getId())));
-		MainApplication.getCore().getProfileManager().selectedProfileProperty().addListener((observable, oldV, newV) ->
+		ARML.core().getProfileManager().selectedProfileProperty().addListener((observable, oldV, newV) ->
 		{
-			LaunchProfileManager profileManager = MainApplication.getCore().getProfileManager();
+			LaunchProfileManager profileManager = ARML.core().getProfileManager();
 			profileManager.getProfile(oldV).ifPresent(profile -> profile.versionBinding().removeListener(listener));
 			profileManager.getProfile(newV).ifPresent(profile -> profile.versionBinding().addListener(listener));
 		});

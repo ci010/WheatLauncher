@@ -10,9 +10,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import net.launcher.Logger;
+import net.launcher.api.ARML;
 import net.launcher.profile.LaunchProfile;
-import net.wheatlauncher.MainApplication;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 
 import java.io.File;
@@ -45,8 +44,7 @@ public class ControllerCommonSetting
 
 	public void initialize()
 	{
-		Logger.trace("init");
-		LaunchProfile profile = MainApplication.getCore().getProfileManager().selecting();
+		LaunchProfile profile = ARML.core().getProfileManager().selecting();
 		ChangeListener<String> stringChangeListener = (observable, oldValue, newValue) ->
 		{
 			if (!newValue.matches("\\d*"))
@@ -58,7 +56,7 @@ public class ControllerCommonSetting
 //		memoryBtn.setOptions(Arrays.asList("256", "512", "1024",));
 //		memory.valueProperty().set(profile.getMemory());
 //		memory.valueProperty().addListener((observable, oldValue, newValue) ->
-//				Bootstrap.getCore().getProfileManager().selecting().setMemory(newValue.intValue()));
+//				Bootstrap.core().getProfileManager().selecting().setMemory(newValue.intValue()));
 		int value = 0;
 //		for (Map.Entry<Integer, WindowSize> entry : stageToResolution.entrySet())
 //			if (profile.getResolution().equals(entry.getValue()))
@@ -83,21 +81,21 @@ public class ControllerCommonSetting
 //		});
 //		resolution.valueProperty().set(value);
 //		resolution.valueProperty().addListener((observable, oldValue, newValue) ->
-//				Bootstrap.getCore().getProfileManager().selecting().setResolution(stageToResolution.getOrDefault(newValue, WindowSize.fullscreen())));
+//				Bootstrap.core().getProfileManager().selecting().setResolution(stageToResolution.getOrDefault(newValue, WindowSize.fullscreen())));
 
-//		minecraftLocation.textProperty().bind(Bindings.createStringBinding(() -> Bootstrap.getCore().getProfileManager().selecting()
+//		minecraftLocation.textProperty().bind(Bindings.createStringBinding(() -> Bootstrap.core().getProfileManager().selecting()
 //						.getMinecraftLocation().getRoot().getAbsolutePath(),
-//				Bootstrap.getCore().getProfileManager().selecting().minecraftLocationProperty()));
+//				Bootstrap.core().getProfileManager().selecting().minecraftLocationProperty()));
 		javaLocation.textProperty().bind(Bindings.createStringBinding(() ->
-						MainApplication.getCore().getProfileManager().selecting().getJavaEnvironment().getJavaPath().getAbsolutePath(),
-				MainApplication.getCore().getProfileManager().selecting().javaEnvironmentProperty()));
+						ARML.core().getProfileManager().selecting().getJavaEnvironment().getJavaPath().getAbsolutePath(),
+				ARML.core().getProfileManager().selecting().javaEnvironmentProperty()));
 
-		MainApplication.getCore().getProfileManager().selectedProfileProperty().addListener(o ->
+		ARML.core().getProfileManager().selectedProfileProperty().addListener(o ->
 		{
-			LaunchProfile p = MainApplication.getCore().getProfileManager().selecting();
+			LaunchProfile p = ARML.core().getProfileManager().selecting();
 
-			javaLocation.textProperty().bind(Bindings.createStringBinding(() -> MainApplication.getCore().getProfileManager().selecting().
-					getJavaEnvironment().getJavaPath().getAbsolutePath(), (Observable) MainApplication.getCore().getProfileManager().selecting()));
+			javaLocation.textProperty().bind(Bindings.createStringBinding(() -> ARML.core().getProfileManager().selecting().
+					getJavaEnvironment().getJavaPath().getAbsolutePath(), (Observable) ARML.core().getProfileManager().selecting()));
 		});
 
 
@@ -119,7 +117,7 @@ public class ControllerCommonSetting
 			if (choose.isFile() && choose.getName().equals("java.exe"))
 			{
 				JavaEnvironment javaEnvironment = new JavaEnvironment(choose);
-				MainApplication.getCore().getProfileManager().selecting().setJavaEnvironment(javaEnvironment);
+				ARML.core().getProfileManager().selecting().setJavaEnvironment(javaEnvironment);
 			}
 		});
 	}

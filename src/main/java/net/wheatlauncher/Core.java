@@ -8,8 +8,14 @@ import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.stage.Stage;
-import net.launcher.*;
+import net.launcher.DownloadCenter;
+import net.launcher.DownloadCenterImpl;
+import net.launcher.LaunchCore;
+import net.launcher.LaunchElementManager;
+import net.launcher.api.ARML;
+import net.launcher.api.EventBus;
 import net.launcher.api.LauncherContext;
+import net.launcher.api.TaskCenter;
 import net.launcher.assets.IOGuardMinecraftAssetsManager;
 import net.launcher.assets.IOGuardMinecraftWorldManager;
 import net.launcher.assets.MinecraftAssetsManager;
@@ -39,11 +45,12 @@ import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
+import java.util.logging.Logger;
 
 /**
  * @author ci010
  */
-public class Core extends LaunchCore implements LauncherContext, TaskCenter
+public class Core extends LaunchCore implements LauncherContext, TaskCenter, ARML
 {
 	private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(4);
 
@@ -71,19 +78,6 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter
 	public Path getProfilesRoot()
 	{
 		return root.resolve("profiles");
-	}
-
-	@Override
-	public Collection<LaunchElementManager> getAllElementsManagers()
-	{
-		return managers.values();
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public <T> Optional<LaunchElementManager<T>> getElementManager(Class<T> clz)
-	{
-		return Optional.ofNullable(managers.get(clz));
 	}
 
 	@Override
@@ -169,7 +163,7 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter
 	@Override
 	public void init(Path root, Stage stage) throws Exception
 	{
-		MainApplication.getLogger().info("Start to init");
+		ARML.logger().info("Start to init");
 
 		if (!Files.exists(root))
 			Files.createDirectories(root);
@@ -208,7 +202,7 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter
 		//main module io end
 		assert profileManager.getSelectedProfile() != null;
 		assert profileManager.selecting() != null;
-		MainApplication.getLogger().info("Complete init");
+		ARML.logger().info("Complete init");
 	}
 
 	@Override
@@ -220,7 +214,25 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter
 			e.printStackTrace();
 		}
 		executorService.shutdown();
-		MainApplication.getLogger().info("Shutdown");
+		ARML.logger().info("Shutdown");
+	}
+
+	@Override
+	public LauncherContext getContext()
+	{
+		return this;
+	}
+
+	@Override
+	public EventBus getBus()
+	{
+		return null;
+	}
+
+	@Override
+	public Logger getLogger()
+	{
+		return null;
 	}
 
 	@Override

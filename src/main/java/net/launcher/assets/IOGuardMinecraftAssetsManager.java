@@ -7,7 +7,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.concurrent.Task;
 import net.launcher.LaunchHandler;
-import net.launcher.Logger;
+import net.launcher.api.ARML;
 import net.launcher.game.Language;
 import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.ComparableVersion;
 import net.launcher.game.nbt.NBT;
@@ -16,7 +16,6 @@ import net.launcher.profile.LaunchProfile;
 import net.launcher.utils.resource.FetchOption;
 import net.launcher.utils.resource.FetchUtils;
 import net.launcher.utils.serial.Deserializer;
-import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.internal.io.IOGuard;
 import net.wheatlauncher.internal.io.IOGuardContext;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
@@ -106,7 +105,7 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 				Platform.runLater(() ->
 						version.setState(MinecraftVersion.State.DOWNLOADING));
 				MinecraftDirectory minecraftDirectory = new MinecraftDirectory(getContext().getRoot().toFile());
-				MinecraftDownloader downloader = MainApplication.getCore().getDownloadCenter().listenDownloader("minecraft.game", MinecraftDownloaderBuilder.buildDefault());
+				MinecraftDownloader downloader = ARML.core().getDownloadCenter().listenDownloader("minecraft.game", MinecraftDownloaderBuilder.buildDefault());
 				downloader.downloadIncrementally(minecraftDirectory, version.getVersionID(), new CallbackAdapter<Version>()
 				{
 					@Override
@@ -120,7 +119,6 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 					public void cancelled()
 					{
 						Platform.runLater(() -> version.setState(MinecraftVersion.State.REMOTE));
-						Logger.trace("download version cancelled+" + version.getVersionID());
 					}
 
 					@Override
@@ -128,7 +126,6 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 					{
 						Platform.runLater(() ->
 						{
-							Logger.trace("download version compete+" + version.getVersionID());
 							version.setState(MinecraftVersion.State.LOCAL);
 							locals.add(version.getVersionID());
 						});

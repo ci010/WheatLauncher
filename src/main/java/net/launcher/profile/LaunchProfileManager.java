@@ -7,6 +7,8 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import net.launcher.api.ARML;
+import net.launcher.api.ProfileEvent;
 
 import java.util.List;
 import java.util.Objects;
@@ -59,17 +61,17 @@ public class LaunchProfileManager
 
 	public LaunchProfile newProfile()
 	{
-		LaunchProfile profile = new LaunchProfile();
-		createConsumer.accept(profile);
-		reg0(profile);
-		return profile;
+		return newProfile("");
 	}
 
 	public LaunchProfile newProfile(String name)
 	{
 		Objects.requireNonNull(name);
-		LaunchProfile profile = newProfile();
+		LaunchProfile profile = new LaunchProfile();
+		createConsumer.accept(profile);
 		profile.setDisplayName(name);
+		reg0(profile);
+		ARML.bus().postEvent(new ProfileEvent(profile, ProfileEvent.CREATE));
 		return profile;
 	}
 
@@ -94,6 +96,7 @@ public class LaunchProfileManager
 		LaunchProfile launchProfile = map.get(id);
 		deleteConsumer.accept(launchProfile);
 		unreg0(launchProfile);
+		ARML.bus().postEvent(new ProfileEvent(launchProfile, ProfileEvent.CREATE));
 	}
 
 	public Optional<LaunchProfile> getProfile(String id)

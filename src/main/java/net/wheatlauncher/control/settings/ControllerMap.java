@@ -15,7 +15,7 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import net.launcher.Logger;
+import net.launcher.api.ARML;
 import net.launcher.control.ImageCell;
 import net.launcher.game.WorldInfo;
 import net.wheatlauncher.MainApplication;
@@ -36,8 +36,7 @@ public class ControllerMap
 
 	public void initialize()
 	{
-		Logger.trace("init map");
-		FilteredList<WorldInfo> filteredList = new FilteredList<>(MainApplication.getCore().getWorldManager().getWorldInfos());
+		FilteredList<WorldInfo> filteredList = new FilteredList<>(ARML.core().getWorldManager().getWorldInfos());
 		filteredList.predicateProperty().bind(Bindings.createObjectBinding(() -> (Predicate<WorldInfo>) worldInfo ->
 				worldInfo.getFileName().contains(search.getText()) ||
 						worldInfo.getDisplayName().contains(search.getText()), search.textProperty()));
@@ -54,7 +53,7 @@ public class ControllerMap
 
 				try
 				{
-					worldInfoCell.setImage(MainApplication.getCore().getWorldManager().getWorldIcon(item));
+					worldInfoCell.setImage(ARML.core().getWorldManager().getWorldIcon(item));
 				}
 				catch (Exception e) { MainApplication.displayError(maps.getScene(), e);}
 				this.setGraphic(worldInfoCell);
@@ -66,7 +65,7 @@ public class ControllerMap
 			DirectoryChooser chooser = new DirectoryChooser();
 			chooser.setTitle(resources.getString("map.import"));
 			File file = chooser.showDialog(importBtn.getScene().getWindow());
-			MainApplication.getCore().getTaskCenter().runTask(MainApplication.getCore().getWorldManager().importMap(file.toPath()));
+			ARML.core().getTaskCenter().runTask(ARML.core().getWorldManager().importMap(file.toPath()));
 		});
 		exportBtn.disableProperty().bind(Bindings.createBooleanBinding(() -> maps.getSelectionModel().isEmpty(), maps
 				.getSelectionModel().selectedIndexProperty()));
@@ -77,7 +76,7 @@ public class ControllerMap
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setInitialFileName(fileName);
 			File file = fileChooser.showSaveDialog(exportBtn.getScene().getWindow());
-			MainApplication.getCore().getTaskCenter().runTask(MainApplication.getCore().getWorldManager().exportMap(
+			ARML.core().getTaskCenter().runTask(ARML.core().getWorldManager().exportMap(
 					maps.getSelectionModel().getSelectedItem(),
 					file.toPath()));
 		});

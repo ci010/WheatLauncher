@@ -15,9 +15,11 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import net.launcher.api.ARML;
+import net.launcher.api.ProfileEvent;
 import net.launcher.assets.MinecraftVersion;
 import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.ComparableVersion;
-import net.wheatlauncher.MainApplication;
+import net.launcher.profile.LaunchProfile;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersion;
 
 import java.text.DateFormat;
@@ -58,7 +60,7 @@ public class ControllerMinecraftVersionChooserPane
 	{
 		this.comboBox = picker;
 		this.outerRoot = scene;
-		FilteredList<MinecraftVersion> filteredList = new FilteredList<>(MainApplication.getCore().getAssetsManager().getVersions());
+		FilteredList<MinecraftVersion> filteredList = new FilteredList<>(ARML.core().getAssetsManager().getVersions());
 		filteredList.predicateProperty().bind(Bindings.createObjectBinding(
 				() -> (Predicate<MinecraftVersion>) version ->
 				{
@@ -109,6 +111,12 @@ public class ControllerMinecraftVersionChooserPane
 		}, versionTable.getSelectionModel().selectedIndexProperty()));
 
 		setupTable();
+
+		ARML.bus().addEventHandler(ProfileEvent.CREATE, event ->
+		{
+			LaunchProfile profile = event.getProfile();
+			profile.setVersion(versionTable.getItems().get(0).getVersionID());
+		});
 	}
 
 	private void setupTable()
@@ -231,15 +239,15 @@ public class ControllerMinecraftVersionChooserPane
 
 	public void refresh()
 	{
-		MainApplication.getCore().getTaskCenter().runTask(MainApplication.getCore().getAssetsManager().getRepository
+		ARML.core().getTaskCenter().runTask(ARML.core().getAssetsManager().getRepository
 				().refreshVersion());
 	}
 
 	public void requestDownload()
 	{
 		MinecraftVersion selectedItem = this.versionTable.getSelectionModel().getSelectedItem();
-		Task<MinecraftVersion> task = MainApplication.getCore().getAssetsManager().getRepository().fetchVersion(selectedItem);
-		MainApplication.getCore().getTaskCenter().runTask(task);
+		Task<MinecraftVersion> task = ARML.core().getAssetsManager().getRepository().fetchVersion(selectedItem);
+		ARML.core().getTaskCenter().runTask(task);
 		comboBox.setValue(selectedItem);
 		comboBox.hide();
 		confirmDownload.close();
