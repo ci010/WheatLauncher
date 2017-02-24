@@ -97,7 +97,7 @@ public class ControllerGameSetting
 	public void createMinecraftGameSetting(ActionEvent event)
 	{
 //		Bootstrap.core().getProfileManager().selecting().addGameSetting(new Setting(SettingMinecraft
-//				.INSTANCE));
+//				.INST));
 	}
 }
 

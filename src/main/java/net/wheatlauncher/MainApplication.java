@@ -10,19 +10,21 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import net.launcher.FXEventBus;
 import net.launcher.LaunchCore;
-import net.launcher.api.EventBus;
+import net.launcher.api.ARML;
 import net.launcher.control.DefaultTransitions;
 import net.launcher.control.SceneTransitionHandler;
 import net.launcher.utils.NIOUtils;
+import net.wheatlauncher.control.utils.FinalFieldSetter;
 import org.to2mbn.jmccc.util.Platform;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
@@ -33,12 +35,8 @@ import java.util.logging.SimpleFormatter;
  */
 public class MainApplication extends Application
 {
-	private static LaunchCore current;
-	private static Logger logger;
-
-	private ReentrantLock lock = new ReentrantLock();
-	private Path repositoryLocation;
-	private static EventBus bus;
+	private LaunchCore core;
+	private Path root;
 
 	public static void main(String[] args)
 	{
@@ -75,37 +73,25 @@ public class MainApplication extends Application
 
 	private void preinit() throws Exception
 	{
-		repositoryLocation = loadLocation();
-		logger = Logger.getLogger("ARML");
-		Files.createDirectories(repositoryLocation.resolve("logs"));
-		FileHandler logs = new FileHandler(repositoryLocation.resolve("logs").resolve("main.log").toAbsolutePath().toString());
-		logs.setFormatter(new SimpleFormatter());
-		logger.addHandler(logs);
-		bus = new FXEventBus();
-	}
-
-	private void boost(Class<? extends LaunchCore> clz, Stage stage) throws Exception
-	{
-		lock.lock();
-		if (current != null)
+		root = loadLocation();
+		if (!Files.exists(root)) Files.createDirectories(root);
+		ARML instance = ARML.instance();
+		for (Field field : instance.getClass().getDeclaredFields())
 		{
-			lock.unlock();
-			throw new IllegalStateException();
+			if (field.getName().equals("bus"))
+				FinalFieldSetter.INSTANCE.set(instance, field, new FXEventBus());
+			else if (field.getName().equals("context"))
+				FinalFieldSetter.INSTANCE.set(instance, field, core = new Core());
+			else if (field.getName().equals("logger"))
+				FinalFieldSetter.INSTANCE.set(instance, field, createLogger());
+			else if (field.getName().equals("scheduledExecutorService"))
+				FinalFieldSetter.INSTANCE.set(instance, field, Executors.newScheduledThreadPool(4));
 		}
-		LaunchCore launchCore = clz.newInstance();
-		current = launchCore;
-		launchCore.init(repositoryLocation, stage);
-		lock.unlock();
-	}
-
-	private void destroy() throws Exception
-	{
-		lock.lock();
-		if (current == null)
-			throw new IllegalStateException();
-		current.destroy();
-		current = null;
-		lock.unlock();
+		//TODO load plugins and collect resource bundle
+		ResourceBundle lang;
+		try {lang = ResourceBundle.getBundle("assets.lang.lang", Locale.getDefault());}
+		catch (Exception e) {lang = ResourceBundle.getBundle("assets.lang.lang", Locale.ENGLISH);}
+		bundle = lang;
 	}
 
 	private SceneTransitionHandler handler;
@@ -141,24 +127,28 @@ public class MainApplication extends Application
 		new JFXSnackbar((Pane) scene.getRoot()).enqueue(new JFXSnackbar.SnackbarEvent(message.getMessage()));
 	}
 
+	private Logger createLogger() throws IOException
+	{
+		Logger logger = Logger.getLogger("ARML");
+		Files.createDirectories(root.resolve("logs"));
+		FileHandler logs = new FileHandler(root.resolve("logs").resolve("main.log").toAbsolutePath().toString());
+		logs.setFormatter(new SimpleFormatter());
+		logger.addHandler(logs);
+		return logger;
+	}
+
 	@Override
 	public void start(final Stage stage) throws Exception
 	{
 		preinit();
-		Exception suppressed;
-		try {boost(Core.class, stage);}
-		catch (Exception e) {}//TODO well... i forgot that the throwing exception will break the flow... maybe get
-		// rid of this design....
 
-		ResourceBundle lang;
-		try {lang = ResourceBundle.getBundle("assets.lang.lang", Locale.getDefault());}
-		catch (Exception e) {lang = ResourceBundle.getBundle("assets.lang.lang", Locale.ENGLISH);}
-		bundle = lang;
-		FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Main.fxml"), lang);
+		core.init(root);
+
+		FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Main.fxml"), bundle);
 		StackPane root = fxmlLoader.load();
-		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Login.fxml"), lang);
+		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Login.fxml"), bundle);
 		loginPage = fxmlLoader.load();
-		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Preview.fxml"), lang);
+		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Preview.fxml"), bundle);
 		previewPage = fxmlLoader.load();
 
 		StackPane base = new StackPane(loginPage);
@@ -201,7 +191,7 @@ public class MainApplication extends Application
 	@Override
 	public void stop() throws Exception
 	{
-		destroy();
-		logger.info("stop");
+		core.destroy();
+		ARML.logger().info("destroy");
 	}
 }

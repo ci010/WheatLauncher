@@ -17,5 +17,5 @@ public interface EventBus
 
 	<T extends Event> void removeEventFilter(EventType<T> eventType, EventHandler<? super T> eventFilter);
 
-	Event postEvent(Event event);
+	<T extends Event> T postEvent(T event);
 }

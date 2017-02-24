@@ -7,23 +7,16 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.concurrent.WorkerStateEvent;
-import javafx.stage.Stage;
 import net.launcher.DownloadCenter;
 import net.launcher.DownloadCenterImpl;
 import net.launcher.LaunchCore;
-import net.launcher.LaunchElementManager;
-import net.launcher.api.ARML;
-import net.launcher.api.EventBus;
-import net.launcher.api.LauncherContext;
-import net.launcher.api.TaskCenter;
+import net.launcher.api.*;
 import net.launcher.assets.IOGuardMinecraftAssetsManager;
 import net.launcher.assets.IOGuardMinecraftWorldManager;
 import net.launcher.assets.MinecraftAssetsManager;
 import net.launcher.assets.MinecraftWorldManager;
 import net.launcher.auth.AuthManager;
 import net.launcher.auth.IOGuardAuth;
-import net.launcher.game.ResourcePack;
-import net.launcher.game.forge.ForgeMod;
 import net.launcher.mod.ModManager;
 import net.launcher.mod.ModManagerBuilder;
 import net.launcher.profile.LaunchProfile;
@@ -41,23 +34,25 @@ import org.to2mbn.jmccc.option.LaunchOption;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
-import java.util.logging.Logger;
+
+import static net.launcher.api.LauncherInitEvent.LAUNCHER_INIT;
 
 /**
  * @author ci010
  */
-public class Core extends LaunchCore implements LauncherContext, TaskCenter, ARML
+class Core implements LauncherContext, TaskCenter, LaunchCore
 {
 	private ScheduledExecutorService executorService = Executors.newScheduledThreadPool(4);
 
 	private Path root;
 	private LaunchProfileManager profileManager;
 	private AuthManager authProfile;
-
 	private MinecraftAssetsManager assetsManager;
 	private ModManager modManager;
 	private ResourcePackManager resourcePackManager;
@@ -67,8 +62,6 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter, ARM
 	private IOGuardContext ioContext;
 
 	private List<Function<LaunchOption, LaunchOption>> launchOptionChain;
-
-	private Map<Class, LaunchElementManager> managers;
 
 	public Path getRoot()
 	{
@@ -120,7 +113,38 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter, ARM
 	}
 
 	@Override
-	protected LaunchOption buildOption(LaunchProfile selected) throws IOException
+	public void launch() throws Exception
+	{
+		final LaunchProfile selected = getProfileManager().selecting();
+		LaunchOption option = buildOption(selected);
+//		for (LaunchElementManager manager : getAllElementsManagers()) manager.onLaunch(option, selected);
+		Launcher launcher = buildLauncher();
+		ProcessListener listener = getProcessListener();
+		Process launch = launcher.launch(option, new ProcessListener()
+		{
+			@Override
+			public void onLog(String log)
+			{
+				listener.onLog(log);
+			}
+
+			@Override
+			public void onErrorLog(String log)
+			{
+				listener.onErrorLog(log);
+			}
+
+			@Override
+			public void onExit(int code)
+			{
+				listener.onExit(code);
+//				for (LaunchElementManager manager : getAllElementsManagers())
+//					manager.onClose(option, selected);
+			}
+		});
+	}
+
+	private LaunchOption buildOption(LaunchProfile selected) throws IOException
 	{
 		LaunchOption option = null;
 		for (Function<LaunchOption, LaunchOption> chain : launchOptionChain)
@@ -128,15 +152,13 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter, ARM
 		return option;
 	}
 
-	@Override
-	protected Launcher buildLauncher()
+	private Launcher buildLauncher()
 	{
 		return LauncherBuilder.create().nativeFastCheck(true).printDebugCommandline
 				(true).useDaemonThreads(true).build();
 	}
 
-	@Override
-	protected ProcessListener getProcessListener()
+	private ProcessListener getProcessListener()
 	{
 		return new ProcessListener()
 		{
@@ -161,39 +183,40 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter, ARM
 	}
 
 	@Override
-	public void init(Path root, Stage stage) throws Exception
+	public void init(Path root) throws Exception
 	{
 		ARML.logger().info("Start to init");
 
-		if (!Files.exists(root))
-			Files.createDirectories(root);
 		this.root = root;
 		Files.createDirectories(getProfilesRoot());
 
 		this.downloadCenter = new DownloadCenterImpl();
-		this.managers = new HashMap<>();
 
-		Path mods = this.getRoot().resolve("mods");
-		Files.createDirectories(mods);
-		this.managers.put(ForgeMod.class, modManager = ModManagerBuilder.create(mods).build());
-		Path resPacks = this.getRoot().resolve("resourcepacks");
-
-		Files.createDirectories(resPacks);
-		this.managers.put(ResourcePack.class, this.resourcePackManager =
-				ResourcePackMangerBuilder.create(resPacks, this.executorService)
-						.build());
-
-		//main module io start
-		this.ioContext = IOGuardContextScheduled.Builder.create(this.root, executorService)
+		IOGuardContextScheduled.Builder builder = IOGuardContextScheduled.Builder.create(this.root, executorService)
 				.register(LaunchProfileManager.class, new IOGuardProfile())
 				.register(AuthManager.class, new IOGuardAuth())
 				.register(MinecraftAssetsManager.class, new IOGuardMinecraftAssetsManager())
-				.register(MinecraftWorldManager.class, new IOGuardMinecraftWorldManager())
-				.build();
+				.register(MinecraftWorldManager.class, new IOGuardMinecraftWorldManager());
+
+		ARML.bus().postEvent(new LauncherInitEvent(LAUNCHER_INIT)).getRegisteredIO().forEach(builder::register);
+
+		this.ioContext = builder.build();
+		this.ioContext.loadAll();
+
 		this.authProfile = ioContext.load(AuthManager.class);
 		this.profileManager = ioContext.load(LaunchProfileManager.class);
 		this.assetsManager = ioContext.load(MinecraftAssetsManager.class);
 		this.worldManager = ioContext.load(MinecraftWorldManager.class);
+
+		Path mods = this.getRoot().resolve("mods");
+		Files.createDirectories(mods);
+		this.modManager = ModManagerBuilder.create(mods).build();
+		ARML.bus().postEvent(new ModuleLoadedEvent<>(modManager));
+
+		Path resPacks = this.getRoot().resolve("resourcepacks");
+		Files.createDirectories(resPacks);
+		this.resourcePackManager = ResourcePackMangerBuilder.create(resPacks, this.executorService).build();
+		ARML.bus().postEvent(new ModuleLoadedEvent<>(resourcePackManager));
 
 		assetsManager.getRepository().refreshVersion().run();
 		resourcePackManager.update().run();
@@ -215,59 +238,6 @@ public class Core extends LaunchCore implements LauncherContext, TaskCenter, ARM
 		}
 		executorService.shutdown();
 		ARML.logger().info("Shutdown");
-	}
-
-	@Override
-	public LauncherContext getContext()
-	{
-		return this;
-	}
-
-	@Override
-	public EventBus getBus()
-	{
-		return null;
-	}
-
-	@Override
-	public Logger getLogger()
-	{
-		return null;
-	}
-
-	@Override
-	public <T> Optional<T> getComponent(Class<T> tClass)
-	{
-		return null;
-	}
-
-	@Override
-	public <T> Optional<T> getComponent(Class<T> tClass, String id)
-	{
-		return null;
-	}
-
-	@Override
-	public <T> void registerComponent(Class<? super T> clz, T o)
-	{
-
-	}
-
-	@Override
-	public <T> void registerComponent(Class<? super T> clz, T o, String id)
-	{
-	}
-
-	@Override
-	public ScheduledExecutorService getService()
-	{
-		return executorService;
-	}
-
-	@Override
-	public ScheduledExecutorService getService(String id)
-	{
-		return executorService;
 	}
 
 	private ObservableList<Worker<?>> workers = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());

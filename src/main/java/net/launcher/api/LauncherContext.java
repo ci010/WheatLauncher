@@ -8,9 +8,6 @@ import net.launcher.mod.ModManager;
 import net.launcher.profile.LaunchProfileManager;
 import net.launcher.resourcepack.ResourcePackManager;
 
-import java.util.Optional;
-import java.util.concurrent.ScheduledExecutorService;
-
 /**
  * @author ci010
  */
@@ -31,16 +28,4 @@ public interface LauncherContext
 	MinecraftWorldManager getWorldManager();
 
 	ModManager getModManager();
-
-	<T> Optional<T> getComponent(Class<T> tClass);
-
-	<T> Optional<T> getComponent(Class<T> tClass, String id);
-
-	<T> void registerComponent(Class<? super T> clz, T o);
-
-	<T> void registerComponent(Class<? super T> clz, T o, String id);
-
-	ScheduledExecutorService getService();
-
-	ScheduledExecutorService getService(String id);
 }

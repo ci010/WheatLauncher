@@ -2,6 +2,7 @@ package net.wheatlauncher.internal.io;
 
 import javafx.beans.Observable;
 import net.launcher.api.ARML;
+import net.launcher.api.ModuleLoadedEvent;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -40,11 +41,7 @@ public class IOGuardContextScheduled implements IOGuardContext
 	@Override
 	public void loadAll() throws IOException
 	{
-		service.submit(() ->
-		{
-			for (Class clz : ioGuards.keySet()) load(clz);
-			return null;
-		});
+		for (Class clz : ioGuards.keySet()) load(clz);
 	}
 
 	@Override
@@ -52,7 +49,9 @@ public class IOGuardContextScheduled implements IOGuardContext
 	{
 		IOGuard<T> ioGuard = ioGuards.get(tClass);
 		if (ioGuard.isActive()) return ioGuard.getInstance();
-		return ioGuard.load();
+		T load = ioGuard.load();
+		ARML.bus().postEvent(new ModuleLoadedEvent<>(load));
+		return load;
 	}
 
 	@Override

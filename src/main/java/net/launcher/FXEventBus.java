@@ -27,7 +27,7 @@ public class FXEventBus extends Node implements EventBus
 	public Object impl_processMXNode(MXNodeAlgorithm alg, MXNodeAlgorithmContext ctx) {return null;}
 
 	@Override
-	public Event postEvent(Event event)
+	public <T extends Event> T postEvent(T event)
 	{
 		Event.fireEvent(this, event);
 		return event;
