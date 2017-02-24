@@ -9,10 +9,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -24,6 +21,17 @@ public class PluginLoader
 	private List<PluginContainer> containers;
 	private Map<String, PluginContainer> map;
 
+	public PluginLoader(Path root)
+	{
+		this.root = root;
+		this.containers = new ArrayList<>();
+		this.map = new TreeMap<>();
+	}
+
+	public List<PluginContainer> getContainers() {return containers;}
+
+	public Map<String, PluginContainer> getMap() {return map;}
+
 	public void reload() throws IOException
 	{
 		containers.clear();
@@ -32,8 +40,7 @@ public class PluginLoader
 		for (Path path : collect)
 			try
 			{
-				PluginContainer load = load(path);
-				containers.add(load);
+				containers.add(load(path));
 			}
 			catch (Exception e)
 			{
@@ -46,7 +53,15 @@ public class PluginLoader
 	{
 		URLClassLoader loader = new URLClassLoader(new URL[]{
 				jar.toUri().toURL()}, PluginLoader.class.getClassLoader());
-		ResourceBundle lang = ResourceBundle.getBundle("assets.lang.lang", Locale.getDefault(), loader);
+		ResourceBundle lang = ResourceBundle.getBundle("assets.lang.lang", Locale.getDefault(), loader, new
+				ResourceBundle.Control()
+				{
+					@Override
+					public List<Locale> getCandidateLocales(String name, Locale locale)
+					{
+						return Collections.singletonList(Locale.ROOT);
+					}
+				});
 		PluginMetaData metaData = PluginMetaData.deserializer().deserialize(new JSONObject(
 				IOUtils.toString(loader.getResourceAsStream("plugin.json"))));
 		Class<?> aClass = loader.loadClass(metaData.getPluginClass());

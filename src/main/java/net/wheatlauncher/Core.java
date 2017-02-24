@@ -41,8 +41,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.Function;
 
-import static net.launcher.api.LauncherInitEvent.LAUNCHER_INIT;
-
 /**
  * @author ci010
  */
@@ -198,7 +196,7 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 				.register(MinecraftAssetsManager.class, new IOGuardMinecraftAssetsManager())
 				.register(MinecraftWorldManager.class, new IOGuardMinecraftWorldManager());
 
-		ARML.bus().postEvent(new LauncherInitEvent(LAUNCHER_INIT)).getRegisteredIO().forEach(builder::register);
+		ARML.bus().postEvent(new LauncherInitEvent.Register()).getRegisteredIO().forEach(builder::register);
 
 		this.ioContext = builder.build();
 		this.ioContext.loadAll();

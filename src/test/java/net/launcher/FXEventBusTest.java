@@ -1,6 +1,5 @@
 package net.launcher;
 
-import javafx.event.Event;
 import net.launcher.api.EventBus;
 import net.launcher.api.LauncherInitEvent;
 import org.junit.Test;
@@ -18,7 +17,6 @@ public class FXEventBusTest
 		{
 			System.out.println("event!");
 		});
-		Event event = bus.postEvent(new LauncherInitEvent(LauncherInitEvent.LAUNCHER_INIT));
 	}
 
 }

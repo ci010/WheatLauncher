@@ -14,6 +14,10 @@ public class MapResourceBundle extends ResourceBundle
 {
 	private Map<String, Object> properties;
 
+	public MapResourceBundle(Map<String, Object> properties)
+	{
+		this.properties = properties;
+	}
 
 	@Override
 	protected Object handleGetObject(String key)

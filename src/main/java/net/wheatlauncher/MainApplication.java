@@ -8,9 +8,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import net.launcher.FXEventBus;
-import net.launcher.LaunchCore;
+import net.launcher.*;
 import net.launcher.api.ARML;
+import net.launcher.api.LauncherInitEvent;
 import net.launcher.control.DefaultTransitions;
 import net.launcher.control.SceneTransitionHandler;
 import net.launcher.utils.NIOUtils;
@@ -22,7 +22,9 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
@@ -36,6 +38,7 @@ import java.util.logging.SimpleFormatter;
 public class MainApplication extends Application
 {
 	private LaunchCore core;
+	private PluginLoader loader;
 	private Path root;
 
 	public static void main(String[] args)
@@ -88,10 +91,30 @@ public class MainApplication extends Application
 				FinalFieldSetter.INSTANCE.set(instance, field, Executors.newScheduledThreadPool(4));
 		}
 		//TODO load plugins and collect resource bundle
+		Map<String, Object> langMap = new HashMap<>();
+
 		ResourceBundle lang;
 		try {lang = ResourceBundle.getBundle("assets.lang.lang", Locale.getDefault());}
 		catch (Exception e) {lang = ResourceBundle.getBundle("assets.lang.lang", Locale.ENGLISH);}
-		bundle = lang;
+
+		collectBundle(lang, langMap);
+
+		loader = new PluginLoader(root);
+		loader.reload();
+		for (PluginContainer pluginContainer : loader.getContainers())
+			collectBundle(pluginContainer.getBundle(), langMap);
+
+		bundle = new MapResourceBundle(langMap);
+
+		for (PluginContainer container : loader.getContainers())
+			container.getPlugin().onLoad(instance);
+
+		instance.getBus().postEvent(new LauncherInitEvent(LauncherInitEvent.PRE));
+	}
+
+	private void collectBundle(ResourceBundle bundle, Map<String, Object> map)
+	{
+		for (String s : bundle.keySet()) map.put(s, bundle.getString(s));
 	}
 
 	private SceneTransitionHandler handler;
@@ -156,8 +179,7 @@ public class MainApplication extends Application
 		handler = new SceneTransitionHandler(base, DefaultTransitions.FADE);
 
 		stage.setFullScreen(false);
-		if (stage.getStyle() != StageStyle.TRANSPARENT)
-			stage.initStyle(StageStyle.TRANSPARENT);
+		if (stage.getStyle() != StageStyle.TRANSPARENT) stage.initStyle(StageStyle.TRANSPARENT);
 		root.setOnMousePressed(event ->
 		{
 			xOffset = event.getSceneX();
@@ -168,9 +190,13 @@ public class MainApplication extends Application
 			stage.setX(event.getScreenX() - xOffset);
 			stage.setY(event.getScreenY() - yOffset);
 		});
+
 		Scene scene = new Scene(root, 800, 550);
 		scene.setUserData((Consumer<Object>) o -> switchTo(o.toString()));
 		scene.getStylesheets().add(MainApplication.class.getResource("/assets/css/common.css").toExternalForm());
+
+		ARML.bus().postEvent(new LauncherInitEvent.Post(loginPage, previewPage));
+
 		stage.setScene(scene);
 		stage.show();
 	}
