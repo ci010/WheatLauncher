@@ -1,9 +1,9 @@
 package net.launcher;
 
+import api.launcher.LaunchProfile;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import net.launcher.profile.LaunchProfile;
 import net.launcher.setting.Setting;
 import net.launcher.setting.SettingProperty;
 import net.launcher.setting.SettingType;
@@ -48,7 +48,6 @@ public abstract class OptionLaunchElementManager<T, O> implements LaunchElementM
 
 	protected abstract O to(List<T> lst);
 
-	@Override
 	public void onLaunch(LaunchOption option, LaunchProfile profile)
 	{
 		Objects.requireNonNull(option);

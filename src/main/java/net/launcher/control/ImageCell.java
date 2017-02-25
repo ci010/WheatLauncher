@@ -4,6 +4,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -106,11 +107,13 @@ public abstract class ImageCell<T> extends HBox
 		imageContainer = new StackPane();
 		imageContainer.setMaxSize(64, 64);
 		imageContainer.getChildren().addAll(icon);
+		imageContainer.setAlignment(Pos.CENTER);
 
 		iconWidth.addListener(observable -> icon.setFitWidth(iconWidth.get()));
 		iconHeight.addListener(observable -> icon.setFitHeight(iconHeight.get()));
 
 		this.getChildren().addAll(imageContainer, buildContent());
 		this.setSpacing(5);
+		this.setAlignment(Pos.CENTER_LEFT);
 	}
 }

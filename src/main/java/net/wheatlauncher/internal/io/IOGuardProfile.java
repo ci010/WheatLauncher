@@ -1,10 +1,12 @@
 package net.wheatlauncher.internal.io;
 
+import api.launcher.LaunchProfile;
+import api.launcher.LaunchProfileManager;
+import api.launcher.io.IOGuard;
+import api.launcher.io.IOGuardContext;
 import javafx.collections.MapChangeListener;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
-import net.launcher.profile.LaunchProfile;
-import net.launcher.profile.LaunchProfileManager;
 import net.launcher.profile.LaunchProfileManagerBuilder;
 import net.launcher.setting.Setting;
 import net.launcher.setting.SettingManager;
@@ -96,6 +98,7 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 	@Override
 	public LaunchProfileManager loadInstance() throws IOException
 	{
+		Files.createDirectories(getContext().getRoot().resolve("profiles"));
 		Path path = this.getContext().getRoot().resolve("profiles.dat");
 		List<String> profilesRecord = null;
 		String selecting = null;
@@ -109,6 +112,7 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 
 		ArrayList<SettingType> list = new ArrayList<>(SettingManager.getAllSetting().values());
 		List<LaunchProfile> profilesList = new ArrayList<>();
+
 		Files.walkFileTree(getProfilesRoot(), Collections.emptySet(), 2, new SimpleFileVisitor<Path>()
 		{
 			@Override

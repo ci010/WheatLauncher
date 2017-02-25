@@ -1,8 +1,10 @@
 package net.wheatlauncher.internal.io;
 
+import api.launcher.ARML;
+import api.launcher.event.ModuleLoadedEvent;
+import api.launcher.io.IOGuard;
+import api.launcher.io.IOGuardContext;
 import javafx.beans.Observable;
-import net.launcher.api.ARML;
-import net.launcher.api.ModuleLoadedEvent;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -20,22 +22,19 @@ public class IOGuardContextScheduled implements IOGuardContext
 {
 	private Path root;
 	private Map<Class, IOGuard> ioGuards;
-	private ScheduledExecutorService service;
 	private List<IOTask> tasks = Collections.synchronizedList(new LinkedList<>());
 	private Lock lock = new ReentrantLock();
 
-	private IOGuardContextScheduled(Path root, Map<Class, IOGuard> ioGuards, ScheduledExecutorService service)
+	private IOGuardContextScheduled(Path root, Map<Class, IOGuard> ioGuards)
 	{
 		this.root = root;
 		this.ioGuards = ioGuards;
-		this.service = service;
 	}
 
 	@Override
 	public void saveAll() throws Exception
 	{
-		for (IOTask ioTask : tasks)
-			ioTask.performance(this.getRoot());
+		for (IOTask ioTask : tasks) ioTask.performance(this.getRoot());
 	}
 
 	@Override
@@ -158,7 +157,7 @@ public class IOGuardContextScheduled implements IOGuardContext
 		@Override
 		public IOGuardContext build()
 		{
-			IOGuardContextScheduled context = new IOGuardContextScheduled(path, ioGuards, service);
+			IOGuardContextScheduled context = new IOGuardContextScheduled(path, ioGuards);
 			for (IOGuard ioGuard : ioGuards.values())
 				ioGuard.init(context);
 			service.scheduleAtFixedRate(() ->

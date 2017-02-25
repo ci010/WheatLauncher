@@ -15,9 +15,9 @@ public class ResourcePackCell extends ImageCell<ResourcePack>
 	public ResourcePackCell(ResourcePack resourcePack, Image image)
 	{
 		super(resourcePack, image);
-		this.setIconHeight(48);
-		this.setIconWidth(48);
-		this.imageContainer.setMaxSize(48, 48);
+//		this.setIconHeight(64);
+//		this.setIconWidth(64);
+//		this.imageContainer.setMaxSize(64, 64);
 	}
 
 	@Override

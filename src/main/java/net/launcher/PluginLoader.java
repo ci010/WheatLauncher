@@ -1,6 +1,6 @@
 package net.launcher;
 
-import net.launcher.api.Plugin;
+import api.launcher.Plugin;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.util.IOUtils;
 
@@ -36,6 +36,7 @@ public class PluginLoader
 	{
 		containers.clear();
 		Path plugins = root.resolve("plugins");
+		Files.createDirectories(plugins);
 		List<Path> collect = Files.list(plugins).filter(path -> path.endsWith(".jar")).collect(Collectors.toList());
 		for (Path path : collect)
 			try

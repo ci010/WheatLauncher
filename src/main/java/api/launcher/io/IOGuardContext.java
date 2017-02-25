@@ -1,4 +1,4 @@
-package net.wheatlauncher.internal.io;
+package api.launcher.io;
 
 import javafx.beans.Observable;
 

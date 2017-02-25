@@ -1,5 +1,6 @@
 package net.launcher.assets;
 
+import api.launcher.MinecraftAssetsManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -9,7 +10,7 @@ import java.util.TreeMap;
 /**
  * @author ci010
  */
-public class MinecraftAssetsManagerImpl implements MinecraftAssetsManager
+class MinecraftAssetsManagerImpl implements MinecraftAssetsManager
 {
 	private ObservableList<MinecraftVersion> versions = FXCollections.observableArrayList();
 	private ObservableMap<String, MinecraftVersion> map = FXCollections.observableMap(new TreeMap<>());

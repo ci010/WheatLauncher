@@ -3,6 +3,12 @@
     src: url('/assets/fonts/Minecrafter.Reg.ttf');
 }
 
+.root{
+    -fx-selection-bar-text: TRANSPARENT;
+        -fx-selection-bar: TRANSPARENT;
+
+}
+
 @font-face {
     font-family: Minecrafter Alt;
     src: url('/assets/fonts/Minecrafter.Alt.ttf');
@@ -34,6 +40,7 @@
 
 .jfx-list-view{
 	-fx-background-color:TRANSPARENT;
+	-jfx-expanded:true;
 }
 
 .jfx-dialog-overlay-pane {
@@ -298,7 +305,6 @@
 		-fx-text-fill:WHITE;
 		-fx-pref-width:200;
 		-fx-max-width:200;
-		-fx-background-color: minor-color;
 		/*-fx-background-color:#5264AE;*/
 }
 
@@ -311,9 +317,14 @@
 	-fx-font-size:14px;
 }
 
-/*.option-list .jfx-list-cell:selected .label{
+.option-list .jfx-list-cell:selected .label{
+
+}
+
+.option-list .jfx-list-cell:selected{
+-fx-background-color:rgb(120,120,0,1);
 	-fx-text-fill:TOMATO;
-}*/
+}
 
 .jfx-text-field, .jfx-password-field{
 	-fx-background-color: transparent ;
@@ -452,3 +463,37 @@
 .online-switch .input-line{
 	-fx-border-color:TRANSPARENT;
 }
+
+.mics-list:focused > .virtual-flow > .clipped-container > .sheet > .contact-list-cell:focused {
+    -fx-background-color: green;
+}
+
+.mics-list{
+	-jfx-vertical-gap:10;
+	-jfx-expanded:true;
+}
+.mics-list .list-cell
+{
+	-fx-background-color:minor-color;
+}
+
+.mics-list .list-cell .label{
+	-fx-text-fill:WHITE;
+}
+
+.mics-list .list-cell:focused
+{
+	-fx-background-color:rgb(120,120,0,1);
+}
+
+.mics-list .scroll-bar:horizontal .increment-arrow,
+.mics-list .scroll-bar:horizontal .decrement-arrow,
+.mics-list .scroll-bar:horizontal .increment-button,
+.mics-list .scroll-bar:horizontal .decrement-button {
+    -fx-padding:1;
+}
+
+/*.glyph-icon{
+	-fx-padding:10;
+	-glyph-size:26;
+}*/

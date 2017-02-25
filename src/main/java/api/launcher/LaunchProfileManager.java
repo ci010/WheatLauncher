@@ -1,5 +1,6 @@
-package net.launcher.profile;
+package api.launcher;
 
+import api.launcher.event.ProfileEvent;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleStringProperty;
@@ -7,8 +8,6 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import net.launcher.api.ARML;
-import net.launcher.api.ProfileEvent;
 
 import java.util.List;
 import java.util.Objects;

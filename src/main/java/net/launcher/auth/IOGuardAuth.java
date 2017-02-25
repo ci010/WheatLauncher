@@ -1,12 +1,13 @@
 package net.launcher.auth;
 
+import api.launcher.AuthManager;
+import api.launcher.io.IOGuard;
+import api.launcher.io.IOGuardContext;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
-import net.wheatlauncher.internal.io.IOGuard;
-import net.wheatlauncher.internal.io.IOGuardContext;
 
 import java.io.IOException;
 import java.nio.file.Path;

@@ -1,18 +1,18 @@
 package net.wheatlauncher.control.settings;
 
+import api.launcher.ARML;
+import api.launcher.ResourcePackManager;
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXListCell;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextField;
 import javafx.beans.binding.Bindings;
 import javafx.collections.transformation.FilteredList;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.SelectionMode;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import net.launcher.api.ARML;
 import net.launcher.control.ResourcePackCell;
 import net.launcher.game.ResourcePack;
-import net.launcher.resourcepack.ResourcePackManager;
 
 import java.io.File;
 import java.util.List;
@@ -31,16 +31,17 @@ public class ControllerResourcePack
 
 	public void initialize()
 	{
+		resourcePacks.expandedProperty().bind(Bindings.createBooleanBinding(() -> true, resourcePacks.expandedProperty()));
 		resourcePacks.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		FilteredList<ResourcePack> resourcePacks = new FilteredList<>(ARML.core().getResourcePackManager().getAllElement());
 		resourcePacks.predicateProperty().bind(Bindings.createObjectBinding(() ->
 				(Predicate<ResourcePack>) resourcePack -> resourcePack.getPackName().contains(search.getText()) ||
 						resourcePack.getDescription().contains(search.getText()), search.textProperty()));
 		this.resourcePacks.setItems(resourcePacks);
-		this.resourcePacks.setCellFactory(param -> new ListCell<ResourcePack>()
+		this.resourcePacks.setCellFactory(param -> new JFXListCell<ResourcePack>()
 		{
 			@Override
-			protected void updateItem(ResourcePack item, boolean empty)
+			public void updateItem(ResourcePack item, boolean empty)
 			{
 				super.updateItem(item, empty);
 				if (item == null || empty) setGraphic(null);
@@ -67,6 +68,7 @@ public class ControllerResourcePack
 			DirectoryChooser fileChooser = new DirectoryChooser();
 			fileChooser.setTitle("Select save location");
 			File file = fileChooser.showDialog(exportBtn.getScene().getWindow());
+			if (file == null) return;
 			ResourcePackManager manager = ARML.core().getResourcePackManager();
 			ARML.core().getTaskCenter().runTask(manager.exportResourcePack(file.toPath(), this
 					.resourcePacks.getSelectionModel().getSelectedItems()));

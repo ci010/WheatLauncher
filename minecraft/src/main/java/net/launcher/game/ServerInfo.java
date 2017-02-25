@@ -18,8 +18,6 @@ public class ServerInfo
 	private boolean lanServer;
 	private ResourceMode resourceMode;
 
-	private ServerStatus status;
-
 	public ServerInfo(String name, String hostName)
 	{
 		this(name, hostName, null, ResourceMode.PROMPT);
@@ -31,16 +29,6 @@ public class ServerInfo
 		this.hostName = hostName;
 		this.serverIcon = serverIcon;
 		this.resourceMode = resourceMode;
-	}
-
-	public void setStatus(ServerStatus status)
-	{
-		this.status = status;
-	}
-
-	public ServerStatus getStatus()
-	{
-		return status;
 	}
 
 	public void setName(String name)
@@ -96,6 +84,7 @@ public class ServerInfo
 	public static Image createServerIcon(ServerInfo info)
 	{
 		String serverIcon = info.getServerIcon();
+		if (serverIcon == null) return null;
 		byte[] decode = Base64.decode(serverIcon.toCharArray());
 		return new Image(new ByteArrayInputStream(decode));
 	}
@@ -116,22 +105,23 @@ public class ServerInfo
 				", serverIcon='" + serverIcon + '\'' +
 				", lanServer=" + lanServer +
 				", resourceMode=" + resourceMode +
-				", status=" + status +
 				'}';
 	}
 
-	public static final BiSerializer<ServerInfo, NBTCompound> SERIALIZER = BiSerializer.combine((info, context) ->
+	public static BiSerializer<ServerInfo, NBTCompound> serializer()
 	{
-		NBTCompound compound = NBT.compound().put("name", info.getName()).put("hostName", info.getHostName())
-				.option("icon", info.getServerIcon());
-		if (info.getResourceMode() == ResourceMode.ENABLED)
-			compound.put("acceptTextures", true);
-		else if (info.getResourceMode() == ResourceMode.DISABLED)
-			compound.put("acceptTextures", false);
-		return compound;
-	}, (serialized, context) ->
-			new ServerInfo(serialized.get("name").asString(), serialized.get("hostName").asString(),
-					serialized.get("icon").asString(""),
-					serialized.option("acceptTextures").map(nbt -> nbt.asBool() ? ResourceMode.ENABLED : ResourceMode.DISABLED).orElse(ResourceMode.PROMPT)));
-
+		return BiSerializer.combine((info, context) ->
+		{
+			NBTCompound compound = NBT.compound().put("name", info.getName()).put("hostName", info.getHostName())
+					.option("icon", info.getServerIcon());
+			if (info.getResourceMode() == ResourceMode.ENABLED)
+				compound.put("acceptTextures", true);
+			else if (info.getResourceMode() == ResourceMode.DISABLED)
+				compound.put("acceptTextures", false);
+			return compound;
+		}, (serialized, context) ->
+				new ServerInfo(serialized.get("name").asString(), serialized.get("hostName").asString(),
+						serialized.get("icon").asString(""),
+						serialized.option("acceptTextures").map(nbt -> nbt.asBool() ? ResourceMode.ENABLED : ResourceMode.DISABLED).orElse(ResourceMode.PROMPT)));
+	}
 }

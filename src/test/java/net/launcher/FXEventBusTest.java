@@ -1,7 +1,7 @@
 package net.launcher;
 
-import net.launcher.api.EventBus;
-import net.launcher.api.LauncherInitEvent;
+import api.launcher.EventBus;
+import api.launcher.event.LauncherInitEvent;
 import org.junit.Test;
 
 /**

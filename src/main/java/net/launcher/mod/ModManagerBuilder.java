@@ -1,5 +1,6 @@
 package net.launcher.mod;
 
+import api.launcher.ModManager;
 import net.launcher.LaunchElementManager;
 import net.launcher.game.forge.ForgeMod;
 import net.launcher.game.forge.ForgeModMetaData;

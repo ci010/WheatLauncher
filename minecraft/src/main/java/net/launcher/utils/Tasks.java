@@ -56,6 +56,24 @@ public class Tasks
 		};
 	}
 
+	public static <T> Callable<T> fallback(Callable<T>... callables)
+	{
+		Objects.requireNonNull(callables);
+		if (callables.length == 0) return null;
+		return () ->
+		{
+			for (int i = 0; i < callables.length - 1; i++)
+			{
+				try
+				{
+					return callables[i].call();
+				}
+				catch (Exception ignored) {}
+			}
+			return callables[callables.length - 1].call();
+		};
+	}
+
 	public static <T> Callable<T> wrapFallback(Callable<T> primary, Callable<T> fallback, Callback<T> callback)
 	{
 		Objects.requireNonNull(primary);

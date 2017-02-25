@@ -1,5 +1,6 @@
 package net.launcher.resourcepack;
 
+import api.launcher.ResourcePackManager;
 import net.launcher.LaunchElementManager;
 import net.launcher.game.ResourcePack;
 import net.launcher.game.nbt.NBT;

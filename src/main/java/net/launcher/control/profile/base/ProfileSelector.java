@@ -1,5 +1,6 @@
 package net.launcher.control.profile.base;
 
+import api.launcher.LaunchProfile;
 import com.sun.javafx.scene.control.behavior.ComboBoxBaseBehavior;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
@@ -14,7 +15,6 @@ import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
-import net.launcher.profile.LaunchProfile;
 
 
 /**

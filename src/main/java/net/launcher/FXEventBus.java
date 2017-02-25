@@ -1,5 +1,6 @@
 package net.launcher;
 
+import api.launcher.EventBus;
 import com.sun.javafx.geom.BaseBounds;
 import com.sun.javafx.geom.transform.BaseTransform;
 import com.sun.javafx.jmx.MXNodeAlgorithm;
@@ -7,7 +8,6 @@ import com.sun.javafx.jmx.MXNodeAlgorithmContext;
 import com.sun.javafx.sg.prism.NGNode;
 import javafx.event.Event;
 import javafx.scene.Node;
-import net.launcher.api.EventBus;
 
 /**
  * @author ci010

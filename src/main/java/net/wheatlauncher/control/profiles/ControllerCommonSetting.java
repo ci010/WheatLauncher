@@ -1,5 +1,7 @@
 package net.wheatlauncher.control.profiles;
 
+import api.launcher.ARML;
+import api.launcher.LaunchProfile;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.controls.JFXTextField;
@@ -10,8 +12,6 @@ import javafx.beans.value.ChangeListener;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import net.launcher.api.ARML;
-import net.launcher.profile.LaunchProfile;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 
 import java.io.File;

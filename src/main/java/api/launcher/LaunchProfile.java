@@ -1,12 +1,10 @@
-package net.launcher.profile;
+package api.launcher;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-import net.launcher.api.ARML;
-import net.launcher.assets.MinecraftAssetsManager;
 import net.launcher.assets.MinecraftVersion;
 import net.launcher.setting.Setting;
 import net.launcher.setting.SettingType;

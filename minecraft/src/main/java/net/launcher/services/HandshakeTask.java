@@ -22,12 +22,12 @@ import static net.launcher.utils.MessageUtils.*;
 /**
  * @author ci010
  */
-class HandshakeTask implements Callable<ServerStatus>
+public class HandshakeTask implements Callable<ServerStatus>
 {
 	private ServerInfo info;
 	private SocketChannel channel;
 
-	HandshakeTask(ServerInfo info, SocketChannel channel)
+	public HandshakeTask(ServerInfo info, SocketChannel channel)
 	{
 		this.info = info;
 		this.channel = channel;
@@ -37,7 +37,6 @@ class HandshakeTask implements Callable<ServerStatus>
 	public ServerStatus call() throws Exception
 	{
 		String s = handshake(info);
-//		System.out.println(s);
 		JSONObject object = new JSONObject(s);
 		String description = object.getJSONObject("description").getString("text");
 		String favicon = object.optString("favicon");

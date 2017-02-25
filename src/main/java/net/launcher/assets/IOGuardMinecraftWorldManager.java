@@ -1,5 +1,7 @@
 package net.launcher.assets;
 
+import api.launcher.MinecraftWorldManager;
+import api.launcher.io.IOGuard;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -9,7 +11,6 @@ import javafx.scene.image.Image;
 import net.launcher.game.WorldInfo;
 import net.launcher.game.nbt.NBT;
 import net.launcher.utils.DirUtils;
-import net.wheatlauncher.internal.io.IOGuard;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -26,10 +27,7 @@ public class IOGuardMinecraftWorldManager extends IOGuard<MinecraftWorldManager>
 	private ObservableList<WorldInfo> worldInfos = FXCollections.observableArrayList();
 
 	@Override
-	protected void forceSave() throws IOException
-	{
-
-	}
+	protected void forceSave() throws IOException {}
 
 	@Override
 	public MinecraftWorldManager loadInstance() throws IOException
@@ -45,10 +43,7 @@ public class IOGuardMinecraftWorldManager extends IOGuard<MinecraftWorldManager>
 	}
 
 	@Override
-	protected void deploy() throws IOException
-	{
-
-	}
+	protected void deploy() throws IOException {}
 
 	@Override
 	public ObservableList<WorldInfo> getWorldInfos()

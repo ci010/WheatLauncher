@@ -1,8 +1,8 @@
-package net.launcher.api;
+package api.launcher.event;
 
+import api.launcher.LaunchProfile;
 import javafx.event.Event;
 import javafx.event.EventType;
-import net.launcher.profile.LaunchProfile;
 import org.to2mbn.jmccc.option.LaunchOption;
 
 /**

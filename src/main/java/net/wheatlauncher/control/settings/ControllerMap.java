@@ -1,6 +1,8 @@
 package net.wheatlauncher.control.settings;
 
+import api.launcher.ARML;
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXListCell;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextField;
 import javafx.beans.InvalidationListener;
@@ -10,12 +12,10 @@ import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import net.launcher.api.ARML;
 import net.launcher.control.ImageCell;
 import net.launcher.game.WorldInfo;
 import net.wheatlauncher.MainApplication;
@@ -42,10 +42,10 @@ public class ControllerMap
 						worldInfo.getDisplayName().contains(search.getText()), search.textProperty()));
 		maps.setItems(filteredList);
 
-		maps.setCellFactory(param -> new ListCell<WorldInfo>()
+		maps.setCellFactory(param -> new JFXListCell<WorldInfo>()
 		{
 			@Override
-			protected void updateItem(WorldInfo item, boolean empty)
+			public void updateItem(WorldInfo item, boolean empty)
 			{
 				super.updateItem(item, empty);
 				if (item == null || empty) return;
@@ -112,7 +112,6 @@ public class ControllerMap
 			box.setSpacing(10);
 			Label name = new Label(), fileInfo = new Label(), mode = new Label();
 			box.getChildren().setAll(name, fileInfo, mode);
-			name.setStyle("-fx-font-weight:BOLD; -fx-font-size:14px;-fx-text-fill:BLACK;");
 
 			name.textProperty().bind(Bindings.createStringBinding(() ->
 					{

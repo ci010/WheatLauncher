@@ -1,6 +1,8 @@
 package net.wheatlauncher.control.settings;
 
+import api.launcher.ARML;
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXListCell;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextField;
 import javafx.beans.binding.Bindings;
@@ -9,13 +11,11 @@ import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import net.launcher.api.ARML;
 import net.launcher.control.ImageCell;
 import net.launcher.game.forge.ForgeMod;
 
@@ -53,7 +53,7 @@ public class ControllerMod
 		mods.setItems(modList);
 		exportBtn.disableProperty().bind(Bindings.createBooleanBinding(() -> mods.getSelectionModel().isEmpty(), mods
 				.getSelectionModel().selectedIndexProperty()));
-		mods.setCellFactory(param -> new ListCell<ForgeMod>()
+		mods.setCellFactory(param -> new JFXListCell<ForgeMod>()
 		{
 			@Override
 			public void updateItem(ForgeMod item, boolean empty)
@@ -121,7 +121,6 @@ public class ControllerMod
 			double width = icon.getImage().getWidth() * scale;
 			icon.setFitHeight(64);
 			icon.setFitWidth(width);
-
 		}
 
 		@Override

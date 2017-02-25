@@ -1,0 +1,32 @@
+<?import com.jfoenix.controls.*?>
+<?import de.jensd.fx.fontawesome.Icon?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      xmlns="http://javafx.com/javafx/2.2" fx:controller="net.wheatlauncher.control.ControllerServersView" spacing="10">
+    <JFXListView fx:id="serverList" minHeight="200" editable="true"/>
+    <BorderPane>
+        <left>
+            <HBox spacing="10">
+                <JFXRippler onMouseReleased="#add">
+                    <Icon awesomeIcon="PLUS"/>
+                </JFXRippler>
+                <JFXRippler fx:id="removed" onMouseReleased="#remove"/>
+            </HBox>
+        </left>
+        <center>
+            <JFXTextField fx:id="search" promptText="%search" maxWidth="200"/>
+        </center>
+        <right>
+            <HBox spacing="10">
+                <JFXRippler fx:id="edited" onMouseReleased="#edit">
+                    <Icon awesomeIcon="EDIT"/>
+                </JFXRippler>
+                <JFXRippler onMouseReleased="#refresh">
+                    <Icon awesomeIcon="REFRESH"/>
+                </JFXRippler>
+            </HBox>
+        </right>
+    </BorderPane>
+</VBox>

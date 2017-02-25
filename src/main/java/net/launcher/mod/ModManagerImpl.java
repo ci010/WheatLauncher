@@ -1,5 +1,9 @@
 package net.launcher.mod;
 
+import api.launcher.ARML;
+import api.launcher.LaunchProfile;
+import api.launcher.ModManager;
+import api.launcher.event.LaunchEvent;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
@@ -7,7 +11,6 @@ import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 import net.launcher.OptionLaunchElementManager;
 import net.launcher.game.forge.ForgeMod;
-import net.launcher.profile.LaunchProfile;
 import net.launcher.setting.Setting;
 import net.launcher.setting.SettingType;
 import net.launcher.utils.ProgressCallback;
@@ -21,6 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author ci010
@@ -68,6 +72,20 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, String[]> impl
 					list.remove(release);
 				}
 		});
+		ARML.bus().addEventHandler(LaunchEvent.LAUNCH_EVENT, event ->
+		{
+			ARML.logger().info("Start to handle the mods handling");
+			ObservableList<ForgeMod> mods = getIncludeElementContainer(event.getProfile());
+			mods.stream().map(mod -> hashMap.get(getModKey(mod))).collect(Collectors.toSet()).forEach(
+					s ->
+					{
+						Task<Delivery<ForgeMod[]>> task = archiveResource.fetchResource(
+								event.getOption().getMinecraftDirectory().getRoot().toPath().resolve("mods"),
+								s, FetchOption.HARD_LINK);
+						ARML.core().getTaskCenter().runTask(task);
+					}
+			);
+		});
 	}
 
 	@Override
@@ -91,7 +109,6 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, String[]> impl
 //		);
 	}
 
-	@Override
 	public void onClose(LaunchOption option, LaunchProfile profile)
 	{
 //		Repository.Delivery<Resource<ForgeMod[]>> delivery = deliveryCache.get(option);

@@ -14,12 +14,12 @@ import java.util.concurrent.Callable;
 /**
  * @author ci010
  */
-class HandshakeTaskLegacy implements Callable<ServerStatus>
+public class HandshakeTaskLegacy implements Callable<ServerStatus>
 {
 	private ServerInfo info;
 	private SocketChannel channel;
 
-	HandshakeTaskLegacy(ServerInfo info, SocketChannel channel)
+	public HandshakeTaskLegacy(ServerInfo info, SocketChannel channel)
 	{
 		this.info = info;
 		this.channel = channel;
@@ -39,9 +39,7 @@ class HandshakeTaskLegacy implements Callable<ServerStatus>
 			capability = Integer.parseInt(strings[4]);
 		}
 		catch (Exception ignored) {}
-		ServerStatus status = new ServerStatus(gameVersion, MOTO, protocol, players, capability);
-		info.setStatus(status);
-		return status;
+		return new ServerStatus(gameVersion, MOTO, protocol, players, capability);
 	}
 
 	private String[] pingServerLegacy0() throws IOException

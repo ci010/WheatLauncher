@@ -1,4 +1,4 @@
-package net.launcher.resourcepack;
+package api.launcher;
 
 import javafx.concurrent.Task;
 import javafx.scene.image.Image;

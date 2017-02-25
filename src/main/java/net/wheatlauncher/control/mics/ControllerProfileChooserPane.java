@@ -1,5 +1,7 @@
 package net.wheatlauncher.control.mics;
 
+import api.launcher.ARML;
+import api.launcher.LaunchProfile;
 import com.jfoenix.controls.JFXTableView;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.cells.editors.TextFieldEditorBuilder;
@@ -10,8 +12,6 @@ import javafx.collections.transformation.SortedList;
 import javafx.scene.control.ComboBoxBase;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
-import net.launcher.api.ARML;
-import net.launcher.profile.LaunchProfile;
 import net.wheatlauncher.MainApplication;
 
 import java.util.ResourceBundle;

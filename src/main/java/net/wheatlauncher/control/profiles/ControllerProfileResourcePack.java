@@ -1,6 +1,10 @@
 package net.wheatlauncher.control.profiles;
 
+import api.launcher.ARML;
+import api.launcher.LaunchProfile;
+import api.launcher.ResourcePackManager;
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXListCell;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.effects.JFXDepthManager;
@@ -12,17 +16,13 @@ import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import net.launcher.api.ARML;
 import net.launcher.control.ResourcePackCell;
 import net.launcher.game.ResourcePack;
-import net.launcher.profile.LaunchProfile;
-import net.launcher.resourcepack.ResourcePackManager;
 import net.wheatlauncher.control.utils.ReloadableController;
 
 /**
@@ -76,10 +76,10 @@ public class ControllerProfileResourcePack implements ReloadableController
 		selectedView.getParent().disableProperty().bind(Bindings.createBooleanBinding(() -> selectedView.getItems().isEmpty(),
 				selectedView.getItems()));
 		availableView.setCellFactory(param ->
-				new ListCell<ResourcePack>()
+				new JFXListCell<ResourcePack>()
 				{
 					@Override
-					protected void updateItem(ResourcePack item, boolean empty)
+					public void updateItem(ResourcePack item, boolean empty)
 					{
 						super.updateItem(item, empty);
 						if (!empty && item != null)
@@ -89,10 +89,10 @@ public class ControllerProfileResourcePack implements ReloadableController
 					}
 				});
 		selectedView.setCellFactory(param ->
-				new ListCell<ResourcePack>()
+				new JFXListCell<ResourcePack>()
 				{
 					@Override
-					protected void updateItem(ResourcePack item, boolean empty)
+					public void updateItem(ResourcePack item, boolean empty)
 					{
 						super.updateItem(item, empty);
 						if (!empty && item != null)

@@ -1,9 +1,9 @@
-package net.launcher.api;
+package api.launcher.event;
 
+import api.launcher.io.IOGuard;
 import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.scene.layout.Pane;
-import net.wheatlauncher.internal.io.IOGuard;
 
 import java.util.Collections;
 import java.util.HashMap;

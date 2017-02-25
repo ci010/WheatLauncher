@@ -1,5 +1,7 @@
 package net.wheatlauncher.control;
 
+import api.launcher.ARML;
+import api.launcher.AuthManager;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXSpinner;
@@ -19,8 +21,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import net.launcher.api.ARML;
-import net.launcher.auth.AuthManager;
 import net.launcher.auth.Authorize;
 import net.launcher.control.OnlineModeSwitch;
 import net.launcher.utils.Tasks;

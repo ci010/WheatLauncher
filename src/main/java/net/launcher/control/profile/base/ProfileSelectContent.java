@@ -1,5 +1,6 @@
 package net.launcher.control.profile.base;
 
+import api.launcher.LaunchProfile;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXRippler;
 import com.jfoenix.controls.JFXTextField;
@@ -22,7 +23,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
-import net.launcher.profile.LaunchProfile;
 
 import java.util.List;
 

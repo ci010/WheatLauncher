@@ -1,6 +1,6 @@
 package net.launcher;
 
-import net.launcher.api.Plugin;
+import api.launcher.Plugin;
 
 import java.util.ResourceBundle;
 

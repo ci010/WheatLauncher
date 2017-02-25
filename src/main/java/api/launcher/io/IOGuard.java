@@ -1,4 +1,4 @@
-package net.wheatlauncher.internal.io;
+package api.launcher.io;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -20,7 +20,7 @@ public abstract class IOGuard<T>
 
 	public abstract T defaultInstance();
 
-	protected T getInstance() {return reference != null ? reference.get() : null;}
+	public T getInstance() {return reference != null ? reference.get() : null;}
 
 	public final void init(IOGuardContext context)
 	{
@@ -31,6 +31,11 @@ public abstract class IOGuard<T>
 
 	public final T load() throws IOException
 	{
+		if (reference != null)
+		{
+			T inst = reference.get();
+			if (inst != null) return inst;
+		}
 		T load;
 		try {load = loadInstance();}
 		catch (Exception e) {load = defaultInstance();}

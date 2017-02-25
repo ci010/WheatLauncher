@@ -1,12 +1,12 @@
 package net.launcher;
 
+import api.launcher.LaunchProfile;
 import javafx.collections.ObservableList;
-import net.launcher.profile.LaunchProfile;
 
 /**
  * @author ci010
  */
-public interface LaunchElementManager<T> extends LaunchHandler
+public interface LaunchElementManager<T>
 {
 	ObservableList<T> getAllElement();
 

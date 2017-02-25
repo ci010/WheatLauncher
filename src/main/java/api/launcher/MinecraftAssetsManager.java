@@ -1,7 +1,8 @@
-package net.launcher.assets;
+package api.launcher;
 
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import net.launcher.assets.MinecraftVersion;
 import net.launcher.game.Language;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Version;

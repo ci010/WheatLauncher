@@ -1,5 +1,6 @@
 package net.launcher.control;
 
+import api.launcher.ARML;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXToggleNode;
 import com.jfoenix.skins.JFXComboBoxListViewSkin;
@@ -9,7 +10,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Skin;
 import javafx.scene.paint.Color;
-import net.launcher.api.ARML;
 
 import java.util.ArrayList;
 import java.util.List;

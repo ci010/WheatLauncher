@@ -48,10 +48,10 @@ class MinecraftServerPingServiceImpl implements MinecraftServerPingService
 			if (!waitPing)
 			{
 				callback.done(info);
-				service.submit(new PingTask(info, Callbacks.whatever(this::close), channel));
+				service.submit((Runnable) new PingTask(info, Callbacks.whatever(this::close), channel));
 			}
 			else
-				service.submit(new PingTask(info, Callbacks.group(callback, Callbacks.whatever(this::close)), channel));
+				service.submit((Runnable) new PingTask(info, Callbacks.group(callback, Callbacks.whatever(this::close)), channel));
 		}
 
 		void close()
@@ -86,7 +86,6 @@ class MinecraftServerPingServiceImpl implements MinecraftServerPingService
 
 	private Future<ServerStatus> fetchInfo0(final ServerInfo info, final Callback<ServerInfo> callback, boolean waitPing)
 	{
-		info.setStatus(ServerStatus.pinging());
 		try
 		{
 			SocketChannel open = SocketChannel.open(MessageUtils.getAddress(info.getHostName()));

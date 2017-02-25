@@ -1,4 +1,4 @@
-package net.launcher.assets;
+package api.launcher;
 
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;

@@ -7,7 +7,9 @@
            fx:controller="net.wheatlauncher.control.settings.ControllerSetting"
            style="-fx-background-color:TRANSPARENT;" transitionType="LEFT">
     <HBox spacing="10" alignment="CENTER">
-        <JFXListView fx:id="options" prefWidth="150" maxHeight="400" style="-jfx-expanded:TRUE;" verticalGap="10"
+        <JFXListView fx:id="options" prefWidth="150" maxHeight="400" style="
+                    -jfx-expanded:TRUE; -fx-background-color:major-color;"
+                     verticalGap="10"
                      styleClass="option-list">
             <Label id="settings" text="%setting.launcher"/>
             <Label id="resourceManager" text="%setting.resourcepacks"/>
@@ -16,7 +18,8 @@
             <Label id="map" text="%setting.maps"/>
             <Label id="downloadCenter" text="Downloads"/>
         </JFXListView>
-        <StackPane fx:id="container" prefWidth="400" prefHeight="500">
+        <StackPane fx:id="container" prefWidth="400" prefHeight="500" maxHeight="400"
+                   style="-fx-background-color:white; -fx-padding:5;">
             <fx:include id="settings" source="SettingLauncher.fxml"/>
             <fx:include id="modManager" source="SettingMod.fxml"/>
             <fx:include id="resourceManager" source="SettingResourcePack.fxml"/>

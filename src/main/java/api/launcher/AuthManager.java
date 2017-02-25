@@ -1,10 +1,13 @@
-package net.launcher.auth;
+package api.launcher;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import net.launcher.auth.AuthOffline;
+import net.launcher.auth.AuthOnline;
+import net.launcher.auth.Authorize;
 import net.launcher.utils.StringUtils;
 import org.to2mbn.jmccc.auth.AuthInfo;
 
@@ -35,7 +38,7 @@ public class AuthManager
 		registerAuth(AuthOnline.class);
 	}
 
-	AuthManager()
+	public AuthManager()
 	{
 		this("", "offline", Collections.emptyMap());
 	}
@@ -62,7 +65,7 @@ public class AuthManager
 
 	public boolean isOffline() {return getAuthorize().equals("offline");}
 
-	AuthManager(String account, String authorize, Map<String, List<String>> history)
+	public AuthManager(String account, String authorize, Map<String, List<String>> history)
 	{
 		this.account.set(account);
 		this.authorize.set(authorize);

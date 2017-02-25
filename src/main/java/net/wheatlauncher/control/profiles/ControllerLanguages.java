@@ -1,5 +1,9 @@
 package net.wheatlauncher.control.profiles;
 
+import api.launcher.ARML;
+import api.launcher.LaunchProfile;
+import api.launcher.LaunchProfileManager;
+import api.launcher.MinecraftAssetsManager;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTableView;
 import com.jfoenix.controls.JFXTextField;
@@ -14,13 +18,9 @@ import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.scene.control.TableColumn;
 import javafx.scene.layout.StackPane;
-import net.launcher.api.ARML;
-import net.launcher.assets.MinecraftAssetsManager;
 import net.launcher.assets.MinecraftVersion;
 import net.launcher.control.MinecraftOptionButton;
 import net.launcher.game.Language;
-import net.launcher.profile.LaunchProfile;
-import net.launcher.profile.LaunchProfileManager;
 import net.launcher.setting.SettingMinecraft;
 
 import java.util.Map;
@@ -50,6 +50,7 @@ public class ControllerLanguages
 	{
 		if (oldV != null) oldV.stateProperty().removeListener(refresh);
 		if (newV != null) newV.stateProperty().addListener(refresh);
+		refresh();
 	};
 
 	private ObservableList<Language> languageLists;
@@ -58,7 +59,6 @@ public class ControllerLanguages
 	private void refresh()
 	{
 		ARML.logger().info("try to refresh lang");
-		System.out.println("try to refresh lang");
 
 		LaunchProfile selecting = ARML.core().getProfileManager().selecting();
 		MinecraftAssetsManager assetsManager = ARML.core().getAssetsManager();

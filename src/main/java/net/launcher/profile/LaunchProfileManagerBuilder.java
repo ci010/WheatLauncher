@@ -1,5 +1,7 @@
 package net.launcher.profile;
 
+import api.launcher.LaunchProfile;
+import api.launcher.LaunchProfileManager;
 import javafx.util.Builder;
 
 import java.util.ArrayList;

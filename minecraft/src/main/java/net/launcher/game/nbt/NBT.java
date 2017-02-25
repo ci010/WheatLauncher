@@ -158,7 +158,7 @@ public abstract class NBT implements Cloneable
 
 	public static NBT read(File file, boolean isCompressed) throws IOException
 	{
-		if (!file.exists()) return null;
+		if (!file.exists()) return NBT.compound();
 		try (FileInputStream fileInputStream = new FileInputStream(file))
 		{
 			return read(fileInputStream, isCompressed);
@@ -167,7 +167,7 @@ public abstract class NBT implements Cloneable
 
 	public static NBT read(Path file, boolean isCompressed) throws IOException
 	{
-		if (!Files.exists(file)) throw new FileNotFoundException();
+		if (!Files.exists(file)) return NBT.compound();
 		try (FileChannel open = FileChannel.open(file))
 		{
 			long size = Files.size(file);

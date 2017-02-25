@@ -1,5 +1,6 @@
 package net.launcher.control.profile.base;
 
+import api.launcher.LaunchProfile;
 import com.jfoenix.controls.JFXNodesList;
 import com.jfoenix.controls.JFXRippler;
 import com.jfoenix.controls.JFXTableView;
@@ -21,7 +22,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import net.launcher.profile.LaunchProfile;
 
 /**
  * @author ci010

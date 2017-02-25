@@ -1,13 +1,13 @@
 package net.wheatlauncher.control.profiles;
 
+import api.launcher.ARML;
+import api.launcher.LaunchProfile;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTabPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.StringConverter;
-import net.launcher.api.ARML;
 import net.launcher.assets.MinecraftVersion;
 import net.launcher.control.ComboBoxDelegate;
-import net.launcher.profile.LaunchProfile;
 import net.wheatlauncher.control.mics.ControllerMinecraftVersionChooserPane;
 import net.wheatlauncher.control.mics.ControllerProfileChooserPane;
 

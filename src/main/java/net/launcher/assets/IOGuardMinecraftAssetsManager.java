@@ -1,23 +1,22 @@
 package net.launcher.assets;
 
+import api.launcher.LaunchProfile;
+import api.launcher.MinecraftAssetsManager;
+import api.launcher.io.IOGuard;
+import api.launcher.io.IOGuardContext;
 import com.sun.javafx.application.PlatformImpl;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.concurrent.Task;
-import net.launcher.LaunchHandler;
-import net.launcher.api.ARML;
 import net.launcher.game.Language;
 import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.ComparableVersion;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
-import net.launcher.profile.LaunchProfile;
 import net.launcher.utils.resource.FetchOption;
 import net.launcher.utils.resource.FetchUtils;
 import net.launcher.utils.serial.Deserializer;
-import net.wheatlauncher.internal.io.IOGuard;
-import net.wheatlauncher.internal.io.IOGuardContext;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.mcdownloader.MinecraftDownloader;
@@ -45,7 +44,7 @@ import java.util.stream.Collectors;
  * @author ci010
  */
 public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManager>
-		implements MinecraftAssetsManagerImpl.AssetsRepository, LaunchHandler
+		implements MinecraftAssetsManagerImpl.AssetsRepository
 {
 	private ObservableList<MinecraftVersion> versions = FXCollections.observableArrayList();
 	private ObservableMap<String, MinecraftVersion> versionMap = FXCollections.observableMap(new TreeMap<>());
@@ -81,7 +80,7 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 	{
 		MinecraftAssetsManager instance = this.getInstance();
 		getContext().registerSaveTask(new SaveTask(), instance.getVersions());
-
+		refreshVersion().run();
 	}
 
 	@Override
@@ -105,7 +104,9 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 				Platform.runLater(() ->
 						version.setState(MinecraftVersion.State.DOWNLOADING));
 				MinecraftDirectory minecraftDirectory = new MinecraftDirectory(getContext().getRoot().toFile());
-				MinecraftDownloader downloader = ARML.core().getDownloadCenter().listenDownloader("minecraft.game", MinecraftDownloaderBuilder.buildDefault());
+				MinecraftDownloader downloader = MinecraftDownloaderBuilder.buildDefault();//ARML.core()
+				// .getDownloadCenter().listenDownloader("minecraft.game",
+//				MinecraftDownloaderBuilder.buildDefault());
 				downloader.downloadIncrementally(minecraftDirectory, version.getVersionID(), new CallbackAdapter<Version>()
 				{
 					@Override
@@ -292,7 +293,6 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 		return true;
 	}
 
-	@Override
 	public void onLaunch(LaunchOption option, LaunchProfile profile) throws Exception
 	{
 		MinecraftDirectory root = new MinecraftDirectory(getContext().getRoot().toFile());
@@ -310,7 +310,6 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 		FetchUtils.fetch(from, to, FetchOption.HARD_LINK);
 	}
 
-	@Override
 	public void onClose(LaunchOption option, LaunchProfile profile)
 	{
 

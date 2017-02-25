@@ -1,5 +1,7 @@
 package net.launcher.resourcepack;
 
+import api.launcher.LaunchProfile;
+import api.launcher.ResourcePackManager;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
@@ -7,7 +9,6 @@ import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 import net.launcher.OptionLaunchElementManager;
 import net.launcher.game.ResourcePack;
-import net.launcher.profile.LaunchProfile;
 import net.launcher.setting.Setting;
 import net.launcher.setting.SettingMinecraft;
 import net.launcher.setting.SettingType;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
  */
 class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, String[]> implements ResourcePackManager
 {
-	private static Image DEFAULT_IMG = new Image(ResourcePackManImpl.class.getResourceAsStream("/pack.png"));
+	private static Image DEFAULT_IMG = new Image(ResourcePackManImpl.class.getResourceAsStream("/assets/texture/pack.png"));
 
 	private ArchiveRepository<ResourcePack> archiveRepository;
 	private Map<String, Resource<ResourcePack>> nameToResource = new HashMap<>();
@@ -101,7 +102,6 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 //					ArchiveRepository.FetchOption.SYMBOL_LINK));
 	}
 
-	@Override
 	public void onClose(LaunchOption option, LaunchProfile profile)
 	{
 //		Repository.Delivery<ArchiveRepository.Resource<ResourcePack>> resourceDelivery = launchCache.get(option);
@@ -116,7 +116,7 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 		Objects.requireNonNull(resourcePack);
 		Resource<ResourcePack> packResource = nameToResource.get(resourcePack.getPackName());
 		if (packResource != null)
-			try (InputStream stream = archiveRepository.openStream(packResource, "pack.png"))
+			try (InputStream stream = archiveRepository.openStream(packResource, "assets/texture/pack.png"))
 			{
 				return new Image(stream);
 			}

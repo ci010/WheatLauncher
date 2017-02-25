@@ -1,5 +1,8 @@
 package net.wheatlauncher.control;
 
+import api.launcher.ARML;
+import api.launcher.AuthManager;
+import api.launcher.LaunchProfile;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.effects.JFXDepthManager;
@@ -18,9 +21,6 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import moe.mickey.minecraft.skin.fx.SkinCanvas;
 import moe.mickey.minecraft.skin.fx.animation.SkinAniRunning;
-import net.launcher.api.ARML;
-import net.launcher.auth.AuthManager;
-import net.launcher.profile.LaunchProfile;
 import net.launcher.utils.StringUtils;
 import net.launcher.utils.Tasks;
 import net.wheatlauncher.control.utils.AnimationRotate;

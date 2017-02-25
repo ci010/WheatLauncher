@@ -15,7 +15,7 @@ allprojects {
     apply plugin: 'idea'
 }
 
-subprojects{
+subprojects {
     repositories {
         mavenCentral()
         mavenLocal()

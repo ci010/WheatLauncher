@@ -1,4 +1,4 @@
-package net.launcher.mod;
+package api.launcher;
 
 import javafx.concurrent.Task;
 import javafx.scene.image.Image;

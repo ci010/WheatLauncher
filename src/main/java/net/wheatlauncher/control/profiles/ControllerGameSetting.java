@@ -1,11 +1,11 @@
 package net.wheatlauncher.control.profiles;
 
+import api.launcher.ARML;
 import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.effects.JFXDepthManager;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import net.launcher.api.ARML;
 import net.launcher.control.MinecraftOptionButton;
 import net.launcher.control.MinecraftOptionMemory;
 import net.launcher.control.MinecraftOptionResolution;

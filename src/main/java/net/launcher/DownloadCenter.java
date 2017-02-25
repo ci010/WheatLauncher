@@ -1,10 +1,5 @@
 package net.launcher;
 
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.LongProperty;
-import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
 import javafx.concurrent.Task;
 import org.to2mbn.jmccc.mcdownloader.MinecraftDownloadOption;
 import org.to2mbn.jmccc.mcdownloader.MinecraftDownloader;
@@ -29,14 +24,6 @@ public interface DownloadCenter
 		return forgeVersion.getVersionName() + "-LiteLoader" + liteloaderVersion.getMinecraftVersion();
 	}
 
-	/**
-	 * Listen the downloader and all the download task will be record as {@link TaskInfo}.
-	 * <p>Access the those task info by {@link #getListenedDownloaderMap()}.</p>
-	 *
-	 * @param name       The name for the downloader. Basically, this is the purpose
-	 * @param downloader The original downloader
-	 * @return The listened downloader
-	 */
 	MinecraftDownloader listenDownloader(String name, MinecraftDownloader downloader);
 
 	Task<Version> downloadVersion(MinecraftDirectory dir, String version, MinecraftDownloadOption... options);
@@ -48,17 +35,4 @@ public interface DownloadCenter
 	<T> Task<T> download(DownloadTask<T> task);
 
 	<T> Task<T> download(DownloadTask<T> task, int tries);
-
-	ObservableMap<String, ObservableList<TaskInfo>> getListenedDownloaderMap();
-
-	interface TaskInfo
-	{//@formatter:off
-		String getURL();
-		LongProperty getProgress();
-		LongProperty getTotal();
-		IntegerProperty retryCount();
-		IntegerProperty maxRetryCount();
-		BooleanProperty isDone();
-		ObservableList<Throwable> getErrors();//@formatter:on
-	}
 }

@@ -1,12 +1,12 @@
 package net.launcher.control;
 
+import api.launcher.LaunchProfile;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import net.launcher.control.profile.base.ProfileSelector;
 import net.launcher.control.profile.base.ProfileTableSelector;
-import net.launcher.profile.LaunchProfile;
 import net.wheatlauncher.MainApplication;
 
 /**

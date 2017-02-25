@@ -10,7 +10,7 @@
             <StackPane/>
         </Tab>
         <Tab text="Servers">
-            <StackPane/>
+            <fx:include source="ServersView.fxml"/>
         </Tab>
     </JFXTabPane>
 </VBox>

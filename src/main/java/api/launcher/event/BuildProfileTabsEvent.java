@@ -1,4 +1,4 @@
-package net.launcher.api;
+package api.launcher.event;
 
 import javafx.event.Event;
 import javafx.event.EventType;

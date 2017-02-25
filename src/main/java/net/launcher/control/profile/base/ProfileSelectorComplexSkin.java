@@ -1,13 +1,13 @@
 package net.launcher.control.profile.base;
 
+import api.launcher.ARML;
+import api.launcher.LaunchProfile;
 import com.sun.javafx.scene.control.behavior.ComboBoxBaseBehavior;
 import javafx.beans.InvalidationListener;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBoxBase;
 import javafx.util.StringConverter;
-import net.launcher.api.ARML;
 import net.launcher.control.ComboBoxSkinSimple;
-import net.launcher.profile.LaunchProfile;
 
 /**
  * @author ci010
