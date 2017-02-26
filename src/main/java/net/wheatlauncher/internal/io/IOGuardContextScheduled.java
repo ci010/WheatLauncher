@@ -48,7 +48,11 @@ public class IOGuardContextScheduled implements IOGuardContext
 	@Override
 	public void loadAll() throws IOException
 	{
-		for (Class clz : ioGuards.keySet()) load(clz);
+		for (Class clz : ioGuards.keySet())
+		{
+			ARML.logger().info("Loading " + clz.getSimpleName());
+			load(clz);
+		}
 	}
 
 	@Override

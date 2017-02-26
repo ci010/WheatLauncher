@@ -1,7 +1,7 @@
 <?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXDialog?>
 <?import de.jensd.fx.fontawesome.Icon?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import moe.mickey.minecraft.skin.fx.SkinCanvas?>
 <?import net.wheatlauncher.control.utils.ColorTransitionButton?>
@@ -52,18 +52,31 @@
         </VBox>
     </left>
     <right>
-        <StackPane prefWidth="500" alignment="BOTTOM_RIGHT"
-                   style="-fx-padding:15,10;">
-            <fx:include fx:id="window" source="PreviewWindow.fxml"
-                        style="-fx-padding:60 80 140 0;"/>
-            <ColorTransitionButton buttonType="RAISED" text="%launch" style="-fx-padding:0,120,0,120"
-                                   styleClass="mics-button"
-                                   hoverColor="crimson"
-                                   prefWidth="150"
-                                   onAction="#launch"
-                                   prefHeight="70"/>
-        </StackPane>
+        <FlowPane prefWidth="500" alignment="BOTTOM_RIGHT">
+            <HBox alignment="CENTER" spacing="20" style="-fx-padding: 15 15">
+                <Label fx:id="useSever">
+                    <graphic>
+                        <ColorTransitionButton styleClass="mics-button"
+                                               hoverColor="crimson"
+                                               buttonType="RAISED" onAction="#showServer">
+                            <graphic>
+                                <Icon awesomeIcon="GLOBE" textFill="tomato"/>
+                            </graphic>
+                        </ColorTransitionButton>
+                    </graphic>
+                </Label>
+                <ColorTransitionButton buttonType="RAISED" text="%launch"
+                                       styleClass="mics-button"
+                                       hoverColor="crimson"
+                                       prefWidth="150"
+                                       onAction="#launch"
+                                       prefHeight="70"/>
+            </HBox>
+        </FlowPane>
     </right>
     <fx:include fx:id="settingDialog" source="settings/Setting.fxml"/>
     <fx:include fx:id="profileSettingDialog" source="profiles/Profiles.fxml"/>
+    <JFXDialog fx:id="serverView">
+        <fx:include source="ServersView.fxml"/>
+    </JFXDialog>
 </BorderPane>

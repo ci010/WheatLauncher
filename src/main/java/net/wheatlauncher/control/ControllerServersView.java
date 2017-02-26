@@ -1,6 +1,7 @@
 package net.wheatlauncher.control;
 
 import api.launcher.ARML;
+import com.jfoenix.controls.JFXListCell;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXRippler;
 import com.jfoenix.controls.JFXTextField;
@@ -14,7 +15,6 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
@@ -48,6 +48,7 @@ public class ControllerServersView
 
 	public void initialize()
 	{
+		serverList.setDepth(2);
 		serverList.setCellFactory(param -> new ServerCells());
 		serverList.setItems(ARML.core().getServerManager().getAllServers());
 		serverList.setOnEditCommit(event ->
@@ -120,7 +121,7 @@ public class ControllerServersView
 			serverList.edit(-1);
 	}
 
-	private class ServerCells extends ListCell<ServerInfo>
+	private class ServerCells extends JFXListCell<ServerInfo>
 	{
 		private JFXTextField ip, name;
 
@@ -128,7 +129,7 @@ public class ControllerServersView
 
 		private Node commonContent;
 		private Node editContent;
-		private Label nameLabel, capaLabel, pingLabel;
+		private Label nameLabel, capaLabel, pingLabel, versionLabel;
 		private TextFlow motd;
 
 		ServerCells()
@@ -138,12 +139,16 @@ public class ControllerServersView
 			nameLabel = new Label();
 			capaLabel = new Label();
 			pingLabel = new Label();
+			versionLabel = new Label();
+			versionLabel.setWrapText(true);
+			versionLabel.setMaxWidth(150);
 			BorderPane borderPane = new BorderPane();
 			VBox borderLeft = new VBox();
 			BorderPane borderRight = new BorderPane();
 			borderPane.setLeft(borderLeft);
 			borderPane.setRight(borderRight);
 			borderLeft.getChildren().addAll(nameLabel, motd);
+			borderRight.setCenter(versionLabel);
 			borderRight.setTop(capaLabel);
 			borderRight.setBottom(pingLabel);
 			BorderPane.setAlignment(borderRight, Pos.TOP_RIGHT);
@@ -211,7 +216,7 @@ public class ControllerServersView
 		}
 
 		@Override
-		protected void updateItem(ServerInfo item, boolean empty)
+		public void updateItem(ServerInfo item, boolean empty)
 		{
 			super.updateItem(item, empty);
 			if (item != null && !empty && getItem() != null)
@@ -232,6 +237,15 @@ public class ControllerServersView
 					if (status == null) return "NaN ms";
 					return status.getPingToServer() + " ms";
 				}, ((FXServerInfo) getItem()).statusProperty()));
+				versionLabel.textProperty().bind(Bindings.createStringBinding(() ->
+						{
+							if (getItem() == null) return "Unknown";
+							ServerStatus status = ((FXServerInfo) getItem()).getStatus();
+							if (status == null) return "Unknown";
+							return status.getGameVersion();
+						},
+						((FXServerInfo) getItem()).statusProperty()));
+
 				ServerStatus status = ((FXServerInfo) getItem()).getStatus();
 				if (status != null) TextComponentConverter.convert(status.getServerMOTD(), motd);
 
@@ -241,7 +255,8 @@ public class ControllerServersView
 					ServerStatus status0 = ((FXServerInfo) getItem()).getStatus();
 					if (status0 != null) TextComponentConverter.convert(status0.getServerMOTD(), motd);
 				});
-				graphic.imageProperty().bind(Bindings.createObjectBinding(() -> ServerInfo.createServerIcon(item), ((FXServerInfo) getItem()).serverIconProperty()));
+				graphic.imageProperty().bind(Bindings.createObjectBinding(() -> ServerInfo.createServerIcon(item),
+						((FXServerInfo) getItem()).serverIconProperty()));
 				setGraphic(graphic);
 			}
 			else setGraphic(null);

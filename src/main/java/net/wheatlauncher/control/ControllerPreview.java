@@ -7,16 +7,14 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.effects.JFXDepthManager;
 import javafx.animation.Animation;
-import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Parent;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import moe.mickey.minecraft.skin.fx.SkinCanvas;
@@ -40,6 +38,8 @@ import java.util.function.Consumer;
 public class ControllerPreview
 {
 	public Parent window;
+	public JFXDialog serverView;
+	public Label useSever;
 
 	/*controls*/
 	@FXML
@@ -68,7 +68,7 @@ public class ControllerPreview
 		animation = new AnimationRotate(canvas);
 		canvas.getAnimationPlayer().addSkinAnimation(new SkinAniRunning(100, 100, 30, canvas));
 		JFXDepthManager.setDepth(player.getParent(), 2);
-		JFXDepthManager.setDepth(window, 2);
+//		JFXDepthManager.setDepth(window, 2);
 		LaunchProfile selecting = ARML.core().getProfileManager().selecting();
 		if (selecting != null)
 			profileName.setText(selecting.getDisplayName());
@@ -83,6 +83,7 @@ public class ControllerPreview
 					return StringUtils.EMPTY;
 				},
 				ARML.core().getAuthManager().cacheProperty()));
+		useSever.setContentDisplay(ContentDisplay.RIGHT);
 		initDialog();
 		initSkin();
 	}
@@ -91,6 +92,12 @@ public class ControllerPreview
 	{
 		root.getChildren().remove(profileSettingDialog);
 		root.getChildren().remove(settingDialog);
+		root.getChildren().remove(serverView);
+
+
+		serverView.setDialogContainer(((StackPane) root.getParent()));
+		serverView.setContentHolderBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null,
+				null)));
 
 		profileSettingDialog.setDialogContainer(((StackPane) root.getParent()));
 		profileSettingDialog.setContentHolderBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null,
@@ -157,30 +164,35 @@ public class ControllerPreview
 		settingDialog.show(((StackPane) root.getParent()));
 	}
 
-	@FXML
-	protected void onClick(MouseEvent event) {if (event.getButton() == MouseButton.PRIMARY) root.requestFocus();}
+//	@FXML
+//	protected void onClick(MouseEvent event) {if (event.getButton() == MouseButton.PRIMARY) root.requestFocus();}
+//
+//	@FXML
+//	private void onClose(MouseEvent event) {if (event.getButton() == MouseButton.PRIMARY) Platform.exit();}
 
-	@FXML
-	private void onClose(MouseEvent event) {if (event.getButton() == MouseButton.PRIMARY) Platform.exit();}
+//	public void reload()
+//	{
+//		AuthManager module = ARML.core().getAuthManager();
+//		assert module.getCache() != null;
+//		assert module.getAuthorizeInstance() != null;
+//		assert module.getAccount() != null;
+//		initSkin();
+//		initDialog();
+//	}
 
-	public void reload()
-	{
-		AuthManager module = ARML.core().getAuthManager();
-		assert module.getCache() != null;
-		assert module.getAuthorizeInstance() != null;
-		assert module.getAccount() != null;
-		initSkin();
-		initDialog();
-	}
-
-	public void unload()
-	{
-		profileSettingDialog.close();
-		animation.stop();
-	}
+//	public void unload()
+//	{
+//		profileSettingDialog.close();
+//		animation.stop();
+//	}
 
 	public void launch(ActionEvent actionEvent) throws Exception
 	{
 //		ARML.core().launch();
+	}
+
+	public void showServer()
+	{
+		serverView.show(((StackPane) root.getParent()));
 	}
 }

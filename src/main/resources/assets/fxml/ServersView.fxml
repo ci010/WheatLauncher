@@ -1,19 +1,24 @@
 <?import com.jfoenix.controls.*?>
 <?import de.jensd.fx.fontawesome.Icon?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
 <VBox xmlns:fx="http://javafx.com/fxml/1"
-      xmlns="http://javafx.com/javafx/2.2" fx:controller="net.wheatlauncher.control.ControllerServersView" spacing="10">
-    <JFXListView fx:id="serverList" minHeight="200" editable="true" styleClass="mics-list"/>
-    <BorderPane>
+      xmlns="http://javafx.com/javafx/2.2" fx:controller="net.wheatlauncher.control.ControllerServersView" spacing="10"
+      alignment="TOP_CENTER" style="-fx-background-color:WHITE;" maxHeight="460" minHeight="460">
+    <StackPane style="-fx-background-color:major-color; -fx-padding:10;">
+        <Label text="%server" style=" -fx-text-fill:WHITE;" styleClass="header-major"/>
+    </StackPane>
+    <JFXListView fx:id="serverList" minHeight="300" editable="true"
+                 styleClass="mics-list" style="-fx-padding:10"
+                 prefWidth="500"/>
+    <BorderPane style="-fx-background-color:major-color; -fx-padding:10;" VBox.vgrow="ALWAYS">
         <left>
             <HBox spacing="10">
                 <JFXRippler onMouseReleased="#add">
-                    <Icon awesomeIcon="PLUS"/>
+                    <Icon awesomeIcon="PLUS" styleClass="icon"/>
                 </JFXRippler>
                 <JFXRippler fx:id="removed" onMouseReleased="#remove">
-                    <Icon awesomeIcon="CLOSE"/>
+                    <Icon awesomeIcon="CLOSE" styleClass="icon"/>
                 </JFXRippler>
             </HBox>
         </left>
@@ -23,10 +28,10 @@
         <right>
             <HBox spacing="10">
                 <JFXRippler fx:id="edited" onMouseReleased="#edit">
-                    <Icon awesomeIcon="EDIT"/>
+                    <Icon awesomeIcon="EDIT" styleClass="icon"/>
                 </JFXRippler>
                 <JFXRippler onMouseReleased="#refresh">
-                    <Icon awesomeIcon="REFRESH"/>
+                    <Icon awesomeIcon="REFRESH" styleClass="icon"/>
                 </JFXRippler>
             </HBox>
         </right>
