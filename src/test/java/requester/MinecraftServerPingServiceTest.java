@@ -6,6 +6,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import net.launcher.game.ServerInfo;
+import net.launcher.game.ServerInfoBase;
 import net.launcher.game.ServerStatus;
 import net.launcher.services.MinecraftServerPingService;
 import net.launcher.services.MinecraftServerPingServiceBuilder;
@@ -33,7 +34,7 @@ public class MinecraftServerPingServiceTest extends Application
 	public void pingCrafter() throws ExecutionException, InterruptedException
 	{
 		MinecraftServerPingService service = MinecraftServerPingServiceBuilder.buildDefault();
-		Future<ServerStatus> infoFuture = service.fetchInfo(new ServerInfo("", "crafter.me"), null);
+		Future<ServerStatus> infoFuture = service.fetchInfo(new ServerInfoBase("", "crafter.me"), null);
 		ServerStatus serverStatus = infoFuture.get();
 
 		System.out.println(serverStatus);
@@ -43,7 +44,7 @@ public class MinecraftServerPingServiceTest extends Application
 	public void pingCloudGap() throws ExecutionException, InterruptedException
 	{
 		MinecraftServerPingService service = MinecraftServerPingServiceBuilder.buildDefault();
-		Future<ServerStatus> infoFuture = service.fetchInfo(new ServerInfo("", "mc.cloudgap.net"), null);
+		Future<ServerStatus> infoFuture = service.fetchInfo(new ServerInfoBase("", "mc.cloudgap.net"), null);
 		ServerStatus serverStatus = infoFuture.get();
 		System.out.println(serverStatus);
 	}
@@ -52,7 +53,7 @@ public class MinecraftServerPingServiceTest extends Application
 	public void start(Stage primaryStage) throws Exception
 	{
 //		ServerInfo info = new ServerInfo("", "crafter.me");
-		ServerInfo info = new ServerInfo("", "mc.cloudgap.net");
+		ServerInfo info = new ServerInfoBase("", "mc.cloudgap.net");
 		MinecraftServerPingService service = MinecraftServerPingServiceBuilder.buildDefault();
 		Future<ServerStatus> infoFuture = service.fetchInfo(info, null);
 		ServerStatus serverStatus = infoFuture.get();

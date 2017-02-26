@@ -12,14 +12,16 @@
                            style="-fx-text-fill:WHITE;-fx-font-weight:BOLD;-fx-font-size:14;"
                            styleClass="column-header"/>
                 </StackPane>
-                <JFXListView fx:id="availableView" maxHeight="250" prefWidth="300" maxWidth="Infinity"/>
+                <JFXListView fx:id="availableView" maxHeight="250" prefWidth="300" maxWidth="Infinity"
+                             styleClass="thin-scroll-bar"/>
             </VBox>
             <VBox alignment="CENTER" style="-fx-background-color:WHITE;" prefWidth="300">
                 <StackPane style="-fx-padding:5;" styleClass="major">
                     <Label text="%setting.resourcepacks.selecting"
                            style="-fx-text-fill:WHITE;-fx-font-weight:BOLD;-fx-font-size:14;"/>
                 </StackPane>
-                <JFXListView fx:id="selectedView" maxHeight="250" prefWidth="300" maxWidth="Infinity"/>
+                <JFXListView fx:id="selectedView" maxHeight="250" prefWidth="300" maxWidth="Infinity"
+                             styleClass="thin-scroll-bar"/>
             </VBox>
         </HBox>
         <!-- <HBox alignment="CENTER">

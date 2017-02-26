@@ -1,7 +1,6 @@
 package net.wheatlauncher.control;
 
 import api.launcher.ARML;
-import api.launcher.event.ServerEvent;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXRippler;
 import com.jfoenix.controls.JFXTextField;
@@ -9,17 +8,23 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.value.ChangeListener;
 import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
 import javafx.event.EventHandler;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
-import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.TextFlow;
+import net.launcher.FXServerInfo;
+import net.launcher.TextComponentConverter;
 import net.launcher.control.ImageCellBase;
 import net.launcher.game.ServerInfo;
+import net.launcher.game.ServerInfoBase;
 import net.launcher.game.ServerStatus;
 
 import java.util.ResourceBundle;
@@ -43,25 +48,23 @@ public class ControllerServersView
 
 	public void initialize()
 	{
-//		FilteredList<ServerInfo> serverInfos = new FilteredList<>(ARML.core().getServerManager().getAllServers());
-//		serverInfos.predicateProperty().bind(Bindings.createObjectBinding(() -> predicate, search.textProperty()));
 		serverList.setCellFactory(param -> new ServerCells());
 		serverList.setItems(ARML.core().getServerManager().getAllServers());
 		serverList.setOnEditCommit(event ->
 		{
 			Task<ServerStatus> serverStatusTask = ARML.core().getServerManager().fetchInfoAndWaitPing(event.getNewValue());
 			ARML.core().getTaskCenter().runTask(serverStatusTask);
-
 		});
 		BooleanBinding booleanBinding = Bindings.createBooleanBinding(() -> serverList.getSelectionModel().isEmpty(),
 				serverList.getSelectionModel().selectedIndexProperty());
 		edited.disableProperty().bind(booleanBinding);
 		removed.disableProperty().bind(booleanBinding);
+		refresh();
 	}
 
 	public void add()
 	{
-		ServerInfo localhost = new ServerInfo("Minecraft Server", "localhost");
+		ServerInfo localhost = new FXServerInfo(new ServerInfoBase("Minecraft Server", "localhost"));
 		ARML.core().getServerManager().getAllServers().add(localhost);
 	}
 
@@ -76,9 +79,11 @@ public class ControllerServersView
 		for (ServerInfo serverInfo : serverList.getItems())
 		{
 			Task<ServerStatus> serverStatusTask = ARML.core().getServerManager().fetchInfoAndWaitPing(serverInfo);
-			serverStatusTask.setOnScheduled(event ->
+			serverStatusTask.setOnSucceeded(event ->
 			{
-
+				Worker<ServerStatus> source = event.getSource();
+				FXServerInfo serverInfo1 = (FXServerInfo) serverInfo;
+				serverInfo1.setStatus(source.getValue());
 			});
 			ARML.core().getTaskCenter().runTask(serverStatusTask);
 		}
@@ -98,32 +103,47 @@ public class ControllerServersView
 	private class ServerCells extends ListCell<ServerInfo>
 	{
 		private JFXTextField ip, name;
-		private ServerStatus status;
 
 		private ImageCellBase<ServerInfo> graphic = new ImageCellBase<>();
 
-		private HBox commonContent;
+		private Node commonContent;
 		private Node editContent;
-		private Label nameLabel = new Label(), motd = new Label();
+		private Label nameLabel, capaLabel;
+		private TextFlow motd;
 
+		ServerCells()
 		{
 			this.getStyleClass().add("base-cell");
-			commonContent = new HBox(nameLabel, motd);
-			commonContent.setSpacing(5);
-			graphic.setRight(commonContent);
+			motd = new TextFlow();
+			nameLabel = new Label();
+			capaLabel = new Label();
+			BorderPane borderPane = new BorderPane();
+			VBox borderLeft = new VBox();
+			VBox borderRight = new VBox();
+			borderPane.setLeft(borderLeft);
+			borderPane.setRight(borderRight);
+			borderLeft.getChildren().addAll(nameLabel, motd);
+			borderRight.getChildren().addAll(capaLabel);
+			BorderPane.setAlignment(borderRight, Pos.TOP_RIGHT);
+
+			graphic.setRight(commonContent = borderPane);
+
 			VBox editContent = new VBox();
-			ip = new JFXTextField();
-			name = new JFXTextField();
+
+			Label ipLabel = new Label(resources.getString("server.ip"), ip = new JFXTextField());
+			ipLabel.setContentDisplay(ContentDisplay.RIGHT);
+
+			Label nameLabel = new Label(resources.getString("server.name"), name = new JFXTextField());
+			nameLabel.setContentDisplay(ContentDisplay.RIGHT);
+
 			editContent.setSpacing(5);
-			editContent.getChildren().addAll(name, ip);
+			editContent.getChildren().addAll(nameLabel, ipLabel);
 			this.editContent = editContent;
 
 			EventHandler<KeyEvent> keyEventsHandler = t ->
 			{
-				if (t.getCode() == KeyCode.ENTER)
-					commitEdit(getItem());
-				else if (t.getCode() == KeyCode.ESCAPE)
-					cancelEdit();
+				if (t.getCode() == KeyCode.ENTER) commitEdit(getItem());
+				else if (t.getCode() == KeyCode.ESCAPE) cancelEdit();
 			};
 
 			ChangeListener<Boolean> focusChangeListener = (observable, oldValue, newValue) ->
@@ -132,16 +152,6 @@ public class ControllerServersView
 			};
 			this.addEventHandler(KeyEvent.KEY_RELEASED, keyEventsHandler);
 			this.focusedProperty().addListener(focusChangeListener);
-		}
-
-		private void updateDisplay()
-		{
-			nameLabel.setText(getItem().getName());
-			Image serverIcon = ServerInfo.createServerIcon(getItem());
-			if (serverIcon != null)
-				graphic.setImage(serverIcon);
-			if (status != null)
-				motd.setText(status.getServerMOTD());
 		}
 
 		@Override
@@ -164,8 +174,13 @@ public class ControllerServersView
 		public void commitEdit(ServerInfo newValue)
 		{
 			super.commitEdit(newValue);
+			if (newValue != null)
+			{
+				newValue.setHostName(ip.getText());
+				newValue.setName(name.getText());
+				((FXServerInfo) newValue).invalidated(null);
+			}
 			graphic.setRight(commonContent);
-			ARML.bus().postEvent(new ServerEvent(ServerEvent.MODIFY, newValue));
 		}
 
 		@Override
@@ -174,9 +189,26 @@ public class ControllerServersView
 			super.updateItem(item, empty);
 			if (item != null && !empty)
 			{
-				nameLabel.setText(item.getName());
+				nameLabel.textProperty().bind(((FXServerInfo) getItem()).nameProperty());
+				capaLabel.textProperty().bind(Bindings.createStringBinding(() ->
+				{
+					if (getItem() == null) return "?/?";
+					ServerStatus status = ((FXServerInfo) getItem()).getStatus();
+					if (status != null) return status.getOnlinePlayers() + "/" + status.getCapability();
+					return "?/?";
+				}, ((FXServerInfo) getItem()).statusProperty()));
+
+				ServerStatus status = ((FXServerInfo) getItem()).getStatus();
+				if (status != null) TextComponentConverter.convert(status.getServerMOTD(), motd);
+				((FXServerInfo) getItem()).statusProperty().addListener(observable ->
+				{
+					ServerStatus status0 = ((FXServerInfo) getItem()).getStatus();
+					if (status0 != null) TextComponentConverter.convert(status0.getServerMOTD(), motd);
+				});
+				graphic.imageProperty().bind(Bindings.createObjectBinding(() -> ServerInfo.createServerIcon(item), ((FXServerInfo) getItem()).serverIconProperty()));
 				setGraphic(graphic);
 			}
+			else setGraphic(null);
 		}
 
 	}

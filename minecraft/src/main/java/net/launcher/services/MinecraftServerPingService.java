@@ -1,6 +1,7 @@
 package net.launcher.services;
 
 import net.launcher.game.ServerInfo;
+import net.launcher.game.ServerInfoBase;
 import net.launcher.game.ServerStatus;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Callback;
 import org.to2mbn.jmccc.mcdownloader.download.concurrent.Shutdownable;
@@ -13,7 +14,7 @@ import java.util.concurrent.Future;
  * Instantiated by {@link MinecraftServerPingServiceBuilder}.
  *
  * @author ci010
- * @see ServerInfo
+ * @see ServerInfoBase
  * @see ServerStatus
  * @see MinecraftServerPingServiceBuilder
  */

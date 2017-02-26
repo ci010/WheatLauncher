@@ -1,5 +1,6 @@
 package net.wheatlauncher.internal.io;
 
+import api.launcher.ARML;
 import api.launcher.LaunchProfile;
 import api.launcher.LaunchProfileManager;
 import api.launcher.io.IOGuard;
@@ -61,6 +62,7 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 		Path profileRoot = getProfileDir(profile.getId());
 		try {Files.createDirectories(profileRoot);}
 		catch (IOException e) {throw new IllegalArgumentException(e);}
+		getContext().enqueue(new SaveProfile(profile));
 	}
 
 	private void onDeleteProfile(LaunchProfile profile)
@@ -137,12 +139,12 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 				profilesRecord.remove(profile.getId());
 			if (!profilesRecord.isEmpty())
 			{
+				ARML.logger().warning("Bad profile record! " + profilesRecord);
 				//TODO bad record
 			}
 		}
 
-		if (profilesList.isEmpty())
-			throw new IOException("profile.load.fail");
+		if (profilesList.isEmpty()) throw new IOException("profile.load.fail");
 
 		LaunchProfileManager build = LaunchProfileManagerBuilder.create()
 				.setInitState(profilesList)

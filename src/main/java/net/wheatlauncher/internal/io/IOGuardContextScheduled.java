@@ -32,6 +32,14 @@ public class IOGuardContextScheduled implements IOGuardContext
 	}
 
 	@Override
+	public void destroy() throws Exception
+	{
+		saveAll();
+		for (IOGuard guard : ioGuards.values())
+			guard.destroy();
+	}
+
+	@Override
 	public void saveAll() throws Exception
 	{
 		for (IOTask ioTask : tasks) ioTask.performance(this.getRoot());

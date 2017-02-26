@@ -127,7 +127,9 @@ public class ControllerMod
 		protected Node buildContent()
 		{
 			VBox box = new VBox();
+			box.setSpacing(5);
 			Label nameAndID = new Label(), versionLabel = new Label(), descript = new Label();
+			nameAndID.setStyle("-fx-font-weight: BOLD;-fx-font-size:14px;");
 			nameAndID.textProperty().bind(Bindings.createStringBinding(() ->
 					getValue().getMetaData().getName() + " (" + getValue().getModId() + ")", valueProperty()));
 			versionLabel.textProperty().bind(Bindings.createStringBinding(() ->

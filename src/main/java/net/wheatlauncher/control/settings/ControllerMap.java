@@ -109,9 +109,10 @@ public class ControllerMap
 		protected Node buildContent()
 		{
 			VBox box = new VBox();
-			box.setSpacing(10);
+			box.setSpacing(5);
 			Label name = new Label(), fileInfo = new Label(), mode = new Label();
 			box.getChildren().setAll(name, fileInfo, mode);
+			name.setStyle("-fx-font-weight: BOLD;-fx-font-size:14px;");
 
 			name.textProperty().bind(Bindings.createStringBinding(() ->
 					{

@@ -5,14 +5,16 @@
 <?import javafx.scene.layout.VBox?>
 <VBox xmlns:fx="http://javafx.com/fxml/1"
       xmlns="http://javafx.com/javafx/2.2" fx:controller="net.wheatlauncher.control.ControllerServersView" spacing="10">
-    <JFXListView fx:id="serverList" minHeight="200" editable="true"/>
+    <JFXListView fx:id="serverList" minHeight="200" editable="true" styleClass="mics-list"/>
     <BorderPane>
         <left>
             <HBox spacing="10">
                 <JFXRippler onMouseReleased="#add">
                     <Icon awesomeIcon="PLUS"/>
                 </JFXRippler>
-                <JFXRippler fx:id="removed" onMouseReleased="#remove"/>
+                <JFXRippler fx:id="removed" onMouseReleased="#remove">
+                    <Icon awesomeIcon="CLOSE"/>
+                </JFXRippler>
             </HBox>
         </left>
         <center>

@@ -2,6 +2,8 @@ package net.launcher.services;
 
 import net.launcher.game.ServerInfo;
 import net.launcher.game.ServerStatus;
+import net.launcher.game.text.TextComponent;
+import net.launcher.game.text.TextComponentDeserializer;
 import net.launcher.utils.MessageUtils;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
@@ -38,7 +40,9 @@ public class HandshakeTask implements Callable<ServerStatus>
 	{
 		String s = handshake(info);
 		JSONObject object = new JSONObject(s);
-		String description = object.getJSONObject("description").getString("text");
+		TextComponentDeserializer deserializer = new TextComponentDeserializer();
+		TextComponent motd = deserializer.deserialize(object.getJSONObject("description"));
+
 		String favicon = object.optString("favicon");
 
 		JSONObject version = object.getJSONObject("version");
@@ -85,7 +89,7 @@ public class HandshakeTask implements Callable<ServerStatus>
 			modInfo = new ServerStatus.ModInfo(type, Collections.unmodifiableMap(modVersions), moddedClientAllowed);
 		}
 
-		return new ServerStatus(versionName, description, protocol, online, max, profiles, modInfo);
+		return new ServerStatus(versionName, motd, protocol, online, max, profiles, modInfo);
 	}
 
 	private String handshake(ServerInfo info) throws IOException

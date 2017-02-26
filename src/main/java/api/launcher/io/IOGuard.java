@@ -22,6 +22,8 @@ public abstract class IOGuard<T>
 
 	public T getInstance() {return reference != null ? reference.get() : null;}
 
+	public void destroy() throws Exception {}
+
 	public final void init(IOGuardContext context)
 	{
 		Objects.requireNonNull(context);
@@ -38,7 +40,11 @@ public abstract class IOGuard<T>
 		}
 		T load;
 		try {load = loadInstance();}
-		catch (Exception e) {load = defaultInstance();}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			load = defaultInstance();
+		}
 		reference = new WeakReference<>(load);
 		deploy();
 		return load;

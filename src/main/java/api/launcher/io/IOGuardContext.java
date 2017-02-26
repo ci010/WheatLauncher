@@ -10,6 +10,8 @@ import java.nio.file.Path;
  */
 public interface IOGuardContext
 {
+	void destroy() throws Exception;
+
 	void saveAll() throws Exception;
 
 	void loadAll() throws IOException;

@@ -40,11 +40,11 @@ public class IOGuardAuth extends IOGuard<AuthManager>
 		NBTCompound compound = NBT.read(path, false).asCompound();
 		String account = compound.get("account").asString("");
 		String auth = compound.get("auth").asString("");
-		return new AuthManager(account, auth, (Map<String, List<String>>) compound.get("history").asCompound().asRaw());
+		return new AuthManagerImpl(account, auth, (Map<String, List<String>>) compound.get("history").asCompound().asRaw());
 	}
 
 	@Override
-	public AuthManager defaultInstance() {return new AuthManager();}
+	public AuthManager defaultInstance() {return new AuthManagerImpl();}
 
 	@Override
 	protected void deploy()

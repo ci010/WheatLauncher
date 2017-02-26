@@ -493,6 +493,19 @@
     -fx-padding:1;
 }
 
+.thin-scroll-bar .scroll-bar:horizontal .increment-arrow,
+.thin-scroll-bar .scroll-bar:horizontal .decrement-arrow,
+.thin-scroll-bar .scroll-bar:horizontal .increment-button,
+.thin-scroll-bar .scroll-bar:horizontal .decrement-button {
+    -fx-padding:1;
+}
+
+.thin-scroll-bar .scroll-bar:vertical .increment-arrow,
+.thin-scroll-bar .scroll-bar:vertical .decrement-arrow,
+.thin-scroll-bar .scroll-bar:vertical .increment-button,
+.thin-scroll-bar .scroll-bar:vertical .decrement-button {
+    -fx-padding:1;
+}
 /*.glyph-icon{
 	-fx-padding:10;
 	-glyph-size:26;

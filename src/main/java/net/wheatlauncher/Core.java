@@ -180,10 +180,9 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 	}
 
 	@Override
-	public void destroy() throws IOException
+	public void destroy() throws Exception
 	{
-		try {ioContext.saveAll();}
-		catch (Exception e) {e.printStackTrace();}
+		ioContext.destroy();
 		ARML.logger().info("Shutdown");
 	}
 

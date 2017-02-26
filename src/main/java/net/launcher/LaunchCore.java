@@ -1,6 +1,5 @@
 package net.launcher;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 /**
@@ -12,5 +11,5 @@ public interface LaunchCore
 
 	void init(Path root) throws Exception;
 
-	void destroy() throws IOException;
+	void destroy() throws Exception;
 }

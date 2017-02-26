@@ -1,5 +1,7 @@
 package net.launcher.game;
 
+import net.launcher.game.text.TextComponent;
+import net.launcher.game.text.components.TextComponentString;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 
 import java.util.Arrays;
@@ -17,9 +19,11 @@ public class ServerStatus
 	}
 
 	private long pingToServer;
-	private String gameVersion, serverMOTD;
+	private String gameVersion;
 	private int protocolVersion;
 	private int onlinePlayers, capability;
+
+	private TextComponent serverMOTD;
 
 	private GameProfile[] playerList = new GameProfile[0];
 	private ModInfo modInfo = new ModInfo("", Collections.emptyMap(), false);
@@ -27,13 +31,14 @@ public class ServerStatus
 	public ServerStatus(String gameVersion, String serverMOTD, int protocolVersion, int onlinePlayers, int capability)
 	{
 		this.gameVersion = gameVersion;
-		this.serverMOTD = serverMOTD;
+		this.serverMOTD = new TextComponentString(serverMOTD);
 		this.protocolVersion = protocolVersion;
 		this.onlinePlayers = onlinePlayers;
 		this.capability = capability;
 	}
 
-	public ServerStatus(String gameVersion, String serverMOTD, int protocolVersion, int onlinePlayers, int capability, GameProfile[] playerList, ModInfo modInfo)
+	public ServerStatus(String gameVersion, TextComponent serverMOTD, int protocolVersion, int onlinePlayers, int capability,
+						GameProfile[] playerList, ModInfo modInfo)
 	{
 		this.gameVersion = gameVersion;
 		this.serverMOTD = serverMOTD;
@@ -59,7 +64,7 @@ public class ServerStatus
 		return gameVersion;
 	}
 
-	public String getServerMOTD()
+	public TextComponent getServerMOTD()
 	{
 		return serverMOTD;
 	}

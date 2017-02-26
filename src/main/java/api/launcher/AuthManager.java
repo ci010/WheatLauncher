@@ -1,193 +1,64 @@
 package api.launcher;
 
-import javafx.beans.binding.Bindings;
-import javafx.beans.property.*;
-import javafx.collections.FXCollections;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
-import net.launcher.auth.AuthOffline;
-import net.launcher.auth.AuthOnline;
 import net.launcher.auth.Authorize;
-import net.launcher.utils.StringUtils;
 import org.to2mbn.jmccc.auth.AuthInfo;
-
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
 
 /**
  * @author ci010
  */
-public class AuthManager
+public interface AuthManager
 {
-	private final Authorize OFFLINE;
+	String getAuthorize();
 
-	private StringProperty account = new SimpleStringProperty(StringUtils.EMPTY),
-			password = new SimpleStringProperty(StringUtils.EMPTY);
-	private String clientToken = StringUtils.EMPTY,
-			accessToken = StringUtils.EMPTY;
-	private ObjectProperty<AuthInfo> cache = new SimpleObjectProperty<>();
+	StringProperty authorizeProperty();
 
-	private ObservableMap<String, ObservableList<String>> historyMap = FXCollections.observableMap(new TreeMap<>());
-	private ObservableMap<String, Authorize> authorizeMap = FXCollections.observableMap(new TreeMap<>());
+	void setAuthorize(String authorize);
 
-	private StringProperty authorize = new SimpleStringProperty();
-	private ObjectProperty<Authorize> authorized = new SimpleObjectProperty<>();
+	void setNoAuthorize();
 
-	{
-		OFFLINE = new AuthOffline();
-		registerAuth(AuthOnline.class);
-	}
+	boolean isOffline();
 
-	public AuthManager()
-	{
-		this("", "offline", Collections.emptyMap());
-	}
+	boolean registerAuth(Class<? extends Authorize> authClass);
 
-	public String getAuthorize()
-	{
-		return authorize.get();
-	}
+	ObservableMap<String, Authorize> getAuthorizeMap();
 
-	public StringProperty authorizeProperty()
-	{
-		return authorize;
-	}
+	ReadOnlyObjectProperty<Authorize> authorizeInstanceProperty();
 
-	public void setAuthorize(String authorize)
-	{
-		this.authorize.set(authorize);
-	}
+	String getAccount();
 
-	public void setNoAuthorize()
-	{
-		this.authorize.set("offline");
-	}
+	ReadOnlyStringProperty accountProperty();
 
-	public boolean isOffline() {return getAuthorize().equals("offline");}
+	ReadOnlyStringProperty passwordProperty();
 
-	public AuthManager(String account, String authorize, Map<String, List<String>> history)
-	{
-		this.account.set(account);
-		this.authorize.set(authorize);
-		this.authorized.bind(Bindings.createObjectBinding(() ->
-				authorizeMap.getOrDefault(getAuthorize(), OFFLINE), this.authorize, authorizeMap));
-		history.forEach((s, l) -> this.historyMap.put(s, FXCollections.observableArrayList(l)));
-	}
+	void setAccount(String account);
 
-	public boolean registerAuth(Class<? extends Authorize> authClass)
-	{
-		Authorize.ID annotation = authClass.getAnnotation(Authorize.ID.class);
-		if (annotation == null)
-			return false;
-		if (authorizeMap.containsKey(annotation.value()))
-			return false;
-		try
-		{
-			authorizeMap.put(annotation.value(), authClass.getDeclaredConstructor().newInstance());
-		}
-		catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e)
-		{
-			return false;
-		}
-		return true;
-	}
+	String getPassword();
 
-	public ObservableMap<String, Authorize> getAuthorizeMap()
-	{
-		return FXCollections.unmodifiableObservableMap(authorizeMap);
-	}
+	void setPassword(String password);
 
-	public ReadOnlyObjectProperty<Authorize> authorizeInstanceProperty()
-	{
-		return authorized;
-	}
+	String getClientToken();
 
-	public String getAccount() {return account.get();}
+	void setClientToken(String clientToken);
 
-	public ReadOnlyStringProperty accountProperty()
-	{
-		return account;
-	}
+	String getAccessToken();
 
-	public ReadOnlyStringProperty passwordProperty()
-	{
-		return password;
-	}
+	void setAccessToken(String accessToken);
 
-	public void setAccount(String account)
-	{
-		account = account == null ? "" : account;
-		this.account.set(account);
-	}
+	ObservableMap<String, ObservableList<String>> getHistoryMap();
 
-	public String getPassword() {return password.get();}
+	Authorize getAuthorizeInstance();
 
-	public void setPassword(String password)
-	{
-		Objects.requireNonNull(password);
-		authorized.get().validatePassword(password);
-		this.password.set(password);
-	}
+	void setCache(AuthInfo info);
 
-	public String getClientToken() {return clientToken;}
+	ObjectProperty<AuthInfo> cacheProperty();
 
-	public void setClientToken(String clientToken)
-	{
-		Objects.requireNonNull(clientToken);
-		this.clientToken = clientToken;
-	}
+	AuthInfo getCache();
 
-	public String getAccessToken() {return accessToken;}
-
-	public void setAccessToken(String accessToken)
-	{
-		Objects.requireNonNull(accessToken);
-		this.accessToken = accessToken;
-	}
-
-	public ObservableMap<String, ObservableList<String>> getHistoryMap()
-	{
-		return historyMap;
-	}
-
-	public Authorize getAuthorizeInstance() {return authorized.get();}
-
-	public void setCache(AuthInfo info)
-	{
-		this.addToHistory(info.getUsername());
-		this.cache.set(info);
-	}
-
-	private void addToHistory(String account)
-	{
-		String id = Authorize.getID(getAuthorizeInstance());
-		if (!historyMap.containsKey(id))
-			historyMap.put(id, FXCollections.observableArrayList());
-		ObservableList<String> strings = historyMap.get(id);
-		if (!strings.contains(account))
-		{
-			if (strings.size() > 5) strings.remove(strings.size() - 1);
-			strings.add(0, account);
-		}
-	}
-
-
-	public ObjectProperty<AuthInfo> cacheProperty()
-	{
-		return cache;
-	}
-
-	public AuthInfo getCache()
-	{
-		return cache.get();
-	}
-
-	public ObservableList<String> getHistoryList()
-	{
-		String id = Authorize.getID(getAuthorizeInstance());
-		ObservableList<String> strings = getHistoryMap().get(id);
-		if (strings == null)
-			historyMap.put(id, strings = FXCollections.observableArrayList());
-		return strings;
-	}
+	ObservableList<String> getHistoryList();
 }

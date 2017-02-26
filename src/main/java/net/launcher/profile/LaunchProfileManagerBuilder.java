@@ -17,7 +17,7 @@ public class LaunchProfileManagerBuilder implements Builder<LaunchProfileManager
 {
 	public static LaunchProfileManagerBuilder create() {return new LaunchProfileManagerBuilder();}
 
-	public static LaunchProfileManager buildDefault() {return create().build();}
+	public static Object buildDefault() {return create().build();}
 
 	public static Consumer<LaunchProfile> defaultProfileFactory()
 	{
@@ -89,7 +89,7 @@ public class LaunchProfileManagerBuilder implements Builder<LaunchProfileManager
 	@Override
 	public LaunchProfileManager build()
 	{
-		return new LaunchProfileManager(profiles, createGuard, deleteGuard, copyGuard);
+		return new LaunchProfileManagerImpl(profiles, createGuard, deleteGuard, copyGuard);
 	}
 
 	private LaunchProfileManagerBuilder() {}

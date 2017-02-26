@@ -5,6 +5,8 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.image.Image;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 
 /**
@@ -48,6 +50,8 @@ public class ImageCellBase<T> extends ImageCell<T>
 	protected Node buildContent()
 	{
 		rightContainer = new StackPane();
+		HBox.setHgrow(rightContainer, Priority.ALWAYS);
+		rightContainer.setMaxWidth(Integer.MAX_VALUE);
 		rightContainer.setAlignment(Pos.CENTER);
 		return rightContainer;
 	}

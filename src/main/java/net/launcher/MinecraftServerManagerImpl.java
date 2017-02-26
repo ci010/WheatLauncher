@@ -97,6 +97,7 @@ public class MinecraftServerManagerImpl implements MinecraftServerManager
 			protected ServerStatus call() throws Exception
 			{
 				SocketChannel open = SocketChannel.open(MessageUtils.getAddress(info.getHostName()));
+				System.out.println(open);
 				try {return new PingTask(info, new HandshakeTask(info, open).call(), open).call();}
 				catch (Exception e)
 				{
