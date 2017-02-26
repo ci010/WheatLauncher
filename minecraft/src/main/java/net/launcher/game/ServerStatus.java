@@ -1,6 +1,8 @@
 package net.launcher.game;
 
+import net.launcher.game.text.Style;
 import net.launcher.game.text.TextComponent;
+import net.launcher.game.text.TextFormatting;
 import net.launcher.game.text.components.TextComponentString;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 
@@ -15,7 +17,22 @@ public class ServerStatus
 {
 	public static ServerStatus pinging()
 	{
-		return new ServerStatus("unknown", "Pinging...", -1, -1, -1);
+		return new ServerStatus("unknown", new TextComponentString("Pinging..."), -1, -1, -1);
+	}
+
+	public static ServerStatus unknownHost()
+	{
+		return new ServerStatus("unknown",
+				new TextComponentString("Can\'t resolve hostname.").style(new Style().setColor(TextFormatting.DARK_RED))
+				, -1, -1, -1);
+	}
+
+	public static ServerStatus error()
+	{
+		return new ServerStatus("unknown",
+				new TextComponentString("Can\'t connect to server.").style(new Style().setColor(TextFormatting
+						.DARK_RED))
+				, -1, -1, -1);
 	}
 
 	private long pingToServer;
@@ -28,10 +45,10 @@ public class ServerStatus
 	private GameProfile[] playerList = new GameProfile[0];
 	private ModInfo modInfo = new ModInfo("", Collections.emptyMap(), false);
 
-	public ServerStatus(String gameVersion, String serverMOTD, int protocolVersion, int onlinePlayers, int capability)
+	public ServerStatus(String gameVersion, TextComponent serverMOTD, int protocolVersion, int onlinePlayers, int capability)
 	{
 		this.gameVersion = gameVersion;
-		this.serverMOTD = new TextComponentString(serverMOTD);
+		this.serverMOTD = serverMOTD;
 		this.protocolVersion = protocolVersion;
 		this.onlinePlayers = onlinePlayers;
 		this.capability = capability;

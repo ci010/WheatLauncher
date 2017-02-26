@@ -27,9 +27,9 @@ import net.launcher.game.ServerInfo;
 import net.launcher.game.ServerInfoBase;
 import net.launcher.game.ServerStatus;
 
+import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 /**
  * @author ci010
@@ -74,19 +74,42 @@ public class ControllerServersView
 		ARML.core().getServerManager().getAllServers().remove(item);
 	}
 
+	private Task<ServerStatus> pingServerTask(ServerInfo serverInfo)
+	{
+		Task<ServerStatus> serverStatusTask = ARML.core().getServerManager().fetchInfoAndWaitPing(serverInfo);
+
+		serverStatusTask.setOnScheduled(event ->
+		{
+			FXServerInfo serverInfo1 = (FXServerInfo) serverInfo;
+			serverInfo1.setStatus(ServerStatus.pinging());
+		});
+		serverStatusTask.setOnSucceeded(event ->
+		{
+			Worker<ServerStatus> source = event.getSource();
+			FXServerInfo serverInfo1 = (FXServerInfo) serverInfo;
+			serverInfo1.setStatus(source.getValue());
+		});
+		serverStatusTask.setOnFailed(event ->
+		{
+			Throwable exception = event.getSource().getException();
+			if (exception instanceof UnknownHostException)
+			{
+				FXServerInfo serverInfo1 = (FXServerInfo) serverInfo;
+				serverInfo1.setStatus(ServerStatus.unknownHost());
+			}
+			else
+			{
+				FXServerInfo serverInfo1 = (FXServerInfo) serverInfo;
+				serverInfo1.setStatus(ServerStatus.error());
+			}
+		});
+		return serverStatusTask;
+	}
+
 	public void refresh()
 	{
 		for (ServerInfo serverInfo : serverList.getItems())
-		{
-			Task<ServerStatus> serverStatusTask = ARML.core().getServerManager().fetchInfoAndWaitPing(serverInfo);
-			serverStatusTask.setOnSucceeded(event ->
-			{
-				Worker<ServerStatus> source = event.getSource();
-				FXServerInfo serverInfo1 = (FXServerInfo) serverInfo;
-				serverInfo1.setStatus(source.getValue());
-			});
-			ARML.core().getTaskCenter().runTask(serverStatusTask);
-		}
+			ARML.core().getTaskCenter().runTask(pingServerTask(serverInfo));
 	}
 
 	public void edit()
@@ -96,9 +119,6 @@ public class ControllerServersView
 		else
 			serverList.edit(-1);
 	}
-
-	private final Pattern PATTERN = Pattern.compile(
-			"^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
 
 	private class ServerCells extends ListCell<ServerInfo>
 	{
@@ -126,7 +146,6 @@ public class ControllerServersView
 			borderLeft.getChildren().addAll(nameLabel, motd);
 			borderRight.setTop(capaLabel);
 			borderRight.setBottom(pingLabel);
-//			borderRight.getChildren().addAll(capaLabel, pingLabel);
 			BorderPane.setAlignment(borderRight, Pos.TOP_RIGHT);
 
 			graphic.setRight(commonContent = borderPane);
@@ -151,7 +170,7 @@ public class ControllerServersView
 
 			ChangeListener<Boolean> focusChangeListener = (observable, oldValue, newValue) ->
 			{
-				if (!newValue) commitEdit(getItem());
+				if (!newValue) cancelEdit();
 			};
 			this.addEventHandler(KeyEvent.KEY_RELEASED, keyEventsHandler);
 			this.focusedProperty().addListener(focusChangeListener);
@@ -162,8 +181,11 @@ public class ControllerServersView
 		{
 			super.startEdit();
 			graphic.setRight(editContent);
-			ip.setText(getItem().getHostName());
-			name.setText(getItem().getName());
+			if (getItem() != null)
+			{
+				ip.setText(getItem().getHostName());
+				name.setText(getItem().getName());
+			}
 		}
 
 		@Override
@@ -178,11 +200,13 @@ public class ControllerServersView
 		{
 			super.commitEdit(newValue);
 			if (newValue != null)
-			{
-				newValue.setHostName(ip.getText());
-				newValue.setName(name.getText());
-				((FXServerInfo) newValue).invalidated(null);
-			}
+				if (!ip.getText().equals(newValue.getHostName()) || !name.getText().equals(newValue.getName()))
+				{
+					newValue.setHostName(ip.getText());
+					newValue.setName(name.getText());
+					((FXServerInfo) newValue).invalidated(null);
+					ARML.core().getTaskCenter().runTask(pingServerTask(newValue));
+				}
 			graphic.setRight(commonContent);
 		}
 

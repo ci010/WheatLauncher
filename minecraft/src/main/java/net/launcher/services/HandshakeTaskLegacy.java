@@ -2,6 +2,7 @@ package net.launcher.services;
 
 import net.launcher.game.ServerInfo;
 import net.launcher.game.ServerStatus;
+import net.launcher.game.text.components.TextComponentString;
 import net.launcher.utils.MessageUtils;
 
 import java.io.IOException;
@@ -39,7 +40,7 @@ public class HandshakeTaskLegacy implements Callable<ServerStatus>
 			capability = Integer.parseInt(strings[4]);
 		}
 		catch (Exception ignored) {}
-		return new ServerStatus(gameVersion, MOTO, protocol, players, capability);
+		return new ServerStatus(gameVersion, new TextComponentString(MOTO), protocol, players, capability);
 	}
 
 	private String[] pingServerLegacy0() throws IOException
