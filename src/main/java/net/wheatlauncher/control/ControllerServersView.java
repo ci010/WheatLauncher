@@ -108,7 +108,7 @@ public class ControllerServersView
 
 		private Node commonContent;
 		private Node editContent;
-		private Label nameLabel, capaLabel;
+		private Label nameLabel, capaLabel, pingLabel;
 		private TextFlow motd;
 
 		ServerCells()
@@ -117,13 +117,16 @@ public class ControllerServersView
 			motd = new TextFlow();
 			nameLabel = new Label();
 			capaLabel = new Label();
+			pingLabel = new Label();
 			BorderPane borderPane = new BorderPane();
 			VBox borderLeft = new VBox();
-			VBox borderRight = new VBox();
+			BorderPane borderRight = new BorderPane();
 			borderPane.setLeft(borderLeft);
 			borderPane.setRight(borderRight);
 			borderLeft.getChildren().addAll(nameLabel, motd);
-			borderRight.getChildren().addAll(capaLabel);
+			borderRight.setTop(capaLabel);
+			borderRight.setBottom(pingLabel);
+//			borderRight.getChildren().addAll(capaLabel, pingLabel);
 			BorderPane.setAlignment(borderRight, Pos.TOP_RIGHT);
 
 			graphic.setRight(commonContent = borderPane);
@@ -187,7 +190,7 @@ public class ControllerServersView
 		protected void updateItem(ServerInfo item, boolean empty)
 		{
 			super.updateItem(item, empty);
-			if (item != null && !empty)
+			if (item != null && !empty && getItem() != null)
 			{
 				nameLabel.textProperty().bind(((FXServerInfo) getItem()).nameProperty());
 				capaLabel.textProperty().bind(Bindings.createStringBinding(() ->
@@ -198,10 +201,19 @@ public class ControllerServersView
 					return "?/?";
 				}, ((FXServerInfo) getItem()).statusProperty()));
 
+				pingLabel.textProperty().bind(Bindings.createStringBinding(() ->
+				{
+					if (getItem() == null) return "NaN ms";
+					ServerStatus status = ((FXServerInfo) getItem()).getStatus();
+					if (status == null) return "NaN ms";
+					return status.getPingToServer() + " ms";
+				}, ((FXServerInfo) getItem()).statusProperty()));
 				ServerStatus status = ((FXServerInfo) getItem()).getStatus();
 				if (status != null) TextComponentConverter.convert(status.getServerMOTD(), motd);
+
 				((FXServerInfo) getItem()).statusProperty().addListener(observable ->
 				{
+					if (getItem() == null) return;
 					ServerStatus status0 = ((FXServerInfo) getItem()).getStatus();
 					if (status0 != null) TextComponentConverter.convert(status0.getServerMOTD(), motd);
 				});

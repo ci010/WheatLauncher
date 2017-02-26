@@ -39,13 +39,6 @@ public class FXServerInfo implements ServerInfo, InvalidationListener
 		this.serverIcon.set(info.getServerIcon());
 		this.resourceMode.set(info.getResourceMode());
 		this.lanServer.set(info.isLanServer());
-
-//		name.addListener(this);
-//		hostName.addListener(this);
-//		serverIcon.addListener(this);
-//		resourceMode.addListener(this);
-//		lanServer.addListener(this);
-//		status.addListener(this);
 	}
 
 	public ServerStatus getStatus()
