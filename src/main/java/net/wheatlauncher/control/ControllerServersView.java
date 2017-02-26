@@ -1,10 +1,7 @@
 package net.wheatlauncher.control;
 
 import api.launcher.ARML;
-import com.jfoenix.controls.JFXListCell;
-import com.jfoenix.controls.JFXListView;
-import com.jfoenix.controls.JFXRippler;
-import com.jfoenix.controls.JFXTextField;
+import com.jfoenix.controls.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.value.ChangeListener;
@@ -29,7 +26,6 @@ import net.launcher.game.ServerStatus;
 
 import java.net.UnknownHostException;
 import java.util.ResourceBundle;
-import java.util.function.Predicate;
 
 /**
  * @author ci010
@@ -41,10 +37,8 @@ public class ControllerServersView
 	public Node removed;
 	public JFXRippler edited;
 
-	private Predicate<ServerInfo> predicate = info -> info.getHostName().contains(search.getText()) || info.getName()
-			.contains(search.getText());
-
 	public ResourceBundle resources;
+	public JFXButton enterServer;
 
 	public void initialize()
 	{
@@ -58,6 +52,7 @@ public class ControllerServersView
 		});
 		BooleanBinding booleanBinding = Bindings.createBooleanBinding(() -> serverList.getSelectionModel().isEmpty(),
 				serverList.getSelectionModel().selectedIndexProperty());
+		enterServer.disableProperty().bind(booleanBinding);
 		edited.disableProperty().bind(booleanBinding);
 		removed.disableProperty().bind(booleanBinding);
 		refresh();
@@ -120,6 +115,8 @@ public class ControllerServersView
 		else
 			serverList.edit(-1);
 	}
+
+	public void launchServer() {}
 
 	private class ServerCells extends JFXListCell<ServerInfo>
 	{

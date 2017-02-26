@@ -40,8 +40,7 @@ public class ControllerMod
 	public ResourceBundle resources;
 
 	private Predicate<ForgeMod> textPredicate = mod ->
-			search.getText().isEmpty() ||
-					mod.getModId().toLowerCase().contains(search.getText()) || mod.getMetaData().getName().toLowerCase()
+			search.getText().isEmpty() || mod.getModId().toLowerCase().contains(search.getText()) || mod.getMetaData().getName().toLowerCase()
 					.contains(search.getText()) || mod.getMetaData().getDescription().toLowerCase().contains(search.getText());
 
 
