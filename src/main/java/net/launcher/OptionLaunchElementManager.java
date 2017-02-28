@@ -38,8 +38,9 @@ public abstract class OptionLaunchElementManager<T, O> implements LaunchElementM
 			profile.addGameSetting(setting = getOption().getParent().defaultInstance());
 		else setting = optional.get();
 		SettingProperty<O> option = setting.getOption(getOption());
-		list = FXCollections.observableArrayList(from(option.getValue()));
-		list.addListener((ListChangeListener<T>) c -> option.setValue(to((List<T>) c.getList())));
+		list = FXCollections.observableList(from(option.getValue()));
+		list.addListener((ListChangeListener<T>) c ->
+				option.setValue(to((List<T>) c.getList())));
 		cacheMap.put(profile.getId(), new WeakReference<>(list));
 		return list;
 	}

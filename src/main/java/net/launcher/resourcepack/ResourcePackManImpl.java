@@ -90,7 +90,10 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	@Override
 	protected String[] to(List<ResourcePack> lst)
 	{
-		return new String[0];
+		String[] strings = new String[lst.size()];
+		for (int i = 0; i < lst.size(); i++)
+			strings[i] = lst.get(i).getPackName();
+		return strings;
 	}
 
 	@Override

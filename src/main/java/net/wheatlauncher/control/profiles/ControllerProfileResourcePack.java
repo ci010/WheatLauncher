@@ -8,20 +8,14 @@ import com.jfoenix.controls.JFXListCell;
 import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.effects.JFXDepthManager;
-import de.jensd.fx.fontawesome.Icon;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
-import javafx.scene.control.Label;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
-import net.launcher.control.ResourcePackCell;
+import net.launcher.control.MovableResourcePackCell;
 import net.launcher.game.ResourcePack;
 import net.wheatlauncher.control.utils.ReloadableController;
 
@@ -64,12 +58,13 @@ public class ControllerProfileResourcePack implements ReloadableController
 //		selectedRes.predicateProperty().bind(Bindings.createObjectBinding(() -> resourcePackPredicate, searchSelecting.textProperty()));
 		selectedView.setItems(selectedRes);
 
-		FilteredList<ResourcePack> allRes = new FilteredList<>(manager.getAllElement(),
-				resourcePack -> !selected.contains(resourcePack));
-//		allRes.predicateProperty().bind(Bindings.createObjectBinding(() -> resourcePackPredicate
-//						.and(resourcePack -> !selected.contains(resourcePack)),
-//				searchSelecting.textProperty()));
+		FilteredList<ResourcePack> allRes = new FilteredList<>(manager.getAllElement());
 		availableView.setItems(allRes);
+		allRes.predicateProperty().bind(Bindings.createObjectBinding(() ->
+				resourcePack -> !selected.contains(resourcePack), selected));
+
+		availableView.setFocusTraversable(false);
+		selectedView.setFocusTraversable(false);
 
 		availableView.getParent().disableProperty().bind(Bindings.createBooleanBinding(() -> availableView.getItems().isEmpty(),
 				availableView.getItems()));
@@ -83,11 +78,36 @@ public class ControllerProfileResourcePack implements ReloadableController
 					{
 						super.updateItem(item, empty);
 						if (!empty && item != null)
-							setGraphic(new ResourcePackCell(item, manager.getIcon(item)));
+							setGraphic(new MovableResourcePackCell(item, manager.getIcon(item), true));
 						else
 							setGraphic(null);
 					}
 				});
+		availableView.addEventHandler(MovableResourcePackCell.MOVE_RESOURCE_PACK_EVENT, event ->
+		{
+			if (event.getType() == MovableResourcePackCell.MoveResourcePackEvent.Type.SWITCH)
+				if (!selected.get().contains(event.getResourcePack()))
+					selected.get().add(event.getResourcePack());
+		});
+		selectedView.addEventHandler(MovableResourcePackCell.MOVE_RESOURCE_PACK_EVENT, event ->
+		{
+			if (event.getType() == MovableResourcePackCell.MoveResourcePackEvent.Type.SWITCH)
+				selected.get().remove(event.getResourcePack());
+			if (event.getType() == MovableResourcePackCell.MoveResourcePackEvent.Type.UP)
+			{
+				if (selected.size() <= 1) return;
+				int i = selected.get().indexOf(event.getResourcePack()) - 1;
+				selected.remove(event.getResourcePack());
+				selected.add(i, event.getResourcePack());
+			}
+			else if (event.getType() == MovableResourcePackCell.MoveResourcePackEvent.Type.DOWN)
+			{
+				if (selected.size() <= 1) return;
+				int i = selected.get().indexOf(event.getResourcePack()) + 1;
+				selected.remove(event.getResourcePack());
+				selected.add(i, event.getResourcePack());
+			}
+		});
 		selectedView.setCellFactory(param ->
 				new JFXListCell<ResourcePack>()
 				{
@@ -96,7 +116,7 @@ public class ControllerProfileResourcePack implements ReloadableController
 					{
 						super.updateItem(item, empty);
 						if (!empty && item != null)
-							setGraphic(new ResourcePackCell(item, manager.getIcon(item)));
+							setGraphic(new MovableResourcePackCell(item, manager.getIcon(item), false));
 						else
 							setGraphic(null);
 					}
@@ -129,48 +149,5 @@ public class ControllerProfileResourcePack implements ReloadableController
 	public void unload()
 	{
 
-	}
-
-	private StackPane createPane(ResourcePack resourcePack, Image icon, boolean left)
-	{
-		StackPane root = new StackPane();
-		StackPane imgContainer = new StackPane();
-		ImageView view = new ImageView(icon);
-		HBox btnOverlay = createBtnOverlay(left);
-		imgContainer.getChildren().addAll(view, btnOverlay);
-		HBox box = new HBox();
-		VBox content = new VBox(new Label(resourcePack.getPackName()), new Label(resourcePack.getDescription()));
-		box.getChildren().addAll(imgContainer, content);
-		root.getChildren().addAll(box);
-		return root;
-	}
-
-	private HBox createBtnOverlay(boolean left)
-	{
-		HBox btnRoot = new HBox();
-
-		JFXButton choose = new JFXButton();
-		if (left) choose.setGraphic(new Icon("caret-right"));
-		else choose.setGraphic(new Icon("caret-left"));
-
-		VBox moveBtnPanel = new VBox();
-		JFXButton moveUp = new JFXButton(), moveDown = new JFXButton();
-		moveUp.setGraphic(new Icon("caret-up"));
-		moveDown.setGraphic(new Icon("caret-down"));
-
-		moveBtnPanel.getChildren().add(moveUp);
-		moveBtnPanel.getChildren().add(moveDown);
-
-		if (left)
-		{
-			btnRoot.getChildren().add(moveBtnPanel);
-			btnRoot.getChildren().add(choose);
-		}
-		else
-		{
-			btnRoot.getChildren().add(choose);
-			btnRoot.getChildren().add(moveBtnPanel);
-		}
-		return btnRoot;
 	}
 }

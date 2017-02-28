@@ -28,6 +28,7 @@ public class ResourcePackCell extends ImageCell<ResourcePack>
 		name.textProperty().bind(Bindings.createStringBinding(() -> (getValue() != null ? getValue().getPackName() : ""),
 				valueProperty()));
 		Label description = new Label();
+
 		description.setWrapText(true);
 		description.textProperty().bind(Bindings.createStringBinding(() -> (getValue() != null ? getValue().getDescription() : ""),
 				valueProperty()));
