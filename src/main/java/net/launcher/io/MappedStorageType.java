@@ -53,8 +53,10 @@ public interface MappedStorageType
 		public String serialize(Map<String, String> pair)
 		{
 			String property = System.getProperty("line.separator");
-			return pair.entrySet().stream()
+			String collect = pair.entrySet().stream()
 					.map(entry -> entry.getKey() + ":" + entry.getValue()).collect(Collectors.joining(property));
+			collect = collect.concat(property);
+			return collect;
 		}
 	}, PROPERTIES = new MappedStorageType()
 	{

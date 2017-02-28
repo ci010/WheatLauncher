@@ -29,11 +29,15 @@ public class MinecraftSlider extends StackPane
 	public void setPropertyBinding(ObjectBinding<SettingProperty.Limited<Number>> binding)
 	{
 		if (binding == null) return;
-		if (propertyBinding != null)
-			slider.get().valueProperty().unbindBidirectional(propertyBinding.get());
-		slider.get().valueProperty().bindBidirectional(binding.get());
 
 		this.propertyBinding = binding;
+		slider.get().valueProperty().bindBidirectional(binding.get());
+		this.propertyBinding.addListener((observable, oldValue, newValue) ->
+		{
+			if (oldValue != null)
+				slider.get().valueProperty().unbindBidirectional(oldValue);
+			slider.get().valueProperty().bindBidirectional(newValue);
+		});
 		this.propertyBinding.addListener(observable ->
 				button.get().textProperty().bind(Bindings.createStringBinding(() ->
 						this.key.get() + ":" + propertyBinding.get().getValue(), key, propertyBinding.get())));

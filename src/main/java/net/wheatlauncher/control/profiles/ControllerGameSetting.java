@@ -68,7 +68,6 @@ public class ControllerGameSetting
 		setup(mipmap, SettingMinecraft.INSTANCE.MIPMAP_LEVELS, setting);
 		setup(particle, SettingMinecraft.INSTANCE.PARTICLES, setting);
 		setup(ambientOcclusion, SettingMinecraft.INSTANCE.AMBIENT_OCCLUSION, setting);
-
 	}
 
 	private void setup(MinecraftSlider slider, OptionInt option)
@@ -83,7 +82,7 @@ public class ControllerGameSetting
 		{
 			Setting set = ensureSetting(ARML.core().getProfileManager().selecting());
 			return (SettingProperty.Limited<Number>) set.getOption(option);
-		}));
+		}, ARML.core().getProfileManager().selectedProfileProperty()));
 	}
 
 	private void setup(MinecraftOptionButton<Boolean> button, SettingType.Option<Boolean> option)

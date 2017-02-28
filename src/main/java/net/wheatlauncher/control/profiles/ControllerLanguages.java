@@ -76,14 +76,15 @@ public class ControllerLanguages
 				lookup = languageLists.stream().collect(Collectors.toMap(Language::getId, Function.identity()));
 				Language language = selecting.getGameSetting(SettingMinecraft.INSTANCE)
 						.map(s -> s.getOption(SettingMinecraft.INSTANCE.LANGUAGE))
+						.map(SettingProperty::getValue)
 						.map(lookup::get)
 						.orElse(lookup.get("en_us"));
+
 				languageTable.getSelectionModel().select(language);
 				languageTable.scrollTo(language);
 			});
 			ARML.core().getTaskCenter().runTask(task);
 		}
-
 	}
 
 	public void initialize()
@@ -101,8 +102,7 @@ public class ControllerLanguages
 		region.setCellValueFactory(param -> Bindings.createStringBinding(() -> param.getValue().getRegion()));
 		name.setCellValueFactory(param -> Bindings.createStringBinding(() -> param.getValue().getName()));
 		bidi.setCellValueFactory(param -> Bindings.createStringBinding(() -> String.valueOf(param.getValue().isBidirectional())));
-		confirm.disableProperty().bind(Bindings.createBooleanBinding(() ->
-				languageTable.getSelectionModel().isEmpty(), languageTable.getSelectionModel().selectedIndexProperty()));
+		confirm.disableProperty().bind(Bindings.createBooleanBinding(() -> languageTable.getSelectionModel().isEmpty(), languageTable.getSelectionModel().selectedIndexProperty()));
 		confirm.setOnAction(event ->
 				ARML.core().getProfileManager().selecting().getGameSetting(SettingMinecraft.INSTANCE)
 						.map(setting -> setting.getOption(SettingMinecraft.INSTANCE.LANGUAGE)).ifPresent(property ->
