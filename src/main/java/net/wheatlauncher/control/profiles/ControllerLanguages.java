@@ -112,6 +112,7 @@ public class ControllerLanguages
 			LaunchProfileManager profileManager = ARML.core().getProfileManager();
 			profileManager.getProfile(oldV).ifPresent(profile -> profile.versionBinding().removeListener(listener));
 			profileManager.getProfile(newV).ifPresent(profile -> profile.versionBinding().addListener(listener));
+			refresh();
 		});
 		useUnicode.setUserData(resources);
 		useUnicode.setPropertyBinding(Bindings.createObjectBinding(() ->

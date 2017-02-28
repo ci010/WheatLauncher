@@ -11,7 +11,6 @@ import javafx.beans.binding.Bindings;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Parent;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -37,7 +36,6 @@ import java.util.function.Consumer;
  */
 public class ControllerPreview
 {
-	public Parent window;
 	public JFXDialog serverView;
 	public Label useSever;
 
@@ -68,7 +66,6 @@ public class ControllerPreview
 		animation = new AnimationRotate(canvas);
 		canvas.getAnimationPlayer().addSkinAnimation(new SkinAniRunning(100, 100, 30, canvas));
 		JFXDepthManager.setDepth(player.getParent(), 2);
-//		JFXDepthManager.setDepth(window, 2);
 		LaunchProfile selecting = ARML.core().getProfileManager().selecting();
 		if (selecting != null)
 			profileName.setText(selecting.getDisplayName());
@@ -164,35 +161,13 @@ public class ControllerPreview
 		settingDialog.show(((StackPane) root.getParent()));
 	}
 
-//	@FXML
-//	protected void onClick(MouseEvent event) {if (event.getButton() == MouseButton.PRIMARY) root.requestFocus();}
-//
-//	@FXML
-//	private void onClose(MouseEvent event) {if (event.getButton() == MouseButton.PRIMARY) Platform.exit();}
-
-//	public void reload()
-//	{
-//		AuthManager module = ARML.core().getAuthManager();
-//		assert module.getCache() != null;
-//		assert module.getAuthorizeInstance() != null;
-//		assert module.getAccount() != null;
-//		initSkin();
-//		initDialog();
-//	}
-
-//	public void unload()
-//	{
-//		profileSettingDialog.close();
-//		animation.stop();
-//	}
-
-	public void launch(ActionEvent actionEvent) throws Exception
-	{
-//		ARML.core().launch();
-	}
-
 	public void showServer()
 	{
 		serverView.show(((StackPane) root.getParent()));
 	}
+
+	public void launch(ActionEvent actionEvent) throws Exception
+	{
+	}
+
 }

@@ -191,4 +191,11 @@ public class LaunchProfile
 				", version=" + version +
 				'}';
 	}
+
+	@Override
+	protected void finalize() throws Throwable
+	{
+		System.out.println("removed Launch Profile");
+		super.finalize();
+	}
 }

@@ -17,6 +17,7 @@ import org.to2mbn.jmccc.option.JavaEnvironment;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -72,6 +73,7 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 		{
 			DirUtils.deleteContent(profileRoot);
 			Files.delete(profileRoot);
+
 		}
 		catch (IOException e)
 		{
@@ -210,18 +212,24 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 	class SaveSetting implements IOGuardContext.IOTask
 	{
 		String id;
-		Setting setting;
+		WeakReference<Setting> setting;
 
 		SaveSetting(String id, Setting setting)
 		{
 			this.id = id;
-			this.setting = setting;
+			this.setting = new WeakReference<>(setting);
 		}
 
 		@Override
 		public void performance(Path root) throws Exception
 		{
-			setting.getGameSettingType().save(getProfileDir(id), setting);
+			Setting setting = this.setting.get();
+			if (setting == null)
+				return;
+			if (!getInstance().getProfilesMap().containsKey(id))
+				return;
+			Path profileDir = getProfileDir(id);
+			setting.getGameSettingType().save(profileDir, setting);
 		}
 
 		@Override
@@ -235,23 +243,33 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 
 	class SaveProfile implements IOGuardContext.IOTask
 	{
-		private LaunchProfile profile;
+		private String id;
 
-		SaveProfile(LaunchProfile profile) {this.profile = profile;}
+		SaveProfile(LaunchProfile profile) {this.id = profile.getId();}
 
 		@Override
 		public void performance(Path root) throws IOException
 		{
-			Path profileDir = getProfileDir(profile.getId());
+			if (!getInstance().getProfilesMap().containsKey(id))
+				return;
+			LaunchProfile launchProfile = getInstance().getProfilesMap().get(id);
+			Path profileDir = getProfileDir(launchProfile.getId());
 			Path resolve = profileDir.resolve("profile.dat");
-			NBT.write(resolve, serialize(profile).asCompound(), false);
+			NBT.write(resolve, serialize(launchProfile).asCompound(), false);
 		}
 
 		@Override
 		public boolean isEquivalence(IOGuardContext.IOTask task)
 		{
 			return task == this ||
-					(task instanceof SaveProfile && Objects.equals(((SaveProfile) task).profile, profile));
+					(task instanceof SaveProfile && Objects.equals(((SaveProfile) task).id, id));
+		}
+
+		@Override
+		protected void finalize() throws Throwable
+		{
+			System.out.println("finalize");
+			super.finalize();
 		}
 	}
 

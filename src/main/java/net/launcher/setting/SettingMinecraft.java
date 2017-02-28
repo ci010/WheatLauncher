@@ -1,5 +1,6 @@
 package net.launcher.setting;
 
+import api.launcher.ARML;
 import net.launcher.io.MappedStorageType;
 import net.launcher.utils.NIOUtils;
 
@@ -99,7 +100,18 @@ public class SettingMinecraft extends SettingType
 		{
 			String[] keyVPair = line.split(":");
 			Option option = optionMap.get(keyVPair[0]);
-			instance.getOption(option).setValue(option.deserialize(instance, keyVPair[1]));
+			if (option == null)
+			{
+				ARML.logger().warning("unable to load " + keyVPair[0]);
+				continue;
+			}
+			SettingProperty prop = instance.getOption(option);
+			if (prop == null)
+			{
+				ARML.logger().warning("unable to load " + keyVPair[0]);
+				continue;
+			}
+			prop.setValue(option.deserialize(instance, keyVPair[1]));
 		}
 		return instance;
 	}

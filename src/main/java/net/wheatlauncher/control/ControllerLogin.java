@@ -149,7 +149,6 @@ public class ControllerLogin
 	{
 		btnPane.getChildren().remove(login);
 		btnPane.getChildren().add(spinner);
-//		onlineMode.setDisable(true);
 		ARML.async().submit(Tasks.builder(() ->
 		{
 			AuthManager module = ARML.core().getAuthManager();
