@@ -2,48 +2,71 @@ package net.launcher.control;
 
 import com.jfoenix.controls.JFXButton;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import net.launcher.setting.SettingProperty;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 /**
  * @author ci010
  */
-public class MinecraftOptionButton extends JFXButton
+public class MinecraftOptionButton<T> extends JFXButton
 {
 	protected static final String STYLE_CLASS = "options-button";
+	private ObjectBinding<SettingProperty.Limited<T>> propertyBinding;
 
 	public MinecraftOptionButton()
 	{
 		initialize();
 	}
 
-	private int nextIndex()
+	private String localizedValue()
 	{
-		return index = (index + 1) % options.size();
+		if (propertyBinding == null) return "Unknown";
+		if (propertyBinding.get() == null) return "Unknown";
+		String s = propertyBinding.get().getOption().getName() + "." + propertyBinding.get().getValue();
+		Object userData = getUserData();
+		if (userData != null && userData instanceof ResourceBundle)
+			return ((ResourceBundle) userData).getString(s);
+		return s;
+	}
+
+	private void next()
+	{
+		if (propertyBinding != null && propertyBinding.get() != null)
+			propertyBinding.get().next();
 	}
 
 	private void initialize()
 	{
-		this.textProperty().bind(Bindings.createStringBinding(() -> this.key.get() + ":" + this.getValue(), key,
-				value));
-		this.setOnAction(event ->
-		{
-			if (options != null && !getOptions().isEmpty())
-				value.set(options.get(nextIndex()));
-		});
+		this.setOnAction(event -> next());
 		this.getStyleClass().add(STYLE_CLASS);
 	}
 
-	private StringProperty key = new SimpleStringProperty(), value = new SimpleStringProperty();
+	private StringProperty key = new SimpleStringProperty();
 
-	private List<String> options;
-	private int index = -1;
+	public T getProperty()
+	{
+		return propertyBinding.get().getValue();
+	}
+
+	public SettingProperty.Limited<T> propertyProperty()
+	{
+		return propertyBinding.get();
+	}
+
+	public void setPropertyBinding(ObjectBinding<SettingProperty.Limited<T>> binding)
+	{
+		this.propertyBinding = binding;
+		this.propertyBinding.addListener(observable ->
+				this.textProperty().bind(Bindings.createStringBinding(() ->
+								this.key.get() + ":" + localizedValue(),
+						key, propertyBinding.get())));
+		this.propertyBinding.invalidate();
+	}
 
 	public String getKey()
 	{
@@ -59,18 +82,5 @@ public class MinecraftOptionButton extends JFXButton
 	{
 		Objects.requireNonNull(key);
 		this.key.set(key);
-	}
-
-	public String getValue() {return value.get();}
-
-	public ReadOnlyStringProperty valueProperty() {return value;}
-
-	public List<String> getOptions() {return options;}
-
-	public void setOptions(List<String> options)
-	{
-		this.options = (options == null ? Collections.emptyList() : new ArrayList<>(options));
-		this.index = 0;
-		if (!this.options.isEmpty()) this.value.set(this.options.get(index));
 	}
 }

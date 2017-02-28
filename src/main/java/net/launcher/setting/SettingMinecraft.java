@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -40,7 +41,8 @@ public class SettingMinecraft extends SettingType
 			RENDER_CLOUDS = new OptionBoolean(this, "renderClouds", true),
 			USE_VBO = new OptionBoolean(this, "useVbo", true),
 			GRAPHIC = new OptionBoolean(this, "fancyGraphics", true),
-			ENTITY_SHADOWS = new OptionBoolean(this, "entityShadows", true);
+			ENTITY_SHADOWS = new OptionBoolean(this, "entityShadows", true),
+			FORCE_UNICODE = new OptionBoolean(this, "forceUnicodeFont", false);
 
 	public final Option<String> LANGUAGE = new OptionString(this, "lang", "en_US");
 	public final Option<String[]> RESOURCE_PACE = new OptionJSONArray(this, "resourcePacks");
@@ -63,6 +65,7 @@ public class SettingMinecraft extends SettingType
 		all.add(ENTITY_SHADOWS);
 		all.add(LANGUAGE);
 		all.add(RESOURCE_PACE);
+		all.add(FORCE_UNICODE);
 	}
 
 	@Override
@@ -89,7 +92,9 @@ public class SettingMinecraft extends SettingType
 				.collect(Collectors.toMap(Option::getName, Function.identity()));
 
 		String string = NIOUtils.readToString(path);
-		String[] lines = string.split("\n");
+		String property = System.getProperty("line.separator");
+
+		String[] lines = string.split(property);
 		for (String line : lines)
 		{
 			String[] keyVPair = line.split(":");
@@ -110,12 +115,22 @@ public class SettingMinecraft extends SettingType
 	{
 		List<Option<?>> allOption = getAllOption();
 		Path path = directory.resolve("options.txt");
-		if (!Files.exists(path))
+		if (Files.exists(path))
 		{
-			Map<String, String> deserialize = MappedStorageType.MC.deserialize(NIOUtils.readToString(path));
+			String s = NIOUtils.readToString(path);
+			Map<String, String> deserialize = MappedStorageType.MC.deserialize(s);
 			for (Option<?> option : allOption)
-				deserialize.put(option.getName(), setting.getOption(option).toString());
-			MappedStorageType.MC.serialize(deserialize);
+				deserialize.put(option.getName(), option.serialize(setting.getOption(option).getValue()));
+			String serialize = MappedStorageType.MC.serialize(deserialize);
+			NIOUtils.writeString(path, serialize);
+		}
+		else
+		{
+			Map<String, String> deserialize = new HashMap<>();
+			for (Option<?> option : allOption)
+				deserialize.put(option.getName(), option.serialize(setting.getOption(option).getValue()));
+			String serialize = MappedStorageType.MC.serialize(deserialize);
+			NIOUtils.writeString(path, serialize);
 		}
 	}
 }

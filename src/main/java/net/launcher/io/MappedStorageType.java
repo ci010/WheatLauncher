@@ -38,8 +38,9 @@ public interface MappedStorageType
 		@Override
 		public Map<String, String> deserialize(String string)
 		{
+			String property = System.getProperty("line.separator");
 			Map<String, String> map = new HashMap<>();
-			String[] split = string.split("\n");
+			String[] split = string.split(property);
 			for (String s : split)
 			{
 				String[] keyVPair = s.split(":");
@@ -51,8 +52,9 @@ public interface MappedStorageType
 		@Override
 		public String serialize(Map<String, String> pair)
 		{
+			String property = System.getProperty("line.separator");
 			return pair.entrySet().stream()
-					.map(entry -> entry.getKey() + ":" + entry.getValue()).collect(Collectors.joining("\n"));
+					.map(entry -> entry.getKey() + ":" + entry.getValue()).collect(Collectors.joining(property));
 		}
 	}, PROPERTIES = new MappedStorageType()
 	{

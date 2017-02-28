@@ -83,7 +83,6 @@ public class IOGuardContextScheduled implements IOGuardContext
 	@Override
 	public void enqueue(IOTask task)
 	{
-		ARML.logger().info("listen " + task);
 		lock.tryLock();
 		for (IOTask ioTask : tasks)
 			if (ioTask.isEquivalence(task))
@@ -91,6 +90,7 @@ public class IOGuardContextScheduled implements IOGuardContext
 				lock.unlock();
 				return;
 			}
+		ARML.logger().info("enqueue " + task);
 		tasks.add(task);
 		lock.unlock();
 	}

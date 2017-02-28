@@ -1,8 +1,10 @@
 package net.wheatlauncher.control.profiles;
 
 import api.launcher.ARML;
+import api.launcher.LaunchProfile;
 import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.effects.JFXDepthManager;
+import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -10,11 +12,9 @@ import net.launcher.control.MinecraftOptionButton;
 import net.launcher.control.MinecraftOptionMemory;
 import net.launcher.control.MinecraftOptionResolution;
 import net.launcher.control.MinecraftSlider;
-import net.launcher.setting.OptionInt;
-import net.launcher.setting.SettingMinecraft;
-import net.launcher.setting.SettingType;
+import net.launcher.setting.*;
 
-import java.util.Arrays;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 /**
@@ -51,6 +51,13 @@ public class ControllerGameSetting
 		JFXDepthManager.setDepth(missingFileIndicatorText, 3);
 		missingFileIndicator.setVisible(false);
 
+		LaunchProfile selecting = ARML.core().getProfileManager().selecting();
+		Optional<Setting> optional = selecting.getGameSetting(SettingMinecraft.INSTANCE);
+		Setting setting;
+		if (!optional.isPresent())
+			selecting.addGameSetting(setting = SettingMinecraft.INSTANCE.defaultInstance());// force the minecraft// setting exist
+		else setting = optional.get();
+
 		setup(maxFPS, SettingMinecraft.INSTANCE.MAXFPS);
 		setup(renderDistance, SettingMinecraft.INSTANCE.RENDER_DISTANCE);
 		setup(entityShadow, SettingMinecraft.INSTANCE.ENTITY_SHADOWS);
@@ -58,11 +65,10 @@ public class ControllerGameSetting
 		setup(enableFBO, SettingMinecraft.INSTANCE.FBO_ENABLE);
 		setup(enableVBO, SettingMinecraft.INSTANCE.USE_VBO);
 		setup(graphic, SettingMinecraft.INSTANCE.GRAPHIC);
-		setup(mipmap, SettingMinecraft.INSTANCE.MIPMAP_LEVELS);
-		setup(particle, SettingMinecraft.INSTANCE.PARTICLES);
-		setup(ambientOcclusion, SettingMinecraft.INSTANCE.AMBIENT_OCCLUSION);
+		setup(mipmap, SettingMinecraft.INSTANCE.MIPMAP_LEVELS, setting);
+		setup(particle, SettingMinecraft.INSTANCE.PARTICLES, setting);
+		setup(ambientOcclusion, SettingMinecraft.INSTANCE.AMBIENT_OCCLUSION, setting);
 
-//		Bootstrap.core().getProfileManager().selecting().setMemory(memory.memoryProperty().get());
 	}
 
 	private void setup(MinecraftSlider slider, OptionInt option)
@@ -72,26 +78,42 @@ public class ControllerGameSetting
 		s.setMax(option.getMax());
 		s.setMajorTickUnit(option.getStep());
 		s.setSnapToTicks(true);
+		slider.setUserData(resources);
+		slider.setPropertyBinding(Bindings.createObjectBinding(() ->
+		{
+			Setting set = ensureSetting(ARML.core().getProfileManager().selecting());
+			return (SettingProperty.Limited<Number>) set.getOption(option);
+		}));
 	}
 
-	private void setup(MinecraftOptionButton button, SettingType.Option<Boolean> option)
+	private void setup(MinecraftOptionButton<Boolean> button, SettingType.Option<Boolean> option)
 	{
-		button.setOptions(Arrays.asList(resources.getString(button.getId() + ".true"),
-				resources.getString(button.getId() + ".false")));
-		button.valueProperty().addListener((observable, oldValue, newValue) ->
-				ARML.core().getProfileManager().selecting().getGameSetting(SettingMinecraft.INSTANCE)
-						.ifPresent(gameSettingInstance -> gameSettingInstance.getOption(option).setValue(Boolean.valueOf(newValue))));
+		button.setUserData(resources);
+		button.setPropertyBinding(Bindings.createObjectBinding(() ->
+		{
+			Setting set = ensureSetting(ARML.core().getProfileManager().selecting());
+			return (SettingProperty.Limited<Boolean>) set.getOption(option);
+		}, ARML.core().getProfileManager().selectedProfileProperty()));
 	}
 
-	private void setup(MinecraftOptionButton button, OptionInt option)
+	private void setup(MinecraftOptionButton<Number> button, OptionInt option, Setting setting)
 	{
-		String[] arr = new String[option.getMax() - option.getMin() + 1];
-		for (int i = 0; i < arr.length; i++)
-			arr[i] = resources.getString(button.getId() + "." + String.valueOf((option.getMin() + i)));
-		button.setOptions(Arrays.asList(arr));
-		button.valueProperty().addListener((observable, oldValue, newValue) ->
-				ARML.core().getProfileManager().selecting().getGameSetting(SettingMinecraft.INSTANCE)
-						.ifPresent(gameSettingInstance -> gameSettingInstance.getOption(option).setValue(Integer.valueOf(newValue))));
+		button.setUserData(resources);
+		button.setPropertyBinding(Bindings.createObjectBinding(() ->
+		{
+			Setting set = ensureSetting(ARML.core().getProfileManager().selecting());
+			return (SettingProperty.Limited<Number>) set.getOption(option);
+		}, ARML.core().getProfileManager().selectedProfileProperty()));
+	}
+
+	private Setting ensureSetting(LaunchProfile profile)
+	{
+		Optional<Setting> optional = profile.getGameSetting(SettingMinecraft.INSTANCE);
+		Setting setting;
+		if (!optional.isPresent())
+			profile.addGameSetting(setting = SettingMinecraft.INSTANCE.defaultInstance());// force the minecraft// setting exist
+		else setting = optional.get();
+		return setting;
 	}
 
 	public void createMinecraftGameSetting(ActionEvent event)

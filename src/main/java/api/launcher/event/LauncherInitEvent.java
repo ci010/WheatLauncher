@@ -16,7 +16,7 @@ import java.util.Objects;
 public class LauncherInitEvent extends Event
 {
 	public static EventType<LauncherInitEvent> LAUNCHER_INIT = new EventType<>(EventType.ROOT, "LAUNCHER_INIT");
-	public static EventType<LauncherInitEvent> PRE = new EventType<>(LAUNCHER_INIT, "LAUNCHER_PRE_INIT");
+	//	public static EventType<LauncherInitEvent> PRE = new EventType<>(LAUNCHER_INIT, "LAUNCHER_PRE_INIT");
 	public static EventType<Register> REGISTER = new EventType<>(LAUNCHER_INIT, "LAUNCHER_REGISTER_INIT");
 	public static EventType<Post> POST = new EventType<>(LAUNCHER_INIT, "LAUNCHER_POST_INIT");
 

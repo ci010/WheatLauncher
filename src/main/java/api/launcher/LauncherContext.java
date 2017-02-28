@@ -20,4 +20,5 @@ public interface LauncherContext
 	ModManager getModManager();
 
 	MinecraftServerManager getServerManager();
+
 }

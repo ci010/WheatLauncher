@@ -19,6 +19,7 @@ import net.launcher.assets.IOGuardMinecraftWorldManager;
 import net.launcher.auth.IOGuardAuth;
 import net.launcher.mod.ModManagerBuilder;
 import net.launcher.resourcepack.ResourcePackMangerBuilder;
+import net.launcher.setting.SettingMinecraft;
 import net.wheatlauncher.internal.io.IOGuardContextScheduled;
 import net.wheatlauncher.internal.io.IOGuardProfile;
 import org.to2mbn.jmccc.launch.Launcher;
@@ -144,6 +145,8 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 		ARML.logger().info("Start to init");
 
 		this.root = root;
+
+		SettingMinecraft.INSTANCE.getID();
 
 		IOGuardContextScheduled.Builder builder = IOGuardContextScheduled.Builder.create(this.root, ARML.async())
 				.register(LaunchProfileManager.class, new IOGuardProfile())

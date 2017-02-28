@@ -90,7 +90,7 @@ public class MainApplication extends Application
 			else if (field.getName().equals("scheduledExecutorService"))
 				FinalFieldSetter.INSTANCE.set(instance, field, Executors.newScheduledThreadPool(4));
 		}
-		//TODO load plugins and collect resource bundle
+
 		Map<String, Object> langMap = new HashMap<>();
 
 		ResourceBundle lang;
@@ -106,10 +106,8 @@ public class MainApplication extends Application
 
 		bundle = new MapResourceBundle(langMap);
 
-		for (PluginContainer container : loader.getContainers())
-			container.getPlugin().onLoad(instance);
-
-		instance.getBus().postEvent(new LauncherInitEvent(LauncherInitEvent.PRE));
+//		for (PluginContainer container : loader.getContainers())
+//			container.getPlugin().onLoad(ARML.instance());
 	}
 
 	private void collectBundle(ResourceBundle bundle, Map<String, Object> map)
@@ -196,11 +194,6 @@ public class MainApplication extends Application
 		logs.setFormatter(formatter);
 		logger.addHandler(logs);
 
-//		ConsoleHandler consoleHandler = new ConsoleHandler()
-//		{{setOutputStream(System.out);}};
-//		consoleHandler.setFormatter(formatter);
-//		logger.addHandler(consoleHandler);
-
 		return logger;
 	}
 
@@ -210,6 +203,9 @@ public class MainApplication extends Application
 		preinit();
 
 		core.init(root);
+
+		for (PluginContainer container : loader.getContainers())
+			container.getPlugin().onLoad(ARML.instance());
 
 		FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Main.fxml"), bundle);
 		StackPane root = fxmlLoader.load();

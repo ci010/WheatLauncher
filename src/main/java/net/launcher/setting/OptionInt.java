@@ -48,7 +48,7 @@ public class OptionInt extends SettingType.Option<Number>
 		return Integer.valueOf(s);
 	}
 
-	public static class PropertyInt extends SimpleIntegerProperty implements SettingProperty<Number>
+	public static class PropertyInt extends SimpleIntegerProperty implements SettingProperty.Limited<Number>
 	{
 		private OptionInt option;
 
@@ -74,6 +74,22 @@ public class OptionInt extends SettingType.Option<Number>
 
 		@Override
 		public SettingType.Option<Number> getOption() {return option;}
+
+		@Override
+		public boolean hasNext()
+		{
+			return true;
+		}
+
+		@Override
+		public Number next()
+		{
+			int next = get() + option.getStep();
+			if (next > option.getMax())
+				next = option.getMin();
+			this.set(next);
+			return next;
+		}
 	}
 
 }

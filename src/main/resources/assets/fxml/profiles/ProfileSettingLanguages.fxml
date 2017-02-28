@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import net.launcher.control.MinecraftOptionButton?>
-<StackPane fx:id="root" alignment="TOP_CENTER" maxHeight="307.0" prefHeight="307.0" prefWidth="515.0"
+<StackPane alignment="TOP_CENTER" maxHeight="307.0" prefHeight="307.0" prefWidth="515.0"
            style="-fx-padding:10; -fx-background-color:WHITE;" xmlns="http://javafx.com/javafx/8.0.111"
            xmlns:fx="http://javafx.com/fxml/1" fx:controller="net.wheatlauncher.control.profiles.ControllerLanguages">
     <VBox spacing="10">

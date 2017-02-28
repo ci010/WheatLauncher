@@ -18,6 +18,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.TextFlow;
 import net.launcher.FXServerInfo;
+import net.launcher.ServerVersion;
 import net.launcher.TextComponentConverter;
 import net.launcher.control.ImageCellBase;
 import net.launcher.game.ServerInfo;
@@ -42,7 +43,7 @@ public class ControllerServersView
 
 	public void initialize()
 	{
-		serverList.setDepth(2);
+		serverList.setDepth(1);
 		serverList.setCellFactory(param -> new ServerCells());
 		serverList.setItems(ARML.core().getServerManager().getAllServers());
 		serverList.setOnEditCommit(event ->
@@ -116,7 +117,13 @@ public class ControllerServersView
 			serverList.edit(-1);
 	}
 
-	public void launchServer() {}
+	public void launchServer()
+	{
+		FXServerInfo selectedItem = (FXServerInfo) serverList.getSelectionModel().getSelectedItem();
+		String gameVersion = selectedItem.getStatus().getGameVersion();
+		//parse gameVersion
+		ServerVersion version;
+	}
 
 	private class ServerCells extends JFXListCell<ServerInfo>
 	{

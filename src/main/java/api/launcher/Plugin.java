@@ -6,5 +6,7 @@ package api.launcher;
  */
 public interface Plugin
 {
+	void preload(EventBus bus) throws Exception;
+
 	void onLoad(ARML arml) throws Exception;
 }

@@ -2,6 +2,7 @@ package api.launcher;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Logger;
@@ -19,6 +20,7 @@ public class ARML
 	private final EventBus bus = null;
 	private final Logger logger = null;
 	private final ScheduledExecutorService scheduledExecutorService = null;
+	private final ResourceBundle bundle = null;
 
 	private Map<String, Object> components = new TreeMap<>();
 
@@ -32,11 +34,15 @@ public class ARML
 
 	public static ScheduledExecutorService async() {return INST.getService();}
 
+	public static ResourceBundle resources() {return INST.getBundle();}
+
 	public LauncherContext getContext() {return context;}
 
 	public EventBus getBus() {return bus;}
 
 	public Logger getLogger() {return logger;}
+
+	public ResourceBundle getBundle() {return bundle;}
 
 	public <T> Optional<T> getComponent(Class<T> tClass) {return Optional.ofNullable((T) components.get(tClass.getName()));}
 

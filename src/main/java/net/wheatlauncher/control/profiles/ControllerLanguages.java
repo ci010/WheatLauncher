@@ -17,13 +17,16 @@ import javafx.collections.transformation.SortedList;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.scene.control.TableColumn;
-import javafx.scene.layout.StackPane;
 import net.launcher.assets.MinecraftVersion;
 import net.launcher.control.MinecraftOptionButton;
 import net.launcher.game.Language;
+import net.launcher.setting.Setting;
 import net.launcher.setting.SettingMinecraft;
+import net.launcher.setting.SettingProperty;
 
 import java.util.Map;
+import java.util.Optional;
+import java.util.ResourceBundle;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -33,7 +36,6 @@ import java.util.stream.Collectors;
  */
 public class ControllerLanguages
 {
-	public StackPane root;
 	public JFXTableView<Language> languageTable;
 	public TableColumn<Language, String> id;
 	public TableColumn<Language, String> name;
@@ -41,9 +43,10 @@ public class ControllerLanguages
 	public TableColumn<Language, String> bidi;
 
 	public JFXTextField search;
-	public MinecraftOptionButton useUnicode;
+	public MinecraftOptionButton<Boolean> useUnicode;
 	public JFXButton confirm;
 
+	public ResourceBundle resources;
 	private InvalidationListener refresh = observable -> refresh();
 
 	private ChangeListener<MinecraftVersion> listener = (observable, oldV, newV) ->
@@ -80,6 +83,7 @@ public class ControllerLanguages
 			});
 			ARML.core().getTaskCenter().runTask(task);
 		}
+
 	}
 
 	public void initialize()
@@ -97,6 +101,8 @@ public class ControllerLanguages
 		region.setCellValueFactory(param -> Bindings.createStringBinding(() -> param.getValue().getRegion()));
 		name.setCellValueFactory(param -> Bindings.createStringBinding(() -> param.getValue().getName()));
 		bidi.setCellValueFactory(param -> Bindings.createStringBinding(() -> String.valueOf(param.getValue().isBidirectional())));
+		confirm.disableProperty().bind(Bindings.createBooleanBinding(() ->
+				languageTable.getSelectionModel().isEmpty(), languageTable.getSelectionModel().selectedIndexProperty()));
 		confirm.setOnAction(event ->
 				ARML.core().getProfileManager().selecting().getGameSetting(SettingMinecraft.INSTANCE)
 						.map(setting -> setting.getOption(SettingMinecraft.INSTANCE.LANGUAGE)).ifPresent(property ->
@@ -107,6 +113,24 @@ public class ControllerLanguages
 			profileManager.getProfile(oldV).ifPresent(profile -> profile.versionBinding().removeListener(listener));
 			profileManager.getProfile(newV).ifPresent(profile -> profile.versionBinding().addListener(listener));
 		});
+		useUnicode.setUserData(resources);
+		useUnicode.setPropertyBinding(Bindings.createObjectBinding(() ->
+				{
+					Setting set = ensureSetting(ARML.core().getProfileManager().selecting());
+					return (SettingProperty.Limited<Boolean>) set.getOption(SettingMinecraft.INSTANCE.FORCE_UNICODE);
+				}
+				, ARML.core().getProfileManager().selectedProfileProperty()));
+
 		refresh();
+	}
+
+	private Setting ensureSetting(LaunchProfile profile)
+	{
+		Optional<Setting> optional = profile.getGameSetting(SettingMinecraft.INSTANCE);
+		Setting setting;
+		if (!optional.isPresent())
+			profile.addGameSetting(setting = SettingMinecraft.INSTANCE.defaultInstance());// force the minecraft// setting exist
+		else setting = optional.get();
+		return setting;
 	}
 }

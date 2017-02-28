@@ -178,11 +178,21 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 		this.getContext().registerSaveTask(save, instance.selectedProfileProperty(),
 				instance.getAllProfiles());
 		for (LaunchProfile profile : instance.getAllProfiles())
+		{
 			getContext().registerSaveTask(new SaveProfile(profile), profile.displayNameProperty(),
 					profile.javaEnvironmentProperty(),
 					profile.memoryProperty(),
 					profile.versionProperty(),
 					profile.resolutionProperty());
+			for (Setting setting : profile.getAllGameSettings())
+				setting.addListener(observable -> getContext().enqueue(new SaveSetting(profile.getId(), setting)));
+			profile.gameSettingsProperty().addListener((MapChangeListener<String, Setting>) change ->
+			{
+				Setting valueAdded = change.getValueAdded();
+				change.getValueAdded().addListener(observable -> getContext().enqueue(new SaveSetting(profile.getId(),
+						valueAdded)));
+			});
+		}
 		instance.getProfilesMap().addListener((MapChangeListener<String, LaunchProfile>) change ->
 		{
 			LaunchProfile profile = change.getValueAdded();
@@ -195,6 +205,32 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 						profile.resolutionProperty());
 			}
 		});
+	}
+
+	class SaveSetting implements IOGuardContext.IOTask
+	{
+		String id;
+		Setting setting;
+
+		SaveSetting(String id, Setting setting)
+		{
+			this.id = id;
+			this.setting = setting;
+		}
+
+		@Override
+		public void performance(Path root) throws Exception
+		{
+			setting.getGameSettingType().save(getProfileDir(id), setting);
+		}
+
+		@Override
+		public boolean isEquivalence(IOGuardContext.IOTask task)
+		{
+			if (task == this) return true;
+			if (!(task instanceof SaveSetting)) return false;
+			return ((SaveSetting) task).setting == this.setting && ((SaveSetting) task).id.equals(this.id);
+		}
 	}
 
 	class SaveProfile implements IOGuardContext.IOTask

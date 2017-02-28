@@ -27,7 +27,7 @@ public class OptionBoolean extends SettingType.Option<Boolean>
 		return new PropertyBool(setting, this.getName(), defValue, this);
 	}
 
-	public static class PropertyBool extends SimpleBooleanProperty implements SettingProperty<Boolean>
+	public static class PropertyBool extends SimpleBooleanProperty implements SettingProperty.Limited<Boolean>
 	{
 		private SettingType.Option<Boolean> booleanOption;
 
@@ -44,6 +44,20 @@ public class OptionBoolean extends SettingType.Option<Boolean>
 		public SettingType.Option<Boolean> getOption()
 		{
 			return booleanOption;
+		}
+
+		@Override
+		public boolean hasNext()
+		{
+			return true;
+		}
+
+		@Override
+		public Boolean next()
+		{
+			boolean next = !get();
+			set(next);
+			return next;
 		}
 	}
 }

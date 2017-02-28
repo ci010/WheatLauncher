@@ -1,5 +1,7 @@
 package net.launcher.setting;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
@@ -11,7 +13,7 @@ import java.util.stream.Collectors;
 /**
  * @author ci010
  */
-public class Setting
+public class Setting implements Observable
 {
 	private ObservableMap<String, SettingProperty<?>> optionObjectMap = FXCollections.observableMap(new TreeMap<>());
 	private SettingType type;
@@ -29,13 +31,6 @@ public class Setting
 				Collectors.toMap(SettingType.Option::getName, option -> option.getDefaultValue(this))));
 	}
 
-	public void addOption(SettingType.Option<?>... options)
-	{
-		Objects.requireNonNull(options);
-		for (SettingType.Option<?> option : options)
-			optionObjectMap.put(option.getName(), option.getDefaultValue(this));
-	}
-
 	public SettingType getGameSettingType()
 	{
 		return type;
@@ -49,5 +44,28 @@ public class Setting
 	public <V> SettingProperty.List<V> getListProperty(SettingType.Option<ObservableList<V>> s)
 	{
 		return (SettingProperty.List<V>) optionObjectMap.get(s.getName());
+	}
+
+	@Override
+	public void addListener(InvalidationListener listener)
+	{
+		optionObjectMap.addListener(listener);
+		optionObjectMap.values().forEach(settingProperty -> settingProperty.addListener(listener));
+	}
+
+	@Override
+	public void removeListener(InvalidationListener listener)
+	{
+		optionObjectMap.removeListener(listener);
+		optionObjectMap.values().forEach(settingProperty -> settingProperty.removeListener(listener));
+	}
+
+	@Override
+	public String toString()
+	{
+		return "Setting{" +
+				"optionObjectMap=" + optionObjectMap.keySet() +
+				", type=" + type +
+				'}';
 	}
 }
