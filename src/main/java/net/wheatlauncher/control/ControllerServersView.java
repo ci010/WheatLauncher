@@ -12,6 +12,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
@@ -33,6 +34,8 @@ import java.util.ResourceBundle;
  */
 public class ControllerServersView
 {
+	private static Image unknownServer = new Image("assets/texture/unknown_server.png");
+
 	public JFXListView<ServerInfo> serverList;
 	public JFXTextField search;
 	public Node removed;
@@ -44,13 +47,11 @@ public class ControllerServersView
 	public void initialize()
 	{
 		serverList.setDepth(1);
+
 		serverList.setCellFactory(param -> new ServerCells());
 		serverList.setItems(ARML.core().getServerManager().getAllServers());
 		serverList.setOnEditCommit(event ->
-		{
-			Task<ServerStatus> serverStatusTask = ARML.core().getServerManager().fetchInfoAndWaitPing(event.getNewValue());
-			ARML.core().getTaskCenter().runTask(serverStatusTask);
-		});
+				ARML.core().getTaskCenter().runTask(pingServerTask(event.getNewValue())));
 		BooleanBinding booleanBinding = Bindings.createBooleanBinding(() -> serverList.getSelectionModel().isEmpty(),
 				serverList.getSelectionModel().selectedIndexProperty());
 		enterServer.disableProperty().bind(booleanBinding);
@@ -63,6 +64,7 @@ public class ControllerServersView
 	{
 		ServerInfo localhost = new FXServerInfo(new ServerInfoBase("Minecraft Server", "localhost"));
 		ARML.core().getServerManager().getAllServers().add(localhost);
+		ARML.core().getTaskCenter().runTask(pingServerTask(localhost));
 	}
 
 	public void remove()
@@ -259,7 +261,12 @@ public class ControllerServersView
 					ServerStatus status0 = ((FXServerInfo) getItem()).getStatus();
 					if (status0 != null) TextComponentConverter.convert(status0.getServerMOTD(), motd);
 				});
-				graphic.imageProperty().bind(Bindings.createObjectBinding(() -> ServerInfo.createServerIcon(item),
+				graphic.imageProperty().bind(Bindings.createObjectBinding(() ->
+						{
+							Image icon = ServerInfo.createServerIcon(item);
+							if (icon == null) icon = unknownServer;
+							return icon;
+						},
 						((FXServerInfo) getItem()).serverIconProperty()));
 				setGraphic(graphic);
 			}
