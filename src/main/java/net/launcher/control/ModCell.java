@@ -6,6 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import net.launcher.game.forge.ForgeMod;
+import net.launcher.utils.StringUtils;
 
 /**
  * @author ci010
@@ -34,10 +35,20 @@ public class ModCell extends ImageCell<ForgeMod>
 		nameAndID.textProperty().bind(Bindings.createStringBinding(() ->
 				getValue().getMetaData().getName() + " (" + getValue().getModId() + ")", valueProperty()));
 		versionLabel.textProperty().bind(Bindings.createStringBinding(() ->
-						getValue().getMetaData().getVersion() + " (" + getValue().getMetaData().getAcceptMinecraftVersion() + ")",
+				{
+					String mcVer = StringUtils.EMPTY;
+					if (!StringUtils.isEmpty(getValue().getMetaData().getMcVersion()))
+						mcVer = " (" + getValue().getMetaData().getMcVersion() + ")";
+					else if (!StringUtils.isEmpty(getValue().getMetaData().getAcceptMinecraftVersion()))
+						mcVer = " " + getValue().getMetaData().getAcceptMinecraftVersion();
+
+					return getValue().getMetaData().getVersion() + mcVer;
+				},
 				valueProperty()));
 		descript.textProperty().bind(Bindings.createStringBinding(() ->
 				getValue().getMetaData().getDescription(), valueProperty()));
+		descript.setWrapText(true);
+		descript.setMaxWidth(350);
 		box.getChildren().addAll(nameAndID, versionLabel, descript);
 		return box;
 	}

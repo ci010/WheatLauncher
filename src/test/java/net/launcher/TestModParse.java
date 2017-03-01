@@ -19,7 +19,7 @@ public class TestModParse
 	{
 		Deserializer<ForgeMod[], Path> pathDeserializer = ForgeModParser.defaultModDeserializer();
 		ForgeModParser forgeModParser = ForgeModParser.create();
-		ForgeMod[] forgeMods = forgeModParser.parseFile(Paths.get("D:\\Storage\\Desktop\\Floricraft-1.11.2-2.0.1.jar"));
+		ForgeMod[] forgeMods = forgeModParser.parseFile(Paths.get("D:\\Storage\\Download\\mobends-0.22.5_for_MC-1.10.2.jar"));
 		System.out.println(Arrays.toString(forgeMods));
 	}
 }

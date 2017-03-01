@@ -1,5 +1,7 @@
 package net.launcher.game;
 
+import net.launcher.game.text.TextComponent;
+
 import java.nio.file.Path;
 
 /**
@@ -7,10 +9,11 @@ import java.nio.file.Path;
  */
 public class ResourcePack
 {
-	private String packName, description;
+	private String packName;
+	private TextComponent description;
 	private int format;
 
-	public ResourcePack(String packName, String description, int format)
+	public ResourcePack(String packName, TextComponent description, int format)
 	{
 		this.packName = packName;
 		this.description = description;
@@ -27,7 +30,7 @@ public class ResourcePack
 		return format;
 	}
 
-	public String getDescription()
+	public TextComponent getDescription()
 	{
 		return description;
 	}

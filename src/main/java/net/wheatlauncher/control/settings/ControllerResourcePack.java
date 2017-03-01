@@ -35,8 +35,7 @@ public class ControllerResourcePack
 		resourcePacks.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		FilteredList<ResourcePack> resourcePacks = new FilteredList<>(ARML.core().getResourcePackManager().getAllElement());
 		resourcePacks.predicateProperty().bind(Bindings.createObjectBinding(() ->
-				(Predicate<ResourcePack>) resourcePack -> resourcePack.getPackName().contains(search.getText()) ||
-						resourcePack.getDescription().contains(search.getText()), search.textProperty()));
+				(Predicate<ResourcePack>) resourcePack -> resourcePack.getPackName().contains(search.getText()), search.textProperty()));
 		this.resourcePacks.setItems(resourcePacks);
 		this.resourcePacks.setCellFactory(param -> new JFXListCell<ResourcePack>()
 		{

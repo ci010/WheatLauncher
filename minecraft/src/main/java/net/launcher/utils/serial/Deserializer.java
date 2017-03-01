@@ -44,6 +44,6 @@ public interface Deserializer<T, S>
 
 	default T deserialize(S serialized)
 	{
-		return deserializeWithException(serialized, null);
+		return deserializeWithException(serialized, Throwable::printStackTrace);
 	}
 }

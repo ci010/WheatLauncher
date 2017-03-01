@@ -41,7 +41,6 @@ public class ControllerMod
 
 	public void initialize()
 	{
-		System.out.println(ARML.core().getModManager().getAllElement());
 		FilteredList<ForgeMod> modList = new FilteredList<>(ARML.core().getModManager().getAllElement());
 		modList.predicateProperty().bind(Bindings.createObjectBinding(() -> textPredicate,
 				search.textProperty()));

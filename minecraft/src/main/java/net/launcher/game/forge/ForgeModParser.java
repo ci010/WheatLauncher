@@ -101,7 +101,9 @@ public class ForgeModParser
 				try
 				{
 					String modInfoString = NIOUtils.readToString(modInf);
-					JSONArray arr = modInfoString.startsWith("{") ? new JSONObject(modInfoString).getJSONArray("modList") :
+					modInfoString = modInfoString.replace("\n", "");
+					JSONArray arr = modInfoString.startsWith("{") ?
+							new JSONObject(modInfoString).getJSONArray("modList") :
 							new JSONArray(modInfoString);
 
 					for (int i = 0; i < arr.length(); i++)

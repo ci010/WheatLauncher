@@ -4,15 +4,13 @@ import api.launcher.ARML;
 import api.launcher.LaunchProfile;
 import api.launcher.ModManager;
 import api.launcher.event.LaunchEvent;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 import net.launcher.OptionLaunchElementManager;
+import net.launcher.TransformTask;
 import net.launcher.game.ServerStatus;
 import net.launcher.game.forge.ForgeMod;
 import net.launcher.setting.Setting;
@@ -34,6 +32,8 @@ import java.util.stream.Collectors;
  */
 class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ServerStatus.ModInfo> implements ModManager
 {
+	private static Image unknownMod = new Image("assets/texture/unknown_pack.png");
+
 	private ArchiveRepository<ForgeMod[]> archiveResource;
 
 	private Map<String, String> hashMap = new TreeMap<>();
@@ -151,35 +151,13 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ServerStatus.M
 			if (resource == null) return null;
 			return new Image(archiveResource.openStream(resource, logoFile));
 		}
-		return null;
-	}
-
-	private class ImportTask extends Task<ForgeMod[]>
-	{
-		private Task<Resource<ForgeMod[]>> resourceTask;
-
-		public ImportTask(Path path)
-		{
-			updateTitle("mod.import");
-			resourceTask = archiveResource.importResource(path);
-			((StringProperty) this.messageProperty()).bind(resourceTask.messageProperty());
-			((DoubleProperty) this.workDoneProperty()).bind(resourceTask.workDoneProperty());
-			((DoubleProperty) this.totalWorkProperty()).bind(resourceTask.totalWorkProperty());
-			((ObjectProperty) this.exceptionProperty()).bind(resourceTask.exceptionProperty());
-		}
-
-		@Override
-		protected ForgeMod[] call() throws Exception
-		{
-			resourceTask.run();
-			return resourceTask.get().getContainData();
-		}
+		return unknownMod;
 	}
 
 	@Override
 	public Task<ForgeMod[]> importMod(Path path)
 	{
-		return new ImportTask(path);
+		return TransformTask.create("mod.import", archiveResource.importResource(path), Resource::getContainData);
 	}
 
 	private String getModKey(ForgeMod forgeMod)

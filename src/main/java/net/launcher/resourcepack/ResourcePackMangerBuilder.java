@@ -4,6 +4,7 @@ import api.launcher.ResourcePackManager;
 import net.launcher.LaunchElementManager;
 import net.launcher.game.ResourcePack;
 import net.launcher.game.nbt.NBT;
+import net.launcher.game.text.components.TextComponentString;
 import net.launcher.utils.NIOUtils;
 import net.launcher.utils.resource.ArchiveRepository;
 import net.launcher.utils.resource.LocalArchiveRepository;
@@ -12,6 +13,7 @@ import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import org.to2mbn.jmccc.util.Builder;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -73,28 +75,44 @@ public class ResourcePackMangerBuilder implements Builder<LaunchElementManager<R
 					String name = raw.substring(0, raw.lastIndexOf('.')), descriptor = "";
 					int format = -1;
 					Path resolve = file.resolve("pack.mcmeta");
-					try
-					{
-						JSONObject metaObj = new JSONObject(NIOUtils.readToString(resolve));
-						JSONObject pack = metaObj.optJSONObject("pack");
-						if (pack != null)
+					if (Files.exists(resolve))
+						try
 						{
-							format = pack.optInt("pack_format", -1);
-							descriptor = pack.optString("description", "");
+							JSONObject metaObj = new JSONObject(NIOUtils.readToString(resolve));
+							JSONObject pack = metaObj.optJSONObject("pack");
+							if (pack != null)
+							{
+								format = pack.optInt("pack_format", -1);
+								descriptor = pack.optString("description", "");
+							}
+						}
+						catch (IOException e)
+						{
+							Consumer<Throwable> exceptionHandler = (Consumer<Throwable>) context.get("exceptionHandler");
+							exceptionHandler.accept(e);
+						}
+					else
+					{
+						resolve = file.resolve("pack.txt");
+						try
+						{
+							descriptor = NIOUtils.readToString(resolve);
+						}
+						catch (IOException e)
+						{
+							Consumer<Throwable> exceptionHandler = (Consumer<Throwable>) context.get("exceptionHandler");
+							exceptionHandler.accept(e);
 						}
 					}
-					catch (IOException e)
-					{
-						Consumer<Throwable> exceptionHandler = (Consumer<Throwable>) context.get("exceptionHandler");
-						exceptionHandler.accept(e);
-					}
-					return new ResourcePack(name, descriptor, format);
+					return new ResourcePack(name, TextComponentString.convert(descriptor), format);
 				},
 				BiSerializer.combine(
 						(data, context) ->
 								NBT.compound().put("name", data.getPackName()).put("description",
-										data.getDescription()).put("format", data.packFormat()),
-						(serialized, context) -> new ResourcePack(serialized.get("name").asString(), serialized.get("description").asString(), serialized.get("format").asInt()))
+										data.getDescription().getFormattedText()).put("format", data.packFormat()),
+						(serialized, context) -> new ResourcePack(serialized.get("name").asString(),
+								TextComponentString.convert(serialized.get("description").asString()), serialized.get
+								("format").asInt()))
 		);
 	}
 }

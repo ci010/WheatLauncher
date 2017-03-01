@@ -8,6 +8,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 import net.launcher.OptionLaunchElementManager;
+import net.launcher.TransformTask;
 import net.launcher.game.ResourcePack;
 import net.launcher.setting.Setting;
 import net.launcher.setting.SettingMinecraft;
@@ -28,7 +29,8 @@ import java.util.stream.Collectors;
  */
 class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, String[]> implements ResourcePackManager
 {
-	private static Image DEFAULT_IMG = new Image(ResourcePackManImpl.class.getResourceAsStream("/assets/texture/pack.png"));
+	private static Image DEFAULT_IMG = new Image(ResourcePackManImpl.class.getResourceAsStream
+			("/assets/texture/unknown_pack.png"));
 
 	private ArchiveRepository<ResourcePack> archiveRepository;
 	private Map<String, Resource<ResourcePack>> nameToResource = new HashMap<>();
@@ -136,15 +138,8 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	@Override
 	public Task<ResourcePack> importResourcePack(Path resourcePack)
 	{
-		return new Task<ResourcePack>()
-		{
-			@Override
-			protected ResourcePack call() throws Exception
-			{
-				return archiveRepository.importResource(resourcePack).get().getContainData();
-			}
-		};
-
+		return TransformTask.create("ImportResourcePack", archiveRepository.importResource(resourcePack),
+				Resource::getContainData);
 	}
 
 	@Override
@@ -152,15 +147,7 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	{
 		Objects.requireNonNull(path);
 		Objects.requireNonNull(pack);
-		return new Task<Void>()
-		{
-			@Override
-			protected Void call() throws Exception
-			{
-				archiveRepository.fetchAllResource(path, pack.stream().map(ResourcePack::getPackName).map(nameToResource::get).map
-						(Resource::getName).collect(Collectors.toList()), FetchOption.COPY);
-				return null;
-			}
-		};
+		return TransformTask.toVoid("ExportResourcePack", archiveRepository.fetchAllResource(path, pack.stream().map(ResourcePack::getPackName).map(nameToResource::get).map
+				(Resource::getName).collect(Collectors.toList()), FetchOption.COPY));
 	}
 }

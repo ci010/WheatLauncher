@@ -20,7 +20,6 @@ public class Tasks
 		catch (Exception e) {return Optional.empty();}
 	}
 
-
 	public interface TaskBuilder<T> extends javafx.util.Builder<Callable<T>>
 	{
 		TaskBuilder<T> setDone(Consumer<T> done);
