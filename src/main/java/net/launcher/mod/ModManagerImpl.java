@@ -4,6 +4,9 @@ import api.launcher.ARML;
 import api.launcher.LaunchProfile;
 import api.launcher.ModManager;
 import api.launcher.event.LaunchEvent;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
@@ -14,7 +17,6 @@ import net.launcher.game.ServerStatus;
 import net.launcher.game.forge.ForgeMod;
 import net.launcher.setting.Setting;
 import net.launcher.setting.SettingType;
-import net.launcher.utils.ProgressCallback;
 import net.launcher.utils.resource.ArchiveRepository;
 import net.launcher.utils.resource.Delivery;
 import net.launcher.utils.resource.FetchOption;
@@ -152,35 +154,25 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ServerStatus.M
 		return null;
 	}
 
-	private class ImportTask extends Task<ForgeMod[]> implements ProgressCallback<Resource<ForgeMod[]>>
+	private class ImportTask extends Task<ForgeMod[]>
 	{
-		private Path path;
+		private Task<Resource<ForgeMod[]>> resourceTask;
 
 		public ImportTask(Path path)
 		{
-			this.path = path;
+			updateTitle("mod.import");
+			resourceTask = archiveResource.importResource(path);
+			((StringProperty) this.messageProperty()).bind(resourceTask.messageProperty());
+			((DoubleProperty) this.workDoneProperty()).bind(resourceTask.workDoneProperty());
+			((DoubleProperty) this.totalWorkProperty()).bind(resourceTask.totalWorkProperty());
+			((ObjectProperty) this.exceptionProperty()).bind(resourceTask.exceptionProperty());
 		}
 
 		@Override
 		protected ForgeMod[] call() throws Exception
 		{
-			return archiveResource.importResource(path).get().getContainData();
-		}
-
-		@Override
-		public void done(Resource<ForgeMod[]> result) {}
-
-		@Override
-		public void failed(Throwable e) {}
-
-		@Override
-		public void cancelled() {super.cancelled();}
-
-		@Override
-		public void updateProgress(long done, long total, String message)
-		{
-			super.updateProgress(done, total);
-			super.updateMessage(message);
+			resourceTask.run();
+			return resourceTask.get().getContainData();
 		}
 	}
 

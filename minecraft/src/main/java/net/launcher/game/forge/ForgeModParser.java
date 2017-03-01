@@ -15,8 +15,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.jar.Attributes;
-import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 /**
@@ -35,10 +33,7 @@ public class ForgeModParser
 
 	public ForgeMod[] parseFile(Path path)
 	{
-		Objects.requireNonNull(path);
-		if (Files.exists(path))
-			return deserializer.deserialize(path);
-		else return new ForgeMod[0];
+		return parseFile(path, Throwable::printStackTrace);
 	}
 
 	public ForgeMod[] parseFile(Path path, Consumer<Throwable> exceptionHandler)
@@ -76,10 +71,32 @@ public class ForgeModParser
 	{
 		return (path, context) ->
 		{
-			List<ForgeMod> releases = new ArrayList<>();
-			Path modInf = path.resolve("/mcmod.info");
 			Map<String, JSONObject> cacheInfoMap = new HashMap<>();
-			final Map<String, Map<String, Object>> annotationMap = new HashMap<>();
+			Map<String, Map<String, Object>> annotationMap = new HashMap<>();
+			try
+			{
+				Set<Map<String, Object>> set = new HashSet<>();
+				List<Path> list = Files.walk(path).filter(pa ->
+						pa.getFileName() != null && Patterns.CLASS_FILE.matcher(pa.getFileName().toString()).matches())
+						.collect(Collectors.toList());
+				for (Path p : list)
+				{
+					set.clear();
+					ClassReader reader = new ClassReader(NIOUtils.readToBytes(p));
+					reader.accept(new ModAnnotationVisitor(set), 0);
+					if (!set.isEmpty())
+						for (Map<String, Object> stringObjectMap : set)
+						{
+							String modid = stringObjectMap.get("modid").toString();
+							if (StringUtils.isNotEmpty(modid)) annotationMap.put(modid, stringObjectMap);
+						}
+				}
+			}
+			catch (Exception e0)
+			{
+				e0.printStackTrace();
+			}
+			Path modInf = path.resolve("/mcmod.info");
 			if (Files.exists(modInf))
 				try
 				{
@@ -92,51 +109,35 @@ public class ForgeModParser
 						String modid = arr.getJSONObject(i).optString("modid");
 						if (StringUtils.isNotEmpty(modid)) cacheInfoMap.put(modid, arr.getJSONObject(i));
 					}
-
-					Set<Map<String, Object>> set = new HashSet<>();
-					for (Path p : Files.walk(path).filter(pa ->
-							pa.getFileName() != null && Patterns.CLASS_FILE.matcher(pa.getFileName().toString()).matches())
-							.collect(Collectors.toList()))
-					{
-						set.clear();
-						ClassReader reader = new ClassReader(NIOUtils.readToBytes(p));
-						reader.accept(new ModAnnotationVisitor(set), 0);
-						if (!set.isEmpty())
-							for (Map<String, Object> stringObjectMap : set)
-							{
-								String modid = stringObjectMap.get("modid").toString();
-								if (StringUtils.isNotEmpty(modid)) annotationMap.put(modid, stringObjectMap);
-							}
-					}
-					set = null;
-					Set<String> union = new HashSet<>(cacheInfoMap.keySet());
-					union.addAll(annotationMap.keySet());
-					for (String s : union)
-					{
-						MetaDataImpl meta = new MetaDataImpl();
-						JSONObject info = cacheInfoMap.get(s);
-						if (info != null) meta.loadFromModInfo(info);
-						Map<String, Object> anno = annotationMap.get(s);
-						if (anno != null) meta.loadFromAnnotationMap(anno);
-						releases.add(new ForgeMod(meta));
-					}
-				}
-				catch (IOException e)
-				{
-					throw new IllegalArgumentException(e);
-				}
-			else
-			{
-				Path manifestPath = path.resolve("META-INF").resolve("MANIFEST.MF");
-				try
-				{
-					Manifest manifest = new Manifest(Files.newInputStream(manifestPath));
-					Attributes fmlCorePlugin = manifest.getAttributes("FMLCorePlugin");
 				}
 				catch (IOException e)
 				{
 					e.printStackTrace();
 				}
+			else
+			{
+//				Path manifestPath = path.resolve("META-INF").resolve("MANIFEST.MF");
+//				try
+//				{
+//					Manifest manifest = new Manifest(Files.newInputStream(manifestPath));
+//					Attributes fmlCorePlugin = manifest.getAttributes("FMLCorePlugin");
+//				}
+//				catch (IOException e)
+//				{
+//					e.printStackTrace();
+//				}
+			}
+			List<ForgeMod> releases = new ArrayList<>();
+			Set<String> union = new HashSet<>(cacheInfoMap.keySet());
+			union.addAll(annotationMap.keySet());
+			for (String s : union)
+			{
+				MetaDataImpl meta = new MetaDataImpl();
+				JSONObject info = cacheInfoMap.get(s);
+				if (info != null) meta.loadFromModInfo(info);
+				Map<String, Object> anno = annotationMap.get(s);
+				if (anno != null) meta.loadFromAnnotationMap(anno);
+				releases.add(new ForgeMod(meta));
 			}
 			return releases.toArray(new ForgeMod[releases.size()]);
 		};

@@ -6,8 +6,8 @@ import api.launcher.event.LauncherInitEvent;
 import api.launcher.event.MinecraftExitEvent;
 import api.launcher.event.ModuleLoadedEvent;
 import api.launcher.io.IOGuardContext;
-import javafx.beans.InvalidationListener;
-import javafx.beans.property.Property;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
@@ -189,16 +190,16 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 		ARML.logger().info("Shutdown");
 	}
 
-	private ObservableList<Worker<?>> workers = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
 	private ObservableList<Throwable> errors = FXCollections.synchronizedObservableList(FXCollections.observableArrayList());
+	private ObservableList<Worker<?>> history = FXCollections.synchronizedObservableList(FXCollections
+			.observableList(new LinkedList<>()));
 
 	@Override
 	public Task<?> runTask(Task<?> tTask)
 	{
-		if (tTask == null) return tTask;
-		workers.add(tTask);
-		tTask.workDoneProperty().addListener(workerListener);
-		tTask.addEventHandler(WorkerStateEvent.WORKER_STATE_FAILED, event -> reportError(event.getSource().getException()));
+		if (tTask == null) return null;
+		history.add(0, tTask);
+		tTask.addEventHandler(WorkerStateEvent.WORKER_STATE_FAILED, event -> event.getSource().getException().printStackTrace());
 		ARML.async().submit(tTask);
 		return tTask;
 	}
@@ -207,47 +208,61 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 	public void runTasks(Collection<Task<?>> tasks)
 	{
 		if (tasks == null || tasks.isEmpty()) return;
-		workers.addAll(tasks);
+		history.addAll(0, tasks);
 		for (Task<?> task : tasks)
-		{
-			task.workDoneProperty().addListener(workerListener);
-			task.addEventHandler(WorkerStateEvent.WORKER_STATE_FAILED, event -> reportError(event.getSource().getException()));
-		}
+			task.addEventHandler(WorkerStateEvent.WORKER_STATE_FAILED, event -> event.getSource().getException().printStackTrace());
 		for (Task<?> task : tasks) ARML.async().submit(task);
 	}
 
 	@Override
-	public void reportError(Throwable throwable)
+	public void reportError(String title, Throwable throwable)
 	{
 		Objects.requireNonNull(throwable);
+		Objects.requireNonNull(title);
+		history.add(new DummyWorker(throwable, title));
 		errors.add(throwable);
 	}
 
-	private InvalidationListener workerListener = new InvalidationListener()
+	@Override
+	public ObservableList<Worker<?>> getAllWorkerHistory() {return history;}
+
+	//@formatter:off
+	private static ReadOnlyObjectProperty<Worker.State> dummyState = new SimpleObjectProperty<>(Worker.State.FAILED);
+	private static ReadOnlyDoubleProperty dummyDouble = new SimpleDoubleProperty(1);
+	private static ReadOnlyBooleanProperty dummyBoolean = new SimpleBooleanProperty();
+	private static ReadOnlyObjectProperty dummyObj = new SimpleObjectProperty();
+
+	private class DummyWorker implements Worker<Object>
 	{
-		@Override
-		public void invalidated(javafx.beans.Observable observable)
+		private ObjectProperty<Throwable> exceptionObjectProperty = new SimpleObjectProperty<>();
+		private StringProperty title = new SimpleStringProperty();
+		private StringProperty message = new SimpleStringProperty();
+		DummyWorker(Throwable throwable, String title)
 		{
-			Worker worker = (Worker) ((Property) observable).getBean();
-			if (worker == null) return;
-			if (workers.remove(worker))
-			{
-				Throwable exception = worker.getException();
-				if (exception != null) reportError(exception);
-				observable.removeListener(this);
-			}
+			exceptionObjectProperty.set(throwable);
+			this.title.set(title);
+			message.bind(Bindings.createStringBinding(throwable::getMessage));
 		}
-	};
-
-	@Override
-	public ObservableList<Throwable> getAllErrors()
-	{
-		return errors;
+		public State getState() {return dummyState.get();}
+		public ReadOnlyObjectProperty<State> stateProperty() {return dummyState;}
+		public Object getValue() {return dummyObj.get();}
+		public ReadOnlyObjectProperty<Object> valueProperty() {return dummyObj;}
+		public Throwable getException() {return exceptionObjectProperty.get();}
+		public ReadOnlyObjectProperty<Throwable> exceptionProperty() {return exceptionObjectProperty;}
+		public double getWorkDone() {return dummyDouble.get();}
+		public ReadOnlyDoubleProperty workDoneProperty() {return dummyDouble;}
+		public double getTotalWork() {return dummyDouble.get();}
+		public ReadOnlyDoubleProperty totalWorkProperty() {return dummyDouble;}
+		public double getProgress() {return dummyDouble.get();}
+		public ReadOnlyDoubleProperty progressProperty() {return dummyDouble;}
+		public boolean isRunning() {return dummyBoolean.get();}
+		public ReadOnlyBooleanProperty runningProperty() {return dummyBoolean;}
+		public String getMessage() {return exceptionObjectProperty.get().getMessage();}
+		public ReadOnlyStringProperty messageProperty() {return message;}
+		public String getTitle() {return title.get();}
+		public ReadOnlyStringProperty titleProperty() {return title;}
+		public boolean cancel() {return false;}
 	}
+	//@formatter:on
 
-	@Override
-	public ObservableList<Worker<?>> getAllRunningWorkers()
-	{
-		return workers;
-	}
 }

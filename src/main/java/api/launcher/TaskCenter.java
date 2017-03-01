@@ -15,9 +15,7 @@ public interface TaskCenter
 
 	void runTasks(Collection<Task<?>> tasks);
 
-	void reportError(Throwable throwable);
+	void reportError(String title, Throwable throwable);
 
-	ObservableList<Throwable> getAllErrors();
-
-	ObservableList<Worker<?>> getAllRunningWorkers();
+	ObservableList<Worker<?>> getAllWorkerHistory();
 }

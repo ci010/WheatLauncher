@@ -69,6 +69,7 @@ public class ModManagerBuilder implements Builder<LaunchElementManager<ForgeMod>
 							.put("updateJSON", (metaData.getUpdateJSON()))
 							.put("acceptableRemoteVersions", metaData.acceptableRemoteVersions())
 							.put("acceptableSaveVersions", metaData.acceptableSaveVersions())
+							.put("acceptableMinecraftVersion", metaData.getAcceptMinecraftVersion())
 							.put("credits", metaData.getCredits())
 							.put("authorList", NBT.listStr(metaData.getAuthorList()))
 							.put("url", metaData.getUrl())
@@ -96,6 +97,7 @@ public class ModManagerBuilder implements Builder<LaunchElementManager<ForgeMod>
 					builder.setUpdateJSON(modObj.get("updateJSON").asString());
 					builder.setAcceptableRemoteVersions(modObj.get("acceptableRemoteVersions").asString());
 					builder.setAcceptableSaveVersions(modObj.get("acceptableSaveVersions").asString());
+					builder.setAcceptableMinecraftVersion(modObj.get("acceptableMinecraftVersion").asString());
 					builder.setCredits(modObj.get("credits").asString());
 					builder.setAuthorList(Arrays.stream(modObj.get("authorList").asList().toArray()).map
 							(Object::toString).toArray(String[]::new));

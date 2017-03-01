@@ -15,10 +15,13 @@ public class ModCell extends ImageCell<ForgeMod>
 	public ModCell(ForgeMod value, Image image)
 	{
 		super(value, image);
-		double scale = 64 / icon.getImage().getHeight();
-		double width = icon.getImage().getWidth() * scale;
-		icon.setFitHeight(64);
-		icon.setFitWidth(width);
+		if (image != null)
+		{
+			double scale = 64 / icon.getImage().getHeight();
+			double width = icon.getImage().getWidth() * scale;
+			icon.setFitHeight(64);
+			icon.setFitWidth(width);
+		}
 	}
 
 	@Override
@@ -31,8 +34,8 @@ public class ModCell extends ImageCell<ForgeMod>
 		nameAndID.textProperty().bind(Bindings.createStringBinding(() ->
 				getValue().getMetaData().getName() + " (" + getValue().getModId() + ")", valueProperty()));
 		versionLabel.textProperty().bind(Bindings.createStringBinding(() ->
-				getValue().getMetaData().getVersion() + " (" + getValue().getMetaData().getAcceptMinecraftVersion
-						() + ")", valueProperty()));
+						getValue().getMetaData().getVersion() + " (" + getValue().getMetaData().getAcceptMinecraftVersion() + ")",
+				valueProperty()));
 		descript.textProperty().bind(Bindings.createStringBinding(() ->
 				getValue().getMetaData().getDescription(), valueProperty()));
 		box.getChildren().addAll(nameAndID, versionLabel, descript);

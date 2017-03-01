@@ -24,7 +24,7 @@ class ModAnnotationVisitor extends ClassVisitor
 	@Override
 	public AnnotationVisitor visitAnnotation(String s, boolean b)
 	{
-		if (s.equals("Lnet/minecraftforge/fml/common/ForgeMod;"))
+		if (s.equals("Lnet/minecraftforge/fml/common/Mod;"))
 			return new AnnoVisitor(new HashMap<>());
 		return null;
 	}

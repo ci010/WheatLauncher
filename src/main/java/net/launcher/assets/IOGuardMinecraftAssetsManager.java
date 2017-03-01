@@ -145,8 +145,13 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 			@Override
 			protected List<MinecraftVersion> call() throws Exception
 			{
+				updateTitle("Refresh Minecraft version");
+				updateProgress(0, 5);
 				boolean localChange = updateLocal();
+				updateProgress(1, 5);
 				boolean remoteChange = updateRemoteVersion();
+				updateProgress(2, 5);
+
 				MinecraftAssetsManagerImpl manager = (MinecraftAssetsManagerImpl) getInstance();
 				List<MinecraftVersion> versionList = new ArrayList<>();
 				if (localChange)
@@ -166,6 +171,8 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 						}
 						versionList.add(v);
 					}
+				updateProgress(3, 5);
+
 				if (!remoteChange)
 				{
 					for (String version : cache.getVersions().keySet().stream().filter(s -> !locals.contains(s)).collect(Collectors.toList()))
@@ -183,6 +190,8 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 						versionList.add(v);
 					}
 				}
+				updateProgress(4, 5);
+
 				Runnable task = () ->
 				{
 					if (!versionList.isEmpty())
@@ -211,6 +220,8 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 							return new ComparableVersion(v1).compareTo(new ComparableVersion(v2));
 						});
 					}
+					updateProgress(5, 5);
+
 				};
 				if (Platform.isFxApplicationThread())
 					task.run();

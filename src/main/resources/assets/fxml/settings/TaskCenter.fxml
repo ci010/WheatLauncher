@@ -1,0 +1,15 @@
+<?import com.jfoenix.controls.JFXTableView?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.StackPane?>
+<StackPane xmlns:fx="http://javafx.com/fxml/1"
+           xmlns="http://javafx.com/javafx/2.2" fx:controller="net.wheatlauncher.control.settings.ControllerTasks">
+    <JFXTableView fx:id="table" fixedSize="true" columnsDraggable="false">
+        <columns>
+            <TableColumn fx:id="state" text="state" resizable="false"/>
+            <TableColumn fx:id="title" text="title" resizable="false"/>
+            <TableColumn fx:id="message" text="message" resizable="false"/>
+            <TableColumn fx:id="progress" text="progress" resizable="false"/>
+            <TableColumn fx:id="exception" text="exception" resizable="false"/>
+        </columns>
+    </JFXTableView>
+</StackPane>

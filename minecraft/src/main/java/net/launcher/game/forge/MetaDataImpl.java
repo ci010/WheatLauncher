@@ -28,6 +28,7 @@ class MetaDataImpl implements ForgeModMetaData
 			fingerprint = StringUtils.EMPTY,
 			dependencies = StringUtils.EMPTY,
 			acceptableRemoteVersions = StringUtils.EMPTY,
+			acceptableMinecraftVersion = StringUtils.EMPTY,
 			acceptableSaveVersions = StringUtils.EMPTY;
 
 	private boolean clientOnly, severOnly;
@@ -38,7 +39,7 @@ class MetaDataImpl implements ForgeModMetaData
 
 	MetaDataImpl(String modId, String description, String updateJSON, String url, String logoFile, String[] authorList,
 				 String[] screenshots, String credits, String parent, String version, String name, String mcVersion,
-				 String fingerprint, String dependencies, String acceptableRemoteVersions,
+				 String fingerprint, String dependencies, String acceptableMinecraftVersion, String acceptableRemoteVersions,
 				 String acceptableSaveVersions, boolean clientOnly, boolean severOnly)
 	{
 		this.modId = modId;
@@ -55,6 +56,7 @@ class MetaDataImpl implements ForgeModMetaData
 		this.mcVersion = mcVersion;
 		this.fingerprint = fingerprint;
 		this.dependencies = dependencies;
+		this.acceptableMinecraftVersion = acceptableMinecraftVersion;
 		this.acceptableRemoteVersions = acceptableRemoteVersions;
 		this.acceptableSaveVersions = acceptableSaveVersions;
 		this.clientOnly = clientOnly;
@@ -73,8 +75,11 @@ class MetaDataImpl implements ForgeModMetaData
 		logoFile = object.optString("logoFile");
 		credits = object.optString("credits");
 		parent = object.optString("parent");
+		mcVersion = object.optString("mcversion");
 
-		JSONArray lst = object.optJSONArray("author_list");
+		JSONArray lst;
+		lst = object.optJSONArray("author_list");
+		if (lst == null) lst = object.optJSONArray("authorList");
 		if (lst != null && lst.length() > 1)
 		{
 			authorList = new String[lst.length()];
@@ -134,7 +139,6 @@ class MetaDataImpl implements ForgeModMetaData
 				case "modid": putModID((String) o); break;
 				case "version": putVersion((String) o); break;
 				case "updateJSON": putJson((String) o); break;
-
 				case "name": putName((String) o); break;
 				case "certificateFingerprint": fingerprint = (String) o; break;
 				case "dependencies": dependencies = (String) o; break;
@@ -143,7 +147,7 @@ class MetaDataImpl implements ForgeModMetaData
 				case "clientSideOnly": clientOnly = (boolean) o; break;
 				case "severSideOnly": severOnly = (boolean) o; break;
 				case "acceptedMinecraftVersions":
-					mcVersion = (String) o;
+					acceptableMinecraftVersion = (String) o;
 					break;
 			}
 		});
@@ -159,6 +163,12 @@ class MetaDataImpl implements ForgeModMetaData
 	public String getVersion()
 	{
 		return version;
+	}
+
+	@Override
+	public String getMcVersion()
+	{
+		return mcVersion;
 	}
 
 	@Override
@@ -218,7 +228,7 @@ class MetaDataImpl implements ForgeModMetaData
 	@Override
 	public String getAcceptMinecraftVersion()
 	{
-		return mcVersion;
+		return acceptableMinecraftVersion;
 	}
 
 	@Override
@@ -269,7 +279,6 @@ class MetaDataImpl implements ForgeModMetaData
 		return collapsed[1];
 	}
 
-
 	@Override
 	public String toString()
 	{
@@ -289,6 +298,7 @@ class MetaDataImpl implements ForgeModMetaData
 				", fingerprint='" + fingerprint + '\'' +
 				", dependencies='" + dependencies + '\'' +
 				", acceptableRemoteVersions='" + acceptableRemoteVersions + '\'' +
+				", acceptableMinecraftVersion='" + acceptableMinecraftVersion + '\'' +
 				", acceptableSaveVersions='" + acceptableSaveVersions + '\'' +
 				", clientOnly=" + clientOnly +
 				", severOnly=" + severOnly +

@@ -8,7 +8,6 @@ import com.jfoenix.controls.JFXTextField;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.event.ActionEvent;
 import javafx.scene.control.MultipleSelectionModel;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -42,6 +41,7 @@ public class ControllerMod
 
 	public void initialize()
 	{
+		System.out.println(ARML.core().getModManager().getAllElement());
 		FilteredList<ForgeMod> modList = new FilteredList<>(ARML.core().getModManager().getAllElement());
 		modList.predicateProperty().bind(Bindings.createObjectBinding(() -> textPredicate,
 				search.textProperty()));
@@ -67,7 +67,7 @@ public class ControllerMod
 		});
 	}
 
-	public void importMod(ActionEvent actionEvent)
+	public void importMod()
 	{
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("choose mod to import",
@@ -81,7 +81,7 @@ public class ControllerMod
 		}
 	}
 
-	public void exportMod(ActionEvent actionEvent)
+	public void exportMod()
 	{
 		MultipleSelectionModel<ForgeMod> selectionModel = mods.getSelectionModel();
 		ObservableList<ForgeMod> selectedItems = selectionModel.getSelectedItems();

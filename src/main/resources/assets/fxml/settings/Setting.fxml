@@ -16,6 +16,7 @@
             <Label id="modManager" text="%setting.mods"/>
             <Label id="modPack" text="%setting.modpacks"/>
             <Label id="map" text="%setting.maps"/>
+            <Label id="taskCenter" text="%setting.tasks"/>
             <Label id="downloadCenter" text="Downloads"/>
         </JFXListView>
         <StackPane fx:id="container" prefWidth="450" prefHeight="500" maxHeight="400"
@@ -25,6 +26,7 @@
             <fx:include id="resourceManager" source="SettingResourcePack.fxml"/>
             <fx:include id="map" source="SettingMap.fxml"/>
             <fx:include id="modPack" source="SettingModPack.fxml"/>
+            <fx:include id="taskCenter" source="TaskCenter.fxml"/>
             <fx:include id="downloadCenter" source="DownloadCenter.fxml"/>
             <!--<fx:include id="resourcePackCurse" source="SettingCurseForgeResourcePack.fxml"/>-->
         </StackPane>

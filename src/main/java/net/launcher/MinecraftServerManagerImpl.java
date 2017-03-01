@@ -81,6 +81,8 @@ public class MinecraftServerManagerImpl implements MinecraftServerManager
 			@Override
 			protected ServerStatus call() throws Exception
 			{
+				updateTitle("PingServer");
+				updateMessage("fetch server info");
 				SocketChannel open = SocketChannel.open(MessageUtils.getAddress(info.getHostName()));
 				try {return new HandshakeTask(info, open).call();}
 				catch (Exception e)
@@ -107,7 +109,11 @@ public class MinecraftServerManagerImpl implements MinecraftServerManager
 			@Override
 			protected ServerStatus call() throws Exception
 			{
+				updateTitle("PingServer");
+				updateMessage("fetch server info and wait");
+				updateProgress(0, 2);
 				SocketChannel open = SocketChannel.open(MessageUtils.getAddress(info.getHostName()));
+				updateProgress(1, 2);
 				try {return new PingTask(info, new HandshakeTask(info, open).call(), open).call();}
 				catch (Exception e)
 				{

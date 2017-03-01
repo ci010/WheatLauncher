@@ -13,6 +13,8 @@ public interface ForgeModMetaData
 
 	String getVersion();
 
+	String getMcVersion();
+
 	String getAcceptMinecraftVersion();
 
 	String getUpdateJSON();

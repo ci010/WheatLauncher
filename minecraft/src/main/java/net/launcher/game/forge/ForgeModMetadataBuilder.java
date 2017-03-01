@@ -13,8 +13,8 @@ public class ForgeModMetadataBuilder implements Builder<ForgeModMetaData>
 	public ForgeModMetaData build()
 	{
 		return new MetaDataImpl(modId, description, updateJSON, url, logoFile, authorList, screenshots,
-				credits, parent, version, name, mcVersion, fingerprint, dependencies, acceptableRemoteVersions,
-				acceptableSaveVersions, clientOnly, severOnly);
+				credits, parent, version, name, mcVersion, fingerprint, dependencies, acceptableMinecraftVersion,
+				acceptableRemoteVersions, acceptableSaveVersions, clientOnly, severOnly);
 	}
 
 	private ForgeModMetadataBuilder() {}
@@ -99,6 +99,12 @@ public class ForgeModMetadataBuilder implements Builder<ForgeModMetaData>
 		this.acceptableSaveVersions = acceptableSaveVersions;
 	}
 
+	public ForgeModMetadataBuilder setAcceptableMinecraftVersion(String acceptableMinecraftVersion)
+	{
+		this.acceptableMinecraftVersion = acceptableMinecraftVersion;
+		return this;
+	}
+
 	public void setClientOnly(boolean clientOnly)
 	{
 		this.clientOnly = clientOnly;
@@ -125,6 +131,7 @@ public class ForgeModMetadataBuilder implements Builder<ForgeModMetaData>
 			fingerprint = StringUtils.EMPTY,
 			dependencies = StringUtils.EMPTY,
 			acceptableRemoteVersions = StringUtils.EMPTY,
+			acceptableMinecraftVersion = StringUtils.EMPTY,
 			acceptableSaveVersions = StringUtils.EMPTY;
 
 	private boolean clientOnly, severOnly;
