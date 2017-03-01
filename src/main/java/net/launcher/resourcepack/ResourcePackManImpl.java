@@ -121,7 +121,7 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 		Objects.requireNonNull(resourcePack);
 		Resource<ResourcePack> packResource = nameToResource.get(resourcePack.getPackName());
 		if (packResource != null)
-			try (InputStream stream = archiveRepository.openStream(packResource, "assets/texture/pack.png"))
+			try (InputStream stream = archiveRepository.openStream(packResource, "pack.png"))
 			{
 				return new Image(stream);
 			}
