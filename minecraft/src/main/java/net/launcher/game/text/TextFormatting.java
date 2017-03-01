@@ -80,6 +80,8 @@ public enum TextFormatting
 		this.controlString = "\u00a7" + formattingCodeIn;
 	}
 
+	public char getFormattingCode() {return formattingCode;}
+
 	/**
 	 * Returns the numerical color index that represents this formatting
 	 */
@@ -123,6 +125,14 @@ public enum TextFormatting
 	public static String getTextWithoutFormattingCodes(String text)
 	{
 		return text == null ? null : FORMATTING_CODE_PATTERN.matcher(text).replaceAll("");
+	}
+
+	public static TextFormatting getValueByChar(char formattingCode)
+	{
+		for (TextFormatting textFormatting : values())
+			if (textFormatting.formattingCode == formattingCode)
+				return textFormatting;
+		return BLACK;
 	}
 
 	/**

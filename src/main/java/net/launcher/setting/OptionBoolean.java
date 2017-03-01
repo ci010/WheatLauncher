@@ -16,7 +16,7 @@ public class OptionBoolean extends SettingType.Option<Boolean>
 	}
 
 	@Override
-	public Boolean deserialize(Setting setting, String s)
+	public Boolean deserialize(String s)
 	{
 		return Boolean.valueOf(s);
 	}

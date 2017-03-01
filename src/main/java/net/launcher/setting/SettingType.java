@@ -36,7 +36,7 @@ public abstract class SettingType
 
 		public abstract SettingProperty<T> getDefaultValue(Setting setting);
 
-		public abstract T deserialize(Setting setting, String s);
+		public abstract T deserialize(String s);
 
 		public String serialize(Object tValue) {return tValue.toString();}
 	}

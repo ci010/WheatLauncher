@@ -10,6 +10,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 import net.launcher.OptionLaunchElementManager;
+import net.launcher.game.ServerStatus;
 import net.launcher.game.forge.ForgeMod;
 import net.launcher.setting.Setting;
 import net.launcher.setting.SettingType;
@@ -29,14 +30,13 @@ import java.util.stream.Collectors;
 /**
  * @author ci010
  */
-class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, String[]> implements ModManager
+class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ServerStatus.ModInfo> implements ModManager
 {
 	private ArchiveRepository<ForgeMod[]> archiveResource;
 
 	private Map<String, String> hashMap = new TreeMap<>();
 	private Map<String, ForgeMod> instanceMap = new TreeMap<>();
 
-	private Map<LaunchOption, Delivery<Resource<ForgeMod[]>>> deliveryCache = new HashMap<>();
 	private ObservableList<ForgeMod> list;
 
 	ModManagerImpl(ArchiveRepository<ForgeMod[]> archiveResource)
@@ -95,7 +95,7 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, String[]> impl
 	}
 
 	@Override
-	protected SettingType.Option<String[]> getOption()
+	protected SettingType.Option<ServerStatus.ModInfo> getOption()
 	{
 		return SettingMod.INSTANCE.MODS;
 	}
@@ -117,18 +117,23 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, String[]> impl
 	}
 
 	@Override
-	protected List<ForgeMod> from(String[] value)
+	protected List<ForgeMod> from(ServerStatus.ModInfo value)
 	{
-		List<ForgeMod> lst = new ArrayList<>(value.length);
-		for (String s : value)
-			lst.add(instanceMap.get(s));
-		return lst;
+		List<ForgeMod> mods = new ArrayList<>();
+		for (Map.Entry<String, String> entry : value.getModIdVersions().entrySet())
+		{
+			ForgeMod forgeMod = instanceMap.get(entry.getKey() + ":" + entry.getValue());
+			if (forgeMod != null)
+				mods.add(forgeMod);
+		}
+		return mods;
 	}
 
 	@Override
-	protected String[] to(List<ForgeMod> lst)
+	protected ServerStatus.ModInfo to(List<ForgeMod> lst)
 	{
-		return new String[0];
+		return new ServerStatus.ModInfo("fml", lst.stream().collect(Collectors.toMap(ForgeMod::getModId, v -> v.getMetaData
+				().getVersion())), false);
 	}
 
 	@Override
@@ -187,7 +192,7 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, String[]> impl
 
 	private String getModKey(ForgeMod forgeMod)
 	{
-		return forgeMod.getModId() + ":" + forgeMod.getVersion();
+		return forgeMod.getModId() + ":" + forgeMod.getMetaData().getVersion();
 	}
 
 	@Override

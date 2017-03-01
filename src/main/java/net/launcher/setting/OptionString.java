@@ -22,7 +22,7 @@ public class OptionString extends SettingType.Option<String>
 	}
 
 	@Override
-	public String deserialize(Setting setting, String string)
+	public String deserialize(String string)
 	{
 		return string;
 	}

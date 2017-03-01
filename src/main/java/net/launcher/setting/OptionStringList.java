@@ -42,7 +42,7 @@ public abstract class OptionStringList extends SettingType.Option<ObservableList
 	}
 
 	@Override
-	public ObservableList<String> deserialize(Setting setting, String s)
+	public ObservableList<String> deserialize(String s)
 	{
 		return FXCollections.observableArrayList();
 	}

@@ -100,6 +100,8 @@ public class ControllerServersView
 			{
 				FXServerInfo serverInfo1 = (FXServerInfo) serverInfo;
 				serverInfo1.setStatus(ServerStatus.error());
+				ARML.logger().info("Cannot connect to server ");
+				exception.printStackTrace();
 			}
 		});
 		return serverStatusTask;
@@ -122,7 +124,6 @@ public class ControllerServersView
 	public void launchServer()
 	{
 		FXServerInfo selectedItem = (FXServerInfo) serverList.getSelectionModel().getSelectedItem();
-		String gameVersion = selectedItem.getStatus().getGameVersion();
 		//parse gameVersion
 		ServerVersion version;
 	}
@@ -135,26 +136,26 @@ public class ControllerServersView
 
 		private Node commonContent;
 		private Node editContent;
-		private Label nameLabel, capaLabel, pingLabel, versionLabel;
-		private TextFlow motd;
+		private Label nameLabel, capaLabel, pingLabel;
+		private TextFlow motd, version;
 
 		ServerCells()
 		{
 			this.getStyleClass().add("base-cell");
 			motd = new TextFlow();
+			motd.setMaxWidth(230);
 			nameLabel = new Label();
 			capaLabel = new Label();
 			pingLabel = new Label();
-			versionLabel = new Label();
-			versionLabel.setWrapText(true);
-			versionLabel.setMaxWidth(150);
+			version = new TextFlow();
+			version.setMaxWidth(150);
 			BorderPane borderPane = new BorderPane();
 			VBox borderLeft = new VBox();
 			BorderPane borderRight = new BorderPane();
 			borderPane.setLeft(borderLeft);
 			borderPane.setRight(borderRight);
 			borderLeft.getChildren().addAll(nameLabel, motd);
-			borderRight.setCenter(versionLabel);
+			borderRight.setCenter(version);
 			borderRight.setTop(capaLabel);
 			borderRight.setBottom(pingLabel);
 			BorderPane.setAlignment(borderRight, Pos.TOP_RIGHT);
@@ -243,23 +244,22 @@ public class ControllerServersView
 					if (status == null) return "NaN ms";
 					return status.getPingToServer() + " ms";
 				}, ((FXServerInfo) getItem()).statusProperty()));
-				versionLabel.textProperty().bind(Bindings.createStringBinding(() ->
-						{
-							if (getItem() == null) return "Unknown";
-							ServerStatus status = ((FXServerInfo) getItem()).getStatus();
-							if (status == null) return "Unknown";
-							return status.getGameVersion();
-						},
-						((FXServerInfo) getItem()).statusProperty()));
 
 				ServerStatus status = ((FXServerInfo) getItem()).getStatus();
-				if (status != null) TextComponentConverter.convert(status.getServerMOTD(), motd);
-
+				if (status != null)
+				{
+					TextComponentConverter.convert(status.getGameVersion(), version);
+					TextComponentConverter.convert(status.getServerMOTD(), motd);
+				}
 				((FXServerInfo) getItem()).statusProperty().addListener(observable ->
 				{
 					if (getItem() == null) return;
 					ServerStatus status0 = ((FXServerInfo) getItem()).getStatus();
-					if (status0 != null) TextComponentConverter.convert(status0.getServerMOTD(), motd);
+					if (status0 != null)
+					{
+						TextComponentConverter.convert(status0.getGameVersion(), version);
+						TextComponentConverter.convert(status0.getServerMOTD(), motd);
+					}
 				});
 				graphic.imageProperty().bind(Bindings.createObjectBinding(() ->
 						{

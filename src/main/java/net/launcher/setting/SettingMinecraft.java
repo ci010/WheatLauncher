@@ -111,7 +111,7 @@ public class SettingMinecraft extends SettingType
 				ARML.logger().warning("unable to load " + keyVPair[0]);
 				continue;
 			}
-			prop.setValue(option.deserialize(instance, keyVPair[1]));
+			prop.setValue(option.deserialize(keyVPair[1]));
 		}
 		return instance;
 	}

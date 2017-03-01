@@ -43,7 +43,7 @@ public class OptionInt extends SettingType.Option<Number>
 	}
 
 	@Override
-	public Number deserialize(Setting setting, String s)
+	public Number deserialize(String s)
 	{
 		return Integer.valueOf(s);
 	}

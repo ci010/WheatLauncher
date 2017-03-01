@@ -83,7 +83,18 @@ public class MinecraftServerManagerImpl implements MinecraftServerManager
 			{
 				SocketChannel open = SocketChannel.open(MessageUtils.getAddress(info.getHostName()));
 				try {return new HandshakeTask(info, open).call();}
-				catch (Exception e) {return new HandshakeTaskLegacy(info, open).call();}
+				catch (Exception e)
+				{
+					try
+					{
+						return new HandshakeTaskLegacy(info, open).call();
+					}
+					catch (Exception e1)
+					{
+						e1.addSuppressed(e);
+						throw e1;
+					}
+				}
 			}
 		};
 	}
@@ -100,7 +111,15 @@ public class MinecraftServerManagerImpl implements MinecraftServerManager
 				try {return new PingTask(info, new HandshakeTask(info, open).call(), open).call();}
 				catch (Exception e)
 				{
-					return new PingTask(info, new HandshakeTaskLegacy(info, open).call(), open).call();
+					try
+					{
+						return new PingTask(info, new HandshakeTaskLegacy(info, open).call(), open).call();
+					}
+					catch (Exception e1)
+					{
+						e1.addSuppressed(e);
+						throw e1;
+					}
 				}
 			}
 		};

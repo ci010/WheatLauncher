@@ -4,36 +4,14 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.*;
 import net.launcher.game.text.Style;
 import net.launcher.game.text.TextComponent;
+import net.launcher.game.text.components.TextComponentString;
 
 /**
  * @author ci010
  */
 public class TextComponentConverter
 {
-	private static int[] colorCode = new int[32];
-
-	static
-	{
-		for (int i = 0; i < 32; ++i)
-		{
-			int j = (i >> 3 & 1) * 85;
-			int k = (i >> 2 & 1) * 170 + j;
-			int l = (i >> 1 & 1) * 170 + j;
-			int i1 = (i & 1) * 170 + j;
-
-			if (i == 6)
-				k += 85;
-
-			if (i >= 16)
-			{
-				k /= 4;
-				l /= 4;
-				i1 /= 4;
-			}
-
-			colorCode[i] = (k & 255) << 16 | (l & 255) << 8 | i1 & 255;
-		}
-	}
+	private static int[] colorCode = TextComponentString.colorCode;
 
 	public static TextFlow convert(TextComponent textComponent)
 	{

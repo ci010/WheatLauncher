@@ -4,6 +4,7 @@ import net.launcher.game.ServerInfo;
 import net.launcher.game.ServerStatus;
 import net.launcher.game.text.TextComponent;
 import net.launcher.game.text.TextComponentDeserializer;
+import net.launcher.game.text.components.TextComponentString;
 import net.launcher.utils.MessageUtils;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
@@ -13,9 +14,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.util.Collections;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
@@ -41,13 +39,23 @@ public class HandshakeTask implements Callable<ServerStatus>
 		String s = handshake(info);
 		JSONObject object = new JSONObject(s);
 		TextComponentDeserializer deserializer = new TextComponentDeserializer();
-		TextComponent motd = deserializer.deserialize(object.getJSONObject("description"));
+		TextComponent motd = null;
+		if (object.has("description"))
+		{
+			Object description = object.get("description");
+			if (description instanceof JSONObject)
+				motd = deserializer.deserialize(object.getJSONObject("description"));
+			else if (description instanceof String)
+				motd = TextComponentString.convert((String) description);
+		}
+		if (motd == null)
+			motd = new TextComponentString("");
 
 		String favicon = object.optString("favicon");
 
 		JSONObject version = object.getJSONObject("version");
 
-		String versionName = version.getString("name");
+		TextComponent versionText = TextComponentString.convert(version.getString("name"));
 		int protocol = version.getInt("protocol");
 
 		JSONObject players = object.getJSONObject("players");
@@ -72,24 +80,9 @@ public class HandshakeTask implements Callable<ServerStatus>
 		if (favicon.startsWith("data:image/png;base64,"))
 			info.setServerIcon(favicon.substring("data:image/png;base64,".length()));
 
-		ServerStatus.ModInfo modInfo = ServerStatus.pinging().getModInfo();
+		ServerStatus.ModInfo modInfo = ServerStatus.modInfoSerializer().deserialize(object.getJSONObject("modinfo"));
 
-		if (object.has("modinfo"))
-		{
-			JSONObject modinfo = object.getJSONObject("modinfo");
-			String type = modinfo.getString("type");
-			JSONArray array = modinfo.getJSONArray("modList");
-			boolean moddedClientAllowed = !modinfo.has("clientModsAllowed") || modinfo.getBoolean("clientModsAllowed");
-			Map<String, String> modVersions = new TreeMap<>();
-			for (int i = 0; i < array.length(); i++)
-			{
-				JSONObject mod = array.getJSONObject(i);
-				modVersions.put(mod.getString("modid"), mod.getString("version"));
-			}
-			modInfo = new ServerStatus.ModInfo(type, Collections.unmodifiableMap(modVersions), moddedClientAllowed);
-		}
-
-		return new ServerStatus(versionName, motd, protocol, online, max, profiles, modInfo);
+		return new ServerStatus(versionText, motd, protocol, online, max, profiles, modInfo);
 	}
 
 	private String handshake(ServerInfo info) throws IOException

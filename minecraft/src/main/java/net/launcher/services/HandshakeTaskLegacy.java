@@ -40,7 +40,8 @@ public class HandshakeTaskLegacy implements Callable<ServerStatus>
 			capability = Integer.parseInt(strings[4]);
 		}
 		catch (Exception ignored) {}
-		return new ServerStatus(gameVersion, new TextComponentString(MOTO), protocol, players, capability);
+		return new ServerStatus(new TextComponentString(gameVersion), new TextComponentString(MOTO), protocol,
+				players, capability);
 	}
 
 	private String[] pingServerLegacy0() throws IOException

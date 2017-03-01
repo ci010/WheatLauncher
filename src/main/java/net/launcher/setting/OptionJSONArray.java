@@ -14,7 +14,7 @@ public class OptionJSONArray extends SettingType.Option<String[]>
 	}
 
 	@Override
-	public String[] deserialize(Setting setting, String s)
+	public String[] deserialize(String s)
 	{
 		JSONArray objects = new JSONArray(s);
 		String[] strings = new String[objects.length()];
