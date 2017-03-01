@@ -1,33 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXTableView?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXListView?>
 <?import com.jfoenix.controls.JFXTextField?>
-<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<StackPane fx:id="root" xmlns="http://javafx.com/javafx/8.0.71" xmlns:fx="http://javafx.com/fxml/1"
+<StackPane xmlns="http://javafx.com/javafx/8.0.71" xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="net.wheatlauncher.control.profiles.ControllerModView"
-           style="-fx-padding:10">
-    <HBox spacing="10">
-        <VBox spacing="10" HBox.hgrow="NEVER" prefWidth="400">
-            <JFXTableView fx:id="mods" prefHeight="200" prefWidth="200">
-                <columns>
-                    <TableColumn fx:id="name" text="%mod.name"/>
-                    <TableColumn fx:id="version" text="%mod.author"/>
-                    <TableColumn fx:id="minecraftVersion" text="%mod.version"/>
-                    <TableColumn fx:id="enabled" text="%mod.enabled"/>
-                </columns>
-            </JFXTableView>
-        </VBox>
-        <VBox spacing="10" style=" -fx-padding:10;" HBox.hgrow="ALWAYS">
-            <StackPane style="-fx-background-color:WHITE; -fx-padding:10">
-                <Label text="%mod.description"/>
-            </StackPane>
-            <VBox fx:id="descriptionBox" style="-fx-background-color:WHITE;" accessibleText="">
-                <Label fx:id="description"/>
-            </VBox>
-            <StackPane style="-fx-background-color:WHITE">
-                <JFXTextField fx:id="searchField" promptText="Search..." maxWidth="50" maxHeight="50"/>
-            </StackPane>
-        </VBox>
-    </HBox>
+           style="-fx-padding:10; -fx-background-color:WHITE;">
+    <VBox alignment="CENTER" spacing="10">
+        <JFXListView fx:id="mods" prefHeight="150" styleClass="mics-list,thin-scroll-bar" VBox.vgrow="ALWAYS"/>
+        <HBox spacing="10" alignment="CENTER">
+            <JFXButton fx:id="config" text="%mod.config" styleClass="options-button" style="-fx-max-width:100"/>
+            <JFXTextField fx:id="search" promptText="%search" maxHeight="50" HBox.hgrow="ALWAYS"/>
+            <JFXButton fx:id="enable" text="%mod.enabled" styleClass="options-button" onAction="#enableMod"
+                       style="-fx-max-width:100"/>
+        </HBox>
+    </VBox>
 </StackPane>

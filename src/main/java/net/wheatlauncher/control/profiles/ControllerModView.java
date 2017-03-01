@@ -1,60 +1,91 @@
 package net.wheatlauncher.control.profiles;
 
+import api.launcher.ARML;
 import com.jfoenix.controls.JFXButton;
-import com.jfoenix.controls.JFXTableView;
+import com.jfoenix.controls.JFXListCell;
+import com.jfoenix.controls.JFXListView;
 import com.jfoenix.controls.JFXTextField;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.beans.binding.Bindings;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableSet;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
+import net.launcher.control.ModCell;
 import net.launcher.game.forge.ForgeMod;
+
+import java.io.IOException;
+import java.util.Comparator;
+import java.util.ResourceBundle;
+import java.util.TreeSet;
+import java.util.function.Predicate;
 
 /**
  * @author ci010
  */
 public class ControllerModView
 {
-	public StackPane root;
+	public JFXTextField search;
+	public JFXListView<ForgeMod> mods;
+	public JFXButton enable;
+	public JFXButton config;
+	private Predicate<ForgeMod> textPredicate = mod ->
+			search.getText().isEmpty() || mod.getModId().toLowerCase().contains(search.getText()) || mod.getMetaData().getName().toLowerCase()
+					.contains(search.getText()) || mod.getMetaData().getDescription().toLowerCase().contains(search.getText());
 
-	public JFXTableView<ForgeMod> mods;
-
-	public TableColumn<ForgeMod, String> name;
-	public TableColumn<ForgeMod, String> version;
-	public TableColumn<ForgeMod, String> minecraftVersion;
-	public TableColumn<ForgeMod, Boolean> enabled;
-
-	public JFXTextField searchField;
-	public Label description;
-	public VBox descriptionBox;
-	public JFXButton details;
+	public ResourceBundle resources;
+	private ObservableSet<ForgeMod> enabledMod = FXCollections.observableSet(new TreeSet<>(Comparator.comparing(ForgeMod::getModId)));
 
 	public void initialize()
 	{
-
+		FilteredList<ForgeMod> modList = new FilteredList<>(ARML.core().getModManager().getAllElement());
+		modList.predicateProperty().bind(Bindings.createObjectBinding(() -> textPredicate,
+				search.textProperty()));
+		SortedList<ForgeMod> sortedList = new SortedList<>(modList);
+		sortedList.setComparator((o1, o2) ->
+		{
+			boolean contains1 = enabledMod.contains(o1),
+					contains2 = enabledMod.contains(o2);
+			if (contains1 && contains2) return 0;
+			if (contains1) return 1;
+			if (contains2) return -1;
+			return 0;
+		});
+		mods.setItems(sortedList);
+		mods.setCellFactory(param -> new JFXListCell<ForgeMod>()
+		{
+			@Override
+			public void updateItem(ForgeMod item, boolean empty)
+			{
+				super.updateItem(item, empty);
+				if (item == null || empty)
+					return;
+				try
+				{
+					this.setGraphic(new ModCell(item, ARML.core().getModManager().getLogo(item))
+					{
+						{
+							disableProperty().bind(Bindings.createBooleanBinding(() ->
+									!enabledMod.contains(this.getValue()), enabledMod));
+						}
+					});
+				}
+				catch (IOException e)
+				{
+				}
+			}
+		});
+		enable.textProperty().bind(Bindings.createStringBinding(() ->
+						enabledMod.contains(mods.getSelectionModel().getSelectedItem()) ? resources.getString("disable") : resources.getString("enable"),
+				mods.getSelectionModel().selectedIndexProperty(), enabledMod));
+		enable.disableProperty().bind(Bindings.createBooleanBinding(() -> mods.getSelectionModel().isEmpty(), mods
+				.getSelectionModel().selectedIndexProperty()));
 	}
 
-	public void reload()
+	public void enableMod()
 	{
-//		ObservableList<ModCol> modCols = FXCollections.observableArrayList();
-//
-//		new FilteredList<>(modCols);
-//		modCols.addAll(Core.INSTANCE.().getAllElement().stream().map(ModCol::new).collect(Collectors.toList()));
-
-//		mods.setRoot(new RecursiveTreeItem<>(modCols, RecursiveTreeObject::getChildren));
-//		mods.setSortMode(TreeSortMode.ONLY_FIRST_LEVEL);
-//		mods.setShowRoot(false);
-
-//		searchField.textProperty().addListener((o, oldVal, newVal) ->
-//				mods.setPredicate(modCol -> modCol.getValue().release.getModId().contains(newVal) ||
-//						modCol.getValue().name.get().contains(newVal) ||
-//						modCol.getValue().version.get().contains(newVal) ||
-//						modCol.getValue().mcVersion.get().contains(newVal) ||
-//						modCol.getValue().description.get().contains(newVal)));
-//		name.setCellValueFactory(feature -> feature.getValue().getValue().name);
-//		version.setCellValueFactory(feature -> feature.getValue().getValue().version);
-//		enabled.setCellValueFactory(feature -> feature.getValue().getValue().enabled);
-//		description.setCellValueFactory(feature -> feature.getValue().getValue().description);
-//		minecraftVersion.setCellValueFactory(feature -> feature.getValue().getValue().mcVersion);
-
+		ForgeMod selectedItem = mods.getSelectionModel().getSelectedItem();
+		if (!enabledMod.contains(selectedItem))
+			enabledMod.add(selectedItem);
+		else enabledMod.remove(selectedItem);
 	}
 }

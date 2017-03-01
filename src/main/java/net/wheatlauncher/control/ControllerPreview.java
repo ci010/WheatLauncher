@@ -10,7 +10,6 @@ import javafx.animation.Animation;
 import javafx.beans.binding.Bindings;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -36,28 +35,19 @@ import java.util.function.Consumer;
  */
 public class ControllerPreview
 {
+	public Pane root;
+
 	public JFXDialog serverView;
 	public Label useSever;
 
-	/*controls*/
-	@FXML
-	private JFXButton profileName;
-	@FXML
-	private Label player;
 	private Animation animation;
-	@FXML
-	private SkinCanvas canvas;
 
-	/*controls parent*/
-	@FXML
-	private Pane root;
+	public JFXButton profileName;
+	public Label player;
+	public SkinCanvas canvas;
 
-	@FXML
-	private VBox leftBox;
-
-	/*dialog*/
+	public VBox leftBox;
 	public JFXDialog profileSettingDialog;
-
 	public JFXDialog settingDialog;
 
 	public void initialize() throws Exception

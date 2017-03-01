@@ -303,8 +303,8 @@
 		-fx-button-type: RAISED;
 		-fx-background-radius:0;
 		-fx-text-fill:WHITE;
-		-fx-pref-width:200;
-		-fx-max-width:200;
+		-fx-pref-width:150;
+		-fx-max-width:150;
 		/*-fx-background-color:#5264AE;*/
 }
 
@@ -468,6 +468,10 @@
     -fx-background-color: green;
 }
 
+.jfx-list-cell:focused{
+	-fx-background-color:rgb(200,200,0,0.5);
+}
+
 .mics-list{
 	-jfx-vertical-gap:10;
 	-jfx-expanded:true;
@@ -490,21 +494,21 @@
 .mics-list .scroll-bar:horizontal .decrement-arrow,
 .mics-list .scroll-bar:horizontal .increment-button,
 .mics-list .scroll-bar:horizontal .decrement-button {
-    -fx-padding:1;
+    -fx-padding:0.5;
 }
 
 .thin-scroll-bar .scroll-bar:horizontal .increment-arrow,
 .thin-scroll-bar .scroll-bar:horizontal .decrement-arrow,
 .thin-scroll-bar .scroll-bar:horizontal .increment-button,
 .thin-scroll-bar .scroll-bar:horizontal .decrement-button {
-    -fx-padding:1;
+    -fx-padding:0.5;
 }
 
 .thin-scroll-bar .scroll-bar:vertical .increment-arrow,
 .thin-scroll-bar .scroll-bar:vertical .decrement-arrow,
 .thin-scroll-bar .scroll-bar:vertical .increment-button,
 .thin-scroll-bar .scroll-bar:vertical .decrement-button {
-    -fx-padding:1;
+    -fx-padding:0.5;
 }
 /*.glyph-icon{
 	-fx-padding:10;

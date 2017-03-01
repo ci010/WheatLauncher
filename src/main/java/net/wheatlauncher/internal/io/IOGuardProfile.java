@@ -142,7 +142,6 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 			if (!profilesRecord.isEmpty())
 			{
 				ARML.logger().warning("Bad profile record! " + profilesRecord);
-				//TODO bad record
 			}
 		}
 
@@ -237,7 +236,9 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 		{
 			if (task == this) return true;
 			if (!(task instanceof SaveSetting)) return false;
-			return ((SaveSetting) task).setting == this.setting && ((SaveSetting) task).id.equals(this.id);
+			String id = ((SaveSetting) task).id;
+			WeakReference<Setting> setting = ((SaveSetting) task).setting;
+			return Objects.equals(id, this.id) && Objects.equals(setting.get(), this.setting.get());
 		}
 	}
 

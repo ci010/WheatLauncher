@@ -9,14 +9,10 @@ import javafx.beans.binding.Bindings;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
-import javafx.scene.Node;
-import javafx.scene.control.Label;
 import javafx.scene.control.MultipleSelectionModel;
-import javafx.scene.image.Image;
-import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
-import net.launcher.control.ImageCell;
+import net.launcher.control.ModCell;
 import net.launcher.game.forge.ForgeMod;
 
 import java.io.File;
@@ -111,34 +107,4 @@ public class ControllerMod
 		}
 	}
 
-	private class ModCell extends ImageCell<ForgeMod>
-	{
-		public ModCell(ForgeMod value, Image image)
-		{
-			super(value, image);
-			double scale = 64 / icon.getImage().getHeight();
-			double width = icon.getImage().getWidth() * scale;
-			icon.setFitHeight(64);
-			icon.setFitWidth(width);
-		}
-
-		@Override
-		protected Node buildContent()
-		{
-			VBox box = new VBox();
-			box.setSpacing(5);
-			Label nameAndID = new Label(), versionLabel = new Label(), descript = new Label();
-			nameAndID.setStyle("-fx-font-weight: BOLD;-fx-font-size:14px;");
-			nameAndID.textProperty().bind(Bindings.createStringBinding(() ->
-					getValue().getMetaData().getName() + " (" + getValue().getModId() + ")", valueProperty()));
-			versionLabel.textProperty().bind(Bindings.createStringBinding(() ->
-					getValue().getMetaData().getVersion() + " (" + getValue().getMetaData().getAcceptMinecraftVersion
-							() + ")", valueProperty()));
-			descript.textProperty().bind(Bindings.createStringBinding(() ->
-					getValue().getMetaData().getDescription(), valueProperty()));
-			box.getChildren().addAll(nameAndID, versionLabel, descript);
-//			new CustomMenuItem();
-			return box;
-		}
-	}
 }

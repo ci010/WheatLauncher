@@ -24,26 +24,5 @@
                              styleClass="thin-scroll-bar"/>
             </VBox>
         </HBox>
-        <!-- <HBox alignment="CENTER">
-             <JFXButton fx:id="manage" styleClass="minor-button">
-                 <graphic>
-                     <Icon awesomeIcon="INBOX"/>
-                 </graphic>
-                 <tooltip>
-                     <Tooltip text="%setting.resourcepacks.manage"/>
-                 </tooltip>
-             </JFXButton>
-             <StackPane>
-                 <JFXTextField fx:id="searchSelecting" style="-fx-text-fill:WHITE;-fx-unfocus-color:WHITE;"/>
-             </StackPane>
-             <JFXButton onAction="#refresh" styleClass="minor-button">
-                 <graphic>
-                     <Icon awesomeIcon="REFRESH"/>
-                 </graphic>
-                 <tooltip>
-                     <Tooltip text="%refresh"/>
-                 </tooltip>
-             </JFXButton>
-         </HBox>-->
     </VBox>
 </StackPane>
