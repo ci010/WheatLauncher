@@ -1,64 +1,60 @@
-<?import com.jfoenix.controls.JFXDialog?>
 <?import com.jfoenix.controls.JFXTabPane?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import net.launcher.control.ComboBoxDelegate?>
-<JFXDialog fx:id="rootDialog" xmlns:fx="http://javafx.com/fxml/1"
-           xmlns="http://javafx.com/javafx/2.2"
-           fx:controller="net.wheatlauncher.control.profiles.ControllerProfiles"
-           transitionType="CENTER" maxWidth="1000">
-    <VBox minWidth="500" prefWidth="500" prefHeight="300"
-          maxHeight="Infinity"
-          spacing="20" alignment="CENTER">
-        <HBox spacing="100" maxWidth="1000" alignment="CENTER">
-            <VBox spacing="10" alignment="TOP_CENTER" prefWidth="175" maxWidth="175"
-                  style="-fx-background-color:WHITE;">
-                <StackPane style="-fx-background-color:major-color; -fx-padding: 10">
-                    <HBox alignment="CENTER" spacing="5" style="-fx-padding: 10">
-                        <Label contentDisplay="RIGHT" text="%profile"
-                               style="-fx-font-weight:BOLD; -fx-text-fill:WHITE; -fx-font-size:16"/>
-                    </HBox>
-                </StackPane>
-                <StackPane style="-fx-padding:10">
-                    <ComboBoxDelegate fx:id="profile" styleClass="profile-picker" maxWidth="250" prefWidth="200"
-                                      style="-fx-background-color:TRANSPARENT;">
-                        <fx:include fx:id="profileChooser" source="MinecraftProfileChooserPane.fxml"/>
-                    </ComboBoxDelegate>
-                    <!--<ProfileTableSelector fx:id="profile" maxWidth="250" prefWidth="200"/>-->
-                </StackPane>
-            </VBox>
-            <VBox alignment="CENTER" spacing="10" prefWidth="175" maxWidth="175"
-                  style="-fx-background-color:WHITE;">
-                <StackPane style="-fx-background-color:major-color; -fx-padding: 10">
-                    <Label text="%version"
-                           style="-fx-font-size:16; -fx-font-weight:BOLD; -fx-text-fill:WHITE; -fx-padding: 10"/>
-                </StackPane>
-                <StackPane style="-fx-padding:10;-fx-max-width:250;" maxWidth="250">
-                    <ComboBoxDelegate fx:id="versions" promptText="%version" prefWidth="250" maxWidth="250"
-                                      styleClass="version-picker" style="-fx-background-color:TRANSPARENT;">
-                        <fx:include fx:id="versionChooser" source="MinecraftVersionChooserPane.fxml"/>
-                    </ComboBoxDelegate>
-                </StackPane>
-            </VBox>
-        </HBox>
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      xmlns="http://javafx.com/javafx/2.2"
+      fx:controller="net.wheatlauncher.control.profiles.ControllerProfiles"
+      minWidth="500" prefWidth="500"
+      prefHeight="300"
+      maxHeight="Infinity"
+      spacing="20" alignment="CENTER">
+    <HBox spacing="100" maxWidth="1000" alignment="CENTER">
+        <VBox spacing="10" alignment="TOP_CENTER" prefWidth="175" maxWidth="175"
+              style="-fx-background-color:WHITE;">
+            <StackPane style="-fx-background-color:major-color; -fx-padding: 10">
+                <HBox alignment="CENTER" spacing="5" style="-fx-padding: 10">
+                    <Label contentDisplay="RIGHT" text="%profile"
+                           style="-fx-font-weight:BOLD; -fx-text-fill:WHITE; -fx-font-size:16"/>
+                </HBox>
+            </StackPane>
+            <StackPane style="-fx-padding:10">
+                <ComboBoxDelegate fx:id="profile" styleClass="profile-picker" maxWidth="250" prefWidth="200"
+                                  style="-fx-background-color:TRANSPARENT;">
+                    <fx:include fx:id="profileChooser" source="MinecraftProfileChooserPane.fxml"/>
+                </ComboBoxDelegate>
+                <!--<ProfileTableSelector fx:id="profile" maxWidth="250" prefWidth="200"/>-->
+            </StackPane>
+        </VBox>
+        <VBox alignment="CENTER" spacing="10" prefWidth="175" maxWidth="175"
+              style="-fx-background-color:WHITE;">
+            <StackPane style="-fx-background-color:major-color; -fx-padding: 10">
+                <Label text="%version"
+                       style="-fx-font-size:16; -fx-font-weight:BOLD; -fx-text-fill:WHITE; -fx-padding: 10"/>
+            </StackPane>
+            <StackPane style="-fx-padding:10;-fx-max-width:250;" maxWidth="250">
+                <ComboBoxDelegate fx:id="versions" promptText="%version" prefWidth="250" maxWidth="250"
+                                  styleClass="version-picker" style="-fx-background-color:TRANSPARENT;">
+                    <fx:include fx:id="versionChooser" source="MinecraftVersionChooserPane.fxml"/>
+                </ComboBoxDelegate>
+            </StackPane>
+        </VBox>
+    </HBox>
 
-        <JFXTabPane fx:id="optionsTab" prefWidth="500" tabMinHeight="60"
-                    minHeight="300" maxHeight="300"
-                    tabMaxHeight="100" tabMaxWidth="Infinity">
-            <Tab text="%setting.minecraft">
-                <fx:include fx:id="gameSetting" source="ProfileSettingMinecraft.fxml"/>
-            </Tab>
-            <Tab text="%setting.languages">
-                <fx:include fx:id="languageSetting" source="ProfileSettingLanguages.fxml"/>
-            </Tab>
-            <Tab text="%setting.resourcepacks">
-                <fx:include fx:id="resourcePackSetting" source="ProfileSettingResourcePacks.fxml"/>
-            </Tab>
-            <Tab text="%setting.mods">
-                <fx:include fx:id="modSetting" source="ProfileSettingModView.fxml"/>
-            </Tab>
-        </JFXTabPane>
-
-    </VBox>
-    <!--<fx:include fx:id="profilePopup" source="ProfileSettingPopup.fxml"/>-->
-</JFXDialog>
+    <JFXTabPane fx:id="optionsTab" prefWidth="500" tabMinHeight="60"
+                minHeight="300" maxHeight="300"
+                tabMaxHeight="100" tabMaxWidth="Infinity">
+        <Tab text="%setting.minecraft">
+            <fx:include fx:id="gameSetting" source="ProfileSettingMinecraft.fxml"/>
+        </Tab>
+        <Tab text="%setting.languages">
+            <fx:include fx:id="languageSetting" source="ProfileSettingLanguages.fxml"/>
+        </Tab>
+        <Tab text="%setting.resourcepacks">
+            <fx:include fx:id="resourcePackSetting" source="ProfileSettingResourcePacks.fxml"/>
+        </Tab>
+        <Tab text="%setting.mods">
+            <fx:include fx:id="modSetting" source="ProfileSettingModView.fxml"/>
+        </Tab>
+    </JFXTabPane>
+</VBox>

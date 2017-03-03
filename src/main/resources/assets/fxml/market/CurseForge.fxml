@@ -1,0 +1,43 @@
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
+           xmlns="http://javafx.com/javafx/2.2" fx:controller="net.wheatlauncher.control.market.ControllerCurseForge">
+    <VBox spacing="10">
+        <BorderPane>
+            <left>
+                <Label text="project" contentDisplay="RIGHT" style="-fx-background-color:minor-color;-fx-padding:10">
+                    <graphic>
+                        <JFXComboBox fx:id="projectTypes"/>
+                    </graphic>
+                </Label>
+            </left>
+            <right>
+                <HBox>
+                    <JFXTextField fx:id="searchField"/>
+                    <JFXButton text="Search"/>
+                </HBox>
+            </right>
+        </BorderPane>
+        <HBox spacing="10">
+            <JFXListView fx:id="category" style="-jfx-expanded:TRUE; -fx-background-color:major-color;
+                    -fx-pref-width:200;-fx-max-width:200;"
+                         verticalGap="10" styleClass="option-list,thin-scroll-bar"/>
+            <VBox spacing="10" style="-fx-background-color:WHITE;-fx-padding:10">
+                <HBox spacing="10" alignment="CENTER">
+                    <Label text="Sort by:" contentDisplay="RIGHT">
+                        <graphic>
+                            <JFXComboBox fx:id="options"/>
+                        </graphic>
+                    </Label>
+                    <Label text="Game Version:" contentDisplay="RIGHT">
+                        <graphic>
+                            <JFXComboBox fx:id="gameVersions"/>
+                        </graphic>
+                    </Label>
+                </HBox>
+                <JFXListView fx:id="list" styleClass="mics-list,thin-scroll-bar" prefWidth="450"/>
+            </VBox>
+        </HBox>
+    </VBox>
+</StackPane>

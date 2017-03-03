@@ -1,5 +1,4 @@
-<?import com.jfoenix.controls.JFXButton?>
-<?import com.jfoenix.controls.JFXDialog?>
+<?import com.jfoenix.controls.*?>
 <?import de.jensd.fx.fontawesome.Icon?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
@@ -17,38 +16,47 @@
                        style="-fx-font-size: 16.0px;-fx-text-fill: TOMATO;-fx-font-weight:BOLD"/>
             </StackPane>
             <SkinCanvas fx:id="canvas" width="150" height="250" depth="4"/>
-            <HBox spacing="10" alignment="CENTER">
-                <JFXButton buttonType="RAISED"
-                           styleClass="minor-button"
+            <VBox spacing="10" alignment="CENTER">
+                <HBox spacing="10" alignment="CENTER">
+                    <JFXButton id="settingDialog" buttonType="RAISED"
+                               styleClass="minor-button"
+                               style="-fx-background-color:WHITE"
+                               onAction="#popupDialog">
+                        <tooltip>
+                            <Tooltip text="%tooltip.setting"/>
+                        </tooltip>
+                        <graphic>
+                            <Icon awesomeIcon="GEAR" textFill="tomato"/>
+                        </graphic>
+                    </JFXButton>
+                    <JFXButton fx:id="profileName" id="profileDialog" buttonType="RAISED"
+                               styleClass="major-button"
+                               style="-fx-background-color:WHITE; -fx-text-fill:TOMATO;"
+                               onAction="#popupDialog">
+                        <tooltip>
+                            <Tooltip text="%tooltip.switchprofile"/>
+                        </tooltip>
+                    </JFXButton>
+                    <JFXButton maxHeight="10" buttonType="RAISED"
+                               styleClass="minor-button"
+                               style="-fx-background-color:WHITE"
+                               onAction="#onSwitchPlayer">
+                        <tooltip>
+                            <Tooltip text="%tooltip.switchaccount"/>
+                        </tooltip>
+                        <graphic>
+                            <Icon awesomeIcon="USER" textFill="tomato"/>
+                        </graphic>
+                    </JFXButton>
+                </HBox>
+                <JFXButton id="market" maxHeight="10" buttonType="RAISED" styleClass="minor-button"
                            style="-fx-background-color:WHITE"
-                           onAction="#popupSetting">
-                    <tooltip>
-                        <Tooltip text="%tooltip.setting"/>
-                    </tooltip>
+                           onAction="#popupDialog">
                     <graphic>
-                        <Icon awesomeIcon="GEAR" textFill="tomato"/>
+                        <Icon awesomeIcon="SHOPPING_CART" textFill="tomato"/>
                     </graphic>
                 </JFXButton>
-                <JFXButton fx:id="profileName" buttonType="RAISED"
-                           styleClass="major-button"
-                           style="-fx-background-color:WHITE; -fx-text-fill:TOMATO;"
-                           onAction="#popupProfileSetting">
-                    <tooltip>
-                        <Tooltip text="%tooltip.switchprofile"/>
-                    </tooltip>
-                </JFXButton>
-                <JFXButton maxHeight="10" buttonType="RAISED"
-                           styleClass="minor-button"
-                           style="-fx-background-color:WHITE"
-                           onAction="#onSwitchPlayer">
-                    <tooltip>
-                        <Tooltip text="%tooltip.switchaccount"/>
-                    </tooltip>
-                    <graphic>
-                        <Icon awesomeIcon="USER" textFill="tomato"/>
-                    </graphic>
-                </JFXButton>
-            </HBox>
+            </VBox>
         </VBox>
     </left>
     <right>
@@ -56,9 +64,9 @@
             <HBox alignment="CENTER" spacing="20" style="-fx-padding: 15 15">
                 <Label fx:id="useSever">
                     <graphic>
-                        <ColorTransitionButton styleClass="mics-button"
+                        <ColorTransitionButton id="serverDialog" styleClass="mics-button"
                                                hoverColor="crimson"
-                                               buttonType="RAISED" onAction="#showServer">
+                                               buttonType="RAISED" onAction="#popupDialog">
                             <graphic>
                                 <Icon awesomeIcon="GLOBE" textFill="tomato"/>
                             </graphic>
@@ -74,9 +82,16 @@
             </HBox>
         </FlowPane>
     </right>
-    <fx:include fx:id="settingDialog" source="settings/Setting.fxml"/>
-    <fx:include fx:id="profileSettingDialog" source="profiles/Profiles.fxml"/>
-    <JFXDialog fx:id="serverView">
+    <JFXDialog id="settingDialog" style="-fx-background-color:TRANSPARENT;" transitionType="LEFT">
+        <fx:include source="settings/Setting.fxml"/>
+    </JFXDialog>
+    <JFXDialog id="profileDialog" transitionType="CENTER" maxWidth="1000">
+        <fx:include source="profiles/Profiles.fxml"/>
+    </JFXDialog>
+    <JFXDialog id="serverDialog">
         <fx:include source="ServersView.fxml"/>
+    </JFXDialog>
+    <JFXDialog id="market">
+        <fx:include source="market/CurseForge.fxml"/>
     </JFXDialog>
 </BorderPane>

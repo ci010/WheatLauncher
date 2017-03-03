@@ -10,6 +10,8 @@ import javafx.animation.Animation;
 import javafx.beans.binding.Bindings;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
+import javafx.event.ActionEvent;
+import javafx.scene.Node;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -30,6 +32,7 @@ import org.to2mbn.jmccc.util.UUIDUtils;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 
 /**
@@ -37,20 +40,19 @@ import java.util.function.Consumer;
  */
 public class ControllerPreview
 {
+	private Map<String, JFXDialog> dialogs = new TreeMap<>();
+
 	public Pane root;
 
-	public JFXDialog serverView;
 	public Label useSever;
 
+	public Label player;
+	public SkinCanvas canvas;
 	private Animation animation;
 
 	public JFXButton profileName;
-	public Label player;
-	public SkinCanvas canvas;
 
 	public VBox leftBox;
-	public JFXDialog profileSettingDialog;
-	public JFXDialog settingDialog;
 
 	public void initialize() throws Exception
 	{
@@ -73,29 +75,21 @@ public class ControllerPreview
 				},
 				ARML.core().getAuthManager().cacheProperty()));
 		useSever.setContentDisplay(ContentDisplay.RIGHT);
-		initDialog();
+
 		initSkin();
+
+		for (Node node : root.getChildren())
+			if (node instanceof JFXDialog)
+			{
+				JFXDialog dialog = (JFXDialog) node;
+				dialog.setDialogContainer((StackPane) root.getParent());
+				dialog.setContentHolderBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null,
+						null)));
+				dialogs.put(node.getId(), dialog);
+			}
+		root.getChildren().removeAll(dialogs.values());
 	}
 
-	private void initDialog()
-	{
-		root.getChildren().remove(profileSettingDialog);
-		root.getChildren().remove(settingDialog);
-		root.getChildren().remove(serverView);
-
-
-		serverView.setDialogContainer(((StackPane) root.getParent()));
-		serverView.setContentHolderBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null,
-				null)));
-
-		profileSettingDialog.setDialogContainer(((StackPane) root.getParent()));
-		profileSettingDialog.setContentHolderBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null,
-				null)));
-
-		settingDialog.setDialogContainer((StackPane) root.getParent());
-		settingDialog.setContentHolderBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null,
-				null)));
-	}
 
 	private void initSkin()
 	{
@@ -150,21 +144,16 @@ public class ControllerPreview
 		((Consumer) root.getScene().getUserData()).accept("LOGIN");
 	}
 
-	public void popupProfileSetting() {profileSettingDialog.show(((StackPane) root.getParent()));}
-
-	public void popupSetting()
-	{
-		settingDialog.show(((StackPane) root.getParent()));
-	}
-
-	public void showServer()
-	{
-		serverView.show(((StackPane) root.getParent()));
-	}
-
 	public void launch() throws Exception
 	{
 		((LaunchCore) ARML.core()).launch();
 	}
 
+	public void popupDialog(ActionEvent event)
+	{
+		String id = ((JFXButton) event.getSource()).getId();
+		JFXDialog jfxDialog = dialogs.get(id);
+		if (jfxDialog != null)
+			jfxDialog.show((StackPane) root.getParent());
+	}
 }

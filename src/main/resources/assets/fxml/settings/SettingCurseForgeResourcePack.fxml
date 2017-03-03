@@ -1,7 +1,0 @@
-<?import javafx.scene.layout.VBox?>
-<?import net.launcher.control.modview.CurseForgeViewSlider?>
-<VBox xmlns:fx="http://javafx.com/fxml/1"
-      xmlns="http://javafx.com/javafx/2.2"
-      fx:controller="net.wheatlauncher.control.settings.ControllerCurseResourcePacks">
-    <CurseForgeViewSlider fx:id="slider"/>
-</VBox>

@@ -2,7 +2,6 @@ package net.wheatlauncher.control.profiles;
 
 import api.launcher.ARML;
 import api.launcher.LaunchProfile;
-import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.controls.JFXTabPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.StringConverter;
@@ -30,7 +29,6 @@ public class ControllerProfiles
 
 	public StackPane modSetting;
 
-	public JFXDialog rootDialog;
 	public StackPane versionChooser;
 	public ControllerMinecraftVersionChooserPane versionChooserController;
 	public StackPane profileChooser;
@@ -38,11 +36,10 @@ public class ControllerProfiles
 
 	public void initialize()
 	{
-		rootDialog.setOverlayClose(true);
 		versions.setOnShown(event -> versionChooserController.onShow());
 		initVersion();
 		initProfile();
-		versionChooserController.initialize(versions, () -> (StackPane) rootDialog.getScene().getRoot());
+		versionChooserController.initialize(versions, () -> (StackPane) versions.getScene().getRoot());
 		profileChooserController.initialize(profile);
 	}
 
