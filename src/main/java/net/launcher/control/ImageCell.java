@@ -14,8 +14,9 @@ import javafx.scene.layout.StackPane;
 /**
  * @author ci010
  */
-public abstract class ImageCell<T> extends HBox
+public abstract class ImageCell<T> extends StackPane
 {
+	protected HBox base = new HBox();
 	protected ImageView icon = new ImageView();
 	protected StackPane imageContainer;
 
@@ -112,8 +113,11 @@ public abstract class ImageCell<T> extends HBox
 		iconWidth.addListener(observable -> icon.setFitWidth(iconWidth.get()));
 		iconHeight.addListener(observable -> icon.setFitHeight(iconHeight.get()));
 
-		this.getChildren().addAll(imageContainer, buildContent());
-		this.setSpacing(5);
+		base.getChildren().addAll(imageContainer, buildContent());
+		base.setSpacing(5);
+		base.setAlignment(Pos.CENTER_LEFT);
+
 		this.setAlignment(Pos.CENTER_LEFT);
+		this.getChildren().add(base);
 	}
 }

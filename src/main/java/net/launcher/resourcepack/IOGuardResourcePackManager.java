@@ -49,6 +49,10 @@ public class IOGuardResourcePackManager extends IOGuard<ResourcePackManager>
 	{
 		ARML.bus().addEventHandler(LaunchEvent.LAUNCH_EVENT, event ->
 		{
+			ARML.taskCenter().runSimpleTask("CleaOldResource", () -> NIOUtils.clearDirectory(event.getOption()
+					.getRuntimeDirectory()
+					.getRoot().toPath().resolve("resourcepacks")));
+
 			Task<Delivery<ResourcePack>> resourcepacks = archiveRepository.fetchAllResource(
 					event.getOption().getRuntimeDirectory().getRoot().toPath().resolve
 							("resourcepacks"), FetchOption.SYMBOL_LINK);

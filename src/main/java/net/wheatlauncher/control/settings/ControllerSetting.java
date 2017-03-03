@@ -3,6 +3,7 @@ package net.wheatlauncher.control.settings;
 import com.jfoenix.controls.JFXListView;
 import javafx.scene.Node;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.SelectionModel;
 import javafx.scene.layout.StackPane;
 
 import java.util.Map;
@@ -14,7 +15,7 @@ import java.util.TreeMap;
 public class ControllerSetting
 {
 	public JFXListView<Node> options;
-//	public JFXListView<Node> resourcePackSubList;
+	public JFXListView<Node> settings;
 
 	public StackPane container;
 
@@ -27,10 +28,25 @@ public class ControllerSetting
 
 		options.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 		options.getSelectionModel().selectedItemProperty().addListener(observable ->
-				switchTo(options.getSelectionModel().getSelectedItems().get(0)));
+				switchTo(options.getSelectionModel()));
 		options.getSelectionModel().select(0);
-//		resourcePackSubList.getSelectionModel().selectedIndexProperty().addListener(observable ->
-//				switchTo(resourcePackSubList.getSelectionModel().getSelectedItems().get(0)));
+
+		settings.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+		settings.getSelectionModel().selectedItemProperty().addListener(observable ->
+				switchTo(settings.getSelectionModel()));
+	}
+
+	private SelectionModel<Node> current;
+
+	private void switchTo(SelectionModel<Node> selectionModel)
+	{
+		Node from = selectionModel.getSelectedItem();
+		if (from == null) return;
+		if (from instanceof JFXListView) return;
+		Node node = content.get(from.getId());
+		if (node != null) container.getChildren().setAll(node);
+		if (current != null && current != selectionModel) current.select(-1);
+		current = selectionModel;
 	}
 
 	private void switchTo(Node from)

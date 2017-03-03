@@ -60,8 +60,7 @@ public class IOGuardAuth extends IOGuard<AuthManager>
 		});
 		for (ObservableList<String> strings : historyMap.values())
 			getContext().registerSaveTask(save, strings);
-		getContext().registerSaveTask(save,
-				instance.accountProperty(), instance.authorizeProperty(), historyMap);
+		getContext().registerSaveTask(save, instance.accountProperty(), instance.authorizeProperty(), historyMap);
 	}
 
 	private class Save implements IOGuardContext.IOTask

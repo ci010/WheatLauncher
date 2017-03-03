@@ -3,23 +3,32 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <JFXDialog xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
            fx:controller="net.wheatlauncher.control.settings.ControllerSetting"
            style="-fx-background-color:TRANSPARENT;" transitionType="LEFT">
-    <HBox spacing="10" alignment="CENTER">
-        <JFXListView fx:id="options" maxHeight="400" style="
+    <HBox spacing="10" alignment="CENTER" maxHeight="400">
+        <VBox spacing="10">
+            <JFXListView fx:id="options" maxHeight="300" style="
                     -jfx-expanded:TRUE; -fx-background-color:major-color;"
-                     verticalGap="10"
-                     styleClass="option-list">
-            <Label id="settings" text="%setting.launcher"/>
-            <Label id="resourceManager" text="%setting.resourcepacks"/>
-            <Label id="modManager" text="%setting.mods"/>
-            <Label id="modPack" text="%setting.modpacks"/>
-            <Label id="map" text="%setting.maps"/>
-            <Label id="taskCenter" text="%setting.tasks"/>
-            <Label id="downloadCenter" text="Downloads"/>
-        </JFXListView>
-        <StackPane fx:id="container" prefWidth="450" prefHeight="500" maxHeight="400"
+                         verticalGap="10"
+                         styleClass="option-list">
+                <Label id="resourceManager" text="%setting.resourcepacks"/>
+                <Label id="modManager" text="%setting.mods"/>
+                <Label id="modPack" text="%setting.modpacks"/>
+                <Label id="map" text="%setting.maps"/>
+            </JFXListView>
+
+            <JFXListView fx:id="settings" maxHeight="100" style="
+                    -jfx-expanded:TRUE; -fx-background-color:major-color;"
+                         verticalGap="10"
+                         styleClass="option-list">
+                <Label id="settings" text="%setting.launcher"/>
+                <Label id="taskCenter" text="%setting.tasks"/>
+            </JFXListView>
+        </VBox>
+
+        <StackPane fx:id="container" prefWidth="450" prefHeight="400" maxHeight="400"
                    style="-fx-background-color:white; -fx-padding:5;">
             <fx:include id="settings" source="SettingLauncher.fxml"/>
             <fx:include id="modManager" source="SettingMod.fxml"/>
@@ -27,7 +36,6 @@
             <fx:include id="map" source="SettingMap.fxml"/>
             <fx:include id="modPack" source="SettingModPack.fxml"/>
             <fx:include id="taskCenter" source="TaskCenter.fxml"/>
-            <fx:include id="downloadCenter" source="DownloadCenter.fxml"/>
             <!--<fx:include id="resourcePackCurse" source="SettingCurseForgeResourcePack.fxml"/>-->
         </StackPane>
     </HBox>
