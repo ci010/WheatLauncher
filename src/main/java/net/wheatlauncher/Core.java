@@ -1,6 +1,7 @@
 package net.wheatlauncher;
 
 import api.launcher.*;
+import api.launcher.event.ErrorEvent;
 import api.launcher.event.LaunchEvent;
 import api.launcher.event.LauncherInitEvent;
 import api.launcher.event.ModuleLoadedEvent;
@@ -217,6 +218,7 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 		Objects.requireNonNull(throwable);
 		Objects.requireNonNull(title);
 		history.add(new DummyWorker(throwable, title));
+		ARML.bus().postEvent(new ErrorEvent(throwable));
 		errors.add(throwable);
 	}
 
@@ -270,8 +272,8 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 		public ReadOnlyObjectProperty<Throwable> exceptionProperty() {return exceptionObjectProperty;}
 		public double getWorkDone() {return progress.get();}
 		public ReadOnlyDoubleProperty workDoneProperty() {return progress;}
-		public double getTotalWork() {return progress.get();}
-		public ReadOnlyDoubleProperty totalWorkProperty() {return progress;}
+		public double getTotalWork() {return total.get();}
+		public ReadOnlyDoubleProperty totalWorkProperty() {return total;}
 		public double getProgress() {return progress.get();}
 		public ReadOnlyDoubleProperty progressProperty() {return progress;}
 		public boolean isRunning() {return isRunning.get();}

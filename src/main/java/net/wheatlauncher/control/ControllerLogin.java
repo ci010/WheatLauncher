@@ -24,8 +24,8 @@ import javafx.scene.layout.VBox;
 import net.launcher.auth.Authorize;
 import net.launcher.control.OnlineModeSwitch;
 import net.launcher.utils.Tasks;
-import net.wheatlauncher.MainApplication;
 import net.wheatlauncher.control.utils.ValidatorDelegate;
+import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
 
 import java.net.UnknownHostException;
@@ -165,13 +165,14 @@ public class ControllerLogin
 					Throwable ex = e.getCause() == null ? e : e.getCause();
 					if (ex instanceof RemoteAuthenticationException)
 						if (ex.getMessage().equals("ForbiddenOperationException: Invalid credentials. Invalid username or password."))
-							MainApplication.displayError(root.getScene(), "login.invalid.credentials");
+							ARML.taskCenter().reportError("Login", new AuthenticationException("login.invalid" +
+									".credentials"));
 						else
-							MainApplication.displayError(root.getScene(), e);
+							ARML.taskCenter().reportError("Login", e);
 					else if (ex.getCause() instanceof UnknownHostException)
-						MainApplication.displayError(root.getScene(), "login.network.error");
+						ARML.taskCenter().reportError("Login", new UnknownHostException("login.network.error"));
 					else
-						MainApplication.displayError(root.getScene(), e);
+						ARML.taskCenter().reportError("Login", e);
 					btnPane.getChildren().remove(spinner);
 					btnPane.getChildren().add(login);
 				})).build());

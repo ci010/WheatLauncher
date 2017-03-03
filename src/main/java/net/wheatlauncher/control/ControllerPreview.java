@@ -9,11 +9,13 @@ import com.jfoenix.effects.JFXDepthManager;
 import javafx.animation.Animation;
 import javafx.beans.binding.Bindings;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.util.Pair;
 import moe.mickey.minecraft.skin.fx.SkinCanvas;
 import moe.mickey.minecraft.skin.fx.animation.SkinAniRunning;
 import net.launcher.LaunchCore;
@@ -115,16 +117,20 @@ public class ControllerPreview
 				else
 				{
 					Texture texture = textures.get(TextureType.SKIN);
-					ARML.taskCenter().runTask(new Task<Void>()
+					ARML.taskCenter().runTask(new Task<Pair<Image, Boolean>>()
 					{
 						@Override
-						protected Void call() throws Exception
+						protected Pair<Image, Boolean> call() throws Exception
 						{
-							canvas.setSkin(Tasks.optional(() -> new Image(texture.openStream())).orElse(SkinCanvas.STEVE),
-									Optional.ofNullable(texture.getMetadata().get("model")).orElse("steve").equals("slim"));
-							animation.play();
-							return null;
+							return new Pair<>(Tasks.optional(() -> new Image(texture.openStream())).orElse(SkinCanvas.STEVE),
+									Optional.ofNullable(texture.getMetadata().get("model")).orElse("steve").equals
+											("slim"));
 						}
+					}).addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED, event ->
+					{
+						Pair<Image, Boolean> value = (Pair<Image, Boolean>) event.getSource().getValue();
+						canvas.setSkin(value.getKey(), value.getValue());
+						animation.play();
 					});
 				}
 			}

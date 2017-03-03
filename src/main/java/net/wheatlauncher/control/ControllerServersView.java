@@ -1,6 +1,7 @@
 package net.wheatlauncher.control;
 
 import api.launcher.ARML;
+import api.launcher.MinecraftIcons;
 import com.jfoenix.controls.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -34,8 +35,6 @@ import java.util.ResourceBundle;
  */
 public class ControllerServersView
 {
-	private static Image unknownServer = new Image("assets/texture/unknown_server.png");
-
 	public JFXListView<ServerInfo> serverList;
 	public JFXTextField search;
 	public Node removed;
@@ -264,7 +263,7 @@ public class ControllerServersView
 				graphic.imageProperty().bind(Bindings.createObjectBinding(() ->
 						{
 							Image icon = ServerInfo.createServerIcon(item);
-							if (icon == null) icon = unknownServer;
+							if (icon == null) icon = MinecraftIcons.UNKNOWN;
 							return icon;
 						},
 						((FXServerInfo) getItem()).serverIconProperty()));

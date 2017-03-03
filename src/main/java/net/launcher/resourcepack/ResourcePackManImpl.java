@@ -1,6 +1,7 @@
 package net.launcher.resourcepack;
 
 import api.launcher.LaunchProfile;
+import api.launcher.MinecraftIcons;
 import api.launcher.ResourcePackManager;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
@@ -28,9 +29,6 @@ import java.util.stream.Collectors;
  */
 class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, String[]> implements ResourcePackManager
 {
-	private static Image DEFAULT_IMG = new Image(ResourcePackManImpl.class.getResourceAsStream
-			("/assets/texture/unknown_pack.png"));
-
 	private ArchiveRepository<ResourcePack> archiveRepository;
 	private Map<String, Resource<ResourcePack>> nameToResource = new HashMap<>();
 	private ObservableList<ResourcePack> resourcePacks;
@@ -124,8 +122,8 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 			{
 				return new Image(stream);
 			}
-			catch (Exception e) {return DEFAULT_IMG;}
-		return DEFAULT_IMG;
+			catch (Exception e) {return MinecraftIcons.UNKNOWN;}
+		return MinecraftIcons.UNKNOWN;
 	}
 
 	@Override

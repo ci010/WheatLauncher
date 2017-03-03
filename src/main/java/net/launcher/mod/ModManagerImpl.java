@@ -2,6 +2,7 @@ package net.launcher.mod;
 
 import api.launcher.ARML;
 import api.launcher.LaunchProfile;
+import api.launcher.MinecraftIcons;
 import api.launcher.ModManager;
 import api.launcher.event.LaunchEvent;
 import javafx.collections.FXCollections;
@@ -32,8 +33,6 @@ import java.util.stream.Collectors;
  */
 class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ServerStatus.ModInfo> implements ModManager
 {
-	private static Image unknownMod = new Image("assets/texture/unknown_pack.png");
-
 	private ArchiveRepository<ForgeMod[]> archiveResource;
 
 	private Map<String, String> hashMap = new TreeMap<>();
@@ -157,10 +156,10 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ServerStatus.M
 			catch (IOException e)
 			{
 				ARML.taskCenter().reportError("ForgeGetLogo", e);
-				return unknownMod;
+				return MinecraftIcons.UNKNOWN;
 			}
 		}
-		return unknownMod;
+		return MinecraftIcons.UNKNOWN;
 	}
 
 	@Override

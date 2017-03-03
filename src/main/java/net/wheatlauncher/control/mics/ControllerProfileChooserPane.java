@@ -12,7 +12,6 @@ import javafx.collections.transformation.SortedList;
 import javafx.scene.control.ComboBoxBase;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
-import net.wheatlauncher.MainApplication;
 
 import java.util.ResourceBundle;
 
@@ -99,15 +98,8 @@ public class ControllerProfileChooserPane
 
 	public void delete()
 	{
-		try
-		{
-			ARML.core().getProfileManager().deleteProfile(
-					profileTable.getSelectionModel().getSelectedItem().getId());
-		}
-		catch (Exception e)
-		{
-			MainApplication.displayError(profileTable.getScene(), e);
-		}
+		ARML.taskCenter().runSimpleTask("DeleteProfile", () -> ARML.core().getProfileManager().deleteProfile(
+				profileTable.getSelectionModel().getSelectedItem().getId()));
 	}
 
 	public void rename(TableColumn.CellEditEvent<LaunchProfile, String> event)

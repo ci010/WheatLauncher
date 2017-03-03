@@ -296,4 +296,5 @@ public class SkinCanvas extends Group
 		getChildren().add(subScene);
 	}
 
+
 }

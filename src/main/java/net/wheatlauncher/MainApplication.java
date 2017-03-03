@@ -1,6 +1,7 @@
 package net.wheatlauncher;
 
 import api.launcher.ARML;
+import api.launcher.event.ErrorEvent;
 import api.launcher.event.LauncherInitEvent;
 import com.jfoenix.controls.JFXSnackbar;
 import javafx.application.Application;
@@ -131,24 +132,24 @@ public class MainApplication extends Application
 		return bundle;
 	}
 
-	public static void reportError(Scene scene, String message)
+	static void reportError(Scene scene, String message)
 	{
 		javafx.application.Platform.runLater(() -> displayError(scene, message));
 	}
 
-	public static void reportError(Scene scene, Throwable message)
+	static void reportError(Scene scene, Throwable message)
 	{
 		javafx.application.Platform.runLater(() -> displayError(scene, message));
 	}
 
-	public static void displayError(Scene scene, String message)
+	static void displayError(Scene scene, String message)
 	{
 		new JFXSnackbar((Pane) scene.getRoot()).enqueue(new JFXSnackbar.SnackbarEvent(message));
 	}
 
 	public static void displayError(Scene scene, Throwable message)
 	{
-		new JFXSnackbar((Pane) scene.getRoot()).enqueue(new JFXSnackbar.SnackbarEvent(message.getMessage()));
+		displayError(scene, message.getMessage());
 	}
 
 	private Logger createLogger() throws IOException
@@ -242,6 +243,18 @@ public class MainApplication extends Application
 
 		stage.setScene(scene);
 		stage.show();
+
+		ARML.bus().addEventHandler(ErrorEvent.TYPE, event ->
+		{
+			if (event.getThrowable() != null)
+			{
+				String message = event.getThrowable().getMessage();
+				if (bundle.containsKey(message))
+					message = bundle.getString(message);
+				else message = event.getThrowable().getLocalizedMessage();
+				reportError(root.getScene(), message);
+			}
+		});
 	}
 
 	private void switchTo(String id)
