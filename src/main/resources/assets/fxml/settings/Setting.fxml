@@ -17,6 +17,7 @@
                 <Label id="modManager" text="%setting.mods"/>
                 <Label id="modPack" text="%setting.modpacks"/>
                 <Label id="map" text="%setting.maps"/>
+                <Label id="resourcePackCurse" text="Curse"/>
             </JFXListView>
 
             <JFXListView fx:id="settings" maxHeight="100" style="
@@ -36,7 +37,7 @@
             <fx:include id="map" source="SettingMap.fxml"/>
             <fx:include id="modPack" source="SettingModPack.fxml"/>
             <fx:include id="taskCenter" source="TaskCenter.fxml"/>
-            <!--<fx:include id="resourcePackCurse" source="SettingCurseForgeResourcePack.fxml"/>-->
+            <fx:include id="resourcePackCurse" source="SettingCurseForgeResourcePack.fxml"/>
         </StackPane>
     </HBox>
 </JFXDialog>

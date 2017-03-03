@@ -1,13 +1,7 @@
-<?import com.jfoenix.controls.JFXButton?>
-<?import com.jfoenix.controls.JFXTextField?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.HBox?>
-<ScrollPane xmlns:fx="http://javafx.com/fxml/1"
-            xmlns="http://javafx.com/javafx/2.2"
-            fx:controller="net.wheatlauncher.control.settings.ControllerCurseResourcePacks">
-    <HBox spacing="10">
-        <JFXTextField fx:id="searchField"/>
-        <JFXButton fx:id="searchBtn" text="Search"/>
-    </HBox>
-    <!--<JFXListView fx:id="resourcePacks"/>-->
-</ScrollPane>
+<?import javafx.scene.layout.VBox?>
+<?import net.launcher.control.modview.CurseForgeViewSlider?>
+<VBox xmlns:fx="http://javafx.com/fxml/1"
+      xmlns="http://javafx.com/javafx/2.2"
+      fx:controller="net.wheatlauncher.control.settings.ControllerCurseResourcePacks">
+    <CurseForgeViewSlider fx:id="slider"/>
+</VBox>

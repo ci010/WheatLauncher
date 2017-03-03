@@ -48,6 +48,7 @@ public class CurseForgeProjectCard extends StackPane
 	public CurseForgeProjectCard(CurseForgeProject project)
 	{
 		this.project.set(project);
+		this.setMaxWidth(300);
 		VBox content = new VBox();
 		this.header = new BorderPane();
 
@@ -112,6 +113,7 @@ public class CurseForgeProjectCard extends StackPane
 	protected void setupBody(VBox body)
 	{
 		CurseForgeProject project = getProject();
+		if (project == null) return;
 		Label label = new Label(project.getDescription());
 		label.setWrapText(true);
 		label.setMaxWidth(200);
@@ -126,6 +128,7 @@ public class CurseForgeProjectCard extends StackPane
 	protected void setupHeader(BorderPane header)
 	{
 		CurseForgeProject curseForgeProject = this.project.get();
+		if (curseForgeProject == null) return;
 		Label name = new Label(curseForgeProject.getName()),
 				author = new Label(curseForgeProject.getAuthor());
 		name.getStyleClass().add("header-major-small");
