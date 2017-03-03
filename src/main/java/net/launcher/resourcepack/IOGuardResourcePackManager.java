@@ -1,74 +1,67 @@
 package net.launcher.resourcepack;
 
+import api.launcher.ARML;
 import api.launcher.ResourcePackManager;
-import net.launcher.LaunchElementManager;
+import api.launcher.event.LaunchEvent;
+import api.launcher.io.IOGuard;
+import javafx.concurrent.Task;
 import net.launcher.game.ResourcePack;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.text.components.TextComponentString;
 import net.launcher.utils.NIOUtils;
 import net.launcher.utils.resource.ArchiveRepository;
+import net.launcher.utils.resource.Delivery;
+import net.launcher.utils.resource.FetchOption;
 import net.launcher.utils.resource.LocalArchiveRepository;
 import net.launcher.utils.serial.BiSerializer;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
-import org.to2mbn.jmccc.util.Builder;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
-import java.util.concurrent.ExecutorService;
 import java.util.function.Consumer;
 
 /**
  * @author ci010
  */
-public class ResourcePackMangerBuilder implements Builder<LaunchElementManager<ResourcePack>>
+public class IOGuardResourcePackManager extends IOGuard<ResourcePackManager>
 {
-	public static ResourcePackMangerBuilder create(Path root, ExecutorService service)
-	{
-		Objects.requireNonNull(root);
-		Objects.requireNonNull(service);
-		return new ResourcePackMangerBuilder(root, service);
-	}
-
-	private ResourcePackMangerBuilder(Path root, ExecutorService service)
-	{
-		this.root = root;
-		this.service = service;
-	}
-
-	private Path root;
-	private ExecutorService service;
-
 	private ArchiveRepository<ResourcePack> archiveRepository;
 
-	public ResourcePackMangerBuilder setArchiveRoot(Path root)
-	{
-		this.root = root;
-		return this;
-	}
+	@Override
+	protected void forceSave() throws IOException {}
 
-	public ResourcePackMangerBuilder setExecutor(ExecutorService service)
+	@Override
+	public ResourcePackManager loadInstance() throws IOException
 	{
-		this.service = service;
-		return this;
-	}
-
-	public ResourcePackMangerBuilder setArchiveRepository(ArchiveRepository<ResourcePack> archiveRepository)
-	{
-		this.archiveRepository = archiveRepository;
-		return this;
+		Files.createDirectories(getContext().getRoot().resolve("resourcepacks"));
+		return new ResourcePackManImpl(getArchiveRepository());
 	}
 
 	@Override
-	public ResourcePackManager build()
+	public ResourcePackManager defaultInstance()
 	{
-		return new ResourcePackManImpl(archiveRepository == null ? getArchiveRepository() : archiveRepository);
+		return new ResourcePackManImpl(getArchiveRepository());
 	}
 
-	public ArchiveRepository<ResourcePack> getArchiveRepository()
+	@Override
+	protected void deploy() throws IOException
 	{
-		return new LocalArchiveRepository<>(root,
+		ARML.bus().addEventHandler(LaunchEvent.LAUNCH_EVENT, event ->
+		{
+			Task<Delivery<ResourcePack>> resourcepacks = archiveRepository.fetchAllResource(
+					event.getOption().getRuntimeDirectory().getRoot().toPath().resolve
+							("resourcepacks"), FetchOption.SYMBOL_LINK);
+			ARML.taskCenter().listenTask(resourcepacks);
+			resourcepacks.run();
+		});
+		getInstance().update().run();
+	}
+
+	private ArchiveRepository<ResourcePack> getArchiveRepository()
+	{
+		if (archiveRepository != null) return archiveRepository;
+		return archiveRepository = new LocalArchiveRepository<>(getContext().getRoot().resolve("resourcepacks"),
 				(file, context) ->
 				{
 					String raw = context.get("fileName").toString();

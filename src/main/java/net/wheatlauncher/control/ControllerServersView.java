@@ -51,7 +51,7 @@ public class ControllerServersView
 		serverList.setCellFactory(param -> new ServerCells());
 		serverList.setItems(ARML.core().getServerManager().getAllServers());
 		serverList.setOnEditCommit(event ->
-				ARML.core().getTaskCenter().runTask(pingServerTask(event.getNewValue())));
+				ARML.taskCenter().runTask(pingServerTask(event.getNewValue())));
 		BooleanBinding booleanBinding = Bindings.createBooleanBinding(() -> serverList.getSelectionModel().isEmpty(),
 				serverList.getSelectionModel().selectedIndexProperty());
 		enterServer.disableProperty().bind(booleanBinding);
@@ -64,7 +64,7 @@ public class ControllerServersView
 	{
 		ServerInfo localhost = new FXServerInfo(new ServerInfoBase("Minecraft Server", "localhost"));
 		ARML.core().getServerManager().getAllServers().add(localhost);
-		ARML.core().getTaskCenter().runTask(pingServerTask(localhost));
+		ARML.taskCenter().runTask(pingServerTask(localhost));
 	}
 
 	public void remove()
@@ -110,7 +110,7 @@ public class ControllerServersView
 	public void refresh()
 	{
 		for (ServerInfo serverInfo : serverList.getItems())
-			ARML.core().getTaskCenter().runTask(pingServerTask(serverInfo));
+			ARML.taskCenter().runTask(pingServerTask(serverInfo));
 	}
 
 	public void edit()
@@ -217,7 +217,7 @@ public class ControllerServersView
 					newValue.setHostName(ip.getText());
 					newValue.setName(name.getText());
 					((FXServerInfo) newValue).invalidated(null);
-					ARML.core().getTaskCenter().runTask(pingServerTask(newValue));
+					ARML.taskCenter().runTask(pingServerTask(newValue));
 				}
 			graphic.setRight(commonContent);
 		}

@@ -44,27 +44,19 @@ public class Resource<T>
 
 	public NBTCompound getCompound() {return compound;}
 
-	public Object getSignature()
+	public Object getSignature() {return signature;}
+
+	public String getName()
 	{
-		return signature;
+		NBT name = compound.get("name");
+		return name.asString();
 	}
 
-	public String getName() {return compound.get("name").asString();}
+	public ResourceType getType() {return type;}
 
-	public ResourceType getType()
-	{
-		return type;
-	}
+	public String getHash() {return hash;}
 
-	public String getHash()
-	{
-		return hash;
-	}
-
-	public T getContainData()
-	{
-		return containData;
-	}
+	public T getContainData() {return containData;}
 
 	@Override
 	public boolean equals(Object o)

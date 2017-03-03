@@ -1,6 +1,7 @@
 package net.launcher.utils.resource;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -9,10 +10,18 @@ import java.nio.file.Path;
  */
 public class FetchUtils
 {
+	private static boolean supportSymbolicLink(Path path)
+	{
+		FileSystem fileSystem = path.getFileSystem();
+//		fileSystem.supportedFileAttributeViews().
+//		fileSystem.provider().createSymbolicLink();
+		return false;
+	}
+
 	public static void fetch(Path from, Path to, FetchOption option) throws IOException
 	{
 		if (option == null)
-			option = FetchOption.SYMBOL_LINK;
+			option = FetchOption.COPY;
 		if (Files.exists(to)) return;
 		switch (option)
 		{

@@ -67,7 +67,13 @@ public abstract class ArchiveRepositoryBase<T> implements ReadOnlyArchiveReposit
 				int i = 0;
 				for (String key : paths)
 				{
-					Resource<T> resource = fetch(directory, key, option);
+					Resource<T> resource = null;
+					try {resource = fetch(directory, key, option);}
+					catch (Exception e)
+					{
+						if (getException() != null) setException(new IOException("corrupted file " + key));
+						else getException().addSuppressed(new IOException("corrupted file " + key));
+					}
 					if (resource == null)
 					{
 						if (getException() != null) setException(new IOException("corrupted file " + key));
@@ -78,6 +84,7 @@ public abstract class ArchiveRepositoryBase<T> implements ReadOnlyArchiveReposit
 					virtualPath.add(directory.resolve(resource.getHash().concat(resource.getType().getSuffix())));
 					updateProgress(i++, paths.size());
 				}
+				if (getException() != null) throw (Exception) getException();
 				return new Delivery<>(values, virtualPath);
 			}
 		};

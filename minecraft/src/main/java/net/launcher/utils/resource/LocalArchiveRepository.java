@@ -4,8 +4,8 @@ import javafx.application.Platform;
 import javafx.concurrent.Task;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
-import net.launcher.utils.DirUtils;
 import net.launcher.utils.MD5;
+import net.launcher.utils.NIOUtils;
 import net.launcher.utils.Tasks;
 import net.launcher.utils.serial.BiSerializer;
 import net.launcher.utils.serial.Deserializer;
@@ -137,7 +137,7 @@ public class LocalArchiveRepository<T> extends ArchiveRepositoryBase<T> implemen
 
 				Path target = root.resolve(md5 + resourceType.getSuffix());
 				if (!Files.exists(target))
-					if (Files.isDirectory(target)) DirUtils.copy(file.toFile(), target.toFile());
+					if (Files.isDirectory(target)) NIOUtils.copyDirectory(file, target);
 					else Files.copy(file, target);
 
 				updateMessage("resolving");

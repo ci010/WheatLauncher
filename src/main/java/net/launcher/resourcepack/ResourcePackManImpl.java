@@ -14,7 +14,6 @@ import net.launcher.setting.Setting;
 import net.launcher.setting.SettingMinecraft;
 import net.launcher.setting.SettingType;
 import net.launcher.utils.resource.ArchiveRepository;
-import net.launcher.utils.resource.Delivery;
 import net.launcher.utils.resource.FetchOption;
 import net.launcher.utils.resource.Resource;
 import org.to2mbn.jmccc.option.LaunchOption;
@@ -35,8 +34,6 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	private ArchiveRepository<ResourcePack> archiveRepository;
 	private Map<String, Resource<ResourcePack>> nameToResource = new HashMap<>();
 	private ObservableList<ResourcePack> resourcePacks;
-
-	private Map<LaunchOption, Delivery<Resource<ResourcePack>>> launchCache = new HashMap<>();
 
 	ResourcePackManImpl(ArchiveRepository<ResourcePack> archiveRepository)
 	{
@@ -62,6 +59,7 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 				resourcePacks.add(valueRemoved.getContainData());
 			}
 		});
+
 	}
 
 	@Override
@@ -82,7 +80,8 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 		List<ResourcePack> list = new ArrayList<>(value.length);
 		for (String s : value)
 		{
-			Resource<ResourcePack> resourcePackResource = nameToResource.get(s);
+			Resource<ResourcePack> resourcePackResource = nameToResource.get(s.substring(0, s.lastIndexOf('.')));
+			//TODO this must be fix.... search by the name+suffix but this not support directory resourcepack
 			if (resourcePackResource != null)
 				list.add(resourcePackResource.getContainData());
 		}
@@ -94,7 +93,7 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	{
 		String[] strings = new String[lst.size()];
 		for (int i = 0; i < lst.size(); i++)
-			strings[i] = lst.get(i).getPackName();
+			strings[i] = lst.get(i).getPackName() + nameToResource.get(lst.get(i).getPackName()).getType().getSuffix();
 		return strings;
 	}
 
@@ -139,7 +138,8 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	public Task<ResourcePack> importResourcePack(Path resourcePack)
 	{
 		return TransformTask.create("ImportResourcePack", archiveRepository.importResource(resourcePack),
-				Resource::getContainData);
+				resource -> resource.setName(resource.getContainData().getPackName()).getContainData()
+		);
 	}
 
 	@Override

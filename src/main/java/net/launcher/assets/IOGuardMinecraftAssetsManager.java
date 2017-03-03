@@ -1,7 +1,9 @@
 package net.launcher.assets;
 
+import api.launcher.ARML;
 import api.launcher.LaunchProfile;
 import api.launcher.MinecraftAssetsManager;
+import api.launcher.event.LaunchEvent;
 import api.launcher.io.IOGuard;
 import api.launcher.io.IOGuardContext;
 import com.sun.javafx.application.PlatformImpl;
@@ -81,6 +83,12 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 		MinecraftAssetsManager instance = this.getInstance();
 		getContext().registerSaveTask(new SaveTask(), instance.getVersions());
 		refreshVersion().run();
+		ARML.bus().addEventHandler(LaunchEvent.LAUNCH_EVENT, event ->
+		{
+//			Prepare task = new Prepare(event.getOption(), event.getProfile());
+//			ARML.core().getTaskCenter().listenTask(task);
+//			task.run();
+		});
 	}
 
 	@Override

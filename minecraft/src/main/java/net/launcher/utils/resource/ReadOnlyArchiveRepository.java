@@ -20,5 +20,4 @@ public interface ReadOnlyArchiveRepository<T>
 	Task<Delivery<T>> fetchAllResource(Path directory, FetchOption option);
 
 	Task<Delivery<T>> fetchAllResource(Path directory, Collection<String> paths, FetchOption option);
-
 }

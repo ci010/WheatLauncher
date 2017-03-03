@@ -5,6 +5,7 @@ import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -44,7 +45,12 @@ public interface MappedStorageType
 			for (String s : split)
 			{
 				String[] keyVPair = s.split(":");
-				map.put(keyVPair[0], keyVPair[1]);
+				if (keyVPair.length == 2)
+					map.put(keyVPair[0], keyVPair[1]);
+				else
+				{
+					System.out.println(Arrays.toString(keyVPair));
+				}
 			}
 			return map;
 		}

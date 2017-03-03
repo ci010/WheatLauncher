@@ -78,13 +78,14 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ServerStatus.M
 		{
 			ARML.logger().info("Start to handle the mods handling");
 			ObservableList<ForgeMod> mods = getIncludeElementContainer(event.getProfile());
-			mods.stream().map(mod -> hashMap.get(getModKey(mod))).collect(Collectors.toSet()).forEach(
+			mods.stream().map(mod -> hashMap.get(getModKey(mod))).forEach(
 					s ->
 					{
 						Task<Delivery<ForgeMod[]>> task = archiveResource.fetchResource(
 								event.getOption().getMinecraftDirectory().getRoot().toPath().resolve("mods"),
 								s, FetchOption.HARD_LINK);
-						ARML.core().getTaskCenter().runTask(task);
+						ARML.taskCenter().listenTask(task);
+						task.run();
 					}
 			);
 		});
@@ -139,7 +140,7 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ServerStatus.M
 	}
 
 	@Override
-	public Image getLogo(ForgeMod forgeMod) throws IOException
+	public Image getLogo(ForgeMod forgeMod)
 	{
 		Objects.requireNonNull(forgeMod);
 		String logoFile = forgeMod.getMetaData().getLogoFile();
@@ -149,7 +150,15 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ServerStatus.M
 			String hash = hashMap.get(modKey);
 			Resource<ForgeMod[]> resource = archiveResource.getResourceMap().get(hash);
 			if (resource == null) return null;
-			return new Image(archiveResource.openStream(resource, logoFile));
+			try
+			{
+				return new Image(archiveResource.openStream(resource, logoFile));
+			}
+			catch (IOException e)
+			{
+				ARML.taskCenter().reportError("ForgeGetLogo", e);
+				return unknownMod;
+			}
 		}
 		return unknownMod;
 	}

@@ -1,6 +1,8 @@
 package net.launcher.assets;
 
+import api.launcher.ARML;
 import api.launcher.MinecraftWorldManager;
+import api.launcher.event.LaunchEvent;
 import api.launcher.io.IOGuard;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,7 +12,10 @@ import javafx.concurrent.WorkerStateEvent;
 import javafx.scene.image.Image;
 import net.launcher.game.WorldInfo;
 import net.launcher.game.nbt.NBT;
-import net.launcher.utils.DirUtils;
+import net.launcher.utils.NIOUtils;
+import net.launcher.utils.resource.FetchOption;
+import net.launcher.utils.resource.FetchUtils;
+import org.to2mbn.jmccc.option.LaunchOption;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,7 +48,38 @@ public class IOGuardMinecraftWorldManager extends IOGuard<MinecraftWorldManager>
 	}
 
 	@Override
-	protected void deploy() throws IOException {}
+	protected void deploy() throws IOException
+	{
+		ARML.bus().addEventHandler(LaunchEvent.LAUNCH_EVENT, event ->
+		{
+			Task<Void> task = new Task<Void>()
+			{
+				{
+					updateTitle("WorldHandling");
+				}
+
+				@Override
+				protected Void call() throws Exception
+				{
+					LaunchOption option = event.getOption();
+					Path target = option.getRuntimeDirectory().getRoot().toPath().resolve("saves");
+					if (!Files.isSymbolicLink(target) && Files.exists(target))
+					{
+						for (Path path : Files.list(target).collect(Collectors.toList()))
+						{}
+//							DirUtils.move(path,);
+//							importMap(path).run();
+					}
+					Files.deleteIfExists(target);
+					Path from = getContext().getRoot().resolve("saves");
+					FetchUtils.fetch(from, target, FetchOption.SYMBOL_LINK);
+					return null;
+				}
+			};
+			ARML.taskCenter().listenTask(task);
+			task.run();
+		});
+	}
 
 	@Override
 	public ObservableList<WorldInfo> getWorldInfos()
@@ -123,8 +159,7 @@ public class IOGuardMinecraftWorldManager extends IOGuard<MinecraftWorldManager>
 			protected Path call() throws Exception
 			{
 				Path saves = getContext().getRoot().resolve("saves").resolve(worldInfo.getFileName());
-				DirUtils.CopyVisitor copyVisitor = new DirUtils.CopyVisitor(saves, target, null);
-				Files.walkFileTree(saves, copyVisitor);
+				NIOUtils.copyDirectory(saves, target);
 				return target;
 			}
 		};

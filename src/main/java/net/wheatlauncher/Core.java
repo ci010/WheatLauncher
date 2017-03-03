@@ -3,7 +3,6 @@ package net.wheatlauncher;
 import api.launcher.*;
 import api.launcher.event.LaunchEvent;
 import api.launcher.event.LauncherInitEvent;
-import api.launcher.event.MinecraftExitEvent;
 import api.launcher.event.ModuleLoadedEvent;
 import api.launcher.io.IOGuardContext;
 import javafx.beans.binding.Bindings;
@@ -17,24 +16,22 @@ import net.launcher.LaunchCore;
 import net.launcher.assets.IOGuardMinecraftAssetsManager;
 import net.launcher.assets.IOGuardMinecraftWorldManager;
 import net.launcher.auth.IOGuardAuth;
+import net.launcher.game.ServerInfo;
 import net.launcher.mod.ModManagerBuilder;
-import net.launcher.resourcepack.ResourcePackMangerBuilder;
+import net.launcher.resourcepack.IOGuardResourcePackManager;
 import net.launcher.setting.SettingMinecraft;
-import net.wheatlauncher.internal.io.IOGuardContextScheduled;
-import net.wheatlauncher.internal.io.IOGuardProfile;
 import org.to2mbn.jmccc.launch.Launcher;
 import org.to2mbn.jmccc.launch.LauncherBuilder;
 import org.to2mbn.jmccc.launch.ProcessListener;
 import org.to2mbn.jmccc.option.LaunchOption;
+import org.to2mbn.jmccc.option.MinecraftDirectory;
+import org.to2mbn.jmccc.version.Version;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
-import java.util.function.Function;
 
 /**
  * @author ci010
@@ -51,15 +48,10 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 	private MinecraftServerManager serverManager;
 	private IOGuardContext ioContext;
 
-	private List<Function<LaunchOption, LaunchOption>> launchOptionChain;
-
 	public Path getRoot()
 	{
 		return root;
 	}
-
-	@Override
-	public TaskCenter getTaskCenter() {return this;}
 
 	@Override
 	public LaunchProfileManager getProfileManager()
@@ -101,44 +93,43 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 	}
 
 	@Override
+	public void launchServer(ServerInfo info)
+	{
+
+	}
+
+	@Override
 	public void launch() throws Exception
 	{
-		final LaunchProfile selected = getProfileManager().selecting();
-		LaunchOption option = buildOption(selected);
+		LaunchProfile selected = getProfileManager().selecting();
+		Version version = getAssetsManager().getRepository().buildVersion(selected.getMcVersion());
 
-		ARML.bus().postEvent(new LaunchEvent(option, selected));
+		LaunchOption option = new LaunchOption(version, () -> authProfile.getCache(),
+				new MinecraftDirectory(root.toFile()));
+		option.setRuntimeDirectory(new MinecraftDirectory(root.resolve("profiles").resolve(selected.getId()).toFile()));
+		option.setWindowSize(selected.getResolution());
 
-		Launcher launcher = buildLauncher();
+		ARML.bus().postEvent(LaunchEvent.launch(option, selected));
+		ioContext.saveAll();
+
+		Launcher launcher = LauncherBuilder.create().nativeFastCheck(true).printDebugCommandline
+				(true).useDaemonThreads(true).build();
 		Process launch = launcher.launch(option, new ProcessListener()
 		{
 			@Override
-			public void onLog(String log)
-			{
-			}
+			public void onLog(String log) {ARML.logger().info(log);}
 
 			@Override
-			public void onErrorLog(String log)
-			{
-			}
+			public void onErrorLog(String log) {ARML.logger().warning(log);}
 
 			@Override
-			public void onExit(int code) {ARML.bus().postEvent(new MinecraftExitEvent(code));}
+			public void onExit(int code)
+			{
+				ARML.bus().postEvent(LaunchEvent.exit(option, selected, code));
+			}
 		});
 	}
 
-	private LaunchOption buildOption(LaunchProfile selected) throws IOException
-	{
-		LaunchOption option = null;
-		for (Function<LaunchOption, LaunchOption> chain : launchOptionChain)
-			option = chain.apply(option);
-		return option;
-	}
-
-	private Launcher buildLauncher()
-	{
-		return LauncherBuilder.create().nativeFastCheck(true).printDebugCommandline
-				(true).useDaemonThreads(true).build();
-	}
 
 	@Override
 	public void init(Path root) throws Exception
@@ -154,6 +145,7 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 				.register(AuthManager.class, new IOGuardAuth())
 				.register(MinecraftAssetsManager.class, new IOGuardMinecraftAssetsManager())
 				.register(MinecraftWorldManager.class, new IOGuardMinecraftWorldManager())
+				.register(ResourcePackManager.class, new IOGuardResourcePackManager())
 				.register(MinecraftServerManager.class, new IOGuardMinecraftServerManager());
 
 		ARML.bus().postEvent(new LauncherInitEvent.Register()).getRegisteredIO().forEach(builder::register);
@@ -166,18 +158,12 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 		this.profileManager = ioContext.load(LaunchProfileManager.class);
 		this.assetsManager = ioContext.load(MinecraftAssetsManager.class);
 		this.worldManager = ioContext.load(MinecraftWorldManager.class);
+		this.resourcePackManager = ioContext.load(ResourcePackManager.class);
 
 		Path mods = this.getRoot().resolve("mods");
 		Files.createDirectories(mods);
 		this.modManager = ModManagerBuilder.create(mods).build();
 		ARML.bus().postEvent(new ModuleLoadedEvent<>(modManager));
-
-		Path resPacks = this.getRoot().resolve("resourcepacks");
-		Files.createDirectories(resPacks);
-		this.resourcePackManager = ResourcePackMangerBuilder.create(resPacks, ARML.async()).build();
-		ARML.bus().postEvent(new ModuleLoadedEvent<>(resourcePackManager));
-
-		resourcePackManager.update().run();
 		modManager.update().run();
 
 		ARML.logger().info("Complete init");
@@ -195,11 +181,10 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 			.observableList(new LinkedList<>()));
 
 	@Override
-	public Task<?> runTask(Task<?> tTask)
+	public <T> Task<T> runTask(Task<T> tTask)
 	{
 		if (tTask == null) return null;
-		history.add(0, tTask);
-		tTask.addEventHandler(WorkerStateEvent.WORKER_STATE_FAILED, event -> event.getSource().getException().printStackTrace());
+		listenTask(tTask);
 		ARML.async().submit(tTask);
 		return tTask;
 	}
@@ -209,9 +194,21 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 	{
 		if (tasks == null || tasks.isEmpty()) return;
 		history.addAll(0, tasks);
-		for (Task<?> task : tasks)
-			task.addEventHandler(WorkerStateEvent.WORKER_STATE_FAILED, event -> event.getSource().getException().printStackTrace());
+		for (Task<?> task : tasks) listenTask(task);
 		for (Task<?> task : tasks) ARML.async().submit(task);
+	}
+
+	@Override
+	public <T> Task<T> listenTask(Task<T> task)
+	{
+		if (task == null) return null;
+		//create delegate to keep away from memory leak... hopefully...
+		history.add(0, new WorkerDelegate<>(task.exceptionProperty(), task.titleProperty(),
+				task.messageProperty(), task.stateProperty(), task.progressProperty(), task.totalWorkProperty(),
+				task.runningProperty(),
+				task.valueProperty()));
+		task.addEventHandler(WorkerStateEvent.WORKER_STATE_FAILED, event -> event.getSource().getException().printStackTrace());
+		return task;
 	}
 
 	@Override
@@ -232,32 +229,54 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 	private static ReadOnlyBooleanProperty dummyBoolean = new SimpleBooleanProperty();
 	private static ReadOnlyObjectProperty dummyObj = new SimpleObjectProperty();
 
-	private class DummyWorker implements Worker<Object>
+	private class DummyWorker extends WorkerDelegate<Object>
 	{
-		private ObjectProperty<Throwable> exceptionObjectProperty = new SimpleObjectProperty<>();
-		private StringProperty title = new SimpleStringProperty();
-		private StringProperty message = new SimpleStringProperty();
 		DummyWorker(Throwable throwable, String title)
 		{
-			exceptionObjectProperty.set(throwable);
-			this.title.set(title);
-			message.bind(Bindings.createStringBinding(throwable::getMessage));
+			super(new SimpleObjectProperty<>(throwable),new SimpleStringProperty(title), new SimpleStringProperty(),
+					dummyState, dummyDouble, dummyDouble, dummyBoolean, dummyObj);
+			((StringProperty) message).bind(Bindings.createStringBinding(throwable::getMessage));
 		}
-		public State getState() {return dummyState.get();}
-		public ReadOnlyObjectProperty<State> stateProperty() {return dummyState;}
-		public Object getValue() {return dummyObj.get();}
-		public ReadOnlyObjectProperty<Object> valueProperty() {return dummyObj;}
+	}
+
+	private class WorkerDelegate<T> implements Worker<T>
+	{
+		private ReadOnlyObjectProperty<Throwable> exceptionObjectProperty;
+		private ReadOnlyStringProperty title;
+		protected ReadOnlyStringProperty message;
+		private ReadOnlyObjectProperty<Worker.State> state;
+		private ReadOnlyDoubleProperty progress, total;
+		private ReadOnlyBooleanProperty isRunning;
+		private ReadOnlyObjectProperty<T> dummyObj;
+		public WorkerDelegate(ReadOnlyObjectProperty<Throwable> exceptionObjectProperty, ReadOnlyStringProperty title,
+							  ReadOnlyStringProperty message, ReadOnlyObjectProperty<State> dummyState,
+							  ReadOnlyDoubleProperty progress, ReadOnlyDoubleProperty total, ReadOnlyBooleanProperty dummyBoolean,
+							  ReadOnlyObjectProperty<T> dummyObj)
+		{
+			this.exceptionObjectProperty = exceptionObjectProperty;
+			this.title = title;
+			this.message = message;
+			this.state = dummyState;
+			this.progress = progress;
+			this.total = total;
+			this.isRunning = dummyBoolean;
+			this.dummyObj = dummyObj;
+		}
+		public State getState() {return state.get();}
+		public ReadOnlyObjectProperty<State> stateProperty() {return state;}
+		public T getValue() {return dummyObj.get();}
+		public ReadOnlyObjectProperty<T> valueProperty() {return dummyObj;}
 		public Throwable getException() {return exceptionObjectProperty.get();}
 		public ReadOnlyObjectProperty<Throwable> exceptionProperty() {return exceptionObjectProperty;}
-		public double getWorkDone() {return dummyDouble.get();}
-		public ReadOnlyDoubleProperty workDoneProperty() {return dummyDouble;}
-		public double getTotalWork() {return dummyDouble.get();}
-		public ReadOnlyDoubleProperty totalWorkProperty() {return dummyDouble;}
-		public double getProgress() {return dummyDouble.get();}
-		public ReadOnlyDoubleProperty progressProperty() {return dummyDouble;}
-		public boolean isRunning() {return dummyBoolean.get();}
-		public ReadOnlyBooleanProperty runningProperty() {return dummyBoolean;}
-		public String getMessage() {return exceptionObjectProperty.get().getMessage();}
+		public double getWorkDone() {return progress.get();}
+		public ReadOnlyDoubleProperty workDoneProperty() {return progress;}
+		public double getTotalWork() {return progress.get();}
+		public ReadOnlyDoubleProperty totalWorkProperty() {return progress;}
+		public double getProgress() {return progress.get();}
+		public ReadOnlyDoubleProperty progressProperty() {return progress;}
+		public boolean isRunning() {return isRunning.get();}
+		public ReadOnlyBooleanProperty runningProperty() {return isRunning;}
+		public String getMessage() {return message.get();}
 		public ReadOnlyStringProperty messageProperty() {return message;}
 		public String getTitle() {return title.get();}
 		public ReadOnlyStringProperty titleProperty() {return title;}

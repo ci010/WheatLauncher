@@ -5,8 +5,6 @@ package api.launcher;
  */
 public interface LauncherContext
 {
-	TaskCenter getTaskCenter();
-
 	LaunchProfileManager getProfileManager();
 
 	AuthManager getAuthManager();
@@ -20,5 +18,4 @@ public interface LauncherContext
 	ModManager getModManager();
 
 	MinecraftServerManager getServerManager();
-
 }

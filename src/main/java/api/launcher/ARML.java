@@ -21,6 +21,7 @@ public class ARML
 	private final Logger logger = null;
 	private final ScheduledExecutorService scheduledExecutorService = null;
 	private final ResourceBundle bundle = null;
+	private final TaskCenter taskCenter = null;
 
 	private Map<String, Object> components = new TreeMap<>();
 
@@ -35,6 +36,10 @@ public class ARML
 	public static ScheduledExecutorService async() {return INST.getService();}
 
 	public static ResourceBundle resources() {return INST.getBundle();}
+
+	public static TaskCenter taskCenter() {return INST.getTaskCenter();}
+
+	public TaskCenter getTaskCenter() {return taskCenter;}
 
 	public LauncherContext getContext() {return context;}
 

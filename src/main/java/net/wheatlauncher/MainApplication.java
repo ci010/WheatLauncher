@@ -79,16 +79,19 @@ public class MainApplication extends Application
 		root = loadLocation();
 		if (!Files.exists(root)) Files.createDirectories(root);
 		ARML instance = ARML.instance();
+		core = new Core();
 		for (Field field : instance.getClass().getDeclaredFields())
 		{
 			if (field.getName().equals("bus"))
 				FinalFieldSetter.INSTANCE.set(instance, field, new FXEventBus());
 			else if (field.getName().equals("context"))
-				FinalFieldSetter.INSTANCE.set(instance, field, core = new Core());
+				FinalFieldSetter.INSTANCE.set(instance, field, core);
 			else if (field.getName().equals("logger"))
 				FinalFieldSetter.INSTANCE.set(instance, field, createLogger());
 			else if (field.getName().equals("scheduledExecutorService"))
 				FinalFieldSetter.INSTANCE.set(instance, field, Executors.newScheduledThreadPool(4));
+			else if (field.getName().equals("taskCenter"))
+				FinalFieldSetter.INSTANCE.set(instance, field, core);
 		}
 
 		Map<String, Object> langMap = new HashMap<>();

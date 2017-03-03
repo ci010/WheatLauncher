@@ -65,7 +65,7 @@ public class ControllerMap
 			DirectoryChooser chooser = new DirectoryChooser();
 			chooser.setTitle(resources.getString("map.import"));
 			File file = chooser.showDialog(importBtn.getScene().getWindow());
-			ARML.core().getTaskCenter().runTask(ARML.core().getWorldManager().importMap(file.toPath()));
+			ARML.taskCenter().runTask(ARML.core().getWorldManager().importMap(file.toPath()));
 		});
 		exportBtn.disableProperty().bind(Bindings.createBooleanBinding(() -> maps.getSelectionModel().isEmpty(), maps
 				.getSelectionModel().selectedIndexProperty()));
@@ -76,7 +76,7 @@ public class ControllerMap
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setInitialFileName(fileName);
 			File file = fileChooser.showSaveDialog(exportBtn.getScene().getWindow());
-			ARML.core().getTaskCenter().runTask(ARML.core().getWorldManager().exportMap(
+			ARML.taskCenter().runTask(ARML.core().getWorldManager().exportMap(
 					maps.getSelectionModel().getSelectedItem(),
 					file.toPath()));
 		});

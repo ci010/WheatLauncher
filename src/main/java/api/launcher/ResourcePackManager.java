@@ -15,9 +15,9 @@ public interface ResourcePackManager extends LaunchElementManager<ResourcePack>
 {
 	Image getIcon(ResourcePack resourcePack);
 
-	Task<?> update();
-
 	Task<ResourcePack> importResourcePack(Path resourcePack);
 
 	Task<Void> exportResourcePack(Path path, Collection<ResourcePack> pack);
+
+	Task<?> update();
 }

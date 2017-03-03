@@ -8,10 +8,11 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * @author ci010
@@ -95,5 +96,80 @@ public class NIOUtils
 	public static String toUTF8(ByteBuffer bytes)
 	{
 		return Charset.forName("UTF-8").decode(bytes).toString();
+	}
+
+	public static void copyDirectory(Path from, Path to, Predicate<Path> filter, CopyOption... option) throws IOException
+	{
+		Objects.requireNonNull(from);
+		Objects.requireNonNull(to);
+		if (!Files.isDirectory(from)) throw new IOException(from + " is not a directory!");
+		Files.walkFileTree(from, new CopyFromVisitor(from, to, filter, option));
+	}
+
+	public static void copyDirectory(Path from, Path to, CopyOption... option) throws IOException {copyDirectory(from, to, null, option);}
+
+	public static void clearDirectory(Path directory) throws IOException
+	{
+		Objects.requireNonNull(directory);
+		if (!Files.isDirectory(directory)) throw new IOException(directory + " is not a directory!");
+		Files.walkFileTree(directory, new ClearVisitor());
+	}
+
+	public static void deleteDirectory(Path directory) throws IOException
+	{
+		clearDirectory(directory);
+		Files.delete(directory);
+	}
+
+	public static class ClearVisitor extends SimpleFileVisitor<Path>
+	{
+		@Override
+		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+		{
+			Files.delete(file);
+			return super.visitFile(file, attrs);
+		}
+
+		@Override
+		public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException
+		{
+			Files.delete(dir);
+			return super.postVisitDirectory(dir, exc);
+		}
+	}
+
+	public static class CopyFromVisitor extends SimpleFileVisitor<Path>
+	{
+		private final Path from;
+		private final Path to;
+		private final CopyOption[] copyOption;
+		private Predicate<Path> filter;
+
+		public CopyFromVisitor(Path fromPath, Path toPath, Predicate<Path> filter, CopyOption... copyOption)
+		{
+			this.from = fromPath;
+			this.to = toPath;
+			this.copyOption = copyOption;
+			this.filter = filter;
+		}
+
+		public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
+		{
+			super.preVisitDirectory(dir, attrs);
+			Path targetPath = to.resolve(from.relativize(dir));
+			if (!Files.exists(targetPath))
+				Files.createDirectory(targetPath);
+			return FileVisitResult.CONTINUE;
+		}
+
+		@Override
+		public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException
+		{
+			super.visitFile(file, attrs);
+			Path relativize = from.relativize(file);
+			if (filter == null || filter.test(relativize))
+				Files.copy(file, to.resolve(relativize), copyOption);
+			return FileVisitResult.CONTINUE;
+		}
 	}
 }

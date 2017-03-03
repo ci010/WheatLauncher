@@ -15,7 +15,6 @@ import net.launcher.control.ModCell;
 import net.launcher.game.forge.ForgeMod;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -55,13 +54,7 @@ public class ControllerMod
 				super.updateItem(item, empty);
 				if (item == null || empty)
 					return;
-				try
-				{
-					this.setGraphic(new ModCell(item, ARML.core().getModManager().getLogo(item)));
-				}
-				catch (IOException e)
-				{
-				}
+				this.setGraphic(new ModCell(item, ARML.core().getModManager().getLogo(item)));
 			}
 		});
 	}
@@ -75,7 +68,7 @@ public class ControllerMod
 		if (files != null)
 		{
 			for (File file : files)
-				ARML.core().getTaskCenter().runTask(ARML.core().getModManager()
+				ARML.taskCenter().runTask(ARML.core().getModManager()
 						.importMod(file.toPath()));
 		}
 	}
@@ -91,7 +84,7 @@ public class ControllerMod
 			File f = chooser.showDialog(mods.getScene().getWindow());
 			if (f == null) return;
 			Path path = f.toPath();
-			ARML.core().getTaskCenter().runTasks(selectedItems.stream().map(mod ->
+			ARML.taskCenter().runTasks(selectedItems.stream().map(mod ->
 					ARML.core().getModManager().exportMod(path, mod)).collect(Collectors.toList()));
 		}
 		else
@@ -101,7 +94,7 @@ public class ControllerMod
 			File f = fileChooser.showSaveDialog(mods.getScene().getWindow());
 			if (f == null) return;
 			Path file = f.toPath();
-			ARML.core().getTaskCenter().runTask(ARML.core().getModManager().exportMod
+			ARML.taskCenter().runTask(ARML.core().getModManager().exportMod
 					(file, selectedItems.get(0)));
 		}
 	}

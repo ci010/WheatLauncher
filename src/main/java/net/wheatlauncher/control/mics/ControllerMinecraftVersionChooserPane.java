@@ -239,7 +239,7 @@ public class ControllerMinecraftVersionChooserPane
 
 	public void refresh()
 	{
-		ARML.core().getTaskCenter().runTask(ARML.core().getAssetsManager().getRepository
+		ARML.taskCenter().runTask(ARML.core().getAssetsManager().getRepository
 				().refreshVersion());
 	}
 
@@ -247,7 +247,7 @@ public class ControllerMinecraftVersionChooserPane
 	{
 		MinecraftVersion selectedItem = this.versionTable.getSelectionModel().getSelectedItem();
 		Task<MinecraftVersion> task = ARML.core().getAssetsManager().getRepository().fetchVersion(selectedItem);
-		ARML.core().getTaskCenter().runTask(task);
+		ARML.taskCenter().runTask(task);
 		comboBox.setValue(selectedItem);
 		comboBox.hide();
 		confirmDownload.close();

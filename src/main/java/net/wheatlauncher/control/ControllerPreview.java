@@ -9,7 +9,6 @@ import com.jfoenix.effects.JFXDepthManager;
 import javafx.animation.Animation;
 import javafx.beans.binding.Bindings;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -17,6 +16,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import moe.mickey.minecraft.skin.fx.SkinCanvas;
 import moe.mickey.minecraft.skin.fx.animation.SkinAniRunning;
+import net.launcher.LaunchCore;
 import net.launcher.utils.StringUtils;
 import net.launcher.utils.Tasks;
 import net.wheatlauncher.control.utils.AnimationRotate;
@@ -115,7 +115,7 @@ public class ControllerPreview
 				else
 				{
 					Texture texture = textures.get(TextureType.SKIN);
-					ARML.core().getTaskCenter().runTask(new Task<Void>()
+					ARML.taskCenter().runTask(new Task<Void>()
 					{
 						@Override
 						protected Void call() throws Exception
@@ -139,14 +139,14 @@ public class ControllerPreview
 		animation.play();
 	}
 
-	public void onSwitchPlayer(ActionEvent event)
+	public void onSwitchPlayer()
 	{
 		((Consumer) root.getScene().getUserData()).accept("LOGIN");
 	}
 
-	public void popupProfileSetting(ActionEvent event) {profileSettingDialog.show(((StackPane) root.getParent()));}
+	public void popupProfileSetting() {profileSettingDialog.show(((StackPane) root.getParent()));}
 
-	public void popupSetting(ActionEvent event)
+	public void popupSetting()
 	{
 		settingDialog.show(((StackPane) root.getParent()));
 	}
@@ -156,8 +156,9 @@ public class ControllerPreview
 		serverView.show(((StackPane) root.getParent()));
 	}
 
-	public void launch(ActionEvent actionEvent) throws Exception
+	public void launch() throws Exception
 	{
+		((LaunchCore) ARML.core()).launch();
 	}
 
 }

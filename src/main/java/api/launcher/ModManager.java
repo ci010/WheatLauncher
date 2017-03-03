@@ -5,7 +5,6 @@ import javafx.scene.image.Image;
 import net.launcher.LaunchElementManager;
 import net.launcher.game.forge.ForgeMod;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 /**
@@ -13,7 +12,7 @@ import java.nio.file.Path;
  */
 public interface ModManager extends LaunchElementManager<ForgeMod>
 {
-	Image getLogo(ForgeMod forgeMod) throws IOException;
+	Image getLogo(ForgeMod forgeMod);
 
 	Task<ForgeMod[]> importMod(Path path);
 

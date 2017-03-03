@@ -1,8 +1,9 @@
-package net.wheatlauncher.internal.io;
+package net.wheatlauncher;
 
 import api.launcher.ARML;
 import api.launcher.LaunchProfile;
 import api.launcher.LaunchProfileManager;
+import api.launcher.event.LaunchEvent;
 import api.launcher.io.IOGuard;
 import api.launcher.io.IOGuardContext;
 import javafx.collections.MapChangeListener;
@@ -11,8 +12,9 @@ import net.launcher.game.nbt.NBTCompound;
 import net.launcher.profile.LaunchProfileManagerBuilder;
 import net.launcher.setting.Setting;
 import net.launcher.setting.SettingManager;
+import net.launcher.setting.SettingProperty;
 import net.launcher.setting.SettingType;
-import net.launcher.utils.DirUtils;
+import net.launcher.utils.NIOUtils;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 
 import java.io.File;
@@ -23,10 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -69,16 +68,7 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 	private void onDeleteProfile(LaunchProfile profile)
 	{
 		Path profileRoot = getProfileDir(profile.getId());
-		try
-		{
-			DirUtils.deleteContent(profileRoot);
-			Files.delete(profileRoot);
-
-		}
-		catch (IOException e)
-		{
-			//TODO add suppressed
-		}
+		ARML.taskCenter().runSimpleTask("Delete profile", () -> NIOUtils.deleteDirectory(profileRoot));
 	}
 
 	private void onCopyProfile(LaunchProfile profile, LaunchProfile copy)
@@ -206,7 +196,49 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 						profile.resolutionProperty());
 			}
 		});
+
+		ARML.bus().addEventHandler(LaunchEvent.GAME_EXIT, event ->
+		{
+			isLoading = true;
+			ArrayList<SettingType> list = new ArrayList<>(SettingManager.getAllSetting().values());
+			try
+			{
+				Files.walkFileTree(getProfilesRoot(), Collections.emptySet(), 2, new SimpleFileVisitor<Path>()
+				{
+					@Override
+					public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException
+					{
+						Path prof = dir.resolve("profile.dat");
+						if (!Files.exists(prof)) return super.preVisitDirectory(dir, attrs);
+						for (SettingType settingType : list)
+						{
+							Setting load = settingType.load(dir);
+							if (load == null) continue;
+							Optional<Setting> optional = event.getProfile().getGameSetting(settingType);
+							if (optional.isPresent())
+								for (SettingType.Option<?> option : settingType.getAllOption())
+									loadSetting(option, optional.get(), load);
+						}
+						return super.preVisitDirectory(dir, attrs);
+					}
+				});
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			isLoading = false;
+		});
 	}
+
+	private <T> void loadSetting(SettingType.Option<T> option, Setting setting, Setting load)
+	{
+		SettingProperty<T> a = setting.getOption(option);
+		SettingProperty<T> b = load.getOption(option);
+		a.setValue(b.getValue());
+	}
+
+	private boolean isLoading = false;
 
 	class SaveSetting implements IOGuardContext.IOTask
 	{
@@ -222,6 +254,7 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 		@Override
 		public void performance(Path root) throws Exception
 		{
+			if (isLoading) return;
 			Setting setting = this.setting.get();
 			if (setting == null)
 				return;
@@ -264,13 +297,6 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 		{
 			return task == this ||
 					(task instanceof SaveProfile && Objects.equals(((SaveProfile) task).id, id));
-		}
-
-		@Override
-		protected void finalize() throws Throwable
-		{
-			System.out.println("finalize");
-			super.finalize();
 		}
 	}
 

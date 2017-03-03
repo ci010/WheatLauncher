@@ -45,7 +45,7 @@ public class OptionInt extends SettingType.Option<Number>
 	@Override
 	public Number deserialize(String s)
 	{
-		return Integer.valueOf(s);
+		return Double.valueOf(s);
 	}
 
 	public static class PropertyInt extends SimpleIntegerProperty implements SettingProperty.Limited<Number>

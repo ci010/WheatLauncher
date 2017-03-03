@@ -14,7 +14,6 @@ import net.launcher.control.ModCell;
 import net.launcher.game.forge.ForgeMod;
 import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.DefaultArtifactVersion;
 
-import java.io.IOException;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
 
@@ -64,18 +63,13 @@ public class ControllerModView
 			{
 				super.updateItem(item, empty);
 				if (item == null || empty) return;
-				try
+				this.setGraphic(new ModCell(item, ARML.core().getModManager().getLogo(item))
 				{
-					this.setGraphic(new ModCell(item, ARML.core().getModManager().getLogo(item))
 					{
-						{
-							enableModsBinding.addListener(observable ->
-									disableProperty().bind(Bindings.createBooleanBinding(() ->
-											!enableModsBinding.get().contains(this.getValue()), enableModsBinding.get())));
-						}
-					});
-				}
-				catch (IOException ignored) {ARML.core().getTaskCenter().reportError("ModLogo", ignored);}
+						enableModsBinding.addListener(observable -> disableProperty().bind(Bindings.createBooleanBinding(() ->
+								!enableModsBinding.get().contains(this.getValue()), enableModsBinding.get())));
+					}
+				});
 			}
 		});
 		enableModsBinding.addListener(observable ->

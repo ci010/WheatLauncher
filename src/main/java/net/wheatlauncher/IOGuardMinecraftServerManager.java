@@ -1,6 +1,8 @@
 package net.wheatlauncher;
 
+import api.launcher.ARML;
 import api.launcher.MinecraftServerManager;
+import api.launcher.event.LaunchEvent;
 import api.launcher.io.IOGuard;
 import javafx.collections.FXCollections;
 import net.launcher.FXServerInfo;
@@ -9,9 +11,12 @@ import net.launcher.game.ServerInfo;
 import net.launcher.game.ServerInfoBase;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
+import net.launcher.utils.resource.FetchOption;
+import net.launcher.utils.resource.FetchUtils;
 import net.launcher.utils.serial.BiSerializer;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Collectors;
 
@@ -58,6 +63,19 @@ public class IOGuardMinecraftServerManager extends IOGuard<MinecraftServerManage
 	@Override
 	protected void deploy() throws IOException
 	{
-
+		ARML.bus().addEventHandler(LaunchEvent.LAUNCH_EVENT, event ->
+		{
+			Path from = getContext().getRoot().resolve("servers.dat");
+			Path target = event.getOption().getRuntimeDirectory().getRoot().toPath().resolve("servers.dat");
+			if (!Files.exists(target))
+				try
+				{
+					FetchUtils.fetch(from, target, FetchOption.HARD_LINK);
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+		});
 	}
 }

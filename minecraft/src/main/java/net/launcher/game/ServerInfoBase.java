@@ -110,7 +110,7 @@ public class ServerInfoBase implements ServerInfo
 	{
 		return BiSerializer.combine((info, context) ->
 		{
-			NBTCompound compound = NBT.compound().put("name", info.getName()).put("hostName", info.getHostName())
+			NBTCompound compound = NBT.compound().put("name", info.getName()).put("ip", info.getHostName())
 					.option("icon", info.getServerIcon());
 			if (info.getResourceMode() == ResourceMode.ENABLED)
 				compound.put("acceptTextures", true);
@@ -118,7 +118,7 @@ public class ServerInfoBase implements ServerInfo
 				compound.put("acceptTextures", false);
 			return compound;
 		}, (serialized, context) ->
-				new ServerInfoBase(serialized.get("name").asString(), serialized.get("hostName").asString(),
+				new ServerInfoBase(serialized.get("name").asString(), serialized.get("ip").asString(),
 						serialized.get("icon").asString(""),
 						serialized.option("acceptTextures").map(nbt -> nbt.asBool() ? ResourceMode.ENABLED : ResourceMode.DISABLED).orElse(ResourceMode.PROMPT)));
 	}

@@ -1,4 +1,4 @@
-package net.wheatlauncher.internal.io;
+package net.wheatlauncher;
 
 import api.launcher.ARML;
 import api.launcher.event.ModuleLoadedEvent;
@@ -42,7 +42,10 @@ public class IOGuardContextScheduled implements IOGuardContext
 	@Override
 	public void saveAll() throws Exception
 	{
+		lock.tryLock();
 		for (IOTask ioTask : tasks) ioTask.performance(this.getRoot());
+		tasks.clear();
+		lock.unlock();
 	}
 
 	@Override
@@ -51,7 +54,7 @@ public class IOGuardContextScheduled implements IOGuardContext
 		for (Class clz : ioGuards.keySet())
 		{
 			ARML.logger().info("Loading " + clz.getSimpleName());
-			load(clz);
+			ARML.taskCenter().runSimpleTask("ModuleLoad", () -> load(clz));
 		}
 	}
 
@@ -102,6 +105,7 @@ public class IOGuardContextScheduled implements IOGuardContext
 			observable.addListener(o -> enqueue(task));
 		//the life cycle of the task is equal to the observables
 	}
+
 
 	public static class Builder implements org.to2mbn.jmccc.util.Builder<IOGuardContext>
 	{

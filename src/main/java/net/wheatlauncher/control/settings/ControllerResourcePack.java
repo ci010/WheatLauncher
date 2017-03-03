@@ -57,7 +57,7 @@ public class ControllerResourcePack
 			List<File> files = fileChooser.showOpenMultipleDialog(importBtn.getScene().getWindow());
 			if (files != null && !files.isEmpty())
 				for (File file : files)
-					ARML.core().getTaskCenter().runTask(ARML.core().getResourcePackManager()
+					ARML.taskCenter().runTask(ARML.core().getResourcePackManager()
 							.importResourcePack(file.toPath()));
 		});
 		exportBtn.disableProperty().bind(Bindings.createBooleanBinding(() -> this.resourcePacks.getSelectionModel()
@@ -69,7 +69,7 @@ public class ControllerResourcePack
 			File file = fileChooser.showDialog(exportBtn.getScene().getWindow());
 			if (file == null) return;
 			ResourcePackManager manager = ARML.core().getResourcePackManager();
-			ARML.core().getTaskCenter().runTask(manager.exportResourcePack(file.toPath(), this
+			ARML.taskCenter().runTask(manager.exportResourcePack(file.toPath(), this
 					.resourcePacks.getSelectionModel().getSelectedItems()));
 		});
 	}

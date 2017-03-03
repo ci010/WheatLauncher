@@ -83,7 +83,7 @@ public class ControllerLanguages
 				languageTable.getSelectionModel().select(language);
 				languageTable.scrollTo(language);
 			});
-			ARML.core().getTaskCenter().runTask(task);
+			ARML.taskCenter().runTask(task);
 		}
 	}
 
