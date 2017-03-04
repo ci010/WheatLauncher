@@ -50,9 +50,9 @@ public interface CurseForgeService
 	boolean growCache(Cache<?> cache) throws IOException;
 
 	/**
-	 * @return The game version constrains, used on the {@link Option#setGameVersionConstrain(String)}.
+	 * @return The game version constrains, used on the {@link Option#setGameVersionConstrain(VersionCode)}.
 	 */
-	List<String> getGameVersionConstrains();
+	List<VersionCode> getGameVersionConstrains();
 
 	/**
 	 * @return The sort option, used on the {@link Option#setSortOption(String)} (String)}.
@@ -64,13 +64,36 @@ public interface CurseForgeService
 	 */
 	List<CurseForgeCategory> getCategories();
 
+	class VersionCode
+	{
+		private String versionString;
+		private String code;
+
+		public VersionCode(String versionString, String code)
+		{
+			this.versionString = versionString;
+			this.code = code;
+		}
+
+		public String getVersionString() {return versionString;}
+
+		public String getCode() {return code;}
+
+		@Override
+		public String toString()
+		{
+			return versionString;
+		}
+	}
+
 	/**
 	 * Indicate the search filter option.
 	 */
 	class Option
 	{
 		private CurseForgeCategory category;
-		private String option, constrain;
+		private String option;
+		private VersionCode versionCode;
 
 		public static Option create() {return new Option();}
 
@@ -78,13 +101,13 @@ public interface CurseForgeService
 
 		public Option setSortOption(String option) {this.option = option; return this;}
 
-		public Option setGameVersionConstrain(String constrain) {this.constrain = constrain; return this;}
+		public Option setGameVersionConstrain(VersionCode constrain) {this.versionCode = constrain; return this;}
 
 		public CurseForgeCategory getCategory() {return category;}
 
 		public String getOption() {return option;}
 
-		public String getConstrain() {return constrain;}
+		public VersionCode getConstrain() {return versionCode;}
 
 		@Override
 		public String toString()
@@ -92,7 +115,7 @@ public interface CurseForgeService
 			return "Option{" +
 					"category=" + category +
 					", option='" + option + '\'' +
-					", constrain='" + constrain + '\'' +
+					", constrain='" + versionCode + '\'' +
 					'}';
 		}
 	}

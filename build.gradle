@@ -28,6 +28,7 @@ subprojects {
 dependencies {
     testCompile 'junit:junit:4.12'
     compile project('minecraft')
+    compile 'org.ehcache.modules:ehcache-impl:3.1.1'
     compile 'org.jsoup:jsoup:1.9.2'
     compile ':fontawesomefx:8.0.10'
     compile 'org.to2mbn:jmccc:2.5-beta-1'

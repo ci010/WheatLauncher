@@ -1,6 +1,7 @@
 package net.launcher.services.curseforge;
 
 import net.launcher.utils.DataSizeUnit;
+import net.launcher.utils.URLDecode;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -22,8 +23,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 	private HttpRequester requester;
 
 	private List<String> filterTypesCache;
-	private Map<String, String> gameVersionsCache;
-	private List<String> gameVersionConstrains;
+	private List<VersionCode> gameVersionConstrains;
 	private Map<String, CurseForgeCategory> categoryCache;
 	private List<CurseForgeCategory> categoriesCacheList;
 
@@ -42,23 +42,29 @@ class CurseForgeRequesterImpl implements CurseForgeService
 
 	private synchronized void checkCache(Document document)
 	{
-		if (filterTypesCache == null && gameVersionsCache == null && categoryCache == null)
+		if (filterTypesCache == null && gameVersionConstrains == null && categoryCache == null)
 		{
 			Element filter = document.getElementById("filter-sort");
 			filterTypesCache = filter.children().stream().map(e -> e.attr("value")).collect(Collectors.toList());
 
-			gameVersionsCache = document.getElementById("filter-game-version").children().stream().collect
-					(Collectors.toMap(Element::val, Element::text));
-			gameVersionConstrains = new ArrayList<>(gameVersionsCache.values());
-			categoryCache = document.getElementsByClass("level-categories-nav").stream()
-					.map(e -> e.child(0))
-					.map(e ->
-					{
-						try {return new CurseForgeCategory(e.attr("href"), e.child(1).text(), e.child(0).attr("src"));}
-						catch (Exception ex) {return null;}
-					})
-					.filter(Objects::nonNull).collect(Collectors.toMap(CurseForgeCategory::getPath, Function.identity()));
-			categoriesCacheList = new ArrayList<>(categoryCache.values());
+			gameVersionConstrains = document.getElementById("filter-game-version").children().stream().map(element ->
+					new VersionCode(element.text(), element.val())).collect(Collectors.toList());
+
+			categoriesCacheList =
+					document.getElementsByClass("level-categories-nav").stream()
+							.map(e -> e.child(0))
+							.map(e ->
+							{
+								try
+								{
+									return new CurseForgeCategory(e.attr("href"), e.child(1).text(),
+											e.child(0).attr("src"));
+								}
+								catch (Exception ex) {return null;}
+							})
+							.filter(Objects::nonNull).collect(Collectors.toList());
+			categoryCache = categoriesCacheList.stream().collect(Collectors.toMap(CurseForgeCategory::getPath, Function
+					.identity()));
 		}
 	}
 
@@ -68,9 +74,9 @@ class CurseForgeRequesterImpl implements CurseForgeService
 		String url = root +
 				(option.getCategory() != null ? option.getCategory().getPath() : requestingType.getPath());
 		if (option.getConstrain() != null)
-			argumenst.put("view-game-version", option.getConstrain());
+			argumenst.put("filter-game-version", option.getConstrain().getCode());
 		if (option.getOption() != null)
-			argumenst.put("view-sort", option.getOption());
+			argumenst.put("filter-sort", option.getOption());
 		argumenst.put("page", page);
 		return HttpUtils.withUrlArguments(url, argumenst);
 	}
@@ -170,7 +176,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 		Element pages = document.getElementsByClass("paging-list").get(0);
 		int page = 1;
 		String val = pages.child(pages.children().size() - 1).child(0).attr("href");
-		int maxPage = Integer.valueOf(val.substring(val.lastIndexOf("page=") + 5));
+		int maxPage = Integer.valueOf(URLDecode.decode(val).get("page"));
 		Map<String, Object> context = new TreeMap<>();
 		context.put("type", "view");
 		context.put("page", page);
@@ -188,7 +194,6 @@ class CurseForgeRequesterImpl implements CurseForgeService
 		int page = 1;
 		int maxPage = 1;
 		Document doc = Jsoup.parse(this.requester.request("GET", root + files));
-		System.out.println();
 		Elements pages = doc.getElementsByClass("b-pagination-item");
 		List<String> collect = pages.stream().map(Element::text).collect(Collectors.toList());
 		for (String s : collect)
@@ -259,7 +264,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 	}
 
 	@Override
-	public List<String> getGameVersionConstrains()
+	public List<VersionCode> getGameVersionConstrains()
 	{
 		return this.gameVersionConstrains;
 	}
@@ -283,7 +288,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 				"requester=" + requester +
 				", requestPath='" + requestingType + '\'' +
 				", filterTypesCache=" + filterTypesCache +
-				", gameVersionsCache=" + gameVersionsCache +
+				", gameVersionConstrains=" + gameVersionConstrains +
 				", categoryCache=" + categoryCache +
 				", categoriesCacheList=" + categoriesCacheList +
 				'}';

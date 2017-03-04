@@ -213,11 +213,8 @@
 }
 
 .jfx-combo-box{
-	/*-fx-font-weight: BOLD;*/
     -fx-font-color: GREY;
     -fx-prompt-text-fill: #808080;
-    /*-fx-focus-color: #4059A9;
-    -fx-unfocus-color: #4d4d4d;*/
 }
 
 .major{
@@ -393,7 +390,6 @@
   	-fx-vertical-gap : 10.0;
   	-fx-expanded : false;
 }
-
 
 .icon{
 	-fx-text-fill: #FE774D;

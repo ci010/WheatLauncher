@@ -6,20 +6,24 @@
     <VBox spacing="10">
         <BorderPane>
             <left>
-                <Label text="project" contentDisplay="RIGHT" style="-fx-background-color:minor-color;-fx-padding:10">
+                <Label text="project" contentDisplay="RIGHT" maxWidth="200"
+                       style="-fx-background-color:minor-color;-fx-padding:10">
                     <graphic>
                         <JFXComboBox fx:id="projectTypes"/>
                     </graphic>
                 </Label>
             </left>
+            <center>
+                <Label text="CurseForge" style="-fx-font-family:MinecraftAlt;"/>
+            </center>
             <right>
-                <HBox>
+                <HBox spacing="10">
                     <JFXTextField fx:id="searchField"/>
-                    <JFXButton text="Search"/>
+                    <JFXButton text="Search" styleClass="mics-button"/>
                 </HBox>
             </right>
         </BorderPane>
-        <HBox spacing="10">
+        <HBox spacing="10" maxHeight="370">
             <JFXListView fx:id="category" style="-jfx-expanded:TRUE; -fx-background-color:major-color;
                     -fx-pref-width:200;-fx-max-width:200;"
                          verticalGap="10" styleClass="option-list,thin-scroll-bar"/>
@@ -36,7 +40,9 @@
                         </graphic>
                     </Label>
                 </HBox>
-                <JFXListView fx:id="list" styleClass="mics-list,thin-scroll-bar" prefWidth="450"/>
+                <StackPane fx:id="listOverlay">
+                    <JFXListView fx:id="list" styleClass="mics-list,thin-scroll-bar" prefWidth="450"/>
+                </StackPane>
             </VBox>
         </HBox>
     </VBox>

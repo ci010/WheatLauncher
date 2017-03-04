@@ -55,7 +55,6 @@ public class ControllerProfileResourcePack implements ReloadableController
 				ARML.core().getProfileManager().selectedProfileProperty()));
 
 		FilteredList<ResourcePack> selectedRes = new FilteredList<>(selected);
-//		selectedRes.predicateProperty().bind(Bindings.createObjectBinding(() -> resourcePackPredicate, searchSelecting.textProperty()));
 		selectedView.setItems(selectedRes);
 
 		FilteredList<ResourcePack> allRes = new FilteredList<>(manager.getAllElement());
