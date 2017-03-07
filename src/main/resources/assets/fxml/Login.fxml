@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 <?import net.launcher.control.OnlineModeSwitch?>
 <?import net.wheatlauncher.control.utils.ValidatorDelegate?>
-<StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
+<StackPane fx:id="root" id="LOGIN" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
            styleClass="jfx-container" onKeyPressed="#onGlobalKeyPressed"
            fx:controller="net.wheatlauncher.control.ControllerLogin">
     <VBox fx:id="box" maxWidth="400" maxHeight="400" spacing="15" alignment="CENTER"

@@ -139,14 +139,15 @@ public class ControllerPreview
 		animation.play();
 	}
 
-	public void onSwitchPlayer()
-	{
-		((Consumer) root.getScene().getUserData()).accept("LOGIN");
-	}
-
 	public void launch() throws Exception
 	{
 		((LaunchCore) ARML.core()).launch();
+	}
+
+	public void switchPage(ActionEvent event)
+	{
+		Node source = (Node) event.getSource();
+		((Consumer) root.getScene().getUserData()).accept(source.getId());
 	}
 
 	public void popupDialog(ActionEvent event)

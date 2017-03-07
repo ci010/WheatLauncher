@@ -6,9 +6,11 @@ import com.jfoenix.effects.JFXDepthManager;
 import de.jensd.fx.fontawesome.Icon;
 import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
+import javafx.concurrent.Worker;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.Event;
 import javafx.geometry.Insets;
@@ -52,6 +54,7 @@ public class ControllerCurseForge
 
 	public ControllerCurseForgeCard cardPageController;
 	public StackPane cardPage;
+	public HBox optionBar;
 
 	private CurseForgeService service;
 	private Cache<String, Image> projectImageCache;
@@ -93,6 +96,7 @@ public class ControllerCurseForge
 				@Override
 				protected CurseForgeService.Cache<CurseForgeProject> call() throws Exception
 				{
+					service.setRequestingProjectType(projectTypes.getValue());
 					CurseForgeService.Option option = new CurseForgeService.Option().setCategory(category.getSelectionModel().getSelectedItem())
 							.setGameVersionConstrain(gameVersions.getSelectionModel().getSelectedItem()).setSortOption(options.getSelectionModel()
 									.getSelectedItem());
@@ -124,7 +128,7 @@ public class ControllerCurseForge
 		categoryImageCache = manager.createCache("categoryImageCache", cof);
 
 		JFXDepthManager.setDepth(list, 2);
-		projectTypes.getItems().setAll(CurseForgeProjectType.values());
+
 		category.setCellFactory(param -> new JFXListCell<CurseForgeCategory>()
 		{
 			ImageCell<CurseForgeCategory> cell = new ImageCell<CurseForgeCategory>()
@@ -133,6 +137,16 @@ public class ControllerCurseForge
 					icon.setFitHeight(32);
 					icon.setFitWidth(32);
 					imageContainer.setMaxSize(32, 32);
+					imageProperty().addListener(observable ->
+					{
+						Image image = getImage();
+						if (image == null) return;
+						double width = image.getWidth();
+						double scale = 32 / width;
+						double height = image.getHeight() * scale;
+						icon.setFitHeight(height);
+						icon.setFitWidth(32);
+					});
 				}
 
 				@Override
@@ -210,21 +224,46 @@ public class ControllerCurseForge
 		if (!curseForgeServiceOptional.isPresent()) return;
 
 		this.service = curseForgeServiceOptional.get();
-		category.getItems().addAll(this.service.getCategories());
+
+		projectTypes.getItems().setAll(CurseForgeProjectType.values());
+		projectTypes.getSelectionModel().select(service.getRequestingProjectType());
+
+		category.getItems().setAll(this.service.getCategories());
 		options.getItems().setAll(this.service.getSortedOptions());
 		gameVersions.getItems().setAll(this.service.getGameVersionConstrains());
 		category.getSelectionModel().select(0);
 		options.getSelectionModel().select(0);
 		gameVersions.getSelectionModel().select(0);
+
 		refreshService.restart();
 
+		projectTypes.valueProperty().addListener(observable ->
+		{
+			if (projectTypes.getValue() == service.getRequestingProjectType()) return;
+
+			refreshService.restart();
+			refreshService.stateProperty().addListener(new InvalidationListener()
+			{
+				@Override
+				public void invalidated(Observable observable)
+				{
+					Worker.State state = refreshService.getState();
+					if (state == Worker.State.SCHEDULED || state == Worker.State.RUNNING || state == Worker.State.READY)
+						return;
+					category.getItems().setAll(service.getCategories());
+					category.getSelectionModel().select(0);
+					observable.removeListener(this);
+				}
+			});
+		});
+
 		InvalidationListener refresh = observable -> refreshService.restart();
+
 		category.getSelectionModel().selectedIndexProperty().addListener(refresh);
 		gameVersions.getSelectionModel().selectedIndexProperty().addListener(refresh);
 		options.getSelectionModel().selectedItemProperty().addListener(refresh);
 
-		card.setContentHolderBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null,
-				null)));
+		card.setContentHolderBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null, null)));
 	}
 
 	private void details(CurseForgeProject project)
@@ -330,10 +369,8 @@ public class ControllerCurseForge
 				box.setSpacing(5);
 				box.getChildren().addAll(textFlow, second, description);
 
-
 				return box;
 			}
 		};
 	}
-
 }

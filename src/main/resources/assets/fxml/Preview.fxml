@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import moe.mickey.minecraft.skin.fx.SkinCanvas?>
 <?import net.wheatlauncher.control.utils.ColorTransitionButton?>
-<BorderPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
+<BorderPane fx:id="root" id="PREVIEW" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2"
             fx:controller="net.wheatlauncher.control.ControllerPreview"
             style="-fx-padding:5,5">
     <left>
@@ -37,10 +37,10 @@
                             <Tooltip text="%tooltip.switchprofile"/>
                         </tooltip>
                     </JFXButton>
-                    <JFXButton maxHeight="10" buttonType="RAISED"
+                    <JFXButton id="LOGIN" maxHeight="10" buttonType="RAISED"
                                styleClass="minor-button"
                                style="-fx-background-color:WHITE"
-                               onAction="#onSwitchPlayer">
+                               onAction="#switchPage">
                         <tooltip>
                             <Tooltip text="%tooltip.switchaccount"/>
                         </tooltip>

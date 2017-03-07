@@ -3,17 +3,22 @@ package net.wheatlauncher.control.market;
 import api.launcher.ARML;
 import com.jfoenix.controls.JFXListCell;
 import com.jfoenix.controls.JFXListView;
+import com.jfoenix.controls.JFXRippler;
 import com.jfoenix.controls.JFXSpinner;
+import de.jensd.fx.fontawesome.Icon;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
+import javafx.geometry.Insets;
 import javafx.scene.control.Label;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import net.launcher.services.curseforge.CurseForgeProject;
 import net.launcher.services.curseforge.CurseForgeProjectArtifact;
 import net.launcher.services.curseforge.CurseForgeService;
+import net.launcher.utils.DataSizeUnit;
 
 import java.text.DateFormat;
 import java.util.Optional;
@@ -23,14 +28,16 @@ import java.util.Optional;
  */
 public class ControllerCurseForgeCard
 {
-	public Label projectName, projectAuthor, projectDownloadCount, projectDate;
-	public SimpleObjectProperty<CurseForgeProject> project = new SimpleObjectProperty<>();
+	public Label projectName, projectAuthor;
+	public Label size, mcVersion, releaseType, releaseDate;
 	public StackPane listOverlay;
-	private ObservableList<CurseForgeProjectArtifact> artifactList;
 	public StackPane root;
+	public JFXListView<CurseForgeProjectArtifact> items;
+
+	public SimpleObjectProperty<CurseForgeProject> project = new SimpleObjectProperty<>();
+	private ObservableList<CurseForgeProjectArtifact> artifactList;
 
 	private CurseForgeService service;
-	public JFXListView<CurseForgeProjectArtifact> items;
 
 	private JFXSpinner spinner = new JFXSpinner();
 
@@ -45,18 +52,66 @@ public class ControllerCurseForgeCard
 		this.service = service.get();
 		items.setCellFactory(param -> new JFXListCell<CurseForgeProjectArtifact>()
 		{
+			private BorderPane graphic = new BorderPane();
+
+			{
+				Label fName = new Label();
+				fName.textProperty().bind(Bindings.createStringBinding(() ->
+				{
+					CurseForgeProjectArtifact item = getItem();
+					if (item != null)
+						return item.getFileName();
+					return "-";
+				}, itemProperty()));
+
+				JFXRippler button = new JFXRippler();
+				Icon icon = new Icon("DOWNLOAD");
+				icon.setPadding(new Insets(8));
+				button.setControl(icon);
+				button.setMaskType(JFXRippler.RipplerMask.CIRCLE);
+				graphic.setLeft(fName);
+				graphic.setRight(button);
+			}
+
 			@Override
 			public void updateItem(CurseForgeProjectArtifact item, boolean empty)
 			{
 				super.updateItem(item, empty);
-				if (item != null && !empty)
-				{
-					setGraphic(new Label(item.getFileName()));
-				}
+				if (item != null && !empty) setGraphic(graphic);
 				else setGraphic(null);
 			}
 		});
 		artifactList = items.getItems();
+
+		size.textProperty().bind(Bindings.createStringBinding(() ->
+		{
+			CurseForgeProjectArtifact item = items.getSelectionModel().getSelectedItem();
+			if (item != null)
+				return DataSizeUnit.MB.fromByte(item.getFileSize()) + " MB";
+			return "-";
+		}, items.getSelectionModel().selectedIndexProperty()));
+		mcVersion.textProperty().bind(Bindings.createStringBinding(() ->
+				{
+					CurseForgeProjectArtifact item = items.getSelectionModel().getSelectedItem();
+					if (item != null)
+						return item.getGameVersion();
+					return "-";
+				},
+				items.getSelectionModel().selectedIndexProperty()));
+		releaseType.textProperty().bind(Bindings.createStringBinding(() ->
+		{
+			CurseForgeProjectArtifact item = items.getSelectionModel().getSelectedItem();
+			if (item != null)
+				return item.getReleaseType();
+			return "-";
+		}, items.getSelectionModel().selectedIndexProperty()));
+		releaseDate.textProperty().bind(Bindings.createStringBinding(() ->
+		{
+			CurseForgeProjectArtifact item = items.getSelectionModel().getSelectedItem();
+			if (item != null && item.getDate().isPresent())
+				return DateFormat.getInstance().format(item.getDate().get());
+			return "-";
+		}, items.getSelectionModel().selectedIndexProperty()));
 
 		projectName.textProperty().bind(Bindings.createStringBinding(() ->
 		{
@@ -70,18 +125,18 @@ public class ControllerCurseForgeCard
 			if (curseForgeProject == null) return "Unknown";
 			return curseForgeProject.getAuthor();
 		}, project));
-		projectDownloadCount.textProperty().bind(Bindings.createStringBinding(() ->
-		{
-			CurseForgeProject curseForgeProject = project.get();
-			if (curseForgeProject == null) return "-";
-			return curseForgeProject.getDownloadCount();
-		}, project));
-		projectDate.textProperty().bind(Bindings.createStringBinding(() ->
-		{
-			CurseForgeProject curseForgeProject = project.get();
-			if (curseForgeProject == null) return "-";
-			return DateFormat.getInstance().format(curseForgeProject.getLastTime());
-		}, project));
+//		projectDownloadCount.textProperty().bind(Bindings.createStringBinding(() ->
+//		{
+//			CurseForgeProject curseForgeProject = project.get();
+//			if (curseForgeProject == null) return "-";
+//			return curseForgeProject.getDownloadCount();
+//		}, project));
+//		projectDate.textProperty().bind(Bindings.createStringBinding(() ->
+//		{
+//			CurseForgeProject curseForgeProject = project.get();
+//			if (curseForgeProject == null) return "-";
+//			return DateFormat.getInstance().format(curseForgeProject.getLastTime());
+//		}, project));
 		project.addListener(observable ->
 		{
 			Task<CurseForgeService.Cache<CurseForgeProjectArtifact>> task = new Task<CurseForgeService.Cache<CurseForgeProjectArtifact>>()
@@ -121,6 +176,7 @@ public class ControllerCurseForgeCard
 		if (listOverlay.getChildren().contains(spinner))
 			listOverlay.getChildren().remove(spinner);
 		items.setDisable(false);
+		items.getSelectionModel().select(0);
 	}
 
 }

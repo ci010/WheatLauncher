@@ -33,7 +33,9 @@ public abstract class AbstractCurseForgeService implements CurseForgeService
 
 	private CurseForgeCategory getCategory(String s)
 	{
-		return getContainer().categoryCache.get(s);
+		Container container = getContainer();
+		if (container == null) return null;
+		return container.categoryCache.get(s);
 	}
 
 	private Container getContainer()
@@ -49,11 +51,14 @@ public abstract class AbstractCurseForgeService implements CurseForgeService
 	@Override
 	public synchronized void setRequestingProjectType(CurseForgeProjectType type) throws IOException
 	{
+		Objects.requireNonNull(type);
+		if (this.requestingType == type) return;
 		this.requestingType = type;
 		Container container = containerMap.get(type);
 		if (container == null)
 		{
 			String url = buildURL(Option.create(), 1);
+			System.out.println(url);
 			Document request = request(url);
 			container = parseContainer(request);
 			containerMap.put(type, container);
@@ -311,19 +316,25 @@ public abstract class AbstractCurseForgeService implements CurseForgeService
 	@Override
 	public List<VersionCode> getGameVersionConstrains()
 	{
-		return getContainer().gameVersionConstrains;
+		Container container = getContainer();
+		if (container == null) return Collections.emptyList();
+		return container.gameVersionConstrains;
 	}
 
 	@Override
 	public List<String> getSortedOptions()
 	{
-		return getContainer().filterTypesCache;
+		Container container = getContainer();
+		if (container == null) return Collections.emptyList();
+		return container.filterTypesCache;
 	}
 
 	@Override
 	public List<CurseForgeCategory> getCategories()
 	{
-		return getContainer().categoriesCacheList;
+		Container container = getContainer();
+		if (container == null) return Collections.emptyList();
+		return container.categoriesCacheList;
 	}
 
 	protected abstract Document request(String url) throws IOException;

@@ -1,53 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
 <?import com.jfoenix.controls.*?>
+<?import de.jensd.fx.fontawesome.Icon?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
-<StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
-           xmlns="http://javafx.com/javafx/2.2" fx:controller="net.wheatlauncher.control.market.ControllerCurseForge">
-    <VBox spacing="10">
-        <BorderPane>
+<StackPane fx:id="root" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="net.wheatlauncher.control.market.ControllerCurseForge">
+    <GridPane maxHeight="370" vgap="10">
+        <Label alignment="CENTER" prefHeight="27.0" prefWidth="199.0"
+               style="-fx-font-family:Minecrafter; -fx-font-size:20" text="CurseForge" GridPane.columnIndex="0"
+               GridPane.rowIndex="0"/>
+        <JFXListView fx:id="category"
+                     style="-jfx-expanded:TRUE; -fx-background-color:major-color;                     -fx-pref-width:200;-fx-max-width:200;"
+                     styleClass="option-list,thin-scroll-bar" verticalGap="10" GridPane.columnIndex="0"
+                     GridPane.rowIndex="1"/>
+        <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="0">
             <left>
-                <Label text="project" contentDisplay="RIGHT" maxWidth="200"
-                       style="-fx-background-color:minor-color;-fx-padding:10">
-                    <graphic>
-                        <JFXComboBox fx:id="projectTypes"/>
-                    </graphic>
-                </Label>
+                <JFXComboBox fx:id="projectTypes" maxHeight="40" maxWidth="200"/>
             </left>
-            <center>
-                <Label text="CurseForge" style="-fx-font-family:MinecraftAlt;"/>
-            </center>
             <right>
                 <HBox spacing="10">
                     <JFXTextField fx:id="searchField"/>
-                    <JFXButton text="Search" styleClass="mics-button"/>
+                    <JFXButton>
+                        <graphic>
+                            <Icon awesomeIcon="SEARCH"/>
+                        </graphic>
+                    </JFXButton>
                 </HBox>
             </right>
         </BorderPane>
-        <HBox spacing="10" maxHeight="370">
-            <JFXListView fx:id="category" style="-jfx-expanded:TRUE; -fx-background-color:major-color;
-                    -fx-pref-width:200;-fx-max-width:200;"
-                         verticalGap="10" styleClass="option-list,thin-scroll-bar"/>
-            <VBox spacing="10" style="-fx-background-color:WHITE;-fx-padding:10">
-                <HBox spacing="10" alignment="CENTER">
-                    <Label text="Sort by:" contentDisplay="RIGHT">
-                        <graphic>
-                            <JFXComboBox fx:id="options"/>
-                        </graphic>
-                    </Label>
-                    <Label text="Game Version:" contentDisplay="RIGHT">
-                        <graphic>
-                            <JFXComboBox fx:id="gameVersions"/>
-                        </graphic>
-                    </Label>
-                </HBox>
-                <StackPane fx:id="listOverlay">
-                    <JFXListView fx:id="list" styleClass="mics-list,thin-scroll-bar" prefWidth="450"/>
-                </StackPane>
-            </VBox>
-        </HBox>
-    </VBox>
+        <VBox spacing="10" style="-fx-background-color:WHITE;-fx-padding:10" GridPane.columnIndex="1"
+              GridPane.rowIndex="1">
+            <HBox fx:id="optionBar" alignment="CENTER" spacing="10">
+                <Label contentDisplay="RIGHT" text="Sort by:">
+                    <graphic>
+                        <JFXComboBox fx:id="options">
+                        </JFXComboBox>
+                    </graphic>
+                </Label>
+                <Label contentDisplay="RIGHT" text="Game Version:">
+                    <graphic>
+                        <JFXComboBox fx:id="gameVersions"/>
+                    </graphic>
+                </Label>
+            </HBox>
+            <StackPane fx:id="listOverlay">
+                <JFXListView fx:id="list" prefWidth="450" styleClass="mics-list,thin-scroll-bar"/>
+            </StackPane>
+        </VBox>
+        <columnConstraints>
+            <ColumnConstraints/>
+            <ColumnConstraints/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints/>
+            <RowConstraints/>
+        </rowConstraints>
+    </GridPane>
     <JFXDialog fx:id="card">
         <fx:include fx:id="cardPage" source="CurseForgeCard.fxml"/>
     </JFXDialog>
-
 </StackPane>

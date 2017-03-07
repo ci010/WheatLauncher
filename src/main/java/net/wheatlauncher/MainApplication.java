@@ -217,6 +217,8 @@ public class MainApplication extends Application
 		loginPage = fxmlLoader.load();
 		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Preview.fxml"), bundle);
 		previewPage = fxmlLoader.load();
+//		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Preview.fxml"), bundle);
+
 
 		StackPane base = new StackPane(loginPage);
 		root.getChildren().add(0, base);

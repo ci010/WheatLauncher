@@ -11,7 +11,7 @@ public abstract class CurseForgeServices
 {
 	public static CurseForgeService newService(CurseForgeProjectType projectType, HttpRequester requester) throws IOException
 	{
-		CurseForgeRequester curseForgeRequester = new CurseForgeRequester(requester, projectType);
+		CurseForgeRequester curseForgeRequester = new CurseForgeRequester(requester, null);
 		curseForgeRequester.setRequestingProjectType(projectType);//init
 		return curseForgeRequester;
 	}

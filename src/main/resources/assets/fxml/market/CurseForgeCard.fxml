@@ -1,11 +1,10 @@
 <?import com.jfoenix.controls.JFXListView?>
-<?import de.jensd.fx.fontawesome.Icon?>
-<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
            xmlns="http://javafx.com/javafx/2.2"
            fx:controller="net.wheatlauncher.control.market.ControllerCurseForgeCard"
-           prefWidth="360" prefHeight="460" maxHeight="460" maxWidth="360" minWidth="360" minHeight="460">
+           prefWidth="360" prefHeight="440" maxHeight="440" maxWidth="360" minWidth="360" minHeight="440">
     <VBox>
         <BorderPane fx:id="header" VBox.vgrow="ALWAYS"
                     style="-fx-background-radius: 5 5 0 0;-fx-background-color: minor-color;-fx-padding: 20;">
@@ -21,18 +20,25 @@
             <bottom>
                 <BorderPane style="-fx-padding:0 0 10 0">
                     <left>
-                        <Label fx:id="projectDownloadCount" styleClass="header-minor">
-                            <graphic>
-                                <Icon awesomeIcon="DOWNLOAD" textFill="white"/>
-                            </graphic>
-                        </Label>
+                        <VBox alignment="BOTTOM_LEFT">
+                            <Label fx:id="size" styleClass="header-minor"/>
+                            <Label fx:id="mcVersion" styleClass="header-minor"/>
+                            <!--<Label fx:id="projectDownloadCount" styleClass="header-minor">-->
+                            <!--<graphic>-->
+                            <!--<Icon awesomeIcon="DOWNLOAD" textFill="white"/>-->
+                            <!--</graphic>-->
+                            <!--</Label>-->
+                        </VBox>
                     </left>
                     <right>
-                        <Label fx:id="projectDate" styleClass="header-minor">
-                            <graphic>
-                                <Icon awesomeIcon="CLOCK_ALT" textFill="white"/>
-                            </graphic>
-                        </Label>
+                        <VBox alignment="BOTTOM_RIGHT">
+                            <Label fx:id="releaseType" styleClass="header-minor"/>
+                            <Label fx:id="releaseDate" styleClass="header-minor">
+                                <!--<graphic>-->
+                                <!--<Icon awesomeIcon="CLOCK_ALT" textFill="white"/>-->
+                                <!--</graphic>-->
+                            </Label>
+                        </VBox>
                     </right>
                 </BorderPane>
             </bottom>
@@ -44,7 +50,7 @@
                 -fx-background-color: rgb(255,255,255,0.87);
             </style>
             <StackPane fx:id="listOverlay">
-                <JFXListView fx:id="items" prefHeight="100" styleClass="thin-scroll-bar"/>
+                <JFXListView fx:id="items" prefHeight="150" styleClass="thin-scroll-bar"/>
             </StackPane>
         </VBox>
     </VBox>
