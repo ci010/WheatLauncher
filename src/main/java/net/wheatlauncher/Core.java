@@ -20,7 +20,12 @@ import net.launcher.auth.IOGuardAuth;
 import net.launcher.game.ServerInfo;
 import net.launcher.mod.ModManagerBuilder;
 import net.launcher.resourcepack.IOGuardResourcePackManager;
+import net.launcher.services.curseforge.CurseForgeProjectType;
+import net.launcher.services.curseforge.CurseForgeService;
+import net.launcher.services.curseforge.CurseForgeServices;
 import net.launcher.setting.SettingMinecraft;
+import org.ehcache.CacheManager;
+import org.ehcache.config.builders.CacheManagerBuilder;
 import org.to2mbn.jmccc.launch.Launcher;
 import org.to2mbn.jmccc.launch.LauncherBuilder;
 import org.to2mbn.jmccc.launch.ProcessListener;
@@ -166,6 +171,20 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 		this.modManager = ModManagerBuilder.create(mods).build();
 		ARML.bus().postEvent(new ModuleLoadedEvent<>(modManager));
 		modManager.update().run();
+
+		CacheManager manager = CacheManagerBuilder.newCacheManagerBuilder().build(true);
+		ARML.instance().registerComponent(CacheManager.class, manager);
+
+		try
+		{
+			CurseForgeService service = CurseForgeServices.newService(CurseForgeProjectType.TexturePacks);
+			ARML.instance().registerComponent(CurseForgeService.class, service);
+
+		}
+		catch (Exception e)
+		{
+			ARML.taskCenter().reportError("CurseForgeService", e);
+		}
 
 		ARML.logger().info("Complete init");
 	}

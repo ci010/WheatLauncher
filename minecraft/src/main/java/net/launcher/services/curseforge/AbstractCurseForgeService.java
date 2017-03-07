@@ -2,11 +2,9 @@ package net.launcher.services.curseforge;
 
 import net.launcher.utils.DataSizeUnit;
 import net.launcher.utils.URLDecode;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpRequester;
 import org.to2mbn.jmccc.auth.yggdrasil.core.io.HttpUtils;
 
 import java.io.IOException;
@@ -17,56 +15,103 @@ import java.util.stream.Collectors;
 /**
  * @author ci010
  */
-class CurseForgeRequesterImpl implements CurseForgeService
+public abstract class AbstractCurseForgeService implements CurseForgeService
 {
 	private static String root = "https://minecraft.curseforge.com";
-	private HttpRequester requester;
 
-	private List<String> filterTypesCache;
-	private List<VersionCode> gameVersionConstrains;
-	private Map<String, CurseForgeCategory> categoryCache;
-	private List<CurseForgeCategory> categoriesCacheList;
+	private Map<CurseForgeProjectType, Container> containerMap = new EnumMap<>(CurseForgeProjectType.class);
+
+	private class Container
+	{
+		private List<String> filterTypesCache;
+		private List<VersionCode> gameVersionConstrains;
+		private Map<String, CurseForgeCategory> categoryCache;
+		private List<CurseForgeCategory> categoriesCacheList;
+	}
 
 	private CurseForgeProjectType requestingType;
 
-	CurseForgeRequesterImpl(HttpRequester requester, CurseForgeProjectType requestingType)
+	private CurseForgeCategory getCategory(String s)
 	{
-		this.requester = requester;
+		return getContainer().categoryCache.get(s);
+	}
+
+	private Container getContainer()
+	{
+		return containerMap.get(requestingType);
+	}
+
+	protected AbstractCurseForgeService(CurseForgeProjectType requestingType)
+	{
 		this.requestingType = requestingType;
 	}
 
-	void init() throws IOException
+	@Override
+	public synchronized void setRequestingProjectType(CurseForgeProjectType type) throws IOException
 	{
-		checkCache(Jsoup.parse(requester.request("GET", buildURL(Option.create(), 1))));
-	}
-
-	private synchronized void checkCache(Document document)
-	{
-		if (filterTypesCache == null && gameVersionConstrains == null && categoryCache == null)
+		this.requestingType = type;
+		Container container = containerMap.get(type);
+		if (container == null)
 		{
-			Element filter = document.getElementById("filter-sort");
-			filterTypesCache = filter.children().stream().map(e -> e.attr("value")).collect(Collectors.toList());
-
-			gameVersionConstrains = document.getElementById("filter-game-version").children().stream().map(element ->
-					new VersionCode(element.text(), element.val())).collect(Collectors.toList());
-
-			categoriesCacheList =
-					document.getElementsByClass("level-categories-nav").stream()
-							.map(e -> e.child(0))
-							.map(e ->
-							{
-								try
-								{
-									return new CurseForgeCategory(e.attr("href"), e.child(1).text(),
-											e.child(0).attr("src"));
-								}
-								catch (Exception ex) {return null;}
-							})
-							.filter(Objects::nonNull).collect(Collectors.toList());
-			categoryCache = categoriesCacheList.stream().collect(Collectors.toMap(CurseForgeCategory::getPath, Function
-					.identity()));
+			String url = buildURL(Option.create(), 1);
+			Document request = request(url);
+			container = parseContainer(request);
+			containerMap.put(type, container);
 		}
 	}
+
+	private Container parseContainer(Document document)
+	{
+		Container container = new Container();
+		Element filter = document.getElementById("filter-sort");
+		container.filterTypesCache = filter.children().stream().map(e -> e.attr("value")).collect(Collectors.toList());
+		container.gameVersionConstrains = document.getElementById("filter-game-version").children().stream().map
+				(element -> new VersionCode(element.text(), element.val())).collect(Collectors.toList());
+		container.categoriesCacheList =
+				document.getElementsByClass("level-categories-nav").stream()
+						.map(e -> e.child(0))
+						.map(e ->
+						{
+							try
+							{
+								return new CurseForgeCategory(e.attr("href"), e.child(1).text(),
+										e.child(0).attr("src"));
+							}
+							catch (Exception ex) {return null;}
+						})
+						.filter(Objects::nonNull).collect(Collectors.toList());
+		container.categoryCache = container.categoriesCacheList.stream().collect(Collectors.toMap
+				(CurseForgeCategory::getPath, Function.identity()));
+		return container;
+	}
+
+//	private synchronized void checkCache(Document document)
+//	{
+//		if (filterTypesCache == null && gameVersionConstrains == null && categoryCache == null)
+//		{
+//			Element filter = document.getElementById("filter-sort");
+//			filterTypesCache = filter.children().stream().map(e -> e.attr("value")).collect(Collectors.toList());
+//
+//			gameVersionConstrains = document.getElementById("filter-game-version").children().stream().map(element ->
+//					new VersionCode(element.text(), element.val())).collect(Collectors.toList());
+//
+//			categoriesCacheList =
+//					document.getElementsByClass("level-categories-nav").stream()
+//							.map(e -> e.child(0))
+//							.map(e ->
+//							{
+//								try
+//								{
+//									return new CurseForgeCategory(e.attr("href"), e.child(1).text(),
+//											e.child(0).attr("src"));
+//								}
+//								catch (Exception ex) {return null;}
+//							})
+//							.filter(Objects::nonNull).collect(Collectors.toList());
+//			categoryCache = categoriesCacheList.stream().collect(Collectors.toMap(CurseForgeCategory::getPath, Function
+//					.identity()));
+//		}
+//	}
 
 	private String buildURL(Option option, int page)
 	{
@@ -119,7 +164,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 					detail.child(3).child(0).text(),
 					nameElement.attr("href"),
 					item.getElementsByTag("img").get(0).attr("src"),
-					detail.child(2).child(0).children().stream().map(e -> e.child(0).attr("href")).map(categoryCache::get).collect(Collectors.toList()),
+					detail.child(2).child(0).children().stream().map(e -> e.child(0).attr("href")).map(this::getCategory).collect(Collectors.toList()),
 					infoName.child(1).child(0).text(),
 					infoStat.child(0).text(),
 					new Date(Long.parseLong(infoStat.child(1).child(0).attr("data-epoch"))), requestingType));
@@ -154,7 +199,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 	{
 		String url = root + "/search";
 		url = HttpUtils.withUrlArguments(url, Collections.singletonMap("search", keyword));
-		Document document = Jsoup.parse(requester.request("GET", url));
+		Document document = request(url);
 		if (document.getElementsByClass("tabbed-container").size() == 0) return new Cache<>();
 		List<CurseForgeProject> projects = document.getElementsByClass("results").stream().map(this::parseSearchProject)
 				.filter(Objects::nonNull).collect(Collectors.toList());
@@ -170,8 +215,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 	{
 		if (option == null) option = new Option();
 		String url = buildURL(option, 1);
-		Document document = Jsoup.parse(requester.request("GET", url));
-		checkCache(document);
+		Document document = request(url);
 
 		Element pages = document.getElementsByClass("paging-list").get(0);
 		int page = 1;
@@ -193,7 +237,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 		String files = project.getProjectPath() + "/files";
 		int page = 1;
 		int maxPage = 1;
-		Document doc = Jsoup.parse(this.requester.request("GET", root + files));
+		Document doc = request(root + files);
 		Elements pages = doc.getElementsByClass("b-pagination-item");
 		List<String> collect = pages.stream().map(Element::text).collect(Collectors.toList());
 		for (String s : collect)
@@ -230,7 +274,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 				int page = (int) context.get("page");
 				if ((page + 1) > (int) context.get("maxPage")) return false;
 				String url = buildURL((Option) context.get("option"), page + 1);
-				Document document = Jsoup.parse(requester.request("GET", url));
+				Document document = request(url);
 				projectCache.cache.addAll(parseProjects(document));
 				projectCache.context.put("page", page + 1);
 				return true;
@@ -243,7 +287,7 @@ class CurseForgeRequesterImpl implements CurseForgeService
 				args.put("search", keyword);
 				args.put("page", page + 1);
 				url = HttpUtils.withUrlArguments(url, args);
-				document = Jsoup.parse(requester.request("GET", url));
+				document = request(url);
 				projectCache.cache.addAll(document.getElementsByClass("results").stream().map(this::parseSearchProject).collect
 						(Collectors.toList()));
 				projectCache.context.put("page", page + 1);
@@ -255,7 +299,8 @@ class CurseForgeRequesterImpl implements CurseForgeService
 				String requestURL = context.get("requestURL").toString();
 				url = root + requestURL;
 				url = HttpUtils.withUrlArguments(url, Collections.singletonMap("page", page + 1));
-				artifactCache.cache.addAll(Jsoup.parse(requester.request("GET", url)).getElementsByClass("project-file-listStr-item")
+				Document request = request(url);
+				artifactCache.cache.addAll(request.getElementsByClass("project-file-listStr-item")
 						.stream().map(this::parseArtifact).collect(Collectors.toList()));
 				return true;
 			default:
@@ -266,31 +311,20 @@ class CurseForgeRequesterImpl implements CurseForgeService
 	@Override
 	public List<VersionCode> getGameVersionConstrains()
 	{
-		return this.gameVersionConstrains;
+		return getContainer().gameVersionConstrains;
 	}
 
 	@Override
 	public List<String> getSortedOptions()
 	{
-		return filterTypesCache;
+		return getContainer().filterTypesCache;
 	}
 
 	@Override
 	public List<CurseForgeCategory> getCategories()
 	{
-		return categoriesCacheList;
+		return getContainer().categoriesCacheList;
 	}
 
-	@Override
-	public String toString()
-	{
-		return "CurseForgeRequesterImpl{" +
-				"requester=" + requester +
-				", requestPath='" + requestingType + '\'' +
-				", filterTypesCache=" + filterTypesCache +
-				", gameVersionConstrains=" + gameVersionConstrains +
-				", categoryCache=" + categoryCache +
-				", categoriesCacheList=" + categoriesCacheList +
-				'}';
-	}
+	protected abstract Document request(String url) throws IOException;
 }

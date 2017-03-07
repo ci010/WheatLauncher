@@ -7,12 +7,12 @@ import java.io.IOException;
 /**
  * @author ci010
  */
-public class CurseForgeServices
+public abstract class CurseForgeServices
 {
 	public static CurseForgeService newService(CurseForgeProjectType projectType, HttpRequester requester) throws IOException
 	{
-		CurseForgeRequesterImpl curseForgeRequester = new CurseForgeRequesterImpl(requester, projectType);
-		curseForgeRequester.init();//init
+		CurseForgeRequester curseForgeRequester = new CurseForgeRequester(requester, projectType);
+		curseForgeRequester.setRequestingProjectType(projectType);//init
 		return curseForgeRequester;
 	}
 
@@ -20,6 +20,4 @@ public class CurseForgeServices
 	{
 		return newService(projectType, new HttpRequester());
 	}
-
-	private CurseForgeServices() {}
 }

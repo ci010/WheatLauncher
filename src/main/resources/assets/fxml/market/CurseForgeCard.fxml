@@ -1,0 +1,59 @@
+<?import com.jfoenix.controls.JFXListView?>
+<?import de.jensd.fx.fontawesome.Icon?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.*?>
+<StackPane fx:id="root" xmlns:fx="http://javafx.com/fxml/1"
+           xmlns="http://javafx.com/javafx/2.2"
+           fx:controller="net.wheatlauncher.control.market.ControllerCurseForgeCard"
+           prefWidth="360" prefHeight="460" maxHeight="460" maxWidth="360" minWidth="360" minHeight="460">
+    <VBox>
+        <BorderPane fx:id="header" VBox.vgrow="ALWAYS"
+                    style="-fx-background-radius: 5 5 0 0;-fx-background-color: minor-color;-fx-padding: 20;">
+            <top>
+                <VBox spacing="10">
+                    <Label fx:id="projectName" styleClass="header-major-small" wrapText="true"/>
+                    <Label fx:id="projectAuthor" styleClass="header-minor-small" wrapText="true"/>
+                </VBox>
+            </top>
+            <center>
+                <Region minHeight="50"/>
+            </center>
+            <bottom>
+                <BorderPane style="-fx-padding:0 0 10 0">
+                    <left>
+                        <Label fx:id="projectDownloadCount" styleClass="header-minor">
+                            <graphic>
+                                <Icon awesomeIcon="DOWNLOAD" textFill="white"/>
+                            </graphic>
+                        </Label>
+                    </left>
+                    <right>
+                        <Label fx:id="projectDate" styleClass="header-minor">
+                            <graphic>
+                                <Icon awesomeIcon="CLOCK_ALT" textFill="white"/>
+                            </graphic>
+                        </Label>
+                    </right>
+                </BorderPane>
+            </bottom>
+        </BorderPane>
+        <VBox minHeight="90"
+              maxWidth="${header.maxWidth}" prefWidth="${header.prefWidth}" minWidth="${header.minWidth}">
+            <style>
+                -fx-background-radius: 0 0 5 5;
+                -fx-background-color: rgb(255,255,255,0.87);
+            </style>
+            <StackPane fx:id="listOverlay">
+                <JFXListView fx:id="items" prefHeight="100" styleClass="thin-scroll-bar"/>
+            </StackPane>
+        </VBox>
+    </VBox>
+    <!--<BorderPane>-->
+    <!--<left>-->
+    <!--<ImageView/>-->
+    <!--</left>-->
+    <!--<right>-->
+    <!--<JFXButton/>-->
+    <!--</right>-->
+    <!--</BorderPane>-->
+</StackPane>

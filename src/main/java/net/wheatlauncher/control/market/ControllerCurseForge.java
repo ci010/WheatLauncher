@@ -22,14 +22,18 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import net.launcher.control.ImageCell;
-import net.launcher.services.curseforge.*;
+import net.launcher.services.curseforge.CurseForgeCategory;
+import net.launcher.services.curseforge.CurseForgeProject;
+import net.launcher.services.curseforge.CurseForgeProjectType;
+import net.launcher.services.curseforge.CurseForgeService;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
 import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
-import org.ehcache.config.builders.CacheManagerBuilder;
 import org.ehcache.config.builders.ResourcePoolsBuilder;
 import org.ehcache.config.units.MemoryUnit;
+
+import java.util.Optional;
 
 /**
  * @author ci010
@@ -43,6 +47,11 @@ public class ControllerCurseForge
 	public JFXComboBox<CurseForgeService.VersionCode> gameVersions;
 	public JFXTextField searchField;
 	public StackPane listOverlay;
+	public JFXDialog card;
+	public StackPane root;
+
+	public ControllerCurseForgeCard cardPageController;
+	public StackPane cardPage;
 
 	private CurseForgeService service;
 	private Cache<String, Image> projectImageCache;
@@ -107,11 +116,12 @@ public class ControllerCurseForge
 		CacheConfiguration<String, Image> cof = CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, Image.class,
 				ResourcePoolsBuilder.newResourcePoolsBuilder().heap(32, MemoryUnit.MB))
 				.build();
-		CacheManager manager = CacheManagerBuilder.newCacheManagerBuilder().withCache("projectImageCache", cof).withCache
-				("categoryImageCache", cof).build(true);
-
-		projectImageCache = manager.getCache("projectImageCache", String.class, Image.class);
-		categoryImageCache = manager.getCache("categoryImageCache", String.class, Image.class);
+		Optional<CacheManager> component = ARML.instance().getComponent(CacheManager.class);
+		if (!component.isPresent())
+			return;
+		CacheManager manager = component.get();
+		projectImageCache = manager.createCache("projectImageCache", cof);
+		categoryImageCache = manager.createCache("categoryImageCache", cof);
 
 		JFXDepthManager.setDepth(list, 2);
 		projectTypes.getItems().setAll(CurseForgeProjectType.values());
@@ -167,6 +177,12 @@ public class ControllerCurseForge
 		{
 			private ImageCell<CurseForgeProject> cell = projectCell();
 
+			{
+				setOnMouseClicked(Event::consume);
+				setOnMousePressed(Event::consume);
+				setOnMouseReleased(Event::consume);
+			}
+
 			@Override
 			public void updateItem(CurseForgeProject item, boolean empty)
 			{
@@ -189,30 +205,32 @@ public class ControllerCurseForge
 				}
 			}
 		});
-		ARML.taskCenter().runTask(new Task<CurseForgeService>()
-		{
-			@Override
-			protected CurseForgeService call() throws Exception
-			{
-				return CurseForgeServices.newService(CurseForgeProjectType.TexturePacks);
-			}
-		}).addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED, event ->
-		{
-			Object value = event.getSource().getValue();
-			service = (CurseForgeService) value;
-			category.getItems().addAll(service.getCategories());
-			options.getItems().setAll(service.getSortedOptions());
-			gameVersions.getItems().setAll(service.getGameVersionConstrains());
-			category.getSelectionModel().select(0);
-			options.getSelectionModel().select(0);
-			gameVersions.getSelectionModel().select(0);
-			refreshService.restart();
-		});
+
+		Optional<CurseForgeService> curseForgeServiceOptional = ARML.instance().getComponent(CurseForgeService.class);
+		if (!curseForgeServiceOptional.isPresent()) return;
+
+		this.service = curseForgeServiceOptional.get();
+		category.getItems().addAll(this.service.getCategories());
+		options.getItems().setAll(this.service.getSortedOptions());
+		gameVersions.getItems().setAll(this.service.getGameVersionConstrains());
+		category.getSelectionModel().select(0);
+		options.getSelectionModel().select(0);
+		gameVersions.getSelectionModel().select(0);
+		refreshService.restart();
 
 		InvalidationListener refresh = observable -> refreshService.restart();
 		category.getSelectionModel().selectedIndexProperty().addListener(refresh);
 		gameVersions.getSelectionModel().selectedIndexProperty().addListener(refresh);
 		options.getSelectionModel().selectedItemProperty().addListener(refresh);
+
+		card.setContentHolderBackground(new Background(new BackgroundFill(Color.TRANSPARENT, null,
+				null)));
+	}
+
+	private void details(CurseForgeProject project)
+	{
+		cardPageController.project.setValue(project);
+		card.show((StackPane) root.getParent().getScene().getRoot());
 	}
 
 	private ImageCell<CurseForgeProject> projectCell()
@@ -223,12 +241,13 @@ public class ControllerCurseForge
 				JFXButton download = new JFXButton();
 				download.prefWidthProperty().bind(imageContainer.widthProperty());
 				download.prefHeightProperty().bind(imageContainer.heightProperty());
-				Icon icon = new Icon("DOWNLOAD");
+				Icon icon = new Icon("LIST_UL");
 				icon.setPadding(new Insets(10));
 				icon.setTextFill(Color.WHITE);
 				download.setBackground(new Background(new BackgroundFill(new Color(0, 0, 0, 0.8),
 						CornerRadii.EMPTY, Insets.EMPTY)));
 				download.setGraphic(icon);
+				download.setOnAction(event -> details(getValue()));
 
 				HBox btnOverlay = new HBox();
 				btnOverlay.visibleProperty().bind(Bindings.createBooleanBinding(this::isHover, this.hoverProperty()));

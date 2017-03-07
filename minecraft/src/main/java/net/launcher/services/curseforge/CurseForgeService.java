@@ -21,6 +21,8 @@ public interface CurseForgeService
 	 */
 	CurseForgeProjectType getRequestingProjectType();
 
+	void setRequestingProjectType(CurseForgeProjectType type) throws IOException;
+
 	/**
 	 * Search project by keyword。
 	 *

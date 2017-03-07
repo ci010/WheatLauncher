@@ -46,4 +46,8 @@
             </VBox>
         </HBox>
     </VBox>
+    <JFXDialog fx:id="card">
+        <fx:include fx:id="cardPage" source="CurseForgeCard.fxml"/>
+    </JFXDialog>
+
 </StackPane>
