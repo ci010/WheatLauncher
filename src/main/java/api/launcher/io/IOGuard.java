@@ -29,7 +29,10 @@ public abstract class IOGuard<T>
 		Objects.requireNonNull(context);
 		if (this.context != null) throw new IllegalStateException();
 		this.context = context;
+		onInit();
 	}
+
+	protected void onInit() {}
 
 	public final T load() throws IOException
 	{

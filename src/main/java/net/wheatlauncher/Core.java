@@ -4,7 +4,6 @@ import api.launcher.*;
 import api.launcher.event.ErrorEvent;
 import api.launcher.event.LaunchEvent;
 import api.launcher.event.LauncherInitEvent;
-import api.launcher.event.ModuleLoadedEvent;
 import api.launcher.io.IOGuardContext;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
@@ -18,7 +17,7 @@ import net.launcher.assets.IOGuardMinecraftAssetsManager;
 import net.launcher.assets.IOGuardMinecraftWorldManager;
 import net.launcher.auth.IOGuardAuth;
 import net.launcher.game.ServerInfo;
-import net.launcher.mod.ModManagerBuilder;
+import net.launcher.mod.IOGuardModManager;
 import net.launcher.resourcepack.IOGuardResourcePackManager;
 import net.launcher.services.curseforge.CurseForgeProjectType;
 import net.launcher.services.curseforge.CurseForgeService;
@@ -33,7 +32,6 @@ import org.to2mbn.jmccc.option.LaunchOption;
 import org.to2mbn.jmccc.option.MinecraftDirectory;
 import org.to2mbn.jmccc.version.Version;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -154,6 +152,7 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 				.register(MinecraftAssetsManager.class, new IOGuardMinecraftAssetsManager())
 				.register(MinecraftWorldManager.class, new IOGuardMinecraftWorldManager())
 				.register(ResourcePackManager.class, new IOGuardResourcePackManager())
+				.register(ModManager.class, new IOGuardModManager())
 				.register(MinecraftServerManager.class, new IOGuardMinecraftServerManager());
 
 		ARML.bus().postEvent(new LauncherInitEvent.Register()).getRegisteredIO().forEach(builder::register);
@@ -167,12 +166,13 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 		this.assetsManager = ioContext.load(MinecraftAssetsManager.class);
 		this.worldManager = ioContext.load(MinecraftWorldManager.class);
 		this.resourcePackManager = ioContext.load(ResourcePackManager.class);
+		this.modManager = ioContext.load(ModManager.class);
 
-		Path mods = this.getRoot().resolve("mods");
-		Files.createDirectories(mods);
-		this.modManager = ModManagerBuilder.create(mods).build();
-		ARML.bus().postEvent(new ModuleLoadedEvent<>(modManager));
-		modManager.update().run();
+//		Path mods = this.getRoot().resolve("mods");
+//		Files.createDirectories(mods);
+//		this.modManager = ModManagerBuilder.create(mods).build();
+//		ARML.bus().postEvent(new ModuleLoadedEvent<>(modManager));
+//		modManager.update().run();
 
 		CacheManager manager = CacheManagerBuilder.newCacheManagerBuilder().build(true);
 		ARML.instance().registerComponent(CacheManager.class, manager);

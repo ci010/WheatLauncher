@@ -26,8 +26,21 @@ public class SettingMinecraft extends SettingType
 		INSTANCE = (SettingMinecraft) SettingManager.find("Minecraft").orElse(null);
 	}
 
+	public final OptionInt FOV = new OptionInt(this, "fov", 70, 30, 110)
+	{
+		@Override
+		public Number deserialize(String s)
+		{
+			return super.deserialize(s).doubleValue() * 40 + 70;
+		}
+
+		@Override
+		public String serialize(Object tValue)
+		{
+			return "" + ((((Number) tValue).doubleValue() - 70F) / 40);
+		}
+	};
 	public final OptionInt
-			FOV = new OptionInt(this, "fov", 70, 30, 110),
 			MAXFPS = new OptionInt(this, "maxFps", 120, 10, 260).setStep(10),
 			RENDER_DISTANCE = new OptionInt(this, "renderDistance", 12, 2, 32),
 			MIPMAP_LEVELS = new OptionInt(this, "mipmapLevels", 4, 0, 4),

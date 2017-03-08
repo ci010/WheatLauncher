@@ -4,7 +4,6 @@ import api.launcher.ARML;
 import api.launcher.LaunchProfile;
 import api.launcher.MinecraftIcons;
 import api.launcher.ModManager;
-import api.launcher.event.LaunchEvent;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
@@ -35,7 +34,7 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ServerStatus.M
 {
 	private ArchiveRepository<ForgeMod[]> archiveResource;
 
-	private Map<String, String> hashMap = new TreeMap<>();
+	Map<String, String> hashMap = new TreeMap<>();
 	private Map<String, ForgeMod> instanceMap = new TreeMap<>();
 
 	private ObservableList<ForgeMod> list;
@@ -72,21 +71,6 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ServerStatus.M
 					instanceMap.remove(s);
 					list.remove(release);
 				}
-		});
-		ARML.bus().addEventHandler(LaunchEvent.PRE_LAUNCH, event ->
-		{
-			ARML.logger().info("Start to handle the mods handling");
-			ObservableList<ForgeMod> mods = getIncludeElementContainer(event.getProfile());
-			mods.stream().map(mod -> hashMap.get(getModKey(mod))).forEach(
-					s ->
-					{
-						Task<Delivery<ForgeMod[]>> task = archiveResource.fetchResource(
-								event.getOption().getMinecraftDirectory().getRoot().toPath().resolve("mods"),
-								s, FetchOption.HARD_LINK);
-						ARML.taskCenter().listenTask(task);
-						task.run();
-					}
-			);
 		});
 	}
 
@@ -168,7 +152,7 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ServerStatus.M
 		return TransformTask.create("mod.import", archiveResource.importResource(path), Resource::getContainData);
 	}
 
-	private String getModKey(ForgeMod forgeMod)
+	String getModKey(ForgeMod forgeMod)
 	{
 		return forgeMod.getModId() + ":" + forgeMod.getMetaData().getVersion();
 	}

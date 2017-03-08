@@ -141,6 +141,7 @@ public class ServerStatus
 		public ModInfo(String type, Map<String, String> modIdVersions, boolean isBlocked)
 		{
 			this.type = type;
+			System.out.println(modIdVersions);
 			this.modIdVersions = modIdVersions;
 			this.isBlocked = isBlocked;
 		}
