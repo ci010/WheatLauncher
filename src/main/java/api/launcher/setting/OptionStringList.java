@@ -1,4 +1,4 @@
-package net.launcher.setting;
+package api.launcher.setting;
 
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.BooleanBinding;

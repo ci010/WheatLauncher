@@ -23,6 +23,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
+import net.launcher.LaunchProfileImpl;
 
 import java.util.List;
 
@@ -182,7 +183,7 @@ public class ProfileSelectContent extends StackPane
 					profile = profileFactory.call(name);
 				else
 				{
-					profile = new LaunchProfile();
+					profile = new LaunchProfileImpl();
 					profile.setDisplayName(name);
 				}
 

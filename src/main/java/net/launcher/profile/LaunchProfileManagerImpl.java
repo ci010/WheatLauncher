@@ -11,6 +11,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import net.launcher.LaunchProfileImpl;
 
 import java.util.List;
 import java.util.Objects;
@@ -74,7 +75,7 @@ public class LaunchProfileManagerImpl implements LaunchProfileManager
 	public LaunchProfile newProfile(String name)
 	{
 		Objects.requireNonNull(name);
-		LaunchProfile profile = new LaunchProfile();
+		LaunchProfile profile = new LaunchProfileImpl();
 		createConsumer.accept(profile);
 		profile.setDisplayName(name);
 		reg0(profile);

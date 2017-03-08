@@ -1,5 +1,7 @@
-package net.launcher.setting;
+package net.wheatlauncher;
 
+import api.launcher.SettingMinecraft;
+import api.launcher.setting.*;
 import net.launcher.io.MappedStorageType;
 import net.launcher.utils.NIOUtils;
 
@@ -16,15 +18,9 @@ import java.util.stream.Collectors;
 /**
  * @author ci010
  */
-public class SettingMinecraft extends SettingType
+public class SettingMinecraftImpl extends SettingMinecraft
 {
-	public static final SettingMinecraft INSTANCE;
-
-	static
-	{
-		SettingManager.register(SettingMinecraft.class);
-		INSTANCE = (SettingMinecraft) SettingManager.find("Minecraft").orElse(null);
-	}
+	public static SettingMinecraftImpl INSTANCE;
 
 	public final OptionInt FOV = new OptionInt(this, "fov", 70, 30, 110)
 	{
@@ -60,6 +56,54 @@ public class SettingMinecraft extends SettingType
 	public final Option<String> LANGUAGE = new OptionString(this, "lang", "en_US");
 	public final Option<String[]> RESOURCE_PACE = new OptionJSONArray(this, "resourcePacks");
 
+	@Override
+	public OptionInt getFOV() {return FOV;}
+
+	@Override
+	public OptionInt getMaxFPS() {return MAXFPS;}
+
+	@Override
+	public OptionInt getRenderDistance() {return RENDER_DISTANCE;}
+
+	@Override
+	public OptionInt getMipmapLevels() {return MIPMAP_LEVELS;}
+
+	@Override
+	public OptionInt getParticles() {return PARTICLES;}
+
+	@Override
+	public OptionInt getAmbientOcclusion() {return AMBIENT_OCCLUSION;}
+
+	@Override
+	public Option<Boolean> getAnaglyph3D() {return ANAGLYPH3D;}
+
+	@Override
+	public Option<Boolean> getEnableVsync() {return ENABLE_VSYNC;}
+
+	@Override
+	public Option<Boolean> getFboEnable() {return FBO_ENABLE;}
+
+	@Override
+	public Option<Boolean> getRenderClouds() {return RENDER_CLOUDS;}
+
+	@Override
+	public Option<Boolean> getUseVbo() {return USE_VBO;}
+
+	@Override
+	public Option<Boolean> getGraphic() {return GRAPHIC;}
+
+	@Override
+	public Option<Boolean> getEntityShadows() {return ENTITY_SHADOWS;}
+
+	@Override
+	public Option<Boolean> getForceUnicode() {return FORCE_UNICODE;}
+
+	@Override
+	public Option<String> getLanguage() {return LANGUAGE;}
+
+	@Override
+	public Option<String[]> getResourcePace() {return RESOURCE_PACE;}
+
 	private final List<Option<?>> all = new ArrayList<>();
 
 	{
@@ -80,6 +124,7 @@ public class SettingMinecraft extends SettingType
 		all.add(RESOURCE_PACE);
 		all.add(FORCE_UNICODE);
 	}
+
 
 	@Override
 	public String getID()

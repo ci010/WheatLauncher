@@ -5,6 +5,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import net.launcher.LaunchProfileImpl;
 import net.launcher.control.profile.base.ProfileSelector;
 import net.launcher.control.profile.base.ProfileTableSelector;
 import net.wheatlauncher.MainApplication;
@@ -23,7 +24,7 @@ public class ProfileTest extends Application
 	public void start(Stage primaryStage) throws Exception
 	{
 		StackPane pane = new StackPane();
-		LaunchProfile a = new LaunchProfile(), b = new LaunchProfile();
+		LaunchProfile a = new LaunchProfileImpl(), b = new LaunchProfileImpl();
 		a.setDisplayName("Default");
 		b.setDisplayName("1.7.10");
 

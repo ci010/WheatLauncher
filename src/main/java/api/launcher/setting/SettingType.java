@@ -1,4 +1,5 @@
-package net.launcher.setting;
+package api.launcher.setting;
+
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -13,9 +14,9 @@ public abstract class SettingType
 
 	public abstract List<Option<?>> getAllOption();
 
-	public abstract Setting load(Path minecraftFolder) throws IOException;
-
 	public abstract Setting defaultInstance();
+
+	public abstract Setting load(Path minecraftFolder) throws IOException;
 
 	public abstract void save(Path minecraftFolder, Setting setting) throws IOException;
 

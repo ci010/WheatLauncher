@@ -1,5 +1,8 @@
 package net.launcher.mod;
 
+import api.launcher.setting.Setting;
+import api.launcher.setting.SettingProperty;
+import api.launcher.setting.SettingType;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
@@ -7,10 +10,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import net.launcher.game.ServerStatus;
-import net.launcher.setting.Setting;
-import net.launcher.setting.SettingManager;
-import net.launcher.setting.SettingProperty;
-import net.launcher.setting.SettingType;
 import net.launcher.utils.NIOUtils;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 
@@ -25,12 +24,12 @@ import java.util.List;
  */
 public class SettingMod extends SettingType
 {
-	public static final SettingMod INSTANCE;
+	public static SettingMod INSTANCE;
 
 	static
 	{
-		SettingManager.register(SettingMod.class);
-		INSTANCE = (SettingMod) SettingManager.find("Forge").get();
+//		SettingManager.register(SettingMod.class);
+//		INSTANCE = (SettingMod) SettingManager.find("Forge").get();
 	}
 
 	public final Option<ServerStatus.ModInfo> MODS = new Option<ServerStatus.ModInfo>(this, "mods")
@@ -127,6 +126,7 @@ public class SettingMod extends SettingType
 			ServerStatus.ModInfo stat = MODS.deserialize(s);
 			Setting of = Setting.of(this);
 			of.getOption(MODS).setValue(stat);
+			return of;
 		}
 		return null;
 	}

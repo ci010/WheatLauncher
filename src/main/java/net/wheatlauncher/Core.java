@@ -18,11 +18,11 @@ import net.launcher.assets.IOGuardMinecraftWorldManager;
 import net.launcher.auth.IOGuardAuth;
 import net.launcher.game.ServerInfo;
 import net.launcher.mod.IOGuardModManager;
+import net.launcher.mod.SettingMod;
 import net.launcher.resourcepack.IOGuardResourcePackManager;
 import net.launcher.services.curseforge.CurseForgeProjectType;
 import net.launcher.services.curseforge.CurseForgeService;
 import net.launcher.services.curseforge.CurseForgeServices;
-import net.launcher.setting.SettingMinecraft;
 import org.ehcache.CacheManager;
 import org.ehcache.config.builders.CacheManagerBuilder;
 import org.to2mbn.jmccc.launch.Launcher;
@@ -144,7 +144,8 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 
 		this.root = root;
 
-		SettingMinecraft.INSTANCE.getID();
+		SettingMinecraft settingMinecraft = new SettingMinecraftImpl();
+		SettingMod settingMod = new SettingMod();
 
 		IOGuardContextScheduled.Builder builder = IOGuardContextScheduled.Builder.create(this.root, ARML.async())
 				.register(LaunchProfileManager.class, new IOGuardProfile())

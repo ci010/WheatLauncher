@@ -1,5 +1,8 @@
 package net.launcher.control;
 
+import api.launcher.setting.OptionInt;
+import api.launcher.setting.SettingProperty;
+import api.launcher.setting.SettingType;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXSlider;
 import javafx.beans.DefaultProperty;
@@ -10,9 +13,6 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.layout.StackPane;
-import net.launcher.setting.OptionInt;
-import net.launcher.setting.SettingProperty;
-import net.launcher.setting.SettingType;
 
 /**
  * @author ci010

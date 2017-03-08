@@ -3,17 +3,18 @@ package net.wheatlauncher;
 import api.launcher.ARML;
 import api.launcher.LaunchProfile;
 import api.launcher.LaunchProfileManager;
+import api.launcher.event.CollectSettingEvent;
 import api.launcher.event.LaunchEvent;
 import api.launcher.io.IOGuard;
 import api.launcher.io.IOGuardContext;
+import api.launcher.setting.Setting;
+import api.launcher.setting.SettingProperty;
+import api.launcher.setting.SettingType;
 import javafx.collections.MapChangeListener;
+import net.launcher.LaunchProfileImpl;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
 import net.launcher.profile.LaunchProfileManagerBuilder;
-import net.launcher.setting.Setting;
-import net.launcher.setting.SettingManager;
-import net.launcher.setting.SettingProperty;
-import net.launcher.setting.SettingType;
 import net.launcher.utils.NIOUtils;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 
@@ -49,7 +50,7 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 	private LaunchProfile deserialize(NBT nbt)
 	{
 		NBTCompound compound = nbt.asCompound();
-		LaunchProfile launchProfile = new LaunchProfile(compound.get("id").asString());
+		LaunchProfile launchProfile = new LaunchProfileImpl(compound.get("id").asString());
 		launchProfile.setDisplayName(compound.get("name").asString());
 		launchProfile.setJavaEnvironment(new JavaEnvironment(new File(compound.get("java").asString())));
 		launchProfile.setMemory(compound.get("memory").asInt());
@@ -75,7 +76,6 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 	{
 		Path profileRoot = getProfileDir(profile.getId());
 		Path copyRoot = getProfileDir(copy.getId());
-
 
 	}
 
@@ -104,7 +104,9 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 			profilesRecord = read.get("profiles").asList().stream().map(NBT::asString).collect(Collectors.toList());
 		}
 
-		ArrayList<SettingType> list = new ArrayList<>(SettingManager.getAllSetting().values());
+		CollectSettingEvent event = ARML.bus().postEvent(new CollectSettingEvent());
+		List<SettingType> list = event.getTypes();
+
 		List<LaunchProfile> profilesList = new ArrayList<>();
 
 		Files.walkFileTree(getProfilesRoot(), Collections.emptySet(), 2, new SimpleFileVisitor<Path>()
@@ -200,7 +202,7 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 		ARML.bus().addEventHandler(LaunchEvent.GAME_EXIT, event ->
 		{
 			isLoading = true;
-			ArrayList<SettingType> list = new ArrayList<>(SettingManager.getAllSetting().values());
+			ArrayList<SettingType> list = null;//new ArrayList<>(SettingManager.getAllSetting().values());
 			try
 			{
 				Files.walkFileTree(getProfilesRoot(), Collections.emptySet(), 2, new SimpleFileVisitor<Path>()

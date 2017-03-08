@@ -141,7 +141,6 @@ public class ServerStatus
 		public ModInfo(String type, Map<String, String> modIdVersions, boolean isBlocked)
 		{
 			this.type = type;
-			System.out.println(modIdVersions);
 			this.modIdVersions = modIdVersions;
 			this.isBlocked = isBlocked;
 		}
@@ -190,11 +189,9 @@ public class ServerStatus
 			return modinfo;
 		}, (serialized, context) ->
 		{
-			JSONObject modinfo = serialized.optJSONObject("modinfo");
-			if (modinfo == null) return new ModInfo("", Collections.emptyMap(), false);
-			String type = modinfo.optString("type");
-			JSONArray array = modinfo.getJSONArray("modList");
-			boolean moddedClientAllowed = !modinfo.has("clientModsAllowed") || modinfo.getBoolean("clientModsAllowed");
+			String type = serialized.optString("type");
+			JSONArray array = serialized.getJSONArray("modList");
+			boolean moddedClientAllowed = !serialized.has("clientModsAllowed") || serialized.getBoolean("clientModsAllowed");
 			Map<String, String> modVersions = new TreeMap<>();
 			for (int i = 0; i < array.length(); i++)
 			{

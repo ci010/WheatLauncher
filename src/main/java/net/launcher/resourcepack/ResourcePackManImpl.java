@@ -3,6 +3,8 @@ package net.launcher.resourcepack;
 import api.launcher.LaunchProfile;
 import api.launcher.MinecraftIcons;
 import api.launcher.ResourcePackManager;
+import api.launcher.setting.Setting;
+import api.launcher.setting.SettingType;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
@@ -11,12 +13,10 @@ import javafx.scene.image.Image;
 import net.launcher.OptionLaunchElementManager;
 import net.launcher.TransformTask;
 import net.launcher.game.ResourcePack;
-import net.launcher.setting.Setting;
-import net.launcher.setting.SettingMinecraft;
-import net.launcher.setting.SettingType;
 import net.launcher.utils.resource.ArchiveRepository;
 import net.launcher.utils.resource.FetchOption;
 import net.launcher.utils.resource.Resource;
+import net.wheatlauncher.SettingMinecraftImpl;
 import org.to2mbn.jmccc.option.LaunchOption;
 
 import java.io.InputStream;
@@ -69,7 +69,7 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	@Override
 	protected SettingType.Option<String[]> getOption()
 	{
-		return SettingMinecraft.INSTANCE.RESOURCE_PACE;
+		return SettingMinecraftImpl.INSTANCE.RESOURCE_PACE;
 	}
 
 	@Override

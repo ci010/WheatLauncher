@@ -1,11 +1,11 @@
 package net.launcher.control;
 
+import api.launcher.setting.SettingProperty;
 import com.jfoenix.controls.JFXButton;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import net.launcher.setting.SettingProperty;
 
 import java.util.Objects;
 import java.util.ResourceBundle;

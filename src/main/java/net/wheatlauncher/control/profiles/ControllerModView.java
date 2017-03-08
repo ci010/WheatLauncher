@@ -74,8 +74,9 @@ public class ControllerModView
 		});
 		enableModsBinding.addListener(observable ->
 				enable.textProperty().bind(Bindings.createStringBinding(() ->
-								enableModsBinding.get().contains(mods.getSelectionModel().getSelectedItem()) ? resources.getString
-										("disable") : resources.getString("enable"),
+								enableModsBinding.get().contains(mods.getSelectionModel().getSelectedItem()) ?
+										resources.getString("disable") :
+										resources.getString("enable"),
 						mods.getSelectionModel().selectedIndexProperty(), enableModsBinding.get())));
 
 		enable.disableProperty().bind(Bindings.createBooleanBinding(() -> mods.getSelectionModel().isEmpty(), mods

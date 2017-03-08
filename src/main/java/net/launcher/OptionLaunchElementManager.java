@@ -1,12 +1,12 @@
 package net.launcher;
 
 import api.launcher.LaunchProfile;
+import api.launcher.setting.Setting;
+import api.launcher.setting.SettingProperty;
+import api.launcher.setting.SettingType;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import net.launcher.setting.Setting;
-import net.launcher.setting.SettingProperty;
-import net.launcher.setting.SettingType;
 import org.to2mbn.jmccc.option.LaunchOption;
 
 import java.lang.ref.WeakReference;
@@ -38,6 +38,7 @@ public abstract class OptionLaunchElementManager<T, O> implements LaunchElementM
 			profile.addGameSetting(setting = getOption().getParent().defaultInstance());
 		else setting = optional.get();
 		SettingProperty<O> option = setting.getOption(getOption());
+		System.out.println(option.getName());
 		O value = option.getValue();
 		if (value != null)
 			list = FXCollections.observableList(from(value));

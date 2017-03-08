@@ -2,6 +2,10 @@ package net.wheatlauncher.control.profiles;
 
 import api.launcher.ARML;
 import api.launcher.LaunchProfile;
+import api.launcher.setting.OptionInt;
+import api.launcher.setting.Setting;
+import api.launcher.setting.SettingProperty;
+import api.launcher.setting.SettingType;
 import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.effects.JFXDepthManager;
 import javafx.beans.binding.Bindings;
@@ -12,7 +16,7 @@ import net.launcher.control.MinecraftOptionButton;
 import net.launcher.control.MinecraftOptionMemory;
 import net.launcher.control.MinecraftOptionResolution;
 import net.launcher.control.MinecraftSlider;
-import net.launcher.setting.*;
+import net.wheatlauncher.SettingMinecraftImpl;
 
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -52,22 +56,22 @@ public class ControllerGameSetting
 		missingFileIndicator.setVisible(false);
 
 		LaunchProfile selecting = ARML.core().getProfileManager().selecting();
-		Optional<Setting> optional = selecting.getGameSetting(SettingMinecraft.INSTANCE);
+		Optional<Setting> optional = selecting.getGameSetting(SettingMinecraftImpl.INSTANCE);
 		Setting setting;
 		if (!optional.isPresent())
-			selecting.addGameSetting(setting = SettingMinecraft.INSTANCE.defaultInstance());// force the minecraft// setting exist
+			selecting.addGameSetting(setting = SettingMinecraftImpl.INSTANCE.defaultInstance());// force the minecraft// setting exist
 		else setting = optional.get();
 
-		setup(maxFPS, SettingMinecraft.INSTANCE.MAXFPS);
-		setup(renderDistance, SettingMinecraft.INSTANCE.RENDER_DISTANCE);
-		setup(entityShadow, SettingMinecraft.INSTANCE.ENTITY_SHADOWS);
-		setup(renderCloud, SettingMinecraft.INSTANCE.RENDER_CLOUDS);
-		setup(enableFBO, SettingMinecraft.INSTANCE.FBO_ENABLE);
-		setup(enableVBO, SettingMinecraft.INSTANCE.USE_VBO);
-		setup(graphic, SettingMinecraft.INSTANCE.GRAPHIC);
-		setup(mipmap, SettingMinecraft.INSTANCE.MIPMAP_LEVELS, setting);
-		setup(particle, SettingMinecraft.INSTANCE.PARTICLES, setting);
-		setup(ambientOcclusion, SettingMinecraft.INSTANCE.AMBIENT_OCCLUSION, setting);
+		setup(maxFPS, SettingMinecraftImpl.INSTANCE.MAXFPS);
+		setup(renderDistance, SettingMinecraftImpl.INSTANCE.RENDER_DISTANCE);
+		setup(entityShadow, SettingMinecraftImpl.INSTANCE.ENTITY_SHADOWS);
+		setup(renderCloud, SettingMinecraftImpl.INSTANCE.RENDER_CLOUDS);
+		setup(enableFBO, SettingMinecraftImpl.INSTANCE.FBO_ENABLE);
+		setup(enableVBO, SettingMinecraftImpl.INSTANCE.USE_VBO);
+		setup(graphic, SettingMinecraftImpl.INSTANCE.GRAPHIC);
+		setup(mipmap, SettingMinecraftImpl.INSTANCE.MIPMAP_LEVELS, setting);
+		setup(particle, SettingMinecraftImpl.INSTANCE.PARTICLES, setting);
+		setup(ambientOcclusion, SettingMinecraftImpl.INSTANCE.AMBIENT_OCCLUSION, setting);
 	}
 
 	private void setup(MinecraftSlider slider, OptionInt option)
@@ -107,10 +111,10 @@ public class ControllerGameSetting
 
 	private Setting ensureSetting(LaunchProfile profile)
 	{
-		Optional<Setting> optional = profile.getGameSetting(SettingMinecraft.INSTANCE);
+		Optional<Setting> optional = profile.getGameSetting(SettingMinecraftImpl.INSTANCE);
 		Setting setting;
 		if (!optional.isPresent())
-			profile.addGameSetting(setting = SettingMinecraft.INSTANCE.defaultInstance());// force the minecraft// setting exist
+			profile.addGameSetting(setting = SettingMinecraftImpl.INSTANCE.defaultInstance());// force the minecraft// setting exist
 		else setting = optional.get();
 		return setting;
 	}

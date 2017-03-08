@@ -1,4 +1,4 @@
-package net.launcher.setting;
+package api.launcher.setting;
 
 import javafx.beans.property.SimpleObjectProperty;
 import org.to2mbn.jmccc.internal.org.json.JSONArray;
