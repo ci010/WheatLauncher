@@ -23,7 +23,6 @@
                                   style="-fx-background-color:TRANSPARENT;">
                     <fx:include fx:id="profileChooser" source="MinecraftProfileChooserPane.fxml"/>
                 </ComboBoxDelegate>
-                <!--<ProfileTableSelector fx:id="profile" maxWidth="250" prefWidth="200"/>-->
             </StackPane>
         </VBox>
         <VBox alignment="CENTER" spacing="10" prefWidth="175" maxWidth="175"
