@@ -2,6 +2,7 @@ package net.wheatlauncher;
 
 import api.launcher.ARML;
 import api.launcher.event.ErrorEvent;
+import api.launcher.event.LaunchEvent;
 import api.launcher.event.LauncherInitEvent;
 import com.jfoenix.controls.JFXSnackbar;
 import javafx.application.Application;
@@ -219,6 +220,9 @@ public class MainApplication extends Application
 		previewPage = fxmlLoader.load();
 //		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Preview.fxml"), bundle);
 
+		javafx.application.Platform.setImplicitExit(false);
+//		URL icon = MainApplication.class.getResource("/assets/texture/pack.png");
+//		javax.swing.SwingUtilities.invokeLater(() -> FXSystemTray.createTray(stage, icon));
 
 		StackPane base = new StackPane(loginPage);
 		root.getChildren().add(0, base);
@@ -257,6 +261,19 @@ public class MainApplication extends Application
 				reportError(root.getScene(), message);
 			}
 		});
+		ARML.bus().addEventHandler(LaunchEvent.POST_LAUNCH, event ->
+				runJFXThread(stage::hide));
+
+		ARML.bus().addEventHandler(LaunchEvent.GAME_EXIT, event ->
+				runJFXThread(stage::show));
+	}
+
+	private void runJFXThread(Runnable runnable)
+	{
+		if (javafx.application.Platform.isFxApplicationThread())
+			runnable.run();
+		else
+			javafx.application.Platform.runLater(runnable);
 	}
 
 	private void switchTo(String id)

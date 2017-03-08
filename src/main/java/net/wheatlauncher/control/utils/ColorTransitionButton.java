@@ -8,6 +8,7 @@ import com.sun.javafx.css.converters.InsetsConverter;
 import com.sun.javafx.css.converters.PaintConverter;
 import com.sun.javafx.scene.layout.region.CornerRadiiConverter;
 import javafx.animation.Animation;
+import javafx.beans.InvalidationListener;
 import javafx.beans.value.WritableValue;
 import javafx.css.*;
 import javafx.geometry.Insets;
@@ -30,11 +31,13 @@ import java.util.List;
 public class ColorTransitionButton extends JFXButton
 {
 	private boolean shouldApplyCss = true;
+	private InvalidationListener listener;
 
 	public ColorTransitionButton()
 	{
 		this.disableProperty().addListener(observable -> super.impl_processCSS(null));
 		this.getStyleClass().add(DEFAULT_STYLE_CLASS);
+
 	}
 
 	@Override
@@ -47,7 +50,14 @@ public class ColorTransitionButton extends JFXButton
 	protected void impl_processCSS(WritableValue<Boolean> unused)
 	{
 		if (shouldApplyCss)
+		{
+			if (listener == null)
+			{
+				listener = observable -> shouldApplyCss = true;
+				this.getScene().getWindow().showingProperty().addListener(listener);
+			}
 			super.impl_processCSS(unused);
+		}
 		shouldApplyCss = false;
 	}
 

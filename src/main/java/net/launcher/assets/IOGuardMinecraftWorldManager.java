@@ -51,7 +51,7 @@ public class IOGuardMinecraftWorldManager extends IOGuard<MinecraftWorldManager>
 	protected void deploy() throws IOException
 	{
 		Files.createDirectories(getContext().getRoot().resolve("saves"));
-		ARML.bus().addEventHandler(LaunchEvent.LAUNCH_EVENT, event ->
+		ARML.bus().addEventHandler(LaunchEvent.PRE_LAUNCH, event ->
 		{
 			Task<Void> task = new Task<Void>()
 			{

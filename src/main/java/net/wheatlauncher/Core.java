@@ -115,7 +115,7 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 		option.setRuntimeDirectory(new MinecraftDirectory(root.resolve("profiles").resolve(selected.getId()).toFile()));
 		option.setWindowSize(selected.getResolution());
 
-		ARML.bus().postEvent(LaunchEvent.launch(option, selected));
+		ARML.bus().postEvent(LaunchEvent.preLaunch(option, selected));
 		ioContext.saveAll();
 
 		Launcher launcher = LauncherBuilder.create().nativeFastCheck(true).printDebugCommandline
@@ -134,6 +134,8 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 				ARML.bus().postEvent(LaunchEvent.exit(option, selected, code));
 			}
 		});
+
+		ARML.bus().postEvent(LaunchEvent.postLaunch(option, selected));
 	}
 
 

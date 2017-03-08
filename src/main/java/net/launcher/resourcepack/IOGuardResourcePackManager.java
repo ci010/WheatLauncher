@@ -47,7 +47,7 @@ public class IOGuardResourcePackManager extends IOGuard<ResourcePackManager>
 	@Override
 	protected void deploy() throws IOException
 	{
-		ARML.bus().addEventHandler(LaunchEvent.LAUNCH_EVENT, event ->
+		ARML.bus().addEventHandler(LaunchEvent.PRE_LAUNCH, event ->
 		{
 			ARML.taskCenter().runSimpleTask("CleaOldResource", () -> NIOUtils.clearDirectory(event.getOption()
 					.getRuntimeDirectory()

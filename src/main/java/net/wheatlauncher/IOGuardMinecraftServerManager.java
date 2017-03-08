@@ -63,7 +63,7 @@ public class IOGuardMinecraftServerManager extends IOGuard<MinecraftServerManage
 	@Override
 	protected void deploy() throws IOException
 	{
-		ARML.bus().addEventHandler(LaunchEvent.LAUNCH_EVENT, event ->
+		ARML.bus().addEventHandler(LaunchEvent.PRE_LAUNCH, event ->
 		{
 			Path from = getContext().getRoot().resolve("servers.dat");
 			Path target = event.getOption().getRuntimeDirectory().getRoot().toPath().resolve("servers.dat");

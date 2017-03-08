@@ -73,7 +73,7 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ServerStatus.M
 					list.remove(release);
 				}
 		});
-		ARML.bus().addEventHandler(LaunchEvent.LAUNCH_EVENT, event ->
+		ARML.bus().addEventHandler(LaunchEvent.PRE_LAUNCH, event ->
 		{
 			ARML.logger().info("Start to handle the mods handling");
 			ObservableList<ForgeMod> mods = getIncludeElementContainer(event.getProfile());

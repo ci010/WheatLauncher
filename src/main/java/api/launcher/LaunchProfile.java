@@ -36,7 +36,7 @@ public class LaunchProfile
 	private StringProperty displayName = new SimpleStringProperty("");
 	private StringProperty version = new SimpleStringProperty();
 
-	//launch arg
+	//preLaunch arg
 	private ObjectProperty<WindowSize> resolution = new SimpleObjectProperty<>(WindowSize.window(856, 482));
 	private ObjectProperty<JavaEnvironment> javaEnvironment = new SimpleObjectProperty<>(JavaEnvironment.current());
 	private IntegerProperty memory = new SimpleIntegerProperty(512);
