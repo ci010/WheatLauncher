@@ -2,11 +2,13 @@ package net.launcher;
 
 import api.launcher.ARML;
 import api.launcher.MinecraftServerManager;
+import api.launcher.event.PingServerEvent;
 import api.launcher.event.ServerEvent;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import net.launcher.game.ServerInfo;
 import net.launcher.game.ServerStatus;
 import net.launcher.services.HandshakeTask;
@@ -76,7 +78,7 @@ public class MinecraftServerManagerImpl implements MinecraftServerManager
 	@Override
 	public Task<ServerStatus> fetchInfo(ServerInfo info)
 	{
-		return new Task<ServerStatus>()
+		Task<ServerStatus> task = new Task<ServerStatus>()
 		{
 			@Override
 			protected ServerStatus call() throws Exception
@@ -99,12 +101,18 @@ public class MinecraftServerManagerImpl implements MinecraftServerManager
 				}
 			}
 		};
+		task.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED, event ->
+		{
+			ServerStatus value = (ServerStatus) event.getSource().getValue();
+			ARML.bus().postEvent(new PingServerEvent(value, info));
+		});
+		return task;
 	}
 
 	@Override
 	public Task<ServerStatus> fetchInfoAndWaitPing(ServerInfo info)
 	{
-		return new Task<ServerStatus>()
+		Task<ServerStatus> task = new Task<ServerStatus>()
 		{
 			@Override
 			protected ServerStatus call() throws Exception
@@ -129,5 +137,11 @@ public class MinecraftServerManagerImpl implements MinecraftServerManager
 				}
 			}
 		};
+		task.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED, event ->
+		{
+			ServerStatus value = (ServerStatus) event.getSource().getValue();
+			ARML.bus().postEvent(new PingServerEvent(value, info));
+		});
+		return task;
 	}
 }

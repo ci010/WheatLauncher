@@ -1,7 +1,4 @@
-package api.launcher;
-
-import api.launcher.setting.OptionInt;
-import api.launcher.setting.SettingType;
+package api.launcher.setting;
 
 /**
  * @author ci010

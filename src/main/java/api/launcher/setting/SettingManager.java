@@ -1,7 +1,5 @@
 package api.launcher.setting;
 
-import api.launcher.SettingMinecraft;
-
 import java.util.List;
 import java.util.Optional;
 

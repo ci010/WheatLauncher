@@ -1,6 +1,5 @@
 package net.wheatlauncher;
 
-import api.launcher.SettingMinecraft;
 import api.launcher.setting.*;
 import net.launcher.io.MappedStorageType;
 import net.launcher.utils.NIOUtils;

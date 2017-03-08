@@ -2,11 +2,7 @@ package net.wheatlauncher.control.profiles;
 
 import api.launcher.ARML;
 import api.launcher.LaunchProfile;
-import api.launcher.SettingMinecraft;
-import api.launcher.setting.OptionInt;
-import api.launcher.setting.Setting;
-import api.launcher.setting.SettingProperty;
-import api.launcher.setting.SettingType;
+import api.launcher.setting.*;
 import com.jfoenix.controls.JFXSlider;
 import com.jfoenix.effects.JFXDepthManager;
 import javafx.beans.binding.Bindings;

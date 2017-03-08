@@ -19,19 +19,21 @@ public class ServerStatus
 		return new ServerStatus(new TextComponentString("unknown"), new TextComponentString("Pinging..."), -1, -1, -1);
 	}
 
-	public static ServerStatus unknownHost()
+	public static ServerStatus error(String errorMsg)
 	{
 		return new ServerStatus(new TextComponentString("unknown"),
-				new TextComponentString("Can\'t resolve hostname.").style(new Style().setColor(TextFormatting.DARK_RED))
+				new TextComponentString(errorMsg).style(new Style().setColor(TextFormatting.DARK_RED))
 				, -1, -1, -1);
+	}
+
+	public static ServerStatus unknownHost()
+	{
+		return error("Can\'t resolve hostname.");
 	}
 
 	public static ServerStatus error()
 	{
-		return new ServerStatus(new TextComponentString("unknown"),
-				new TextComponentString("Can\'t connect to server.").style(new Style().setColor(TextFormatting
-						.DARK_RED))
-				, -1, -1, -1);
+		return error("Can't connect to server.");
 	}
 
 	private long pingToServer;
