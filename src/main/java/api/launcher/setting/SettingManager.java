@@ -1,5 +1,7 @@
 package api.launcher.setting;
 
+import api.launcher.SettingMinecraft;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -8,6 +10,10 @@ import java.util.Optional;
  */
 public interface SettingManager
 {
+	SettingMinecraft getSettingMinecraft();
+
+	SettingMods getSettingMods();
+
 	<T extends SettingType> Optional<T> find(Class<T> clz);
 
 	List<SettingType> getAllSettingType();

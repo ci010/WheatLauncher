@@ -1,21 +1,24 @@
-package net.wheatlauncher;
+package net.launcher.profile;
 
 import api.launcher.ARML;
 import api.launcher.LaunchProfile;
 import api.launcher.LaunchProfileManager;
+import api.launcher.SettingMinecraft;
 import api.launcher.event.CollectSettingEvent;
 import api.launcher.event.LaunchEvent;
 import api.launcher.io.IOGuard;
 import api.launcher.io.IOGuardContext;
 import api.launcher.setting.Setting;
+import api.launcher.setting.SettingMods;
 import api.launcher.setting.SettingProperty;
 import api.launcher.setting.SettingType;
 import javafx.collections.MapChangeListener;
 import net.launcher.LaunchProfileImpl;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
-import net.launcher.profile.LaunchProfileManagerBuilder;
+import net.launcher.mod.SettingMod;
 import net.launcher.utils.NIOUtils;
+import net.wheatlauncher.SettingMinecraftImpl;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 
 import java.io.File;
@@ -89,6 +92,22 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 			new SaveProfile(launchProfile).performance(null);
 	}
 
+	private void collectSetting()
+	{
+		if (settingTypes != null) return;
+		settingTypes = new ArrayList<>();
+		settingTypeMap = new HashMap<>();
+		CollectSettingEvent event = new CollectSettingEvent();
+		event.register(SettingMinecraft.class, new SettingMinecraftImpl());
+		event.register(SettingMods.class, new SettingMod());
+		ARML.bus().postEvent(event);
+		this.settingTypeMap = event.getLookup();
+		this.settingTypes = event.getTypes();
+	}
+
+	private Map<Class<? extends SettingType>, SettingType> settingTypeMap;
+	private List<SettingType> settingTypes;
+
 	@Override
 	public LaunchProfileManager loadInstance() throws IOException
 	{
@@ -104,8 +123,7 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 			profilesRecord = read.get("profiles").asList().stream().map(NBT::asString).collect(Collectors.toList());
 		}
 
-		CollectSettingEvent event = ARML.bus().postEvent(new CollectSettingEvent());
-		List<SettingType> list = event.getTypes();
+		collectSetting();
 
 		List<LaunchProfile> profilesList = new ArrayList<>();
 
@@ -118,7 +136,7 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 				if (!Files.exists(prof)) return super.preVisitDirectory(dir, attrs);
 				LaunchProfile deserialize = deserialize(NBT.read(prof, false));
 				profilesList.add(deserialize);
-				for (SettingType settingType : list)
+				for (SettingType settingType : settingTypes)
 				{
 					Setting load = settingType.load(dir);
 					if (load != null) deserialize.addGameSetting(load);
@@ -139,26 +157,19 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 
 		if (profilesList.isEmpty()) throw new IOException("profile.load.fail");
 
-		LaunchProfileManager build = LaunchProfileManagerBuilder.create()
-				.setInitState(profilesList)
-				.setCreateGuard(this::onNewProfile)
-				.setDeleteGuard(this::onDeleteProfile)
-				.setCopyGuard(this::onCopyProfile)
-				.build();
+		LaunchProfileManager manager = new LaunchProfileManagerImpl(profilesList, settingTypes, settingTypeMap);
 		if (selecting == null) selecting = profilesList.get(0).getId();
-		build.setSelectedProfile(selecting);
+		manager.setSelectedProfile(selecting);
 
-		return build;
+		return manager;
 	}
 
 	@Override
 	public LaunchProfileManager defaultInstance()
 	{
-		LaunchProfileManager manager = LaunchProfileManagerBuilder.create()
-				.setCreateGuard(this::onNewProfile)
-				.setDeleteGuard(this::onDeleteProfile)
-				.setCopyGuard(this::onCopyProfile)
-				.build();
+		collectSetting();
+		LaunchProfileManager manager = new LaunchProfileManagerImpl(Collections.emptyList(),
+				settingTypes, settingTypeMap);
 		manager.setSelectedProfile(manager.newProfile("default").getId());
 		return manager;
 	}

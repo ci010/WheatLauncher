@@ -13,7 +13,8 @@ import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 import net.launcher.OptionLaunchElementManager;
 import net.launcher.TransformTask;
-import net.launcher.game.ServerStatus;
+import net.launcher.game.ModManifest;
+import net.launcher.game.ModTypes;
 import net.launcher.game.forge.ForgeMod;
 import net.launcher.game.nbt.NBTCompound;
 import net.launcher.utils.resource.ArchiveRepository;
@@ -31,7 +32,7 @@ import java.util.stream.Collectors;
 /**
  * @author ci010
  */
-class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ServerStatus.ModInfo> implements ModManager
+class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ModManifest> implements ModManager
 {
 	private ArchiveRepository<ForgeMod[]> archiveResource;
 
@@ -82,9 +83,9 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ServerStatus.M
 	}
 
 	@Override
-	protected SettingType.Option<ServerStatus.ModInfo> getOption()
+	protected SettingType.Option<ModManifest> getOption()
 	{
-		return SettingMod.INSTANCE.MODS;
+		return ARML.core().getProfileSettingManager().getSettingMods().getMods();
 	}
 
 	@Override
@@ -104,10 +105,12 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ServerStatus.M
 	}
 
 	@Override
-	protected List<ForgeMod> from(ServerStatus.ModInfo value)
+	protected List<ForgeMod> from(ModManifest value)
 	{
 		List<ForgeMod> mods = new ArrayList<>();
-		for (Map.Entry<String, String> entry : value.getModIdVersions().entrySet())
+		Map<String, String> fml = value.getMods(ModTypes.FORGE);
+		if (fml == null) return mods;
+		for (Map.Entry<String, String> entry : fml.entrySet())
 		{
 			ForgeMod forgeMod = instanceMap.get(entry.getKey() + ":" + entry.getValue());
 			if (forgeMod != null)
@@ -117,10 +120,10 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ServerStatus.M
 	}
 
 	@Override
-	protected ServerStatus.ModInfo to(List<ForgeMod> lst)
+	protected ModManifest to(List<ForgeMod> lst)
 	{
-		return new ServerStatus.ModInfo("fml", lst.stream().collect(Collectors.toMap(ForgeMod::getModId, v -> v.getMetaData
-				().getVersion())), false);
+		return new ModManifest(Collections.singletonMap(ModTypes.FORGE, lst.stream().collect(Collectors.toMap(ForgeMod::getModId, v -> v
+				.getMetaData().getVersion()))));
 	}
 
 	@Override

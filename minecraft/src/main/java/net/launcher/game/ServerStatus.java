@@ -4,15 +4,10 @@ import net.launcher.game.text.Style;
 import net.launcher.game.text.TextComponent;
 import net.launcher.game.text.TextFormatting;
 import net.launcher.game.text.components.TextComponentString;
-import net.launcher.utils.serial.BiSerializer;
 import org.to2mbn.jmccc.auth.yggdrasil.core.GameProfile;
-import org.to2mbn.jmccc.internal.org.json.JSONArray;
-import org.to2mbn.jmccc.internal.org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * @author ci010
@@ -47,7 +42,7 @@ public class ServerStatus
 	private TextComponent serverMOTD;
 
 	private GameProfile[] playerList = new GameProfile[0];
-	private ModInfo modInfo = new ModInfo("", Collections.emptyMap(), false);
+	private ModManifest modInfo = new ModManifest(Collections.emptyMap());
 
 	public ServerStatus(TextComponent gameVersion, TextComponent serverMOTD, int protocolVersion, int onlinePlayers, int
 			capability)
@@ -61,7 +56,7 @@ public class ServerStatus
 
 	public ServerStatus(TextComponent gameVersion, TextComponent serverMOTD, int protocolVersion, int onlinePlayers, int
 			capability,
-						GameProfile[] playerList, ModInfo modInfo)
+						GameProfile[] playerList, ModManifest modInfo)
 	{
 		this.gameVersion = gameVersion;
 		this.serverMOTD = serverMOTD;
@@ -112,7 +107,7 @@ public class ServerStatus
 		return playerList;
 	}
 
-	public ModInfo getModInfo()
+	public ModManifest getModInfo()
 	{
 		return modInfo;
 	}
@@ -130,75 +125,5 @@ public class ServerStatus
 				", playerList=" + Arrays.toString(playerList) +
 				", modInfo=" + modInfo +
 				'}';
-	}
-
-	public static class ModInfo
-	{
-		private String type;
-		private Map<String, String> modIdVersions;
-		private boolean isBlocked;
-
-		public ModInfo(String type, Map<String, String> modIdVersions, boolean isBlocked)
-		{
-			this.type = type;
-			this.modIdVersions = modIdVersions;
-			this.isBlocked = isBlocked;
-		}
-
-		public String getType()
-		{
-			return type;
-		}
-
-		public Map<String, String> getModIdVersions()
-		{
-			return modIdVersions;
-		}
-
-		public boolean isBlocked()
-		{
-			return isBlocked;
-		}
-
-		@Override
-		public String toString()
-		{
-			return "ModInfo{" +
-					"type='" + type + '\'' +
-					", modIdVersions=" + modIdVersions +
-					", isBlocked=" + isBlocked +
-					'}';
-		}
-	}
-
-	public static BiSerializer<ModInfo, JSONObject> modInfoSerializer()
-	{
-		return BiSerializer.combine((info, context) ->
-		{
-			JSONObject modinfo = new JSONObject();
-			modinfo.put("type", info.getType());
-			JSONArray array = new JSONArray();
-			for (Map.Entry<String, String> entry : info.getModIdVersions().entrySet())
-			{
-				JSONObject obj = new JSONObject();
-				obj.put("modid", entry.getKey());
-				obj.put("version", entry.getValue());
-				array.put(obj);
-			}
-			modinfo.put("modList", array);
-			return modinfo;
-		}, (serialized, context) ->
-		{
-			String type = serialized.optString("type");
-			JSONArray array = serialized.getJSONArray("modList");
-			boolean moddedClientAllowed = !serialized.has("clientModsAllowed") || serialized.getBoolean("clientModsAllowed");
-			Map<String, String> modVersions = new TreeMap<>();
-			for (int i = 0; i < array.length(); i++)
-			{
-				JSONObject mod = array.getJSONObject(i);
-				modVersions.put(mod.getString("modid"), mod.getString("version"));
-			}
-			return new ServerStatus.ModInfo(type, Collections.unmodifiableMap(modVersions), moddedClientAllowed);
-		});
 	}
 }

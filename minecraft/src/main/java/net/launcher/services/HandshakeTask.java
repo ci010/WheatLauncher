@@ -1,5 +1,6 @@
 package net.launcher.services;
 
+import net.launcher.game.ModManifest;
 import net.launcher.game.ServerInfo;
 import net.launcher.game.ServerStatus;
 import net.launcher.game.text.TextComponent;
@@ -80,7 +81,7 @@ public class HandshakeTask implements Callable<ServerStatus>
 		if (favicon.startsWith("data:image/png;base64,"))
 			info.setServerIcon(favicon.substring("data:image/png;base64,".length()));
 
-		ServerStatus.ModInfo modInfo = ServerStatus.modInfoSerializer().deserialize(object.getJSONObject("modinfo"));
+		ModManifest modInfo = ModManifest.objDeserializer().deserialize(object.getJSONObject("modinfo"));
 
 		return new ServerStatus(versionText, motd, protocol, online, max, profiles, modInfo);
 	}

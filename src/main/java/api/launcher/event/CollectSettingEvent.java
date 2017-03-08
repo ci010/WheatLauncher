@@ -14,23 +14,23 @@ public class CollectSettingEvent extends Event
 	public static final EventType<CollectSettingEvent> TYPE = new EventType<>(EventType.ROOT, "COLLECT_SETTING");
 
 	private List<SettingType> types = new ArrayList<>();
-	private Map<String, SettingType> lookup = new TreeMap<>();
+	private Map<Class<? extends SettingType>, SettingType> lookup = new HashMap<>();
 
 	public CollectSettingEvent()
 	{
 		super(TYPE);
 	}
 
-	public boolean register(SettingType type)
+	public <T extends SettingType, R extends T> boolean register(Class<T> clz, R type)
 	{
-		if (lookup.containsKey(type.getID()))
+		if (lookup.containsKey(clz))
 			return false;
-		lookup.put(type.getID(), type);
+		lookup.put(clz, type);
 		types.add(type);
 		return true;
 	}
 
 	public List<SettingType> getTypes() {return Collections.unmodifiableList(types);}
 
-	public Map<String, SettingType> getLookup() {return Collections.unmodifiableMap(lookup);}
+	public Map<Class<? extends SettingType>, SettingType> getLookup() {return Collections.unmodifiableMap(lookup);}
 }

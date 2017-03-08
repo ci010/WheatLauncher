@@ -5,6 +5,7 @@ import api.launcher.event.ErrorEvent;
 import api.launcher.event.LaunchEvent;
 import api.launcher.event.LauncherInitEvent;
 import api.launcher.io.IOGuardContext;
+import api.launcher.setting.SettingManager;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
@@ -18,7 +19,7 @@ import net.launcher.assets.IOGuardMinecraftWorldManager;
 import net.launcher.auth.IOGuardAuth;
 import net.launcher.game.ServerInfo;
 import net.launcher.mod.IOGuardModManager;
-import net.launcher.mod.SettingMod;
+import net.launcher.profile.IOGuardProfile;
 import net.launcher.resourcepack.IOGuardResourcePackManager;
 import net.launcher.services.curseforge.CurseForgeProjectType;
 import net.launcher.services.curseforge.CurseForgeService;
@@ -51,11 +52,15 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 	private MinecraftWorldManager worldManager;
 	private MinecraftServerManager serverManager;
 	private IOGuardContext ioContext;
+	private SettingManager profileSettingManager;
 
 	public Path getRoot()
 	{
 		return root;
 	}
+
+	@Override
+	public SettingManager getProfileSettingManager() {return profileSettingManager;}
 
 	@Override
 	public LaunchProfileManager getProfileManager()
@@ -144,9 +149,6 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 
 		this.root = root;
 
-		SettingMinecraft settingMinecraft = new SettingMinecraftImpl();
-		SettingMod settingMod = new SettingMod();
-
 		IOGuardContextScheduled.Builder builder = IOGuardContextScheduled.Builder.create(this.root, ARML.async())
 				.register(LaunchProfileManager.class, new IOGuardProfile())
 				.register(AuthManager.class, new IOGuardAuth())
@@ -164,16 +166,11 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 		this.serverManager = ioContext.load(MinecraftServerManager.class);
 		this.authProfile = ioContext.load(AuthManager.class);
 		this.profileManager = ioContext.load(LaunchProfileManager.class);
+		this.profileSettingManager = (SettingManager) profileManager;
 		this.assetsManager = ioContext.load(MinecraftAssetsManager.class);
 		this.worldManager = ioContext.load(MinecraftWorldManager.class);
 		this.resourcePackManager = ioContext.load(ResourcePackManager.class);
 		this.modManager = ioContext.load(ModManager.class);
-
-//		Path mods = this.getRoot().resolve("mods");
-//		Files.createDirectories(mods);
-//		this.modManager = ModManagerBuilder.create(mods).build();
-//		ARML.bus().postEvent(new ModuleLoadedEvent<>(modManager));
-//		modManager.update().run();
 
 		CacheManager manager = CacheManagerBuilder.newCacheManagerBuilder().build(true);
 		ARML.instance().registerComponent(CacheManager.class, manager);
@@ -182,7 +179,6 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 		{
 			CurseForgeService service = CurseForgeServices.newService(CurseForgeProjectType.TexturePacks);
 			ARML.instance().registerComponent(CurseForgeService.class, service);
-
 		}
 		catch (Exception e)
 		{
@@ -252,6 +248,7 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 	private static ReadOnlyDoubleProperty dummyDouble = new SimpleDoubleProperty(1);
 	private static ReadOnlyBooleanProperty dummyBoolean = new SimpleBooleanProperty();
 	private static ReadOnlyObjectProperty dummyObj = new SimpleObjectProperty();
+
 
 	private class DummyWorker extends WorkerDelegate<Object>
 	{

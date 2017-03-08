@@ -20,8 +20,6 @@ import java.util.stream.Collectors;
  */
 public class SettingMinecraftImpl extends SettingMinecraft
 {
-	public static SettingMinecraftImpl INSTANCE;
-
 	public final OptionInt FOV = new OptionInt(this, "fov", 70, 30, 110)
 	{
 		@Override

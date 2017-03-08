@@ -1,17 +1,17 @@
 package net.launcher.mod;
 
 import api.launcher.setting.Setting;
+import api.launcher.setting.SettingMods;
 import api.launcher.setting.SettingProperty;
-import api.launcher.setting.SettingType;
 import javafx.beans.InvalidationListener;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import net.launcher.game.ServerStatus;
+import net.launcher.game.ModManifest;
 import net.launcher.utils.NIOUtils;
-import org.to2mbn.jmccc.internal.org.json.JSONObject;
+import org.to2mbn.jmccc.internal.org.json.JSONArray;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,24 +22,18 @@ import java.util.List;
 /**
  * @author ci010
  */
-public class SettingMod extends SettingType
+public class SettingMod extends SettingMods
 {
 	public static SettingMod INSTANCE;
 
-	static
-	{
-//		SettingManager.register(SettingMod.class);
-//		INSTANCE = (SettingMod) SettingManager.find("Forge").get();
-	}
-
-	public final Option<ServerStatus.ModInfo> MODS = new Option<ServerStatus.ModInfo>(this, "mods")
+	public final Option<ModManifest> MODS = new Option<ModManifest>(this, "mods")
 	{
 		@Override
-		public SettingProperty<ServerStatus.ModInfo> getDefaultValue(Setting setting)
+		public SettingProperty<ModManifest> getDefaultValue(Setting setting)
 		{
-			return new SettingProperty<ServerStatus.ModInfo>()
+			return new SettingProperty<ModManifest>()
 			{
-				private ObjectProperty<ServerStatus.ModInfo> property = new SimpleObjectProperty<>();
+				private ObjectProperty<ModManifest> property = new SimpleObjectProperty<>();
 
 				@Override
 				public Setting getBean()
@@ -48,7 +42,7 @@ public class SettingMod extends SettingType
 				}
 
 				@Override
-				public Option<ServerStatus.ModInfo> getOption()
+				public Option<ModManifest> getOption()
 				{
 					return MODS;
 				}
@@ -59,7 +53,7 @@ public class SettingMod extends SettingType
 					return "Mods";
 				}
 
-				public void setValue(ServerStatus.ModInfo v) {property.setValue(v);}
+				public void setValue(ModManifest v) {property.setValue(v);}
 
 				public void bindBidirectional(Property other) {property.bindBidirectional(other);}
 
@@ -69,7 +63,7 @@ public class SettingMod extends SettingType
 				public String toString() {return property.toString();}
 
 				@Override
-				public ServerStatus.ModInfo getValue() {return property.getValue();}
+				public ModManifest getValue() {return property.getValue();}
 
 				public void addListener(ChangeListener listener) {property.addListener(listener);}
 
@@ -94,13 +88,13 @@ public class SettingMod extends SettingType
 		@Override
 		public String serialize(Object tValue)
 		{
-			return ServerStatus.modInfoSerializer().serialize((ServerStatus.ModInfo) tValue).toString();
+			return ModManifest.serializer().serialize((ModManifest) tValue).toString();
 		}
 
 		@Override
-		public ServerStatus.ModInfo deserialize(String s)
+		public ModManifest deserialize(String s)
 		{
-			return ServerStatus.modInfoSerializer().deserialize(new JSONObject(s));
+			return ModManifest.serializer().deserialize(new JSONArray(s));
 		}
 	};
 
@@ -123,7 +117,7 @@ public class SettingMod extends SettingType
 		if (Files.exists(path))
 		{
 			String s = NIOUtils.readToString(path);
-			ServerStatus.ModInfo stat = MODS.deserialize(s);
+			ModManifest stat = MODS.deserialize(s);
 			Setting of = Setting.of(this);
 			of.getOption(MODS).setValue(stat);
 			return of;
@@ -141,7 +135,13 @@ public class SettingMod extends SettingType
 	public void save(Path directory, Setting setting) throws IOException
 	{
 		Path path = directory.resolve("mods.json");
-		ServerStatus.ModInfo value = setting.getOption(MODS).getValue();
+		ModManifest value = setting.getOption(MODS).getValue();
 		if (value != null) NIOUtils.writeString(path, MODS.serialize(value));
+	}
+
+	@Override
+	public Option<ModManifest> getMods()
+	{
+		return MODS;
 	}
 }

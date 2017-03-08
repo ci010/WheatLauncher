@@ -3,7 +3,11 @@ package net.launcher.profile;
 import api.launcher.ARML;
 import api.launcher.LaunchProfile;
 import api.launcher.LaunchProfileManager;
+import api.launcher.SettingMinecraft;
 import api.launcher.event.ProfileEvent;
+import api.launcher.setting.SettingManager;
+import api.launcher.setting.SettingMods;
+import api.launcher.setting.SettingType;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleStringProperty;
@@ -13,33 +17,27 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import net.launcher.LaunchProfileImpl;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.TreeMap;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import java.util.*;
 
 /**
  * @author ci010
  */
-public class LaunchProfileManagerImpl implements LaunchProfileManager
+public class LaunchProfileManagerImpl implements LaunchProfileManager, SettingManager
 {
 	private ObservableMap<String, LaunchProfile> map, view;
 
-	private Consumer<LaunchProfile> createConsumer;
-	private Consumer<LaunchProfile> deleteConsumer;
-	private BiConsumer<LaunchProfile, LaunchProfile> copyConsumer;
-
 	private ObservableList<LaunchProfile> profiles = FXCollections.observableArrayList();
 	private StringProperty selectedProfile = new SimpleStringProperty();
+	private Map<Class<? extends SettingType>, SettingType> settingTypeMap = new HashMap<>();
+	private List<SettingType> settingTypes = new ArrayList<>();
 
-	LaunchProfileManagerImpl(List<LaunchProfile> profiles, Consumer<LaunchProfile> createConsumer, Consumer<LaunchProfile> deleteConsumer, BiConsumer<LaunchProfile, LaunchProfile> copyConsumer)
+	LaunchProfileManagerImpl(List<LaunchProfile> profiles, List<SettingType> settingTypes,
+							 Map<Class<? extends SettingType>, SettingType> settingTypeMap)
 	{
+		this.settingTypeMap = settingTypeMap;
+		this.settingTypes = settingTypes;
+
 		this.profiles.addAll(profiles);
-		this.createConsumer = createConsumer;
-		this.deleteConsumer = deleteConsumer;
-		this.copyConsumer = copyConsumer;
 		this.map = FXCollections.observableMap(new TreeMap<>());
 		for (LaunchProfile profile : profiles) map.put(profile.getId(), profile);
 		this.view = FXCollections.unmodifiableObservableMap(map);
@@ -76,7 +74,6 @@ public class LaunchProfileManagerImpl implements LaunchProfileManager
 	{
 		Objects.requireNonNull(name);
 		LaunchProfile profile = new LaunchProfileImpl();
-		createConsumer.accept(profile);
 		profile.setDisplayName(name);
 		reg0(profile);
 		ARML.bus().postEvent(new ProfileEvent(profile, ProfileEvent.CREATE));
@@ -91,7 +88,6 @@ public class LaunchProfileManagerImpl implements LaunchProfileManager
 		if (launchProfile == null)
 			throw new IllegalArgumentException("profile.exist");
 		LaunchProfile copy = newProfile();
-		copyConsumer.accept(launchProfile, copy);
 		doCopy(launchProfile, copy);
 		return copy;
 	}
@@ -104,7 +100,6 @@ public class LaunchProfileManagerImpl implements LaunchProfileManager
 		if (map.size() == 1) throw new IllegalArgumentException("profile.delete.one");
 		if (map.isEmpty()) throw new IllegalArgumentException("profile.delete.empty");
 		LaunchProfile launchProfile = map.get(id);
-		deleteConsumer.accept(launchProfile);
 		unreg0(launchProfile);
 		ARML.bus().postEvent(new ProfileEvent(launchProfile, ProfileEvent.CREATE));
 	}
@@ -148,5 +143,29 @@ public class LaunchProfileManagerImpl implements LaunchProfileManager
 	{
 		profiles.remove(profile);
 		map.remove(profile.getId());
+	}
+
+	@Override
+	public SettingMinecraft getSettingMinecraft()
+	{
+		return (SettingMinecraft) settingTypeMap.get(SettingMinecraft.class);
+	}
+
+	@Override
+	public SettingMods getSettingMods()
+	{
+		return (SettingMods) settingTypeMap.get(SettingMods.class);
+	}
+
+	@Override
+	public <T extends SettingType> Optional<T> find(Class<T> clz)
+	{
+		return Optional.ofNullable((T) settingTypeMap.get(clz));
+	}
+
+	@Override
+	public List<SettingType> getAllSettingType()
+	{
+		return settingTypes;
 	}
 }

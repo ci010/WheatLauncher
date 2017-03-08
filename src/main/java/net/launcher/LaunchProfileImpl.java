@@ -178,7 +178,7 @@ public class LaunchProfileImpl implements LaunchProfile
 	public Optional<Setting> getGameSetting(SettingType setting)
 	{
 		Objects.requireNonNull(setting);
-		String id = setting.getID();
+		String id = setting.getClass().getName();
 		return Optional.ofNullable(gameSettingInstanceMap.get(id));
 	}
 
@@ -186,7 +186,7 @@ public class LaunchProfileImpl implements LaunchProfile
 	public void addGameSetting(Setting setting)
 	{
 		Objects.requireNonNull(setting);
-		String id = setting.getGameSettingType().getID();
+		String id = setting.getGameSettingType().getClass().getName();
 		gameSettingInstanceMap.put(id, setting);
 	}
 

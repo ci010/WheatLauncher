@@ -1,5 +1,6 @@
 package net.launcher.resourcepack;
 
+import api.launcher.ARML;
 import api.launcher.LaunchProfile;
 import api.launcher.MinecraftIcons;
 import api.launcher.ResourcePackManager;
@@ -16,7 +17,6 @@ import net.launcher.game.ResourcePack;
 import net.launcher.utils.resource.ArchiveRepository;
 import net.launcher.utils.resource.FetchOption;
 import net.launcher.utils.resource.Resource;
-import net.wheatlauncher.SettingMinecraftImpl;
 import org.to2mbn.jmccc.option.LaunchOption;
 
 import java.io.InputStream;
@@ -69,7 +69,7 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 	@Override
 	protected SettingType.Option<String[]> getOption()
 	{
-		return SettingMinecraftImpl.INSTANCE.RESOURCE_PACE;
+		return ARML.core().getProfileSettingManager().getSettingMinecraft().getResourcePace();
 	}
 
 	@Override

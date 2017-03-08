@@ -22,7 +22,6 @@ import javafx.scene.control.TableColumn;
 import net.launcher.assets.MinecraftVersion;
 import net.launcher.control.MinecraftOptionButton;
 import net.launcher.game.Language;
-import net.wheatlauncher.SettingMinecraftImpl;
 
 import java.util.Map;
 import java.util.Optional;
@@ -74,8 +73,8 @@ public class ControllerLanguages
 				Worker<Language[]> source = event.getSource();
 				languageLists.setAll(source.getValue());
 				lookup = languageLists.stream().collect(Collectors.toMap(Language::getId, Function.identity()));
-				Language language = selecting.getGameSetting(SettingMinecraftImpl.INSTANCE)
-						.map(s -> s.getOption(SettingMinecraftImpl.INSTANCE.LANGUAGE))
+				Language language = selecting.getGameSetting(ARML.core().getProfileSettingManager().getSettingMinecraft())
+						.map(s -> s.getOption(ARML.core().getProfileSettingManager().getSettingMinecraft().getLanguage()))
 						.map(SettingProperty::getValue)
 						.map(lookup::get)
 						.orElse(lookup.get("en_us"));
@@ -104,9 +103,9 @@ public class ControllerLanguages
 		bidi.setCellValueFactory(param -> Bindings.createStringBinding(() -> String.valueOf(param.getValue().isBidirectional())));
 		confirm.disableProperty().bind(Bindings.createBooleanBinding(() -> languageTable.getSelectionModel().isEmpty(), languageTable.getSelectionModel().selectedIndexProperty()));
 		confirm.setOnAction(event ->
-				ARML.core().getProfileManager().selecting().getGameSetting(SettingMinecraftImpl.INSTANCE)
-						.map(setting -> setting.getOption(SettingMinecraftImpl.INSTANCE.LANGUAGE)).ifPresent(property ->
-						property.setValue(languageTable.getSelectionModel().getSelectedItem().getId())));
+				ARML.core().getProfileManager().selecting().getGameSetting(ARML.core().getProfileSettingManager().getSettingMinecraft())
+						.map(setting -> setting.getOption(ARML.core().getProfileSettingManager().getSettingMinecraft().getLanguage()))
+						.ifPresent(property -> property.setValue(languageTable.getSelectionModel().getSelectedItem().getId())));
 		ARML.core().getProfileManager().selectedProfileProperty().addListener((observable, oldV, newV) ->
 		{
 			LaunchProfileManager profileManager = ARML.core().getProfileManager();
@@ -118,7 +117,8 @@ public class ControllerLanguages
 		useUnicode.setPropertyBinding(Bindings.createObjectBinding(() ->
 				{
 					Setting set = ensureSetting(ARML.core().getProfileManager().selecting());
-					return (SettingProperty.Limited<Boolean>) set.getOption(SettingMinecraftImpl.INSTANCE.FORCE_UNICODE);
+					return (SettingProperty.Limited<Boolean>) set.getOption(ARML.core().getProfileSettingManager()
+							.getSettingMinecraft().getForceUnicode());
 				}
 				, ARML.core().getProfileManager().selectedProfileProperty()));
 
@@ -127,10 +127,10 @@ public class ControllerLanguages
 
 	private Setting ensureSetting(LaunchProfile profile)
 	{
-		Optional<Setting> optional = profile.getGameSetting(SettingMinecraftImpl.INSTANCE);
+		Optional<Setting> optional = profile.getGameSetting(ARML.core().getProfileSettingManager().getSettingMinecraft());
 		Setting setting;
 		if (!optional.isPresent())
-			profile.addGameSetting(setting = SettingMinecraftImpl.INSTANCE.defaultInstance());// force the minecraft// setting exist
+			profile.addGameSetting(setting = ARML.core().getProfileSettingManager().getSettingMinecraft().defaultInstance());// force the minecraft// setting exist
 		else setting = optional.get();
 		return setting;
 	}
