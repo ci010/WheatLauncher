@@ -186,6 +186,7 @@ public class ServerStatus
 				obj.put("version", entry.getValue());
 				array.put(obj);
 			}
+			modinfo.put("modList", array);
 			return modinfo;
 		}, (serialized, context) ->
 		{

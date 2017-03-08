@@ -13,6 +13,7 @@ import net.launcher.OptionLaunchElementManager;
 import net.launcher.TransformTask;
 import net.launcher.game.ServerStatus;
 import net.launcher.game.forge.ForgeMod;
+import net.launcher.game.nbt.NBTCompound;
 import net.launcher.setting.Setting;
 import net.launcher.setting.SettingType;
 import net.launcher.utils.resource.ArchiveRepository;
@@ -186,4 +187,12 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ServerStatus.M
 
 	@Override
 	public Task<?> update() {return archiveResource.update();}
+
+	@Override
+	public NBTCompound getMetadata(ForgeMod forgeMod)
+	{
+		String s = hashMap.get(getModKey(forgeMod));
+		Resource<ForgeMod[]> resource = archiveResource.getResourceMap().get(s);
+		return resource.getCompound();
+	}
 }
