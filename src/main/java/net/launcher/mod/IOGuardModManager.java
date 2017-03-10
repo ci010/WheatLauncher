@@ -6,10 +6,11 @@ import api.launcher.event.LaunchEvent;
 import api.launcher.io.IOGuard;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import net.launcher.game.forge.ForgeMod;
-import net.launcher.game.forge.ForgeModMetaData;
-import net.launcher.game.forge.ForgeModMetadataBuilder;
-import net.launcher.game.forge.ForgeModParser;
+import net.launcher.assets.MinecraftVersion;
+import net.launcher.game.mods.forge.ForgeMod;
+import net.launcher.game.mods.forge.ForgeModMetaData;
+import net.launcher.game.mods.forge.ForgeModMetadataBuilder;
+import net.launcher.game.mods.forge.ForgeModParser;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
 import net.launcher.utils.NIOUtils;
@@ -65,6 +66,7 @@ public class IOGuardModManager extends IOGuard<ModManager>
 			ARML.taskCenter().runSimpleTask("PrepareMods", () ->
 					NIOUtils.clearDirectory(Files.createDirectories(target)));
 
+			MinecraftVersion mcVersion = event.getProfile().getMcVersion();
 			ModManagerImpl instance = (ModManagerImpl) getInstance();
 			ObservableList<ForgeMod> mods = instance.getIncludeElementContainer(event.getProfile());
 			mods.stream().map(mod -> instance.hashMap.get(instance.getModKey(mod))).forEach(
@@ -104,7 +106,7 @@ public class IOGuardModManager extends IOGuard<ModManager>
 						.put("url", metaData.getUrl())
 						.put("parent", metaData.getParent())
 						.put("screenShots", NBT.listStr(metaData.getScreenshots()))
-						.put("mcVersion", metaData.getAcceptMinecraftVersion())
+						.put("mcVersion", metaData.getMcVersion())
 						.put("fingerprint", metaData.getFingerprint())
 						.put("dependencies", metaData.getDependencies());
 				compound.put(release.getModId(), meta);

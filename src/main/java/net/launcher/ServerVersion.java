@@ -1,6 +1,6 @@
 package net.launcher;
 
-import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.VersionRange;
+import net.launcher.game.mods.internal.net.minecraftforge.fml.common.versioning.VersionRange;
 
 /**
  * @author ci010

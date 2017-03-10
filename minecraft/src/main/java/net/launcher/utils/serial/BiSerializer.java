@@ -12,7 +12,7 @@ public interface BiSerializer<T, S> extends Serializer<T, S>, Deserializer<T, S>
 		return new BiSerializer<T, S>()
 		{
 			@Override
-			public T deserialize(S serialized, Map<Object, Object> context)
+			public T deserialize(S serialized, Map<Object, Object> context) throws Exception
 			{
 				return deserializer.deserialize(serialized, context);
 			}

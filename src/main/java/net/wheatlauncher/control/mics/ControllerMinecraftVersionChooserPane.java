@@ -19,7 +19,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import net.launcher.assets.MinecraftVersion;
-import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.ComparableVersion;
+import net.launcher.game.mods.internal.net.minecraftforge.fml.common.versioning.ComparableVersion;
 import org.to2mbn.jmccc.mcdownloader.RemoteVersion;
 
 import java.text.DateFormat;

@@ -13,7 +13,6 @@ import net.launcher.LaunchProfileImpl;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
 import net.launcher.mod.SettingMod;
-import net.launcher.utils.NIOUtils;
 import net.wheatlauncher.SettingMinecraftImpl;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 
@@ -37,6 +36,22 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 
 	private Path getProfileDir(String name) {return getProfilesRoot().resolve(name);}
 
+	private Map<Class<? extends SettingType>, SettingType> settingTypeMap;
+	private List<SettingType> settingTypes;
+
+	@Override
+	protected void onInit()
+	{
+		settingTypes = new ArrayList<>();
+		settingTypeMap = new HashMap<>();
+		CollectSettingEvent event = new CollectSettingEvent();
+		event.register(SettingMinecraft.class, new SettingMinecraftImpl());
+		event.register(SettingMods.class, new SettingMod());
+		ARML.bus().postEvent(event);
+		this.settingTypeMap = event.getLookup();
+		this.settingTypes = event.getTypes();
+	}
+
 	private NBT serialize(LaunchProfile profile)
 	{
 		return NBT.compound().put("name", profile.getDisplayName()).put("id", profile.getId())
@@ -57,27 +72,6 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 		return launchProfile;
 	}
 
-	private void onNewProfile(LaunchProfile profile)
-	{
-		Path profileRoot = getProfileDir(profile.getId());
-		try {Files.createDirectories(profileRoot);}
-		catch (IOException e) {throw new IllegalArgumentException(e);}
-		getContext().enqueue(new SaveProfile(profile));
-	}
-
-	private void onDeleteProfile(LaunchProfile profile)
-	{
-		Path profileRoot = getProfileDir(profile.getId());
-		ARML.taskCenter().runSimpleTask("Delete profile", () -> NIOUtils.deleteDirectory(profileRoot));
-	}
-
-	private void onCopyProfile(LaunchProfile profile, LaunchProfile copy)
-	{
-		Path profileRoot = getProfileDir(profile.getId());
-		Path copyRoot = getProfileDir(copy.getId());
-
-	}
-
 	@Override
 	public void forceSave() throws IOException
 	{
@@ -87,22 +81,6 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 		for (LaunchProfile launchProfile : instance.getAllProfiles())
 			new SaveProfile(launchProfile).performance(null);
 	}
-
-	private void collectSetting()
-	{
-		if (settingTypes != null) return;
-		settingTypes = new ArrayList<>();
-		settingTypeMap = new HashMap<>();
-		CollectSettingEvent event = new CollectSettingEvent();
-		event.register(SettingMinecraft.class, new SettingMinecraftImpl());
-		event.register(SettingMods.class, new SettingMod());
-		ARML.bus().postEvent(event);
-		this.settingTypeMap = event.getLookup();
-		this.settingTypes = event.getTypes();
-	}
-
-	private Map<Class<? extends SettingType>, SettingType> settingTypeMap;
-	private List<SettingType> settingTypes;
 
 	@Override
 	public LaunchProfileManager loadInstance() throws IOException
@@ -118,8 +96,6 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 			selecting = read.get("selecting").asString();
 			profilesRecord = read.get("profiles").asList().stream().map(NBT::asString).collect(Collectors.toList());
 		}
-
-		collectSetting();
 
 		List<LaunchProfile> profilesList = new ArrayList<>();
 
@@ -163,7 +139,6 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 	@Override
 	public LaunchProfileManager defaultInstance()
 	{
-		collectSetting();
 		LaunchProfileManager manager = new LaunchProfileManagerImpl(Collections.emptyList(),
 				settingTypes, settingTypeMap);
 		manager.setSelectedProfile(manager.newProfile("default").getId());
@@ -209,7 +184,7 @@ public class IOGuardProfile extends IOGuard<LaunchProfileManager>
 		ARML.bus().addEventHandler(LaunchEvent.GAME_EXIT, event ->
 		{
 			isLoading = true;
-			ArrayList<SettingType> list = null;//new ArrayList<>(SettingManager.getAllSetting().values());
+			List<SettingType> list = ARML.core().getProfileSettingManager().getAllSettingType();
 			try
 			{
 				Files.walkFileTree(getProfilesRoot(), Collections.emptySet(), 2, new SimpleFileVisitor<Path>()

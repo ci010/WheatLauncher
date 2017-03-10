@@ -20,6 +20,12 @@ import java.util.Map;
 public class IOGuardAuth extends IOGuard<AuthManager>
 {
 	@Override
+	protected void onInit()
+	{
+		//TODO add register event
+	}
+
+	@Override
 	public void forceSave() throws IOException
 	{
 		AuthManager authProfile = getInstance();

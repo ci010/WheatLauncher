@@ -1,9 +1,9 @@
 package test.wheatlauncher;
 
-import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.ComparableVersion;
-import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.InvalidVersionSpecificationException;
-import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.VersionParser;
-import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.VersionRange;
+import net.launcher.game.mods.internal.net.minecraftforge.fml.common.versioning.ComparableVersion;
+import net.launcher.game.mods.internal.net.minecraftforge.fml.common.versioning.InvalidVersionSpecificationException;
+import net.launcher.game.mods.internal.net.minecraftforge.fml.common.versioning.VersionParser;
+import net.launcher.game.mods.internal.net.minecraftforge.fml.common.versioning.VersionRange;
 import org.junit.Test;
 import org.to2mbn.jmccc.mcdownloader.MinecraftDownloader;
 import org.to2mbn.jmccc.mcdownloader.MinecraftDownloaderBuilder;

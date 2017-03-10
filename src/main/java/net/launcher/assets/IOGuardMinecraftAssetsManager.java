@@ -13,7 +13,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.concurrent.Task;
 import net.launcher.game.Language;
-import net.launcher.game.forge.internal.net.minecraftforge.fml.common.versioning.ComparableVersion;
+import net.launcher.game.mods.internal.net.minecraftforge.fml.common.versioning.ComparableVersion;
 import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
 import net.launcher.utils.resource.FetchOption;

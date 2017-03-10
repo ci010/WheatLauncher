@@ -120,6 +120,6 @@ public class ServerInfoBase implements ServerInfo
 		}, (serialized, context) ->
 				new ServerInfoBase(serialized.get("name").asString(), serialized.get("ip").asString(),
 						serialized.get("icon").asString(""),
-						serialized.option("acceptTextures").map(nbt -> nbt.asBool() ? ResourceMode.ENABLED : ResourceMode.DISABLED).orElse(ResourceMode.PROMPT)));
+						serialized.getOption("acceptTextures").map(nbt -> nbt.asBool() ? ResourceMode.ENABLED : ResourceMode.DISABLED).orElse(ResourceMode.PROMPT)));
 	}
 }

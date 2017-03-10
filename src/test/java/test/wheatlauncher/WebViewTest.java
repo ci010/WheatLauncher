@@ -17,8 +17,12 @@ public class WebViewTest extends Application
 	{
 		WebView browser = new WebView();
 		WebEngine webEngine = browser.getEngine();
-		System.out.println(webEngine.getUserStyleSheetLocation());
-		webEngine.load("http://www.mcbbs.net");
+		webEngine.load("https://minecraft.curseforge.com/projects/");
+		webEngine.setConfirmHandler(param ->
+		{
+			System.out.println(param);
+			return true;
+		});
 		final Scene scene = new Scene(browser, 1000, 600);
 		scene.getStylesheets().add(MainApplication.class.getResource("/assets/css/jfoenix-main-demo.css").toExternalForm());
 		scene.getStylesheets().add(MainApplication.class.getResource("/assets/css/common.css").toExternalForm());

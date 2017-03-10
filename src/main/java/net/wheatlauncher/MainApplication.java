@@ -78,6 +78,7 @@ public class MainApplication extends Application
 
 	private void preinit() throws Exception
 	{
+		javafx.application.Platform.setImplicitExit(false);
 		root = loadLocation();
 		if (!Files.exists(root)) Files.createDirectories(root);
 		ARML instance = ARML.instance();
@@ -119,12 +120,6 @@ public class MainApplication extends Application
 	{
 		for (String s : bundle.keySet()) map.put(s, bundle.getString(s));
 	}
-
-	private SceneTransitionHandler handler;
-	private double xOffset = 0;
-	private double yOffset = 0;
-	private Pane loginPage;
-	private Pane previewPage;
 
 	private static ResourceBundle bundle;
 
@@ -202,52 +197,27 @@ public class MainApplication extends Application
 		return logger;
 	}
 
+	private ContentHolder holder;
+
 	@Override
 	public void start(final Stage stage) throws Exception
 	{
 		preinit();
+		stage.setTitle("All Around Minecraft Launcher");
 
 		core.init(root);
 
 		for (PluginContainer container : loader.getContainers())
 			container.getPlugin().onLoad(ARML.instance());
 
-		FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Main.fxml"), bundle);
-		StackPane root = fxmlLoader.load();
-		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Login.fxml"), bundle);
-		loginPage = fxmlLoader.load();
-		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Preview.fxml"), bundle);
-		previewPage = fxmlLoader.load();
-//		fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Preview.fxml"), bundle);
-
-		javafx.application.Platform.setImplicitExit(false);
-//		URL icon = MainApplication.class.getResource("/assets/texture/pack.png");
-//		javax.swing.SwingUtilities.invokeLater(() -> FXSystemTray.createTray(stage, icon));
-
-		StackPane base = new StackPane(loginPage);
-		root.getChildren().add(0, base);
-		handler = new SceneTransitionHandler(base, DefaultTransitions.FADE);
+		this.holder = new ContentHolder(stage);
 
 		stage.setFullScreen(false);
 		if (stage.getStyle() != StageStyle.TRANSPARENT) stage.initStyle(StageStyle.TRANSPARENT);
-		root.setOnMousePressed(event ->
-		{
-			xOffset = event.getSceneX();
-			yOffset = event.getSceneY();
-		});
-		root.setOnMouseDragged(event ->
-		{
-			stage.setX(event.getScreenX() - xOffset);
-			stage.setY(event.getScreenY() - yOffset);
-		});
 
-		Scene scene = new Scene(root, 800, 550);
-		scene.setUserData((Consumer<Object>) o -> switchTo(o.toString()));
-		scene.getStylesheets().add(MainApplication.class.getResource("/assets/css/common.css").toExternalForm());
+		ARML.bus().postEvent(new LauncherInitEvent.Post(holder.loginPage, holder.previewPage));
 
-		ARML.bus().postEvent(new LauncherInitEvent.Post(loginPage, previewPage));
-
-		stage.setScene(scene);
+		stage.setScene(holder.scene);
 		stage.show();
 
 		ARML.bus().addEventHandler(ErrorEvent.TYPE, event ->
@@ -258,7 +228,7 @@ public class MainApplication extends Application
 				if (bundle.containsKey(message))
 					message = bundle.getString(message);
 				else message = event.getThrowable().getLocalizedMessage();
-				reportError(root.getScene(), message);
+				reportError(holder.scene, message);
 			}
 		});
 		ARML.bus().addEventHandler(LaunchEvent.POST_LAUNCH, event ->
@@ -266,6 +236,58 @@ public class MainApplication extends Application
 
 		ARML.bus().addEventHandler(LaunchEvent.GAME_EXIT, event ->
 				runJFXThread(stage::show));
+	}
+
+	private class ContentHolder
+	{
+		private final Scene scene;
+		private SceneTransitionHandler handler;
+		private double xOffset = 0;
+		private double yOffset = 0;
+		private Pane loginPage;
+		private Pane previewPage;
+
+		ContentHolder(Stage stage) throws IOException
+		{
+			FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Main.fxml"), bundle);
+			StackPane root = fxmlLoader.load();
+			fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Login.fxml"), bundle);
+			loginPage = fxmlLoader.load();
+			fxmlLoader = new FXMLLoader(MainApplication.class.getResource("/assets/fxml/Preview.fxml"), bundle);
+			previewPage = fxmlLoader.load();
+
+			StackPane base = new StackPane(loginPage);
+			root.getChildren().add(0, base);
+			handler = new SceneTransitionHandler(base, DefaultTransitions.FADE);
+
+			root.setOnMousePressed(event ->
+			{
+				xOffset = event.getSceneX();
+				yOffset = event.getSceneY();
+			});
+			root.setOnMouseDragged(event ->
+			{
+				stage.setX(event.getScreenX() - xOffset);
+				stage.setY(event.getScreenY() - yOffset);
+			});
+
+			scene = new Scene(root, 800, 550);
+			scene.setUserData((Consumer<Object>) o -> switchTo(o.toString()));
+			scene.getStylesheets().add(MainApplication.class.getResource("/assets/css/common.css").toExternalForm());
+		}
+
+		private void switchTo(String id)
+		{
+			switch (id)
+			{
+				case "PREVIEW":
+					handler.transition(previewPage);
+					break;
+				case "LOGIN":
+					handler.transition(loginPage);
+					break;
+			}
+		}
 	}
 
 	private void runJFXThread(Runnable runnable)
@@ -276,18 +298,6 @@ public class MainApplication extends Application
 			javafx.application.Platform.runLater(runnable);
 	}
 
-	private void switchTo(String id)
-	{
-		switch (id)
-		{
-			case "PREVIEW":
-				handler.transition(previewPage);
-				break;
-			case "LOGIN":
-				handler.transition(loginPage);
-				break;
-		}
-	}
 
 	@Override
 	public void stop() throws Exception

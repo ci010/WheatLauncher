@@ -28,13 +28,11 @@ import net.launcher.services.curseforge.CurseForgeCategory;
 import net.launcher.services.curseforge.CurseForgeProject;
 import net.launcher.services.curseforge.CurseForgeProjectType;
 import net.launcher.services.curseforge.CurseForgeService;
+import net.wheatlauncher.ImageCache;
 import org.ehcache.Cache;
 import org.ehcache.CacheManager;
-import org.ehcache.config.CacheConfiguration;
-import org.ehcache.config.builders.CacheConfigurationBuilder;
-import org.ehcache.config.builders.ResourcePoolsBuilder;
-import org.ehcache.config.units.MemoryUnit;
 
+import java.io.IOException;
 import java.util.Optional;
 
 /**
@@ -57,8 +55,8 @@ public class ControllerCurseForge
 	public HBox optionBar;
 
 	private CurseForgeService service;
-	private Cache<String, Image> projectImageCache;
-	private Cache<String, Image> categoryImageCache;
+	private Cache<String, byte[]> projectImageCache;
+	private Cache<String, byte[]> categoryImageCache;
 
 	private JFXSpinner spinner = new JFXSpinner();
 	private Service<CurseForgeService.Cache<CurseForgeProject>> refreshService = new Service<CurseForgeService.Cache<CurseForgeProject>>()
@@ -117,15 +115,13 @@ public class ControllerCurseForge
 
 	public void initialize()
 	{
-		CacheConfiguration<String, Image> cof = CacheConfigurationBuilder.newCacheConfigurationBuilder(String.class, Image.class,
-				ResourcePoolsBuilder.newResourcePoolsBuilder().heap(32, MemoryUnit.MB))
-				.build();
+
 		Optional<CacheManager> component = ARML.instance().getComponent(CacheManager.class);
 		if (!component.isPresent())
 			return;
 		CacheManager manager = component.get();
-		projectImageCache = manager.createCache("projectImageCache", cof);
-		categoryImageCache = manager.createCache("categoryImageCache", cof);
+		projectImageCache = ImageCache.getOrCreate(manager, ImageCache.CURSE_PROJECT);
+		categoryImageCache = ImageCache.getOrCreate(manager, ImageCache.CURSE_CATEGORY);
 
 		JFXDepthManager.setDepth(list, 2);
 
@@ -172,14 +168,21 @@ public class ControllerCurseForge
 				else
 				{
 					cell.setValue(item);
-					Image image = categoryImageCache.get(item.getDefaultName());
+					Image image = ImageCache.getCache(categoryImageCache, item.getDefaultName());
 					if (image == null)
 						loadImage(item.getImgUrl()).addEventHandler(WorkerStateEvent
 										.WORKER_STATE_SUCCEEDED,
 								event ->
 								{
 									Image img = (Image) event.getSource().getValue();
-									categoryImageCache.put(item.getDefaultName(), img);
+									try
+									{
+										ImageCache.putCache(categoryImageCache, item.getDefaultName(), img);
+									}
+									catch (IOException e)
+									{
+										e.printStackTrace();
+									}
 									cell.setImage(img);
 								});
 					cell.setImage(image);
@@ -205,14 +208,21 @@ public class ControllerCurseForge
 				else
 				{
 					cell.setValue(item);
-					Image image = projectImageCache.get(item.getName());
+					Image image = ImageCache.getCache(projectImageCache, item.getName());
 					cell.setImage(image);
 					if (image == null)
 						loadImage(item.getImageUrl()).addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED,
 								event ->
 								{
 									Image img = (Image) event.getSource().getValue();
-									projectImageCache.put(item.getName(), img);
+									try
+									{
+										ImageCache.putCache(projectImageCache, item.getName(), img);
+									}
+									catch (IOException e)
+									{
+										e.printStackTrace();
+									}
 									cell.setImage(img);
 								});
 					setGraphic(cell);

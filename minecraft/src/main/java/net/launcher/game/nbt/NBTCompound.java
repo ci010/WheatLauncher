@@ -97,7 +97,7 @@ public class NBTCompound extends NBT
 		return nbt;
 	}
 
-	public Optional<NBT> option(String s)
+	public Optional<NBT> getOption(String s)
 	{
 		return Optional.ofNullable(map.get(s));
 	}

@@ -13,6 +13,7 @@ import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.concurrent.Worker;
 import javafx.concurrent.WorkerStateEvent;
+import javafx.scene.image.Image;
 import net.launcher.LaunchCore;
 import net.launcher.assets.IOGuardMinecraftAssetsManager;
 import net.launcher.assets.IOGuardMinecraftWorldManager;
@@ -35,6 +36,7 @@ import org.to2mbn.jmccc.version.Version;
 
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Objects;
 
@@ -137,8 +139,8 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 				ARML.bus().postEvent(LaunchEvent.exit(option, selected, code));
 			}
 		});
-
 		ARML.bus().postEvent(LaunchEvent.postLaunch(option, selected));
+		System.gc();
 	}
 
 
@@ -172,6 +174,7 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 		this.resourcePackManager = ioContext.load(ResourcePackManager.class);
 		this.modManager = ioContext.load(ModManager.class);
 
+		ARML.instance().registerComponent("cache.image", new HashMap<String, Image>());
 		CacheManager manager = CacheManagerBuilder.newCacheManagerBuilder().build(true);
 		ARML.instance().registerComponent(CacheManager.class, manager);
 

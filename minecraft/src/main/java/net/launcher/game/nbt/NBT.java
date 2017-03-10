@@ -131,6 +131,7 @@ public abstract class NBT implements Cloneable
 
 	public static NBTList list(List<NBT> listStr)
 	{
+		if (listStr == null || listStr.isEmpty()) return new NBTList();
 		NBTList nbts = new NBTList();
 		nbts.addAll(listStr);
 		return nbts;
@@ -138,6 +139,7 @@ public abstract class NBT implements Cloneable
 
 	public static NBTList listStr(List<String> list)
 	{
+		if (list == null || list.isEmpty()) return new NBTList();
 		NBTList nbts = new NBTList();
 		for (String string : list) nbts.add(NBT.string(string));
 		return nbts;
@@ -145,6 +147,7 @@ public abstract class NBT implements Cloneable
 
 	public static NBTList listStr(String[] strings)
 	{
+		if (strings == null || strings.length == 0) return new NBTList();
 		NBTList nbts = new NBTList();
 		for (String string : strings)
 			nbts.add(NBT.string(string));

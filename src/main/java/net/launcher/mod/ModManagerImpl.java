@@ -1,10 +1,8 @@
 package net.launcher.mod;
 
 import api.launcher.ARML;
-import api.launcher.LaunchProfile;
 import api.launcher.MinecraftIcons;
 import api.launcher.ModManager;
-import api.launcher.setting.Setting;
 import api.launcher.setting.SettingType;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
@@ -14,16 +12,16 @@ import javafx.scene.image.Image;
 import net.launcher.OptionLaunchElementManager;
 import net.launcher.TransformTask;
 import net.launcher.game.ModManifest;
-import net.launcher.game.ModTypes;
-import net.launcher.game.forge.ForgeMod;
+import net.launcher.game.mods.ModTypes;
+import net.launcher.game.mods.forge.ForgeMod;
 import net.launcher.game.nbt.NBTCompound;
 import net.launcher.utils.resource.ArchiveRepository;
 import net.launcher.utils.resource.Delivery;
 import net.launcher.utils.resource.FetchOption;
 import net.launcher.utils.resource.Resource;
-import org.to2mbn.jmccc.option.LaunchOption;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -89,22 +87,6 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ModManifest> i
 	}
 
 	@Override
-	protected void implementRuntimePath(LaunchProfile profile, Path path, Setting instance, LaunchOption option)
-	{
-//		ObservableList<ForgeMod> includeElementContainer = getIncludeElementContainer(profile);
-//		includeElementContainer.stream().map(mod -> hashMap.get(getModKey(mod))).collect(Collectors.toSet()).forEach(
-//				s -> deliveryCache.put(option, archiveResource.fetchResource(path.resolve("mods"), s, ArchiveRepository.FetchOption.HARD_LINK))
-//		);
-	}
-
-	public void onClose(LaunchOption option, LaunchProfile profile)
-	{
-//		Repository.Delivery<Resource<ForgeMod[]>> delivery = deliveryCache.get(option);
-//		if (delivery != null)
-//			delivery.markRelease();
-	}
-
-	@Override
 	protected List<ForgeMod> from(ModManifest value)
 	{
 		List<ForgeMod> mods = new ArrayList<>();
@@ -127,7 +109,7 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ModManifest> i
 	}
 
 	@Override
-	public Image getLogo(ForgeMod forgeMod)
+	public InputStream getLogoStream(ForgeMod forgeMod) throws IOException
 	{
 		Objects.requireNonNull(forgeMod);
 		String logoFile = forgeMod.getMetaData().getLogoFile();
@@ -137,15 +119,23 @@ class ModManagerImpl extends OptionLaunchElementManager<ForgeMod, ModManifest> i
 			String hash = hashMap.get(modKey);
 			Resource<ForgeMod[]> resource = archiveResource.getResourceMap().get(hash);
 			if (resource == null) return null;
-			try
-			{
-				return new Image(archiveResource.openStream(resource, logoFile));
-			}
-			catch (IOException e)
-			{
-				ARML.taskCenter().reportError("ForgeGetLogo", e);
-				return MinecraftIcons.UNKNOWN;
-			}
+			return archiveResource.openStream(resource, logoFile);
+		}
+		return null;
+	}
+
+	@Override
+	public Image getLogo(ForgeMod forgeMod)
+	{
+		try
+		{
+			InputStream logoStream = getLogoStream(forgeMod);
+			if (logoStream != null)
+				return new Image(logoStream);
+		}
+		catch (Exception e)
+		{
+			ARML.taskCenter().reportError("ForgeGetLogo", e);
 		}
 		return MinecraftIcons.UNKNOWN;
 	}

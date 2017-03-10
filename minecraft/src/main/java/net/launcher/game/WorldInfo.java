@@ -8,7 +8,6 @@ import net.launcher.utils.serial.SerializedWriter;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
 
@@ -128,7 +127,7 @@ public class WorldInfo
 		return new Image(new FileInputStream(saveDir.resolve(info.getFileName()).resolve("icon.png").toFile()));
 	}
 
-	public static WorldInfo deserialize(Path levelFile) throws IOException
+	public static WorldInfo deserialize(Path levelFile) throws Exception
 	{
 		String fileName = levelFile.getParent().getFileName().toString();
 		return SERIALIZER.deserialize(NBT.read(levelFile, true).asCompound(), Collections.singletonMap("fileName",
@@ -143,7 +142,7 @@ public class WorldInfo
 		String levelName = compound.get("LevelName").asString();
 		boolean hardcore = compound.get("hardcore").asBool();
 		GameType gameType = GameType.getByID(compound.get("GameType").asPrimitive().asInt());
-		boolean allowCommands = compound.option("allowCommands").orElse(NBT.bool(gameType == GameType.CREATIVE))
+		boolean allowCommands = compound.getOption("allowCommands").orElse(NBT.bool(gameType == GameType.CREATIVE))
 				.asPrimitive().asBool();
 		int spawnX1 = compound.get("SpawnX").asPrimitive().asInt();
 		int spawnY1 = compound.get("SpawnY").asPrimitive().asInt();

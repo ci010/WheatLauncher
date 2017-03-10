@@ -67,6 +67,10 @@ public class ControllerCurseForgeCard
 				JFXRippler button = new JFXRippler();
 				Icon icon = new Icon("DOWNLOAD");
 				icon.setPadding(new Insets(8));
+				button.setOnMouseReleased(event ->
+				{
+//					ARML.bus().postEvent(n)
+				});
 				button.setControl(icon);
 				button.setMaskType(JFXRippler.RipplerMask.CIRCLE);
 				graphic.setLeft(fName);

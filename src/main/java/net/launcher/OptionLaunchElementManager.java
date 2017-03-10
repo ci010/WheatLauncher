@@ -7,10 +7,8 @@ import api.launcher.setting.SettingType;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import org.to2mbn.jmccc.option.LaunchOption;
 
 import java.lang.ref.WeakReference;
-import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -52,16 +50,4 @@ public abstract class OptionLaunchElementManager<T, O> implements LaunchElementM
 	protected abstract List<T> from(O value);
 
 	protected abstract O to(List<T> lst);
-
-	public void onLaunch(LaunchOption option, LaunchProfile profile)
-	{
-		Objects.requireNonNull(option);
-		Objects.requireNonNull(profile);
-		SettingType.Option<O> goption = getOption();
-		Optional<Setting> gameSetting = profile.getGameSetting(goption.getParent());
-		if (gameSetting.isPresent())
-			implementRuntimePath(profile, option.getRuntimeDirectory().getRoot().toPath(), gameSetting.get(), option);
-	}
-
-	protected abstract void implementRuntimePath(LaunchProfile profile, Path path, Setting instance, LaunchOption option);
 }

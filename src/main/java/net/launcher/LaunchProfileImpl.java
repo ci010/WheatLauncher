@@ -3,6 +3,7 @@ package net.launcher;
 import api.launcher.ARML;
 import api.launcher.LaunchProfile;
 import api.launcher.MinecraftAssetsManager;
+import api.launcher.event.ProfileEvent;
 import api.launcher.setting.Setting;
 import api.launcher.setting.SettingType;
 import javafx.beans.binding.Bindings;
@@ -89,7 +90,11 @@ public class LaunchProfileImpl implements LaunchProfile
 	public StringProperty versionProperty() {return version;}
 
 	@Override
-	public void setVersion(String version) {this.version.set(version);}
+	public void setVersion(String version)
+	{
+		this.version.set(version);
+		ARML.bus().postEvent(new ProfileEvent(this, ProfileEvent.VERSION_CHANGE));
+	}
 
 	private ObjectBinding<MinecraftVersion> mcVersion = Bindings.createObjectBinding(() ->
 	{

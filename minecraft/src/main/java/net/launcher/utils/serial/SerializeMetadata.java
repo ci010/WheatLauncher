@@ -16,10 +16,10 @@ public interface SerializeMetadata
 {
 	static void decroateWithFileInfo(Map<Object, Object> context, File file)
 	{
-		context.put("fileName", file.getName());
-		context.put("size", file.length());
-		context.put("lastModified", file.lastModified());
-		context.put("path", file.getAbsolutePath());
+		context.putIfAbsent("fileName", file.getName());
+		context.putIfAbsent("size", file.length());
+		context.putIfAbsent("lastModified", file.lastModified());
+		context.putIfAbsent("path", file.getAbsolutePath());
 	}
 
 	static void decorateWithFileInfo(Map<Object, Object> context, Path file) throws IOException
@@ -29,9 +29,9 @@ public interface SerializeMetadata
 
 		if (!file.getFileSystem().equals(FileSystems.getDefault()))
 			file = Paths.get(file.getFileSystem().toString());
-		context.put("fileName", file.getFileName().toString());
-		context.put("size", Files.size(file));
-		context.put("lastModified", Files.getLastModifiedTime(file));
-		context.put("path", file.toAbsolutePath().toString());
+		context.putIfAbsent("fileName", file.getFileName().toString());
+		context.putIfAbsent("size", Files.size(file));
+		context.putIfAbsent("lastModified", Files.getLastModifiedTime(file));
+		context.putIfAbsent("path", file.toAbsolutePath().toString());
 	}
 }

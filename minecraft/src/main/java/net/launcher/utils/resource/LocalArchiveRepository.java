@@ -9,16 +9,15 @@ import net.launcher.utils.NIOUtils;
 import net.launcher.utils.Tasks;
 import net.launcher.utils.serial.BiSerializer;
 import net.launcher.utils.serial.Deserializer;
+import net.launcher.utils.serial.SerializeMetadata;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -29,13 +28,25 @@ public class LocalArchiveRepository<T> extends ArchiveRepositoryBase<T> implemen
 	private Path root;
 	private Deserializer<T, Path> parser;
 	private BiSerializer<T, NBTCompound> archiveSerializer;
+	private Function<Path, ResourceType> resourceTypeParser;
 
-	public LocalArchiveRepository(Path root, Deserializer<T, Path> parser, BiSerializer<T, NBTCompound> archiveSerializer)
+	private Set<String> hashLock = Collections.synchronizedSet(new HashSet<>());
+
+	public LocalArchiveRepository(Path root, Deserializer<T, Path> parser,
+								  BiSerializer<T, NBTCompound> archiveSerializer)
+	{
+		this(root, DefaultResourceType::getType, parser, archiveSerializer);
+	}
+
+	public LocalArchiveRepository(Path root, Function<Path, ResourceType> resourceTypeParser, Deserializer<T, Path> parser,
+								  BiSerializer<T, NBTCompound> archiveSerializer)
 	{
 		this.root = root;
 		this.parser = parser;
 		this.archiveSerializer = archiveSerializer;
+		this.resourceTypeParser = resourceTypeParser;
 	}
+
 
 	protected Resource<T> getResource(String resource) throws IOException
 	{
@@ -60,15 +71,16 @@ public class LocalArchiveRepository<T> extends ArchiveRepositoryBase<T> implemen
 				.put("data", archiveSerializer.serialize(resource.getContainData()))
 				.put("metadata", resource.getCompound());
 		NBT.write(root.resolve(resource.getHash() + ".dat"), compound, true);
+
 	}
 
 	private Resource<T> readNBT(NBTCompound compound, Object sig)
 	{
 		return new Resource<>(
-				ResourceType.valueOf(compound.get("type").asString()),
+				DefaultResourceType.valueOf(compound.get("type").asString()),
 				compound.get("hash").asString(),
 				archiveSerializer.deserialize(compound.get("data").asCompound()), sig,
-				compound.option("metadata").orElse(NBT.compound()).asCompound());
+				compound.getOption("metadata").orElse(NBT.compound()).asCompound());
 	}
 
 	protected Resource<T> fetch(Path dir, String path, FetchOption option) throws IOException
@@ -115,13 +127,23 @@ public class LocalArchiveRepository<T> extends ArchiveRepositoryBase<T> implemen
 		Objects.requireNonNull(file);
 		return new Task<Resource<T>>()
 		{
+			private String md5;
+
+			@Override
+			protected void done()
+			{
+				if (md5 != null)
+					hashLock.remove(md5);
+			}
+
 			@Override
 			protected Resource<T> call() throws Exception
 			{
-				ResourceType resourceType = ResourceType.getType(file);
+				ResourceType resourceType = resourceTypeParser.apply(file);
 				if (resourceType == null) throw new IOException();
 				MD5 digest = MD5.digest(file);
 				String md5 = digest.toString();
+
 				updateProgress(1, 3);
 				updateMessage("checking");
 
@@ -132,29 +154,48 @@ public class LocalArchiveRepository<T> extends ArchiveRepositoryBase<T> implemen
 					return archesMap.get(md5);
 				}
 
-				updateProgress(2, 3);
-				updateMessage("copying");
+				if (hashLock.contains(md5))
+				{
+					updateProgress(2, 3);
+					updateMessage("cancel");
+					this.cancel();
+					return null;
+				}
+				else
+				{
+					this.md5 = md5;
+					hashLock.add(md5);
+				}
 
-				Path target = root.resolve(md5 + resourceType.getSuffix());
-				if (!Files.exists(target))
-					if (Files.isDirectory(target)) NIOUtils.copyDirectory(file, target);
-					else Files.copy(file, target);
+				updateProgress(2, 3);
+
+				Path diskLocation = root.resolve(md5 + resourceType.getSuffix());
+				Path fileRoot = diskLocation;
+				FileSystem system = Tasks.optional(() -> FileSystems.newFileSystem(file,
+						LocalArchiveRepository.class.getClassLoader())).orElse(null);
+				if (system != null) fileRoot = system.getPath("/");
+
+				Map<Object, Object> context = new HashMap<>();
+				SerializeMetadata.decorateWithFileInfo(context, file);
 
 				updateMessage("resolving");
 
-				FileSystem system = Tasks.optional(() -> FileSystems.newFileSystem(file,
-						LocalArchiveRepository.class.getClassLoader())).orElse(null);
-				if (system != null) target = system.getPath("/");
-
-				T deserialize = parser.deserializeWithException(target, this::setException);
+				T deserialize = parser.deserialize(fileRoot, context);
 				if (deserialize == null) throw new IOException("Unable to parse the [" + file + "]!");
+
+				updateMessage("copying");
+
+				if (!Files.exists(diskLocation))
+					if (Files.isDirectory(diskLocation)) NIOUtils.copyDirectory(file, diskLocation);
+					else Files.copy(file, diskLocation);
 
 				String simpleName = file.getFileName().toString().replace(resourceType.getSuffix(), "");
 				Resource<T> resource = new Resource<>(resourceType, md5,
-						deserialize, this).setName(simpleName);
+						deserialize, LocalArchiveRepository.this).setName(simpleName);
 				Platform.runLater(() -> archesMap.put(md5, resource));
 				updateMessage("saving");
 				saveResource(resource);
+				updateMessage("done");
 				return resource;
 			}
 		};
@@ -201,8 +242,7 @@ public class LocalArchiveRepository<T> extends ArchiveRepositoryBase<T> implemen
 			FileSystem system = null;
 			try {system = FileSystems.newFileSystem(file, ArchiveRepository.class.getClassLoader());}
 			catch (IOException ignored) {}
-			if (system != null)
-				file = system.getPath("/");
+			if (system != null) file = system.getPath("/");
 			file = file.resolve(path);
 			return Files.newInputStream(file);
 		}

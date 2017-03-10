@@ -1,10 +1,8 @@
 package net.launcher.resourcepack;
 
 import api.launcher.ARML;
-import api.launcher.LaunchProfile;
 import api.launcher.MinecraftIcons;
 import api.launcher.ResourcePackManager;
-import api.launcher.setting.Setting;
 import api.launcher.setting.SettingType;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
@@ -17,7 +15,6 @@ import net.launcher.game.ResourcePack;
 import net.launcher.utils.resource.ArchiveRepository;
 import net.launcher.utils.resource.FetchOption;
 import net.launcher.utils.resource.Resource;
-import org.to2mbn.jmccc.option.LaunchOption;
 
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -94,23 +91,6 @@ class ResourcePackManImpl extends OptionLaunchElementManager<ResourcePack, Strin
 			strings[i] = lst.get(i).getPackName() + nameToResource.get(lst.get(i).getPackName()).getType().getSuffix();
 		return strings;
 	}
-
-	@Override
-	protected void implementRuntimePath(LaunchProfile profile, Path path, Setting property, LaunchOption option)
-	{
-//		String[] value = property.getOption(getOption()).getValue();
-//		for (String aValue : value)
-//			launchCache.put(option, archiveRepository.fetchResource(path, nameToResource.get(aValue).getHash(),
-//					ArchiveRepository.FetchOption.SYMBOL_LINK));
-	}
-
-	public void onClose(LaunchOption option, LaunchProfile profile)
-	{
-//		Repository.Delivery<ArchiveRepository.Resource<ResourcePack>> resourceDelivery = launchCache.get(option);
-//		if (resourceDelivery != null)
-//			resourceDelivery.markRelease();
-	}
-
 
 	@Override
 	public Image getIcon(ResourcePack resourcePack)
