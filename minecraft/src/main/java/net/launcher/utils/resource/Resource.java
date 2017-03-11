@@ -49,6 +49,7 @@ public class Resource<T>
 	public String getName()
 	{
 		NBT name = compound.get("name");
+		if (name.isNull()) return hash;
 		return name.asString();
 	}
 
