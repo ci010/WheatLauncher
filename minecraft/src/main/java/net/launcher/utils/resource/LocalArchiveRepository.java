@@ -31,8 +31,8 @@ public class LocalArchiveRepository<T> extends ArchiveRepositoryBase<T> implemen
 	private BiSerializer<T, NBTCompound> archiveSerializer;
 	private Function<Path, ResourceType> resourceTypeParser;
 
-	private Set<String> importing = Collections.synchronizedSet(new HashSet<>());
-	private AtomicBoolean updating = new AtomicBoolean();
+	private final Set<String> importing = Collections.synchronizedSet(new HashSet<>());
+	private final AtomicBoolean updating = new AtomicBoolean();
 
 	private Function<T, String> nameDecorator;
 
@@ -174,7 +174,7 @@ public class LocalArchiveRepository<T> extends ArchiveRepositoryBase<T> implemen
 				if (updating.compareAndSet(false, true))
 				{
 					while (!importing.isEmpty())
-						importing.wait();
+						synchronized (importing) {importing.wait();}
 					if (Files.exists(root))
 					{
 						Files.walkFileTree(root, EnumSet.noneOf(FileVisitOption.class),
@@ -240,7 +240,7 @@ public class LocalArchiveRepository<T> extends ArchiveRepositoryBase<T> implemen
 			@Override
 			protected Resource<T> call() throws Exception
 			{
-				while (updating.get()) updating.wait();
+				while (updating.get()) synchronized (updating) {updating.wait();}
 
 				ResourceType resourceType = resourceTypeParser.apply(file);
 				if (resourceType == null) throw new IOException();
