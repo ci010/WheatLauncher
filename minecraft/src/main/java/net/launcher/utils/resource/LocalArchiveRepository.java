@@ -39,14 +39,16 @@ public class LocalArchiveRepository<T> extends ArchiveRepositoryBase<T> implemen
 	public LocalArchiveRepository(Path root, Deserializer<T, Path> parser,
 								  BiSerializer<T, NBTCompound> archiveSerializer)
 	{
-		this(root, DefaultResourceType::getType, parser, archiveSerializer);
+		this(root, DefaultResourceType::getType, null, parser, archiveSerializer);
 	}
 
-	public LocalArchiveRepository(Path root, Function<Path, ResourceType> resourceTypeParser, Deserializer<T, Path> parser,
+	public LocalArchiveRepository(Path root, Function<Path, ResourceType> resourceTypeParser,
+								  Function<T, String> nameDecorator, Deserializer<T, Path> parser,
 								  BiSerializer<T, NBTCompound> archiveSerializer)
 	{
 		this.root = root;
 		this.parser = parser;
+		this.nameDecorator = nameDecorator;
 		this.archiveSerializer = archiveSerializer;
 		this.resourceTypeParser = resourceTypeParser;
 	}
@@ -171,10 +173,10 @@ public class LocalArchiveRepository<T> extends ArchiveRepositoryBase<T> implemen
 			@Override
 			protected ArchiveRepository<T> call() throws Exception
 			{
+				while (!importing.isEmpty())
+					synchronized (importing) {importing.wait();}
 				if (updating.compareAndSet(false, true))
 				{
-					while (!importing.isEmpty())
-						synchronized (importing) {importing.wait();}
 					if (Files.exists(root))
 					{
 						Files.walkFileTree(root, EnumSet.noneOf(FileVisitOption.class),

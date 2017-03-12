@@ -67,7 +67,7 @@ public class ControllerLanguages
 		MinecraftVersion version = assetsManager.getVersion(selecting.getVersion());
 		if (version != null)
 		{
-			Task<Language[]> task = assetsManager.getRepository().getLanguages(version);
+			Task<Language[]> task = assetsManager.getLanguages(version);
 			task.setOnSucceeded(event ->
 			{
 				Worker<Language[]> source = event.getSource();

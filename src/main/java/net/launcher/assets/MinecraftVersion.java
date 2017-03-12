@@ -28,35 +28,15 @@ public class MinecraftVersion
 
 	public MinecraftVersion() {}
 
-	public String getVersionID()
-	{
-		return versionID.get();
-	}
+	public String getVersionID() {return versionID.get();}
 
-	public ReadOnlyStringProperty versionIDProperty()
-	{
-		return versionID;
-	}
+	public ReadOnlyStringProperty versionIDProperty() {return versionID;}
 
-	void setVersionID(String versionID)
-	{
-		this.versionID.set(versionID);
-	}
+	public State getState() {return state.get();}
 
-	public State getState()
-	{
-		return state.get();
-	}
+	public ReadOnlyObjectProperty<State> stateProperty() {return state;}
 
-	public ReadOnlyObjectProperty<State> stateProperty()
-	{
-		return state;
-	}
-
-	void setState(State state)
-	{
-		this.state.set(state);
-	}
+	void setState(State state) {this.state.set(state);}
 
 	public ObservableMap<String, Object> getMetadata() {return metadata;}
 

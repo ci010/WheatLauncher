@@ -46,10 +46,10 @@ import java.util.stream.Collectors;
  * @author ci010
  */
 public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManager>
-		implements MinecraftAssetsManagerImpl.AssetsRepository
 {
 	private ObservableList<MinecraftVersion> versions = FXCollections.observableArrayList();
 	private ObservableMap<String, MinecraftVersion> versionMap = FXCollections.observableMap(new TreeMap<>());
+	private MinecraftVersion latestRelease;
 
 	@Override
 	public void forceSave() throws IOException
@@ -91,16 +91,14 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 		});
 	}
 
-	@Override
-	public Version buildVersion(MinecraftVersion version) throws IOException
+	Version buildVersion(MinecraftVersion version) throws IOException
 	{
 		if (version == null) return null;
 		MinecraftDirectory minecraftDirectory = new MinecraftDirectory(getContext().getRoot().toFile());
 		return Versions.resolveVersion(minecraftDirectory, version.getVersionID());
 	}
 
-	@Override
-	public Task<MinecraftVersion> fetchVersion(MinecraftVersion version)
+	Task<MinecraftVersion> fetchVersion(MinecraftVersion version)
 	{
 		Objects.requireNonNull(version);
 		return new Task<MinecraftVersion>()
@@ -145,8 +143,7 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 		};
 	}
 
-	@Override
-	public Task<List<MinecraftVersion>> refreshVersion()
+	Task<List<MinecraftVersion>> refreshVersion()
 	{
 		return new Task<List<MinecraftVersion>>()
 		{
@@ -175,13 +172,18 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 						if (cache != null)
 						{
 							RemoteVersion remote = cache.getVersions().get(version);
-							if (remote != null) v.getMetadata().put("remote", remote);
+							if (remote != null)
+							{
+								if (remote.getVersion().equals(cache.getLatestRelease()))
+									latestRelease = v;
+								v.getMetadata().put("remote", remote);
+							}
 						}
 						versionList.add(v);
 					}
 				updateProgress(3, 5);
 
-				if (!remoteChange)
+				if (remoteChange)
 				{
 					for (String version : cache.getVersions().keySet().stream().filter(s -> !locals.contains(s)).collect(Collectors.toList()))
 					{
@@ -194,6 +196,8 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 						}
 						MinecraftVersion v = new MinecraftVersion(version, MinecraftVersion.State.REMOTE);
 						RemoteVersion remote = cache.getVersions().get(version);
+						if (remote.getVersion().equals(cache.getLatestRelease()))
+							latestRelease = v;
 						v.getMetadata().put("remote", remote);
 						versionList.add(v);
 					}
@@ -239,8 +243,7 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 		};
 	}
 
-	@Override
-	public Task<Language[]> getLanguages(MinecraftVersion version)
+	Task<Language[]> getLanguages(MinecraftVersion version)
 	{
 		return new Task<Language[]>()
 		{
@@ -261,14 +264,12 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 		};
 	}
 
-	@Override
-	public Task<Void> importMinecraft(MinecraftDirectory directory)
+	Task<Void> importMinecraft(MinecraftDirectory directory)
 	{
 		return null;
 	}
 
-	@Override
-	public Task<Void> exportVersion(MinecraftVersion version, Path target)
+	Task<Void> exportVersion(MinecraftVersion version, Path target)
 	{
 		return null;
 	}
@@ -332,6 +333,11 @@ public class IOGuardMinecraftAssetsManager extends IOGuard<MinecraftAssetsManage
 	public void onClose(LaunchOption option, LaunchProfile profile)
 	{
 
+	}
+
+	public MinecraftVersion getLatestRelease()
+	{
+		return latestRelease;
 	}
 
 	class SaveTask implements IOGuardContext.IOTask

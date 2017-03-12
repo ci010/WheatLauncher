@@ -92,7 +92,8 @@ public class ControllerProfileChooserPane
 
 	public void add()
 	{
-		ARML.core().getProfileManager().newProfile(resources.getString("untitled"));
+		LaunchProfile profile = ARML.core().getProfileManager().newProfile(resources.getString("untitled"));
+		profile.setVersion(ARML.core().getAssetsManager().getVersions().get(0).toString());
 		profileTable.edit(profileTable.getItems().size() - 1, name);
 	}
 

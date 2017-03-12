@@ -113,7 +113,7 @@ class Core implements LauncherContext, TaskCenter, LaunchCore
 	public void launch() throws Exception
 	{
 		LaunchProfile selected = getProfileManager().selecting();
-		Version version = getAssetsManager().getRepository().buildVersion(selected.getMcVersion());
+		Version version = getAssetsManager().buildVersion(selected.getMcVersion());
 
 		LaunchOption option = new LaunchOption(version, () -> authProfile.getCache(),
 				new MinecraftDirectory(root.toFile()));

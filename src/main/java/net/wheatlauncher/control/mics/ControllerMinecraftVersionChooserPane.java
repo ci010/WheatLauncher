@@ -104,7 +104,7 @@ public class ControllerMinecraftVersionChooserPane
 				if (o != null)
 				{
 					RemoteVersion rv = (RemoteVersion) o;
-					return rv.getReleaseTime().toString();
+					return DateFormat.getInstance().format(rv.getReleaseTime());
 				}
 			}
 			return "";
@@ -239,14 +239,13 @@ public class ControllerMinecraftVersionChooserPane
 
 	public void refresh()
 	{
-		ARML.taskCenter().runTask(ARML.core().getAssetsManager().getRepository
-				().refreshVersion());
+		ARML.taskCenter().runTask(ARML.core().getAssetsManager().refreshVersion());
 	}
 
 	public void requestDownload()
 	{
 		MinecraftVersion selectedItem = this.versionTable.getSelectionModel().getSelectedItem();
-		Task<MinecraftVersion> task = ARML.core().getAssetsManager().getRepository().fetchVersion(selectedItem);
+		Task<MinecraftVersion> task = ARML.core().getAssetsManager().fetchVersion(selectedItem);
 		ARML.taskCenter().runTask(task);
 		comboBox.setValue(selectedItem);
 		comboBox.hide();
