@@ -6,11 +6,10 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXPasswordField;
 import com.jfoenix.controls.JFXSpinner;
 import com.jfoenix.controls.JFXTextField;
-import javafx.application.Platform;
 import javafx.beans.InvalidationListener;
 import javafx.beans.binding.Bindings;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.control.ContextMenu;
@@ -23,8 +22,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import net.launcher.auth.Authorize;
 import net.launcher.control.OnlineModeSwitch;
-import net.launcher.utils.Tasks;
 import net.wheatlauncher.control.utils.ValidatorDelegate;
+import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.yggdrasil.core.RemoteAuthenticationException;
 
@@ -145,38 +144,48 @@ public class ControllerLogin
 		}, ARML.core().getAuthManager().authorizeInstanceProperty()));
 	}
 
-	public void login(ActionEvent event)
+	public void login()
 	{
 		btnPane.getChildren().remove(login);
 		btnPane.getChildren().add(spinner);
-		ARML.async().submit(Tasks.builder(() ->
+		Task<AuthInfo> task = ARML.taskCenter().runTask(new Task<AuthInfo>()
 		{
-			AuthManager module = ARML.core().getAuthManager();
-			return module.getAuthorizeInstance().auth(module.getAccount(), module.getPassword());
-		}).setDone((result) -> Platform.runLater(() ->
-		{
-			ARML.core().getAuthManager().setCache(result);
-			btnPane.getChildren().remove(spinner);
-			btnPane.getChildren().add(login);
-			((Consumer) root.getScene().getUserData()).accept("PREVIEW");
-		})).setException((e) ->
-				Platform.runLater(() ->
+			{updateTitle("Login");}
+
+			@Override
+			protected AuthInfo call() throws Exception
+			{
+				try
+				{
+					AuthManager module = ARML.core().getAuthManager();
+					return module.getAuthorizeInstance().auth(module.getAccount(), module.getPassword());
+				}
+				catch (Exception e)
 				{
 					Throwable ex = e.getCause() == null ? e : e.getCause();
 					if (ex instanceof RemoteAuthenticationException)
 						if (ex.getMessage().equals("ForbiddenOperationException: Invalid credentials. Invalid username or password."))
-							ARML.taskCenter().reportError("Login", new AuthenticationException("login.invalid" +
-									".credentials"));
-						else
-							ARML.taskCenter().reportError("Login", e);
+							throw new AuthenticationException("login.invalid.credentials");
+						else throw e;
 					else if (ex.getCause() instanceof UnknownHostException)
-						ARML.taskCenter().reportError("Login", new UnknownHostException("login.network.error"));
-					else
-						ARML.taskCenter().reportError("Login", e);
-					btnPane.getChildren().remove(spinner);
-					btnPane.getChildren().add(login);
-				})).build());
-
+						throw new UnknownHostException("login.network.error");
+					else throw e;
+				}
+			}
+		});
+		task.setOnSucceeded(e ->
+		{
+			AuthInfo value = (AuthInfo) e.getSource().getValue();
+			ARML.core().getAuthManager().setCache(value);
+			btnPane.getChildren().remove(spinner);
+			btnPane.getChildren().add(login);
+			((Consumer) root.getScene().getUserData()).accept("PREVIEW");
+		});
+		task.setOnFailed(e ->
+		{
+			btnPane.getChildren().remove(spinner);
+			btnPane.getChildren().add(login);
+		});
 	}
 
 	@FXML

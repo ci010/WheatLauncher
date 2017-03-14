@@ -5,6 +5,7 @@ import net.launcher.game.nbt.NBT;
 import net.launcher.game.nbt.NBTCompound;
 import net.launcher.utils.serial.Deserializer;
 import net.launcher.utils.serial.SerializedWriter;
+import org.to2mbn.jmccc.option.MinecraftDirectory;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -120,6 +121,12 @@ public class WorldInfo
 	public void setSpawnZ(int spawnZ)
 	{
 		this.spawnZ = spawnZ;
+	}
+
+	public static Image getIcon(WorldInfo info, MinecraftDirectory minecraftDirectory) throws FileNotFoundException
+	{
+		return new Image(new FileInputStream(minecraftDirectory.getRoot().toPath().resolve(info.getFileName())
+				.resolve("icon.png").toFile()));
 	}
 
 	public static Image getIcon(WorldInfo info, Path saveDir) throws FileNotFoundException

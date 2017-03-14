@@ -14,7 +14,7 @@ public interface Profile
 
 	void setMaxMemory(int maxMemory);
 
-	int setMinMemory();
+	int getMinMemory();
 
 	void setMinMemory(int minMemory);
 

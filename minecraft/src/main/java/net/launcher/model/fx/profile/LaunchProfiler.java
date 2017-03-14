@@ -1,9 +1,8 @@
-package net.launcher.model.fx;
+package net.launcher.model.fx.profile;
 
 import javafx.beans.property.ReadOnlyIntegerProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
-import javafx.collections.ObservableMap;
 import net.launcher.model.Profile;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.WindowSize;
@@ -13,9 +12,9 @@ import org.to2mbn.jmccc.option.WindowSize;
  */
 public interface LaunchProfiler extends Profile
 {
-	ObservableMap<String, Profile> getAllProfile();
+	void load(Profile profile);
 
-	void loadProfile(Profile profile);
+	ReadOnlyStringProperty idProperty();
 
 	ReadOnlyIntegerProperty minMemoryProperty();
 

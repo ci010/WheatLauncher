@@ -3,23 +3,52 @@ package net.launcher.model;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.WindowSize;
 
+import java.io.Serializable;
+import java.util.Objects;
+
 /**
  * @author ci010
  */
-public class ProfileBase implements Profile
+public class ProfileBase implements Profile, Serializable
 {
 	private String id, name, minecraftVersion;
 	private WindowSize resolution;
 	private JavaEnvironment javaLocation;
-	private int minMemory, maxMemory;
+	private int minMemory = 512, maxMemory = 512;
+
+	public static Profile create(String name)
+	{
+		Objects.requireNonNull(name);
+		ProfileBase profileBase = new ProfileBase();
+		profileBase.setName(name);
+		return profileBase;
+	}
 
 	public ProfileBase(String id, String name, String minecraftVersion, WindowSize resolution, JavaEnvironment javaLocation)
+	{
+		this(id, name, minecraftVersion, resolution, javaLocation, 512, 512);
+	}
+
+	public ProfileBase(String id, String name, String minecraftVersion, WindowSize resolution, JavaEnvironment javaLocation, int minMemory, int maxMemory)
 	{
 		this.id = id;
 		this.name = name;
 		this.minecraftVersion = minecraftVersion;
 		this.resolution = resolution;
 		this.javaLocation = javaLocation;
+		this.minMemory = minMemory;
+		this.maxMemory = maxMemory;
+	}
+
+	public ProfileBase(Profile profile)
+	{
+		this(System.currentTimeMillis() + "", profile.getName(), profile.getMinecraftVersion(), profile.getResolution(), profile
+				.getJavaLocation(), profile.getMinMemory(), profile.getMaxMemory());
+	}
+
+	public ProfileBase()
+	{
+		this(System.currentTimeMillis() + "", "Default", "", WindowSize.fullscreen(), JavaEnvironment.current());
 	}
 
 	@Override
@@ -35,7 +64,7 @@ public class ProfileBase implements Profile
 	}
 
 	@Override
-	public int setMinMemory() {return minMemory;}
+	public int getMinMemory() {return minMemory;}
 
 	@Override
 	public void setMinMemory(int minMemory)
