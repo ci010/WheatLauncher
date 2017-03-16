@@ -1,4 +1,4 @@
-package net.launcher.model.fx.auth;
+package net.launcher.fx.auth;
 
 
 import net.launcher.model.Authorize;

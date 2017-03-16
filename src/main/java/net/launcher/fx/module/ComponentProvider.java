@@ -1,7 +1,6 @@
-package net.launcher.model.fx.module;
+package net.launcher.fx.module;
 
-import javafx.concurrent.Task;
-import net.launcher.model.fx.View;
+import net.launcher.fx.View;
 
 import java.util.List;
 
@@ -14,5 +13,5 @@ public interface ComponentProvider
 
 	<T> View<T> getComponent(Class<T> type);
 
-	Task<Void> saveComponentTask(View<?> o);
+	boolean saveComponent(View<?> o) throws Exception;
 }

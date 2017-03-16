@@ -1,10 +1,11 @@
-package net.launcher.model.fx.auth;
+package net.launcher.fx.impl;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import net.launcher.fx.auth.Authorizer;
 import net.launcher.model.Authorize;
-import net.launcher.model.AuthorizeBase;
 import net.launcher.utils.StringUtils;
+import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.AuthenticationException;
 import org.to2mbn.jmccc.auth.Authenticator;
 import org.to2mbn.jmccc.auth.OfflineAuthenticator;
@@ -14,24 +15,26 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.PropertiesGameProfile;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.Texture;
 import org.to2mbn.jmccc.auth.yggdrasil.core.texture.TextureType;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @author ci010
  */
-public class AuthorizerImpl extends AuthorizeBase implements Authorizer
+public class AuthorizerImpl implements Authorizer
 {
 	private ObjectProperty<Authorize> delegate = new SimpleObjectProperty<>();
 
 	private StringProperty id = new SimpleStringProperty();
 	private StringProperty account = new SimpleStringProperty();
 
-	AuthorizerImpl(Authorize authorize)
+	private Map<String, List<String>> history;
+
+	AuthorizerImpl()
+	{}
+
+	public AuthorizerImpl(Map<String, List<String>> history)
 	{
-		this.load(authorize);
+		this.history = history;
 	}
 
 	@Override
@@ -70,16 +73,35 @@ public class AuthorizerImpl extends AuthorizeBase implements Authorizer
 	@Override
 	public List<String> getAccountHistory()
 	{
-		if (delegate.get() != null)
-			return delegate.get().getAccountHistory();
-		return super.getAccountHistory();
+		List<String> list = history.get(delegate.get().getId());
+		if (list == null)
+			history.put(delegate.get().getId(), list = new ArrayList<>());
+		return list;
+	}
+
+	protected class AuthenticatorWrapper implements Authenticator
+	{
+		private Authenticator delegate;
+
+		public AuthenticatorWrapper(Authenticator delegate)
+		{
+			this.delegate = delegate;
+		}
+
+		@Override
+		public AuthInfo auth() throws AuthenticationException
+		{
+			AuthInfo auth = delegate.auth();
+			getAccountHistory().add(0, getAccount());
+			return auth;
+		}
 	}
 
 	@Override
 	public Authenticator buildAuthenticator()
 	{
 		if (delegate.get() != null)
-			return delegate.get().buildAuthenticator();
+			return new AuthenticatorWrapper(delegate.get().buildAuthenticator());
 		return new AuthenticatorWrapper(new OfflineAuthenticator(account.get()));
 	}
 

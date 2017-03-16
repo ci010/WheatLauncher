@@ -1,6 +1,6 @@
-package net.launcher.model.fx.module;
+package net.launcher.fx.module;
 
-import net.launcher.model.fx.TaskProvider;
+import net.launcher.fx.TaskProvider;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -14,13 +14,14 @@ public abstract class Module
 
 	Module() {}
 
-	public final void init(Path root)
+	public final void init(Path root) throws Exception
 	{
 		if (root == null)
 			this.root = root;
+		onInit();
 	}
 
-	protected abstract void onInit();
+	protected abstract void onInit() throws Exception;
 
 	protected final Path getRoot() {return root;}
 

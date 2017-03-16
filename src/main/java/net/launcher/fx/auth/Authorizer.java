@@ -1,7 +1,9 @@
-package net.launcher.model.fx.auth;
+package net.launcher.fx.auth;
 
 import javafx.beans.property.ReadOnlyStringProperty;
 import net.launcher.model.Authorize;
+
+import java.util.List;
 
 /**
  * @author ci010
@@ -13,4 +15,6 @@ public interface Authorizer extends Authorize
 	ReadOnlyStringProperty idProperty();
 
 	ReadOnlyStringProperty accountProperty();
+
+	List<String> getAccountHistory();
 }

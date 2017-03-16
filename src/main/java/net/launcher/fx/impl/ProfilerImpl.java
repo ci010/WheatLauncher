@@ -1,7 +1,10 @@
-package net.launcher.model.fx.profile;
+package net.launcher.fx.impl;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
+import javafx.concurrent.Task;
+import net.launcher.fx.View;
+import net.launcher.fx.profile.LaunchProfiler;
 import net.launcher.model.Profile;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.WindowSize;
@@ -159,5 +162,23 @@ public class ProfilerImpl implements LaunchProfiler
 	public ReadOnlyObjectProperty<JavaEnvironment> javaLocationProperty()
 	{
 		return environment;
+	}
+
+	@Override
+	public Task<?> buildTask(String id, String... args)
+	{
+		return null;
+	}
+
+	@Override
+	public <T> T getInstance(Class<T> tClass)
+	{
+		return null;
+	}
+
+	@Override
+	public <T> View<T> getView(Class<T> type)
+	{
+		return null;
 	}
 }

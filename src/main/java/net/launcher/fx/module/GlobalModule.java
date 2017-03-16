@@ -1,4 +1,4 @@
-package net.launcher.model.fx.module;
+package net.launcher.fx.module;
 
 /**
  * @author ci010
