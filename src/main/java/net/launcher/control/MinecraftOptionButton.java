@@ -28,7 +28,7 @@ public class MinecraftOptionButton<T> extends JFXButton
 		if (propertyBinding == null) return "Unknown";
 		if (propertyBinding.get() == null) return "Unknown";
 		String s = propertyBinding.get().getOption().getName() + "." + propertyBinding.get().getValue();
-		Object userData = getUserData();
+		Object userData = getProperties().get("lang");
 		if (userData != null && userData instanceof ResourceBundle)
 			return ((ResourceBundle) userData).getString(s);
 		return s;

@@ -1,7 +1,6 @@
 package net.wheatlauncher.control.mics;
 
-import api.launcher.ARML;
-import api.launcher.LaunchProfile;
+import api.launcher.Shell;
 import com.jfoenix.controls.JFXTableView;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.cells.editors.TextFieldEditorBuilder;
@@ -12,6 +11,7 @@ import javafx.collections.transformation.SortedList;
 import javafx.scene.control.ComboBoxBase;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
+import net.launcher.model.Profile;
 
 import java.util.ResourceBundle;
 
@@ -20,55 +20,40 @@ import java.util.ResourceBundle;
  */
 public class ControllerProfileChooserPane
 {
-	public JFXTableView<LaunchProfile> profileTable;
-	public TableColumn<LaunchProfile, String> name;
-	public TableColumn<LaunchProfile, String> mcVersion;
+	public JFXTableView<Profile> profileTable;
+	public TableColumn<Profile, String> name;
+	public TableColumn<Profile, String> mcVersion;
 	public JFXTextField filter;
 
 	public ResourceBundle resources;
 	public Label profileName;
 	public Label version;
-	private ComboBoxBase<LaunchProfile> selector;
+	private ComboBoxBase<Profile> selector;
 
-	public void initialize(ComboBoxBase<LaunchProfile> selector)
+	public void initialize(ComboBoxBase<Profile> selector)
 	{
 		this.selector = selector;
-		FilteredList<LaunchProfile> filteredList =
-				new FilteredList<>(ARML.core().getProfileManager().getAllProfiles());
+		FilteredList<Profile> filteredList = new FilteredList<>(Shell.instance().getAllProfile());
 		filteredList.predicateProperty().bind(Bindings.createObjectBinding(() -> (profile) ->
 		{
 			String text = filter.getText();
-			return text == null || text.equals("") || profile.getDisplayName().contains(text);
+			return text == null || text.equals("") || profile.getName().contains(text);
 		}, filter.textProperty()));
-		SortedList<LaunchProfile> sortedList = new SortedList<>(filteredList);
+		SortedList<Profile> sortedList = new SortedList<>(filteredList);
 		sortedList.comparatorProperty().bind(profileTable.comparatorProperty());
 		profileTable.setItems(sortedList);
 
-		profileTable.getSelectionModel().selectedIndexProperty().addListener(observable ->
-		{
-			if (profileTable.getSelectionModel().getSelectedItem() == null) return;
-			profileName.textProperty().bind(Bindings.createStringBinding(() ->
-			{
-				LaunchProfile value = profileTable.getSelectionModel().getSelectedItem();
-				if (value != null) return value.getDisplayName();
-				return "Not Selecting";
-			}, profileTable.getSelectionModel().getSelectedItem().displayNameProperty()));
-			version.textProperty().bind(Bindings.createStringBinding(() ->
-			{
-				LaunchProfile value = profileTable.getSelectionModel().getSelectedItem();
-				if (value != null)
-					return value.getVersion() == null ? "No Version" : value.getVersion();
-				return "No Value";
-			}, profileTable.getSelectionModel().getSelectedItem().versionProperty()));
-		});
+		profileName.textProperty().bind(Bindings.createStringBinding(() ->
+				Shell.instance().getProfileProxy().getName(), Shell.instance().getProfileProxy().idProperty()));
+		version.textProperty().bind(Bindings.createStringBinding(() -> Shell.instance().getProfileProxy().getVersion().getVersionId(),
+				Shell.instance().getProfileProxy().idProperty()));
 		profileTable.getSelectionModel().select(0);
-		name.setCellFactory(param -> new GenericEditableTableCell<>(new TextFieldEditorBuilder()
+		name.setCellFactory(param -> new GenericEditableTableCell<Profile, String>(new TextFieldEditorBuilder()
 		{
 			@Override
 			public void validateValue() throws Exception
 			{
 				String value = getValue();
-				System.out.println("   " + value);
 				if (value == null || value.equals(""))
 					throw new IllegalArgumentException("Value cannot be null");
 				boolean valid = false;
@@ -78,37 +63,51 @@ public class ControllerProfileChooserPane
 				if (!valid)
 					throw new IllegalArgumentException("Value cannot be empty!");
 			}
+		})
+		{
+			@Override
+			public void commitEdit(String newValue)
+			{
+				super.commitEdit(newValue);
+				Profile item = this.getTableView().getSelectionModel().getSelectedItem();
+				item.setName(newValue);
+			}
+		});
+
+		name.setCellValueFactory(param -> Bindings.createStringBinding(() ->
+		{
+			String name = param.getValue().getName();
+			if (name == null || name.equals(""))
+				name = "Unknown";
+			return name;
 		}));
-		name.setCellValueFactory(param ->
-				param.getValue().displayNameProperty());
+
 		mcVersion.setCellValueFactory(param -> Bindings.createStringBinding(() ->
 		{
-			String version = param.getValue().getVersion();
+			String version = param.getValue().getVersion().getVersionId();
 			if (version == null || version.equals(""))
 				version = "None";
 			return version;
-		}, param.getValue().versionProperty()));
+		}));
 	}
 
 	public void add()
 	{
-		LaunchProfile profile = ARML.core().getProfileManager().newProfile(resources.getString("untitled"));
-		profile.setVersion(ARML.core().getAssetsManager().getVersions().get(0).toString());
+		Profile profile = Shell.instance().buildAndExecuteImmediately("profile.add", resources.getString("untitled"));
 		profileTable.edit(profileTable.getItems().size() - 1, name);
 	}
 
 	public void delete()
 	{
-		ARML.taskCenter().runSimpleTask("DeleteProfile", () -> ARML.core().getProfileManager().deleteProfile(
-				profileTable.getSelectionModel().getSelectedItem().getId()));
+		Shell.instance().buildAndExecute("profile.delete", profileTable.getSelectionModel().getSelectedItem().getId());
 	}
 
-	public void rename(TableColumn.CellEditEvent<LaunchProfile, String> event)
+	public void rename(TableColumn.CellEditEvent<Profile, String> event)
 	{
-		LaunchProfile value = event.getRowValue();
+		Profile value = event.getRowValue();
 		if (value != null)
 			if (event.getNewValue() != null && !event.getNewValue().equals(""))
-				value.setDisplayName(event.getNewValue());
+				value.setName(event.getNewValue());
 	}
 
 	public void confirm()

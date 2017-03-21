@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * @author ci010
@@ -15,9 +16,15 @@ public class Tasks
 {
 	public static <T> Optional<T> optional(Callable<T> callable)
 	{
-		Objects.requireNonNull(callable);
 		try {return Optional.ofNullable(callable.call());}
 		catch (Exception e) {return Optional.empty();}
+	}
+
+	public static <T> T optional(Callable<T> callable, Supplier<T> fallback)
+	{
+		Objects.requireNonNull(fallback);
+		try {return callable.call();}
+		catch (Exception e) {return fallback.get();}
 	}
 
 	public interface TaskBuilder<T> extends javafx.util.Builder<Callable<T>>
@@ -52,24 +59,6 @@ public class Tasks
 				back.failed(e);
 				throw e;
 			}
-		};
-	}
-
-	public static <T> Callable<T> fallback(Callable<T>... callables)
-	{
-		Objects.requireNonNull(callables);
-		if (callables.length == 0) return null;
-		return () ->
-		{
-			for (int i = 0; i < callables.length - 1; i++)
-			{
-				try
-				{
-					return callables[i].call();
-				}
-				catch (Exception ignored) {}
-			}
-			return callables[callables.length - 1].call();
 		};
 	}
 

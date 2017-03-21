@@ -1,9 +1,9 @@
 package net.wheatlauncher.control.profiles;
 
-import api.launcher.ARML;
+//import api.launcher.ARML;
+
 import api.launcher.LaunchProfile;
-import api.launcher.LaunchProfileManager;
-import api.launcher.MinecraftAssetsManager;
+import api.launcher.Shell;
 import api.launcher.setting.Setting;
 import api.launcher.setting.SettingProperty;
 import com.jfoenix.controls.JFXButton;
@@ -16,8 +16,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-import javafx.concurrent.Task;
-import javafx.concurrent.Worker;
 import javafx.scene.control.TableColumn;
 import net.launcher.assets.MinecraftVersion;
 import net.launcher.control.MinecraftOptionButton;
@@ -26,9 +24,7 @@ import net.launcher.game.Language;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /**
  * @author ci010
@@ -60,30 +56,32 @@ public class ControllerLanguages
 
 	private void refresh()
 	{
-		ARML.logger().info("try to refresh lang");
+//		ARML.logger().info("try to refresh lang");
 
-		LaunchProfile selecting = ARML.core().getProfileManager().selecting();
-		MinecraftAssetsManager assetsManager = ARML.core().getAssetsManager();
-		MinecraftVersion version = assetsManager.getVersion(selecting.getVersion());
-		if (version != null)
-		{
-			Task<Language[]> task = assetsManager.getLanguages(version);
-			task.setOnSucceeded(event ->
-			{
-				Worker<Language[]> source = event.getSource();
-				languageLists.setAll(source.getValue());
-				lookup = languageLists.stream().collect(Collectors.toMap(Language::getId, Function.identity()));
-				Language language = selecting.getGameSetting(ARML.core().getProfileSettingManager().getSettingMinecraft())
-						.map(s -> s.getOption(ARML.core().getProfileSettingManager().getSettingMinecraft().getLanguage()))
-						.map(SettingProperty::getValue)
-						.map(lookup::get)
-						.orElse(lookup.get("en_us"));
+		languageTable.setItems(Shell.instance().getProfileProxy().getAllLanguages());
 
-				languageTable.getSelectionModel().select(language);
-				languageTable.scrollTo(language);
-			});
-			ARML.taskCenter().runTask(task);
-		}
+//		LaunchProfile selecting = ARML.core().getProfileManager().selecting();
+//		MinecraftAssetsManager assetsManager = ARML.core().getAssetsManager();
+//		MinecraftVersion version = assetsManager.getVersion(selecting.getVersion());
+//		if (version != null)
+//		{
+//			Task<Language[]> task = assetsManager.getLanguages(version);
+//			task.setOnSucceeded(event ->
+//			{
+//				Worker<Language[]> source = event.getSource();
+//				languageLists.setAll(source.getValue());
+//				lookup = languageLists.stream().collect(Collectors.toMap(Language::getId, Function.identity()));
+//				Language language = selecting.getGameSetting(ARML.core().getProfileSettingManager().getSettingMinecraft())
+//						.map(s -> s.getOption(ARML.core().getProfileSettingManager().getSettingMinecraft().getLanguage()))
+//						.map(SettingProperty::getValue)
+//						.map(lookup::get)
+//						.orElse(lookup.get("en_us"));
+//
+//				languageTable.getSelectionModel().select(language);
+//				languageTable.scrollTo(language);
+//			});
+//			ARML.taskCenter().runTask(task);
+//		}
 	}
 
 	public void initialize()
@@ -102,6 +100,7 @@ public class ControllerLanguages
 		name.setCellValueFactory(param -> Bindings.createStringBinding(() -> param.getValue().getName()));
 		bidi.setCellValueFactory(param -> Bindings.createStringBinding(() -> String.valueOf(param.getValue().isBidirectional())));
 		confirm.disableProperty().bind(Bindings.createBooleanBinding(() -> languageTable.getSelectionModel().isEmpty(), languageTable.getSelectionModel().selectedIndexProperty()));
+
 		confirm.setOnAction(event ->
 				ARML.core().getProfileManager().selecting().getGameSetting(ARML.core().getProfileSettingManager().getSettingMinecraft())
 						.map(setting -> setting.getOption(ARML.core().getProfileSettingManager().getSettingMinecraft().getLanguage()))
@@ -113,7 +112,7 @@ public class ControllerLanguages
 			profileManager.getProfile(newV).ifPresent(profile -> profile.versionBinding().addListener(listener));
 			refresh();
 		});
-		useUnicode.setUserData(resources);
+		useUnicode.getProperties().put("lang", resources);
 		useUnicode.setPropertyBinding(Bindings.createObjectBinding(() ->
 				{
 					Setting set = ensureSetting(ARML.core().getProfileManager().selecting());

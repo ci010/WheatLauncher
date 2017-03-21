@@ -1,6 +1,5 @@
 package net.launcher.mod;
 
-import api.launcher.GeneircModManager;
 import api.launcher.MinecraftIcons;
 import api.launcher.setting.SettingType;
 import javafx.collections.FXCollections;

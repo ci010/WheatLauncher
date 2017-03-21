@@ -1,7 +1,6 @@
 package net.launcher.mod;
 
 import api.launcher.ARML;
-import api.launcher.GeneircModManager;
 import api.launcher.event.ModStorageRegisterEvent;
 import api.launcher.io.IOGuard;
 import net.launcher.game.mods.AbstractModParser;

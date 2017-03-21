@@ -1,8 +1,7 @@
 package net.wheatlauncher.control;
 
-import api.launcher.ARML;
-import api.launcher.AuthManager;
-import api.launcher.LaunchProfile;
+import api.launcher.Shell;
+import api.launcher.event.LoginedEvent;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXDialog;
 import com.jfoenix.effects.JFXDepthManager;
@@ -12,7 +11,6 @@ import javafx.concurrent.Task;
 import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
@@ -20,18 +18,9 @@ import javafx.scene.paint.Color;
 import javafx.util.Pair;
 import moe.mickey.minecraft.skin.fx.SkinCanvas;
 import moe.mickey.minecraft.skin.fx.animation.SkinAniRunning;
-import net.launcher.LaunchCore;
-import net.launcher.utils.StringUtils;
-import net.launcher.utils.Tasks;
 import net.wheatlauncher.control.utils.AnimationRotate;
-import org.to2mbn.jmccc.auth.AuthInfo;
-import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
-import org.to2mbn.jmccc.auth.yggdrasil.core.texture.Texture;
-import org.to2mbn.jmccc.auth.yggdrasil.core.texture.TextureType;
-import org.to2mbn.jmccc.util.UUIDUtils;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.Consumer;
 
@@ -60,23 +49,51 @@ public class ControllerPreview
 		animation = new AnimationRotate(canvas);
 		canvas.getAnimationPlayer().addSkinAnimation(new SkinAniRunning(100, 100, 30, canvas));
 		JFXDepthManager.setDepth(player.getParent(), 2);
-		LaunchProfile selecting = ARML.core().getProfileManager().selecting();
-		if (selecting != null)
-			profileName.setText(selecting.getDisplayName());
-		ARML.core().getProfileManager().selectedProfileProperty().addListener(observable ->
-				profileName.textProperty().bind(Bindings.createStringBinding(() ->
-								ARML.core().getProfileManager().selecting().getDisplayName(),
-						ARML.core().getProfileManager().selectedProfileProperty())));
-		player.textProperty().bind(Bindings.createStringBinding(() ->
-				{
-					if (ARML.core().getAuthManager().getCache() != null)
-						return ARML.core().getAuthManager().getCache().getUsername();
-					return StringUtils.EMPTY;
-				},
-				ARML.core().getAuthManager().cacheProperty()));
-		useSever.setContentDisplay(ContentDisplay.RIGHT);
+		profileName.textProperty().bind(Bindings.createStringBinding(() -> Shell.instance().getProfileProxy().getName(),
+				Shell.instance().getProfileProxy().idProperty()));
+		player.textProperty().bind(Bindings.createStringBinding(() -> Shell.instance().getAuthorizeProxy().getAccount(),
+				Shell.instance().getAuthorizeProxy().idProperty()));
 
-		initSkin();
+		Shell.bus().addEventHandler(LoginedEvent.TYPE, event ->
+		{
+			Task<Pair<Image, Boolean>> getSkin = Shell.instance().buildAndExecute("skin");
+			getSkin.addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED, e ->
+			{
+				Pair<Image, Boolean> value = (Pair<Image, Boolean>) (e.getSource().getValue());
+				canvas.setSkin(value.getKey(), value.getValue());
+				animation.play();
+			});
+			getSkin.addEventHandler(WorkerStateEvent.WORKER_STATE_FAILED, e -> defaultSkin());
+		});
+//			try
+//			{
+//
+//				ProfileService profileService = authorize.createProfileService();
+//				Map<TextureType, Texture> textures = profileService.getTextures(
+//						profileService.getGameProfile(UUIDUtils.toUUID(auth.getUUID())));
+//				if (textures.isEmpty()) defaultSkin();
+//				else
+//				{
+//					Texture texture = textures.get(TextureType.SKIN);
+//
+//					(new Task<Pair<Image, Boolean>>()
+//					{
+//						@Override
+//						protected Pair<Image, Boolean> call() throws Exception
+//						{
+//							return new Pair<>(Tasks.optional(() -> new Image(texture.openStream())).orElse(SkinCanvas.STEVE),
+//									Optional.ofNullable(texture.getMetadata().get("model")).orElse("steve").equals
+//											("slim"));
+//						}
+//					}).addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED, event ->
+//					{
+//						Pair<Image, Boolean> value = (Pair<Image, Boolean>) event.getSource().getValue();
+//						canvas.setSkin(value.getKey(), value.getValue());
+//						animation.play();
+//					});
+//				}
+//			}
+//			catch (Exception e) {defaultSkin();}
 
 		for (Node node : root.getChildren())
 			if (node instanceof JFXDialog)
@@ -90,49 +107,6 @@ public class ControllerPreview
 		root.getChildren().removeAll(dialogs.values());
 	}
 
-
-	private void initSkin()
-	{
-		ARML.core().getAuthManager().cacheProperty().addListener(observable ->
-		{
-			try
-			{
-				AuthManager module = ARML.core().getAuthManager();
-				AuthInfo auth = module.getCache();
-				if (auth == null)
-				{
-					defaultSkin();
-					return;
-				}
-				ProfileService profileService = module.getAuthorizeInstance().createProfileService();
-				Map<TextureType, Texture> textures = profileService.getTextures(
-						profileService.getGameProfile(UUIDUtils.toUUID(auth.getUUID())));
-				if (textures.isEmpty()) defaultSkin();
-				else
-				{
-					Texture texture = textures.get(TextureType.SKIN);
-					ARML.taskCenter().runTask(new Task<Pair<Image, Boolean>>()
-					{
-						@Override
-						protected Pair<Image, Boolean> call() throws Exception
-						{
-							return new Pair<>(Tasks.optional(() -> new Image(texture.openStream())).orElse(SkinCanvas.STEVE),
-									Optional.ofNullable(texture.getMetadata().get("model")).orElse("steve").equals
-											("slim"));
-						}
-					}).addEventHandler(WorkerStateEvent.WORKER_STATE_SUCCEEDED, event ->
-					{
-						Pair<Image, Boolean> value = (Pair<Image, Boolean>) event.getSource().getValue();
-						canvas.setSkin(value.getKey(), value.getValue());
-						animation.play();
-					});
-				}
-			}
-			catch (Exception e) {defaultSkin();}
-		});
-
-	}
-
 	private void defaultSkin()
 	{
 		canvas.setSkin(SkinCanvas.STEVE, false);//TODO add random to other skin
@@ -141,7 +115,8 @@ public class ControllerPreview
 
 	public void launch() throws Exception
 	{
-		((LaunchCore) ARML.core()).launch();
+		Shell.instance().buildAndExecute("launch");
+//		((LaunchCore) ARML.core()).launch();
 	}
 
 	public void switchPage(ActionEvent event)

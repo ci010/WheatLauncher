@@ -18,13 +18,13 @@ public interface Profile
 
 	void setMinMemory(int minMemory);
 
+	MinecraftVersion getVersion();
+
+	void setVersion(MinecraftVersion version);
+
 	String getName();
 
 	void setName(String name);
-
-	String getMinecraftVersion();
-
-	void setMinecraftVersion(String minecraftVersion);
 
 	WindowSize getResolution();
 

@@ -1,14 +1,15 @@
 package net.wheatlauncher.control.mics;
 
-import api.launcher.ARML;
-import api.launcher.LaunchProfile;
-import api.launcher.event.ProfileEvent;
+import api.launcher.Shell;
 import com.jfoenix.controls.*;
 import de.jensd.fx.fontawesome.Icon;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleListProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
-import javafx.concurrent.Task;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.ComboBoxBase;
@@ -18,14 +19,14 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import net.launcher.assets.MinecraftVersion;
 import net.launcher.game.mods.internal.net.minecraftforge.fml.common.versioning.ComparableVersion;
-import org.to2mbn.jmccc.mcdownloader.RemoteVersion;
+import net.launcher.model.MinecraftVersion;
 
-import java.text.DateFormat;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * @author ci010
@@ -51,6 +52,25 @@ public class ControllerMinecraftVersionChooserPane
 
 	private ComboBoxBase<MinecraftVersion> comboBox;
 
+	private class FXVersionWrapper implements MinecraftVersion
+	{
+		MinecraftVersion version;
+		ObservableMap<String, String> map;
+
+		public FXVersionWrapper(MinecraftVersion version)
+		{
+			this.version = version;
+			this.map = FXCollections.observableMap(version.getMetadata());
+			Bindings.bindContent(version.getMetadata(), map);
+		}
+
+		@Override
+		public String getVersionId() {return version.getVersionId();}
+
+		@Override
+		public Map<String, String> getMetadata() {return map;}
+	}
+
 	public void initialize()
 	{
 		root.getChildren().remove(confirmDownload);
@@ -60,14 +80,18 @@ public class ControllerMinecraftVersionChooserPane
 	{
 		this.comboBox = picker;
 		this.outerRoot = scene;
-		FilteredList<MinecraftVersion> filteredList = new FilteredList<>(ARML.core().getAssetsManager().getVersions());
+		ListProperty<MinecraftVersion> fxVersions = new SimpleListProperty<>();
+		fxVersions.bind(Bindings.createObjectBinding(() ->
+				FXCollections.observableList(Shell.instance().getAllVersions().stream()
+						.map(FXVersionWrapper::new).collect(Collectors.toList()))));
+
+		FilteredList<MinecraftVersion> filteredList = new FilteredList<>(fxVersions);
 		filteredList.predicateProperty().bind(Bindings.createObjectBinding(
 				() -> (Predicate<MinecraftVersion>) version ->
 				{
 					if (filter.getText() != null && !filter.getText().equals(""))
-						if (!version.getVersionID().contains(filter.getText())) return false;
-					Object temp = version.getMetadata().get("remote");
-					return temp == null || showAlpha.isSelected() || ((RemoteVersion) temp).getType().equals("release");
+						if (!version.getVersionId().contains(filter.getText())) return false;
+					return showAlpha.isSelected() || "release".equals(version.getMetadata().get("type"));
 				},
 				filter.textProperty(), showAlpha.selectedProperty()
 		));
@@ -78,45 +102,29 @@ public class ControllerMinecraftVersionChooserPane
 		version.textProperty().bind(Bindings.createStringBinding(() ->
 		{
 			MinecraftVersion obj = versionTable.getSelectionModel().getSelectedItem();
-			if (obj != null) return obj.getVersionID();
+			if (obj != null) return obj.getVersionId();
 			return "";
 		}, versionTable.getSelectionModel().selectedIndexProperty()));
 		releaseType.textProperty().bind(Bindings.createStringBinding(() ->
 		{
 			MinecraftVersion obj = versionTable.getSelectionModel().getSelectedItem();
-			if (obj != null)
-			{
-				Object o = obj.getMetadata().get("remote");
-				if (o != null)
-				{
-					RemoteVersion rv = (RemoteVersion) o;
-					return rv.getType();
-				}
-			}
+			if (obj != null) return obj.getMetadata().get("state");
 			return "";
 		}, versionTable.getSelectionModel().selectedIndexProperty()));
 		releaseTime.textProperty().bind(Bindings.createStringBinding(() ->
 		{
 			MinecraftVersion obj = versionTable.getSelectionModel().getSelectedItem();
-			if (obj != null)
-			{
-				Object o = obj.getMetadata().get("remote");
-				if (o != null)
-				{
-					RemoteVersion rv = (RemoteVersion) o;
-					return DateFormat.getInstance().format(rv.getReleaseTime());
-				}
-			}
+			if (obj != null) return obj.getMetadata().get("releaseTime");
 			return "";
 		}, versionTable.getSelectionModel().selectedIndexProperty()));
 
 		setupTable();
 
-		ARML.bus().addEventHandler(ProfileEvent.CREATE, event ->
-		{
-			LaunchProfile profile = event.getProfile();
-			profile.setVersion(versionTable.getItems().get(0).getVersionID());
-		});
+//		ARML.bus().addEventHandler(ProfileEvent.CREATE, event ->
+//		{
+//			LaunchProfile profile = event.getProfile();
+//			profile.setVersion(versionTable.getItems().get(0).getVersionID());
+//		});
 	}
 
 	private void setupTable()
@@ -124,25 +132,25 @@ public class ControllerMinecraftVersionChooserPane
 		remote.setCellValueFactory(param -> Bindings.createObjectBinding(() ->
 		{
 			Node node;
-			switch (param.getValue().getState())
+			switch (param.getValue().getMetadata().getOrDefault("state", "remote"))
 			{
-				case DOWNLOADING:
+				case "downloading":
 					node = new JFXSpinner();
 					break;
-				case REMOTE:
+				case "remote":
 					Icon ic = new Icon("CLOUD");
 					ic.setTooltip(new Tooltip(resources.getString("version.remote")));
 					node = ic;
 					break;
 				default:
-				case LOCAL:
+				case "local":
 					ic = new Icon("FOLDER");
 					ic.setTooltip(new Tooltip(resources.getString("version.local")));
 					node = ic;
 					break;
 			}
 			return node;
-		}, param.getValue().stateProperty()));
+		}, ((FXVersionWrapper) param.getValue()).map));//TODO need to be observable
 		remote.setMaxWidth(50);
 
 		versionCol.setCellValueFactory(param ->
@@ -151,25 +159,20 @@ public class ControllerMinecraftVersionChooserPane
 					HBox parent = new HBox();
 					parent.setAlignment(Pos.CENTER);
 					MinecraftVersion value = param.getValue();
-					String versionID = value.getVersionID();
-					Object re = value.getMetadata().get("remote");
+					String versionID = value.getVersionId();
 					parent.getChildren().add(new Label(versionID));
-					if (re != null)
+					String type = value.getMetadata().get("type");
+					if (!"release".equals(type))
 					{
-						RemoteVersion remoteVersion = (RemoteVersion) re;
-						String type = remoteVersion.getType();
-						if (!type.equals("release"))
-						{
-							Icon warning = new Icon("WARNING");
-							warning.setTextFill(Color.web("#D34336"));
-							warning.setScaleX(0.5);
-							warning.setScaleY(0.5);
-							warning.setTooltip(new Tooltip("BETA!!"));
-							parent.getChildren().add(warning);
-						}
+						Icon warning = new Icon("WARNING");
+						warning.setTextFill(Color.web("#D34336"));
+						warning.setScaleX(0.5);
+						warning.setScaleY(0.5);
+						warning.setTooltip(new Tooltip("BETA!!"));
+						parent.getChildren().add(warning);
 					}
 					return parent;
-				}, param.getValue().versionIDProperty())
+				}, ((FXVersionWrapper) param.getValue()).map)
 		);
 		versionCol.setComparator((o1, o2) ->
 		{
@@ -187,31 +190,31 @@ public class ControllerMinecraftVersionChooserPane
 
 		updateTime.setCellValueFactory(param -> Bindings.createStringBinding(() ->
 		{
-			RemoteVersion ver = (RemoteVersion) param.getValue().getMetadata().get("remote");
+			String ver = param.getValue().getMetadata().get("remote");
 			if (ver == null) return resources.getString("unknown");
-			return DateFormat.getDateInstance().format(ver.getUploadTime());
-		}, param.getValue().getMetadata()));
+			return ver;
+		}, ((FXVersionWrapper) param.getValue()).map));//TODO need to be observable
 
 		releaseTimeCol.setCellValueFactory(param -> Bindings.createStringBinding(() ->
 		{
-			RemoteVersion ver = (RemoteVersion) param.getValue().getMetadata().get("remote");
+			String ver = param.getValue().getMetadata().get("remote");
 			if (ver == null) return resources.getString("unknown");
-			return DateFormat.getDateInstance().format(ver.getReleaseTime());
-		}, param.getValue().getMetadata()));
+			return ver;
+		}, ((FXVersionWrapper) param.getValue()).map));//TODO need to be observable
 	}
 
 	public void onConfirm()
 	{
 		MinecraftVersion selectedItem = this.versionTable.getSelectionModel().getSelectedItem();
 		if (selectedItem != null)
-			switch (selectedItem.getState())
+			switch (selectedItem.getMetadata().getOrDefault("state", "remote"))
 			{
-				case REMOTE:
+				case "remote":
 					confirmDownload.show(outerRoot.get());
 					comboBox.hide();
 					break;
-				case DOWNLOADING:
-				case LOCAL:
+				case "downloading":
+				case "local":
 					comboBox.setValue(selectedItem);
 					comboBox.hide();
 					break;
@@ -237,16 +240,12 @@ public class ControllerMinecraftVersionChooserPane
 		}
 	}
 
-	public void refresh()
-	{
-		ARML.taskCenter().runTask(ARML.core().getAssetsManager().refreshVersion());
-	}
+	public void refresh() {Shell.instance().buildAndExecute("version.refresh");}
 
 	public void requestDownload()
 	{
 		MinecraftVersion selectedItem = this.versionTable.getSelectionModel().getSelectedItem();
-		Task<MinecraftVersion> task = ARML.core().getAssetsManager().fetchVersion(selectedItem);
-		ARML.taskCenter().runTask(task);
+		Shell.instance().buildAndExecute("version.fetch", selectedItem.getVersionId());
 		comboBox.setValue(selectedItem);
 		comboBox.hide();
 		confirmDownload.close();

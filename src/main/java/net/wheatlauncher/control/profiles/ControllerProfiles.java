@@ -1,12 +1,12 @@
 package net.wheatlauncher.control.profiles;
 
-import api.launcher.ARML;
-import api.launcher.LaunchProfile;
+import api.launcher.Shell;
 import com.jfoenix.controls.JFXTabPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.StringConverter;
-import net.launcher.assets.MinecraftVersion;
 import net.launcher.control.ComboBoxDelegate;
+import net.launcher.model.MinecraftVersion;
+import net.launcher.model.Profile;
 import net.wheatlauncher.control.mics.ControllerMinecraftVersionChooserPane;
 import net.wheatlauncher.control.mics.ControllerProfileChooserPane;
 
@@ -16,7 +16,7 @@ import net.wheatlauncher.control.mics.ControllerProfileChooserPane;
  */
 public class ControllerProfiles
 {
-	public ComboBoxDelegate<LaunchProfile> profile;
+	public ComboBoxDelegate<Profile> profile;
 	public ComboBoxDelegate<MinecraftVersion> versions;
 
 	public JFXTabPane optionsTab;
@@ -50,61 +50,38 @@ public class ControllerProfiles
 			@Override
 			public String toString(MinecraftVersion object)
 			{
-				if (object != null)
-					return object.toString();
+				if (object != null) return object.getVersionId();
 				return "";
 			}
 
 			@Override
-			public MinecraftVersion fromString(String string)
-			{
-				return null;
-			}
+			public MinecraftVersion fromString(String string) {return null;}
 		});
-		profile.setStringConverter(new StringConverter<LaunchProfile>()
+		profile.setStringConverter(new StringConverter<Profile>()
 		{
 			@Override
-			public String toString(LaunchProfile object)
+			public String toString(Profile object)
 			{
-				if (object != null)
-					return object.getDisplayName();
+				if (object != null) return object.getName();
 				return "";
 			}
 
 			@Override
-			public LaunchProfile fromString(String string)
-			{
-				return null;
-			}
+			public Profile fromString(String string) {return null;}
 		});
-		ARML.core().getProfileManager().selectedProfileProperty().addListener(observable ->
-		{
-			String version = ARML.core().getProfileManager().selecting().getVersion();
-			if (version != null) versions.setValue(ARML.core().getAssetsManager().getVersion(version));
-		});
-		LaunchProfile selecting = ARML.core().getProfileManager().selecting();
-		if (selecting != null)
-		{
-			MinecraftVersion mcVersion = selecting.getMcVersion();
-			if (mcVersion != null)
-				versions.setValue(mcVersion);
-		}
-		versions.valueProperty().addListener(observable ->
-		{
-			MinecraftVersion value = versions.getValue();
-			if (value != null)
-				ARML.core().getProfileManager().selecting().setVersion(value.getVersionID());
-		});
+
+		MinecraftVersion ver = Shell.instance().getProfileProxy().getVersion();
+		if (ver != null)
+			versions.setValue(ver);
+		versions.valueProperty().addListener(observable -> Shell.instance().getProfileProxy().setVersion(versions.getValue()));
 	}
 
 	private void initProfile()
 	{
-		LaunchProfile selecting = ARML.core().getProfileManager().selecting();
-		if (selecting != null) profile.setValue(selecting);
 		profile.valueProperty().addListener(observable ->
 		{
 			if (profile.getValue() != null)
-				ARML.core().getProfileManager().setSelectedProfile(profile.getValue().getId());
+				Shell.instance().getProfileProxy().load(profile.getValue());
 		});
 	}
 }

@@ -9,6 +9,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author ci010
@@ -34,55 +36,33 @@ public abstract class NBT implements Cloneable
 
 	public boolean isList() {return false;}
 
+	//@formatter:off
 	public NBTPrimitive asPrimitive() {throw new UnsupportedOperationException();}
-
 	public NBTCompound asCompound() {throw new UnsupportedOperationException();}
-
 	public NBTList asList() {throw new UnsupportedOperationException();}
-
 	public String asString() {throw new UnsupportedOperationException();}
-
 	public String asString(String option) { try {return asString();}catch (Exception e) {return option;}}
-
 	public int asInt() {throw new UnsupportedOperationException();}
-
 	public int asInt(int option) { try {return asInt();}catch (Exception e) {return option;}}
-
 	public float asFloat() {throw new UnsupportedOperationException();}
-
 	public float asFloat(float option) { try {return asFloat();}catch (Exception e) {return option;}}
-
 	public byte asByte() {throw new UnsupportedOperationException();}
-
 	public byte asByte(byte option) { try {return asByte();}catch (Exception e) {return option;}}
-
 	public long asLong() {throw new UnsupportedOperationException();}
-
 	public long asLong(long option) { try {return asLong();}catch (Exception e) {return option;}}
-
 	public short asShort() {throw new UnsupportedOperationException();}
-
 	public short asShort(short option) { try {return asShort();}catch (Exception e) {return option;}}
-
 	public double asDouble() {throw new UnsupportedOperationException();}
-
 	public double asDouble(double option) { try {return asDouble();}catch (Exception e) {return option;}}
-
 	public boolean asBool() {throw new UnsupportedOperationException();}
-
 	public boolean asBool(boolean option) { try {return asBool();}catch (Exception e) {return option;}}
-
 	public byte[] asByteArray() {throw new UnsupportedOperationException();}
-
 	public byte[] asByteArray(byte[] option) { try {return asByteArray();}catch (Exception e) {return option;}}
-
 	public int[] asIntArray() {throw new UnsupportedOperationException();}
-
 	public int[] asIntArray(int[] option) { try {return asIntArray();}catch (Exception e) {return option;}}
-
 	public boolean asBoolean() {throw new UnsupportedOperationException();}
-
 	public boolean asIntArray(boolean option) { try {return asBool();}catch (Exception e) {return option;}}
+	//@formatter:on
 
 	public abstract NBT clone();
 
@@ -127,6 +107,12 @@ public abstract class NBT implements Cloneable
 		return new NBTCompound();
 	}
 
+	public static NBTCompound compound(Map<String, String> map)
+	{
+		return new NBTCompound(map.entrySet().stream()
+				.collect(Collectors.toMap(Map.Entry::getKey, v -> NBT.string(v.getValue()))));
+	}
+
 	public static NBTList list() {return new NBTList();}
 
 	public static NBTList list(List<NBT> listStr)
@@ -152,6 +138,13 @@ public abstract class NBT implements Cloneable
 		for (String string : strings)
 			nbts.add(NBT.string(string));
 		return nbts;
+	}
+
+	public static NBT empty()
+	{
+		if (NULL == null)
+			NULL = new NBTEnd();
+		return NULL;
 	}
 
 	public static NBT read(InputStream stream, boolean isCompressed) throws IOException
@@ -265,13 +258,6 @@ public abstract class NBT implements Cloneable
 			file.renameTo(backup);
 		}
 		cache.renameTo(file);
-	}
-
-	public static NBT empty()
-	{
-		if (NULL == null)
-			NULL = new NBTEnd();
-		return NULL;
 	}
 
 	private static NBT NULL;

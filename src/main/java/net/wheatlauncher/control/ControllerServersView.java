@@ -1,7 +1,7 @@
 package net.wheatlauncher.control;
 
-import api.launcher.ARML;
 import api.launcher.MinecraftIcons;
+import api.launcher.Shell;
 import com.jfoenix.controls.*;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
@@ -24,7 +24,6 @@ import net.launcher.ServerVersion;
 import net.launcher.TextComponentConverter;
 import net.launcher.control.ImageCellBase;
 import net.launcher.game.ServerInfo;
-import net.launcher.game.ServerInfoBase;
 import net.launcher.game.ServerStatus;
 
 import java.net.UnknownHostException;
@@ -48,33 +47,34 @@ public class ControllerServersView
 		serverList.setDepth(1);
 
 		serverList.setCellFactory(param -> new ServerCells());
-		serverList.setItems(ARML.core().getServerManager().getAllServers());
+		serverList.setItems(Shell.instance().getAllServers());
 		serverList.setOnEditCommit(event ->
-				ARML.taskCenter().runTask(pingServerTask(event.getNewValue())));
-		BooleanBinding booleanBinding = Bindings.createBooleanBinding(() -> serverList.getSelectionModel().isEmpty(),
+				Shell.instance().execute(pingServerTask(event.getNewValue())));
+		BooleanBinding disable = Bindings.createBooleanBinding(() -> serverList.getSelectionModel().isEmpty(),
 				serverList.getSelectionModel().selectedIndexProperty());
-		enterServer.disableProperty().bind(booleanBinding);
-		edited.disableProperty().bind(booleanBinding);
-		removed.disableProperty().bind(booleanBinding);
+		enterServer.disableProperty().bind(disable);
+		edited.disableProperty().bind(disable);
+		removed.disableProperty().bind(disable);
 		refresh();
 	}
 
 	public void add()
 	{
-		ServerInfo localhost = new FXServerInfo(new ServerInfoBase("Minecraft Server", "localhost"));
-		ARML.core().getServerManager().getAllServers().add(localhost);
-		ARML.taskCenter().runTask(pingServerTask(localhost));
+		Shell.instance().executeImmediately(Shell.instance().buildTask("server.add", "localhost"));
+//		localhost.setOnSucceeded(event -> Shell.instance().execute(pingServerTask((ServerInfo) event.getSource().getValue())));
 	}
 
 	public void remove()
 	{
 		ServerInfo item = serverList.getSelectionModel().getSelectedItem();
-		ARML.core().getServerManager().getAllServers().remove(item);
+		Shell.instance().executeImmediately(Shell.instance().buildTask("server.remove", item.getHostName() + "@" +
+				item.hashCode()));
 	}
 
 	private Task<ServerStatus> pingServerTask(ServerInfo serverInfo)
 	{
-		Task<ServerStatus> serverStatusTask = ARML.core().getServerManager().fetchInfoAndWaitPing(serverInfo);
+		Task<ServerStatus> serverStatusTask = Shell.instance().buildTask("server.ping",
+				"-wait", serverInfo.getHostName() + "@" + serverInfo.hashCode());
 
 		serverStatusTask.setOnScheduled(event ->
 		{
@@ -99,7 +99,7 @@ public class ControllerServersView
 			{
 				FXServerInfo serverInfo1 = (FXServerInfo) serverInfo;
 				serverInfo1.setStatus(ServerStatus.error());
-				ARML.logger().info("Cannot connect to server ");
+//				ARML.logger().info("Cannot connect to server ");
 				exception.printStackTrace();
 			}
 		});
@@ -109,7 +109,7 @@ public class ControllerServersView
 	public void refresh()
 	{
 		for (ServerInfo serverInfo : serverList.getItems())
-			ARML.taskCenter().runTask(pingServerTask(serverInfo));
+			Shell.instance().execute(pingServerTask(serverInfo));
 	}
 
 	public void edit()
@@ -216,7 +216,7 @@ public class ControllerServersView
 					newValue.setHostName(ip.getText());
 					newValue.setName(name.getText());
 					((FXServerInfo) newValue).invalidated(null);
-					ARML.taskCenter().runTask(pingServerTask(newValue));
+					Shell.instance().execute(pingServerTask(newValue));
 				}
 			graphic.setRight(commonContent);
 		}

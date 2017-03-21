@@ -1,6 +1,6 @@
 package net.wheatlauncher.control.settings;
 
-import api.launcher.ARML;
+import api.launcher.Shell;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListCell;
 import com.jfoenix.controls.JFXListView;
@@ -18,7 +18,6 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import net.launcher.control.ImageCell;
 import net.launcher.game.WorldInfo;
-import net.wheatlauncher.MainApplication;
 
 import java.io.File;
 import java.util.*;
@@ -36,7 +35,7 @@ public class ControllerMap
 
 	public void initialize()
 	{
-		FilteredList<WorldInfo> filteredList = new FilteredList<>(ARML.core().getWorldManager().getWorldInfos());
+		FilteredList<WorldInfo> filteredList = new FilteredList<>(Shell.instance().getAllWorlds());
 		filteredList.predicateProperty().bind(Bindings.createObjectBinding(() -> (Predicate<WorldInfo>) worldInfo ->
 				worldInfo.getFileName().contains(search.getText()) ||
 						worldInfo.getDisplayName().contains(search.getText()), search.textProperty()));
@@ -50,12 +49,14 @@ public class ControllerMap
 				super.updateItem(item, empty);
 				if (item == null || empty) return;
 				WorldInfoCell worldInfoCell = new WorldInfoCell(item, null);
-
-				try
-				{
-					worldInfoCell.setImage(ARML.core().getWorldManager().getWorldIcon(item));
-				}
-				catch (Exception e) { MainApplication.displayError(maps.getScene(), e);}
+				Image icon = Shell.instance().executeImmediately(Shell.instance().buildTask("world.icon", item
+						.getFileName()));
+				worldInfoCell.setImage(icon);
+//				try
+//				{
+//					worldInfoCell.setImage(ARML.core().getWorldManager().getWorldIcon(item));
+//				}
+//				catch (Exception e) { MainApplication.displayError(maps.getScene(), e);}
 				this.setGraphic(worldInfoCell);
 			}
 		});
@@ -65,7 +66,7 @@ public class ControllerMap
 			DirectoryChooser chooser = new DirectoryChooser();
 			chooser.setTitle(resources.getString("map.import"));
 			File file = chooser.showDialog(importBtn.getScene().getWindow());
-			ARML.taskCenter().runTask(ARML.core().getWorldManager().importMap(file.toPath()));
+			Shell.instance().buildAndExecute("world.import", file.getAbsolutePath());
 		});
 		exportBtn.disableProperty().bind(Bindings.createBooleanBinding(() -> maps.getSelectionModel().isEmpty(), maps
 				.getSelectionModel().selectedIndexProperty()));
@@ -76,9 +77,8 @@ public class ControllerMap
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.setInitialFileName(fileName);
 			File file = fileChooser.showSaveDialog(exportBtn.getScene().getWindow());
-			ARML.taskCenter().runTask(ARML.core().getWorldManager().exportMap(
-					maps.getSelectionModel().getSelectedItem(),
-					file.toPath()));
+			Shell.instance().buildAndExecute("world.export", maps.getSelectionModel().getSelectedItem().getFileName(),
+					file.getAbsolutePath());
 		});
 	}
 

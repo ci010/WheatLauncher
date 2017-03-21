@@ -14,6 +14,10 @@ import net.launcher.game.ResourcePack;
  */
 public class ResourcePackCell extends ImageCell<ResourcePack>
 {
+	public ResourcePackCell()
+	{
+	}
+
 	public ResourcePackCell(ResourcePack resourcePack, Image image)
 	{
 		super(resourcePack, image);

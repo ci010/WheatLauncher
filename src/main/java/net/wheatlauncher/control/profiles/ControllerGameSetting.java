@@ -8,6 +8,7 @@ import com.jfoenix.effects.JFXDepthManager;
 import javafx.beans.binding.Bindings;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Label;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import net.launcher.control.MinecraftOptionButton;
 import net.launcher.control.MinecraftOptionMemory;
@@ -45,6 +46,7 @@ public class ControllerGameSetting
 	public Label missingFileIndicatorText;
 
 	public ResourceBundle resources;
+	public StackPane root;
 
 	public void initialize()
 	{

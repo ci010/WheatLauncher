@@ -42,7 +42,7 @@ public class ImageCache
 		return cache;
 	}
 
-	public static void putCache(Cache<String, byte[]> cache, String key, Image image) throws IOException
+	public static Image putCache(Cache<String, byte[]> cache, String key, Image image) throws IOException
 	{
 		Objects.requireNonNull(cache);
 		Objects.requireNonNull(key);
@@ -55,6 +55,7 @@ public class ImageCache
 			ImageIO.write(bImage, "png", s);
 			cache.put(key, s.toByteArray());
 		}
+		return image;
 	}
 
 	public static Image getCache(Cache<String, byte[]> cache, String key)
