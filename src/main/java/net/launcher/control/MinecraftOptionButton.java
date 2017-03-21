@@ -1,11 +1,12 @@
 package net.launcher.control;
 
-import api.launcher.setting.SettingProperty;
 import com.jfoenix.controls.JFXButton;
+import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.ObjectBinding;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import net.launcher.game.GameSettings;
 
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -16,7 +17,7 @@ import java.util.ResourceBundle;
 public class MinecraftOptionButton<T> extends JFXButton
 {
 	protected static final String STYLE_CLASS = "options-button";
-	private ObjectBinding<SettingProperty.Limited<T>> propertyBinding;
+	private ObjectBinding<GameSettings.Option> propertyBinding;
 
 	public MinecraftOptionButton()
 	{
@@ -27,7 +28,7 @@ public class MinecraftOptionButton<T> extends JFXButton
 	{
 		if (propertyBinding == null) return "Unknown";
 		if (propertyBinding.get() == null) return "Unknown";
-		String s = propertyBinding.get().getOption().getName() + "." + propertyBinding.get().getValue();
+		String s = propertyBinding.get().getId() + "." + propertyBinding.get().getValue();
 		Object userData = getProperties().get("lang");
 		if (userData != null && userData instanceof ResourceBundle)
 			return ((ResourceBundle) userData).getString(s);
@@ -37,7 +38,7 @@ public class MinecraftOptionButton<T> extends JFXButton
 	private void next()
 	{
 		if (propertyBinding != null && propertyBinding.get() != null)
-			propertyBinding.get().next();
+			propertyBinding.get().nextValue();
 	}
 
 	private void initialize()
@@ -50,21 +51,16 @@ public class MinecraftOptionButton<T> extends JFXButton
 
 	public T getProperty()
 	{
-		return propertyBinding.get().getValue();
+		return (T) propertyBinding.get().getValue();
 	}
 
-	public SettingProperty.Limited<T> propertyProperty()
-	{
-		return propertyBinding.get();
-	}
-
-	public void setPropertyBinding(ObjectBinding<SettingProperty.Limited<T>> binding)
+	public void setPropertyBinding(ObjectBinding<GameSettings.Option> binding)
 	{
 		this.propertyBinding = binding;
 		this.propertyBinding.addListener(observable ->
 				this.textProperty().bind(Bindings.createStringBinding(() ->
 								this.key.get() + ":" + localizedValue(),
-						key, propertyBinding.get())));
+						key, (Observable) propertyBinding.get())));
 		this.propertyBinding.invalidate();
 	}
 

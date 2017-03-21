@@ -11,7 +11,10 @@ import javafx.collections.transformation.SortedList;
 import javafx.scene.control.ComboBoxBase;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
+import net.launcher.model.MinecraftVersion;
 import net.launcher.model.Profile;
+import org.to2mbn.jmccc.option.JavaEnvironment;
+import org.to2mbn.jmccc.option.WindowSize;
 
 import java.util.ResourceBundle;
 
@@ -29,6 +32,29 @@ public class ControllerProfileChooserPane
 	public Label profileName;
 	public Label version;
 	private ComboBoxBase<Profile> selector;
+
+	private class ProfileWrapper implements Profile
+	{
+		Profile profile;
+
+		public ProfileWrapper(Profile profile) {this.profile = profile;}
+
+		//@formatter:off
+		public String getId() {return profile.getId();}
+		public int getMaxMemory() {return profile.getMaxMemory();}
+		public void setMaxMemory(int maxMemory) {profile.setMaxMemory(maxMemory);}
+		public int getMinMemory() {return profile.getMinMemory();}
+		public void setMinMemory(int minMemory) {profile.setMinMemory(minMemory);}
+		public MinecraftVersion getVersion() {return profile.getVersion();}
+		public void setVersion(MinecraftVersion version) {profile.setVersion(version);}
+		public String getName() {return profile.getName();}
+		public void setName(String name) {profile.setName(name);}
+		public WindowSize getResolution() {return profile.getResolution();}
+		public void setResolution(WindowSize resolution) {profile.setResolution(resolution);}
+		public JavaEnvironment getJavaLocation() {return profile.getJavaLocation();}
+		public void setJavaLocation(JavaEnvironment javaLocation) {profile.setJavaLocation(javaLocation);}
+		//@formatter:on
+	}
 
 	public void initialize(ComboBoxBase<Profile> selector)
 	{
@@ -93,7 +119,7 @@ public class ControllerProfileChooserPane
 
 	public void add()
 	{
-		Profile profile = Shell.instance().buildAndExecuteImmediately("profile.add", resources.getString("untitled"));
+		Shell.instance().buildAndExecuteImmediately("profile.add", resources.getString("untitled"));
 		profileTable.edit(profileTable.getItems().size() - 1, name);
 	}
 

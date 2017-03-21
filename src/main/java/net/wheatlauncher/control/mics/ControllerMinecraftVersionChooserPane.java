@@ -57,7 +57,7 @@ public class ControllerMinecraftVersionChooserPane
 		MinecraftVersion version;
 		ObservableMap<String, String> map;
 
-		public FXVersionWrapper(MinecraftVersion version)
+		FXVersionWrapper(MinecraftVersion version)
 		{
 			this.version = version;
 			this.map = FXCollections.observableMap(version.getMetadata());

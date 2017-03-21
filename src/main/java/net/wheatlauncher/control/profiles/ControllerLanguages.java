@@ -2,10 +2,7 @@ package net.wheatlauncher.control.profiles;
 
 //import api.launcher.ARML;
 
-import api.launcher.LaunchProfile;
 import api.launcher.Shell;
-import api.launcher.setting.Setting;
-import api.launcher.setting.SettingProperty;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTableView;
 import com.jfoenix.controls.JFXTextField;
@@ -19,10 +16,10 @@ import javafx.collections.transformation.SortedList;
 import javafx.scene.control.TableColumn;
 import net.launcher.assets.MinecraftVersion;
 import net.launcher.control.MinecraftOptionButton;
+import net.launcher.game.GameSettings;
 import net.launcher.game.Language;
 
 import java.util.Map;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
 
@@ -102,35 +99,17 @@ public class ControllerLanguages
 		confirm.disableProperty().bind(Bindings.createBooleanBinding(() -> languageTable.getSelectionModel().isEmpty(), languageTable.getSelectionModel().selectedIndexProperty()));
 
 		confirm.setOnAction(event ->
-				ARML.core().getProfileManager().selecting().getGameSetting(ARML.core().getProfileSettingManager().getSettingMinecraft())
-						.map(setting -> setting.getOption(ARML.core().getProfileSettingManager().getSettingMinecraft().getLanguage()))
-						.ifPresent(property -> property.setValue(languageTable.getSelectionModel().getSelectedItem().getId())));
-		ARML.core().getProfileManager().selectedProfileProperty().addListener((observable, oldV, newV) ->
-		{
-			LaunchProfileManager profileManager = ARML.core().getProfileManager();
-			profileManager.getProfile(oldV).ifPresent(profile -> profile.versionBinding().removeListener(listener));
-			profileManager.getProfile(newV).ifPresent(profile -> profile.versionBinding().addListener(listener));
-			refresh();
-		});
+				Shell.instance().getProfileProxy().getGameSettings().getOptionMap().get("lang")
+						.setValue(languageTable.getSelectionModel().getSelectedItem().getId()));
 		useUnicode.getProperties().put("lang", resources);
 		useUnicode.setPropertyBinding(Bindings.createObjectBinding(() ->
 				{
-					Setting set = ensureSetting(ARML.core().getProfileManager().selecting());
-					return (SettingProperty.Limited<Boolean>) set.getOption(ARML.core().getProfileSettingManager()
+					GameSettings.Option option = Shell.instance().getProfileProxy().getGameSettings().getOptionMap().get("forceUnicodeFont");
+					return set.getOption(ARML.core().getProfileSettingManager()
 							.getSettingMinecraft().getForceUnicode());
 				}
 				, ARML.core().getProfileManager().selectedProfileProperty()));
 
 		refresh();
-	}
-
-	private Setting ensureSetting(LaunchProfile profile)
-	{
-		Optional<Setting> optional = profile.getGameSetting(ARML.core().getProfileSettingManager().getSettingMinecraft());
-		Setting setting;
-		if (!optional.isPresent())
-			profile.addGameSetting(setting = ARML.core().getProfileSettingManager().getSettingMinecraft().defaultInstance());// force the minecraft// setting exist
-		else setting = optional.get();
-		return setting;
 	}
 }

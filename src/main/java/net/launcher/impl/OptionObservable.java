@@ -39,4 +39,10 @@ public class OptionObservable implements GameSettings.Option
 	{
 		return null;
 	}
+
+	@Override
+	public boolean nextValue()
+	{
+		return false;
+	}
 }

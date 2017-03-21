@@ -76,5 +76,7 @@ public interface GameSettings
 		Object getValue();
 
 		String getStringValue();
+
+		boolean nextValue();
 	}
 }
