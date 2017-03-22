@@ -7,6 +7,7 @@ import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.cells.editors.TextFieldEditorBuilder;
 import com.jfoenix.controls.cells.editors.base.GenericEditableTableCell;
 import javafx.beans.binding.Bindings;
+import javafx.collections.FXCollections;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.control.ComboBoxBase;
@@ -33,17 +34,11 @@ public class ControllerProfileChooserPane
 	public void initialize(ComboBoxBase<LaunchProfile> selector)
 	{
 		this.selector = selector;
-		FilteredList<LaunchProfile> filteredList =
-				new FilteredList<>(ARML.core().getProfileManager().getAllProfiles());
-		filteredList.predicateProperty().bind(Bindings.createObjectBinding(() -> (profile) ->
+		this.selector.showingProperty().addListener(observable ->
 		{
-			String text = filter.getText();
-			return text == null || text.equals("") || profile.getDisplayName().contains(text);
-		}, filter.textProperty()));
-		SortedList<LaunchProfile> sortedList = new SortedList<>(filteredList);
-		sortedList.comparatorProperty().bind(profileTable.comparatorProperty());
-		profileTable.setItems(sortedList);
-
+			if (this.selector.isShowing()) onShow();
+			else onHide();
+		});
 		profileTable.getSelectionModel().selectedIndexProperty().addListener(observable ->
 		{
 			if (profileTable.getSelectionModel().getSelectedItem() == null) return;
@@ -61,14 +56,12 @@ public class ControllerProfileChooserPane
 				return "No Value";
 			}, profileTable.getSelectionModel().getSelectedItem().versionProperty()));
 		});
-		profileTable.getSelectionModel().select(0);
 		name.setCellFactory(param -> new GenericEditableTableCell<>(new TextFieldEditorBuilder()
 		{
 			@Override
 			public void validateValue() throws Exception
 			{
 				String value = getValue();
-				System.out.println("   " + value);
 				if (value == null || value.equals(""))
 					throw new IllegalArgumentException("Value cannot be null");
 				boolean valid = false;
@@ -89,6 +82,23 @@ public class ControllerProfileChooserPane
 			return version;
 		}, param.getValue().versionProperty()));
 	}
+
+	private void onShow()
+	{
+		FilteredList<LaunchProfile> filteredList =
+				new FilteredList<>(ARML.core().getProfileManager().getAllProfiles());
+		filteredList.predicateProperty().bind(Bindings.createObjectBinding(() -> (profile) ->
+		{
+			String text = filter.getText();
+			return text == null || text.equals("") || profile.getDisplayName().contains(text);
+		}, filter.textProperty()));
+		SortedList<LaunchProfile> sortedList = new SortedList<>(filteredList);
+		sortedList.comparatorProperty().bind(profileTable.comparatorProperty());
+		profileTable.setItems(sortedList);
+		profileTable.getSelectionModel().select(0);
+	}
+
+	private void onHide() {profileTable.setItems(FXCollections.emptyObservableList());}
 
 	public void add()
 	{
