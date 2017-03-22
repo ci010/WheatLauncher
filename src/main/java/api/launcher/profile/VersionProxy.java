@@ -1,8 +1,8 @@
 package api.launcher.profile;
 
+import api.launcher.version.MinecraftVersion;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.collections.ObservableMap;
-import net.launcher.model.MinecraftVersion;
 
 /**
  * @author ci010

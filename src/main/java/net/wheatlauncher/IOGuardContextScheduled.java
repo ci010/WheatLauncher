@@ -1,6 +1,5 @@
 package net.wheatlauncher;
 
-import api.launcher.ARML;
 import api.launcher.event.ModuleLoadedEvent;
 import api.launcher.io.IOGuard;
 import api.launcher.io.IOGuardContext;

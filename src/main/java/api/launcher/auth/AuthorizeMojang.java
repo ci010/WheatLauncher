@@ -1,7 +1,6 @@
 package api.launcher.auth;
 
 
-import net.launcher.model.Authorize;
 import net.launcher.utils.Patterns;
 import net.launcher.utils.StringUtils;
 import org.to2mbn.jmccc.auth.AuthInfo;
@@ -13,8 +12,6 @@ import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;
 import org.to2mbn.jmccc.auth.yggdrasil.core.yggdrasil.YggdrasilProfileServiceBuilder;
 
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
 
 
 /**
@@ -24,12 +21,6 @@ public class AuthorizeMojang extends YggdrasilAuthenticator implements Authorize
 {
 	private transient String account;
 	private transient String password;
-	private List<String> history;
-
-	public AuthorizeMojang()
-	{
-		this.history = new LinkedList<>();
-	}
 
 	@Override
 	public String getId()
@@ -61,12 +52,6 @@ public class AuthorizeMojang extends YggdrasilAuthenticator implements Authorize
 		else if (password.length() < 6)
 			throw new IllegalArgumentException("mojang.password.invalid");
 		this.password = password;
-	}
-
-	@Override
-	public List<String> getAccountHistory()
-	{
-		return history;
 	}
 
 	@Override
@@ -103,9 +88,7 @@ public class AuthorizeMojang extends YggdrasilAuthenticator implements Authorize
 	@Override
 	public synchronized AuthInfo auth() throws AuthenticationException
 	{
-		AuthInfo auth = super.auth();
-		history.add(0, getAccount());
-		return auth;
+		return super.auth();
 	}
 
 	@Override

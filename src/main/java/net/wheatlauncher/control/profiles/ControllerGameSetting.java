@@ -1,6 +1,5 @@
 package net.wheatlauncher.control.profiles;
 
-import api.launcher.ARML;
 import api.launcher.LaunchProfile;
 import api.launcher.setting.*;
 import com.jfoenix.controls.JFXSlider;

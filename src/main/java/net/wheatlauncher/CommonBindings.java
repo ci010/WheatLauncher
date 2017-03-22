@@ -1,6 +1,5 @@
 package net.wheatlauncher;
 
-import api.launcher.ARML;
 import api.launcher.event.ProfileEvent;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;

@@ -1,6 +1,5 @@
 package net.launcher.auth;
 
-import api.launcher.AuthManager;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;

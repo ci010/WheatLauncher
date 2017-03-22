@@ -1,8 +1,6 @@
 package net.launcher.resourcepack;
 
-import api.launcher.ARML;
 import api.launcher.MinecraftIcons;
-import api.launcher.ResourcePackManager;
 import api.launcher.setting.SettingType;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;

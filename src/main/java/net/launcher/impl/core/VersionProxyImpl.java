@@ -1,11 +1,11 @@
 package net.launcher.impl.core;
 
 import api.launcher.profile.VersionProxy;
+import api.launcher.version.MinecraftVersion;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-import net.launcher.model.MinecraftVersion;
 
 import java.util.TreeMap;
 

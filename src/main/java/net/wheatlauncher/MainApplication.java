@@ -1,6 +1,5 @@
 package net.wheatlauncher;
 
-import api.launcher.ARML;
 import api.launcher.event.ErrorEvent;
 import api.launcher.event.LaunchEvent;
 import api.launcher.event.LauncherInitEvent;

@@ -1,4 +1,7 @@
-package net.launcher.model;
+package api.launcher.version;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 
 import java.util.Map;
 
@@ -8,12 +11,12 @@ import java.util.Map;
 public class MinecraftVersionBase implements MinecraftVersion
 {
 	private String versionId;
-	private Map<String, String> metaData;
+	private ObservableMap<String, String> metaData;
 
 	public MinecraftVersionBase(String versionId, Map<String, String> metaData)
 	{
 		this.versionId = versionId;
-		this.metaData = metaData;
+		this.metaData = FXCollections.observableMap(metaData);
 	}
 
 	@Override
@@ -23,7 +26,7 @@ public class MinecraftVersionBase implements MinecraftVersion
 	}
 
 	@Override
-	public Map<String, String> getMetadata()
+	public ObservableMap<String, String> getMetadata()
 	{
 		return metaData;
 	}

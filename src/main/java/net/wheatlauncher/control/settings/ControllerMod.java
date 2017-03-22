@@ -1,6 +1,5 @@
 package net.wheatlauncher.control.settings;
 
-import api.launcher.ARML;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXListCell;
 import com.jfoenix.controls.JFXListView;

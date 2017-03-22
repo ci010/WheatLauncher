@@ -1,12 +1,15 @@
 package net.launcher.impl.core;
 
 import api.launcher.*;
+import api.launcher.auth.Authorize;
 import api.launcher.auth.AuthorizeMojang;
 import api.launcher.auth.AuthorizeProxy;
 import api.launcher.event.RegisterAuthEvent;
 import api.launcher.module.ComponentProvider;
 import api.launcher.module.GlobalModule;
 import api.launcher.module.InstanceProvider;
+import api.launcher.profile.Profile;
+import api.launcher.profile.ProfileBase;
 import api.launcher.profile.ProfileProxy;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -14,9 +17,6 @@ import javafx.concurrent.Task;
 import javafx.scene.image.Image;
 import javafx.util.Pair;
 import moe.mickey.minecraft.skin.fx.SkinCanvas;
-import net.launcher.model.Authorize;
-import net.launcher.model.Profile;
-import net.launcher.model.ProfileBase;
 import net.launcher.utils.Tasks;
 import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;

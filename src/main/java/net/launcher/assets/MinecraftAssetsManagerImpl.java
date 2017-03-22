@@ -1,6 +1,5 @@
 package net.launcher.assets;
 
-import api.launcher.MinecraftAssetsManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;

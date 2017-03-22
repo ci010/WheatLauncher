@@ -1,5 +1,6 @@
-package net.launcher.model;
+package api.launcher.profile;
 
+import api.launcher.version.MinecraftVersion;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.WindowSize;
 

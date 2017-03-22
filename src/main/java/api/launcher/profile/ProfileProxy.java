@@ -9,7 +9,6 @@ import net.launcher.game.GameSettings;
 import net.launcher.game.Language;
 import net.launcher.game.ResourcePack;
 import net.launcher.game.mods.ModContainer;
-import net.launcher.model.Profile;
 import net.launcher.utils.resource.Resource;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.WindowSize;

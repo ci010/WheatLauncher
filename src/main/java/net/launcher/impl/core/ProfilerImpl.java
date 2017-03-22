@@ -1,12 +1,12 @@
 package net.launcher.impl.core;
 
 import api.launcher.View;
+import api.launcher.profile.Profile;
 import api.launcher.profile.ProfileProxy;
+import api.launcher.version.MinecraftVersion;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.concurrent.Task;
-import net.launcher.model.MinecraftVersion;
-import net.launcher.model.Profile;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.WindowSize;
 

@@ -1,8 +1,6 @@
 package net.launcher.mod;
 
-import api.launcher.ARML;
 import api.launcher.MinecraftIcons;
-import api.launcher.ModManager;
 import api.launcher.setting.SettingType;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;

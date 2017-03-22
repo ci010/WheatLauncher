@@ -1,13 +1,10 @@
 package net.wheatlauncher.control.mics;
 
 import api.launcher.Shell;
+import api.launcher.version.MinecraftVersion;
 import com.jfoenix.controls.*;
 import de.jensd.fx.fontawesome.Icon;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.ListProperty;
-import javafx.beans.property.SimpleListProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableMap;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.geometry.Pos;
@@ -20,13 +17,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import net.launcher.game.mods.internal.net.minecraftforge.fml.common.versioning.ComparableVersion;
-import net.launcher.model.MinecraftVersion;
 
-import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * @author ci010
@@ -52,25 +46,6 @@ public class ControllerMinecraftVersionChooserPane
 
 	private ComboBoxBase<MinecraftVersion> comboBox;
 
-	private class FXVersionWrapper implements MinecraftVersion
-	{
-		MinecraftVersion version;
-		ObservableMap<String, String> map;
-
-		FXVersionWrapper(MinecraftVersion version)
-		{
-			this.version = version;
-			this.map = FXCollections.observableMap(version.getMetadata());
-			Bindings.bindContent(version.getMetadata(), map);
-		}
-
-		@Override
-		public String getVersionId() {return version.getVersionId();}
-
-		@Override
-		public Map<String, String> getMetadata() {return map;}
-	}
-
 	public void initialize()
 	{
 		root.getChildren().remove(confirmDownload);
@@ -80,12 +55,8 @@ public class ControllerMinecraftVersionChooserPane
 	{
 		this.comboBox = picker;
 		this.outerRoot = scene;
-		ListProperty<MinecraftVersion> fxVersions = new SimpleListProperty<>();
-		fxVersions.bind(Bindings.createObjectBinding(() ->
-				FXCollections.observableList(Shell.instance().getAllVersions().stream()
-						.map(FXVersionWrapper::new).collect(Collectors.toList()))));
 
-		FilteredList<MinecraftVersion> filteredList = new FilteredList<>(fxVersions);
+		FilteredList<MinecraftVersion> filteredList = new FilteredList<>(Shell.instance().getAllVersions());
 		filteredList.predicateProperty().bind(Bindings.createObjectBinding(
 				() -> (Predicate<MinecraftVersion>) version ->
 				{

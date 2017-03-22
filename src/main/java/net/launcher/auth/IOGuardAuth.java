@@ -1,6 +1,5 @@
 package net.launcher.auth;
 
-import api.launcher.AuthManager;
 import api.launcher.io.IOGuard;
 import api.launcher.io.IOGuardContext;
 import javafx.collections.MapChangeListener;

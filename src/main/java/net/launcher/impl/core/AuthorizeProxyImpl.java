@@ -1,9 +1,9 @@
 package net.launcher.impl.core;
 
+import api.launcher.auth.Authorize;
 import api.launcher.auth.AuthorizeProxy;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
-import net.launcher.model.Authorize;
 import net.launcher.utils.StringUtils;
 import org.to2mbn.jmccc.auth.AuthInfo;
 import org.to2mbn.jmccc.auth.AuthenticationException;

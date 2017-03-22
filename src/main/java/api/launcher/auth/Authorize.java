@@ -1,4 +1,4 @@
-package net.launcher.model;
+package api.launcher.auth;
 
 import org.to2mbn.jmccc.auth.Authenticator;
 import org.to2mbn.jmccc.auth.yggdrasil.core.ProfileService;

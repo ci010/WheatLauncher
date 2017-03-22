@@ -1,6 +1,8 @@
 package net.wheatlauncher.control.mics;
 
 import api.launcher.Shell;
+import api.launcher.profile.Profile;
+import api.launcher.version.MinecraftVersion;
 import com.jfoenix.controls.JFXTableView;
 import com.jfoenix.controls.JFXTextField;
 import com.jfoenix.controls.cells.editors.TextFieldEditorBuilder;
@@ -11,8 +13,6 @@ import javafx.collections.transformation.SortedList;
 import javafx.scene.control.ComboBoxBase;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
-import net.launcher.model.MinecraftVersion;
-import net.launcher.model.Profile;
 import org.to2mbn.jmccc.option.JavaEnvironment;
 import org.to2mbn.jmccc.option.WindowSize;
 

@@ -1,8 +1,8 @@
 package api.launcher.event;
 
+import api.launcher.auth.Authorize;
 import javafx.event.Event;
 import javafx.event.EventType;
-import net.launcher.model.Authorize;
 
 import java.util.Map;
 import java.util.TreeMap;

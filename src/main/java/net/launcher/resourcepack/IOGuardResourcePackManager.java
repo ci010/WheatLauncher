@@ -1,7 +1,5 @@
 package net.launcher.resourcepack;
 
-import api.launcher.ARML;
-import api.launcher.ResourcePackManager;
 import api.launcher.event.LaunchEvent;
 import api.launcher.io.IOGuard;
 import javafx.concurrent.Task;
